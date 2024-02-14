@@ -1,0 +1,20 @@
+{
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "src/(.*)": "<rootDir>/../src/$1",
+    "@core/mongo/(.*)": "<rootDir>/../libs/mongo/src/$1",
+    "@core/mongo": "<rootDir>/../libs/mongo/src",
+    "@core/stripe/(.*)": "<rootDir>/../libs/stripe/src/$1",
+    "@core/stripe": "<rootDir>/../libs/stripe/src"
+  }
+}
