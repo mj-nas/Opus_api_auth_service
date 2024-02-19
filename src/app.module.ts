@@ -11,6 +11,7 @@ import { TwilioModule } from '@core/twilio';
 import { FirebaseModule } from '@core/firebase';
 import { StripeModule } from '@core/stripe';
 import { ProductsModule } from './modules/sql/products/products.module';
+import { ProductCategoryModule } from './modules/sql/product-category/product-category.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ProductsModule } from './modules/sql/products/products.module';
     CommonModule.register(),
     SqlModule.root({ seeder: true }),
     ProductsModule,
+    ProductCategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],
