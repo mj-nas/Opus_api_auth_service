@@ -7,8 +7,11 @@ import {
   Column,
   Index,
   DataType,
+  ForeignKey,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
+import { ProductCategory } from '../../product-category/entities/product-category.entity';
 
 @Table
 export class Products extends SqlModel {
@@ -32,15 +35,15 @@ export class Products extends SqlModel {
   @IsString()
   product_description: string;
 
-  @Column
+  @Column(DataTypes.FLOAT({ precision: 11, scale: 2 }))
   @Index
   @ApiProperty({
     description: 'Products Description',
-    example: 'product description',
+    example: 32.04,
   })
-  @IsString()
   product_price: number;
 
+  @ForeignKey(() => ProductCategory)
   @Column
   @Index
   @ApiProperty({
@@ -134,5 +137,6 @@ export class Products extends SqlModel {
     example: 'product rating',
   })
   product_rating?: string;
+
 
 }

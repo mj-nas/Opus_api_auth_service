@@ -2,7 +2,8 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
-import { Column, DataType, Index, Table } from 'sequelize-typescript';
+import { Column, DataType, HasMany, Index, Table } from 'sequelize-typescript';
+import { Products } from '../../products/entities/products.entity';
 
 @Table
 export class ProductCategory extends SqlModel {
@@ -58,5 +59,8 @@ export class ProductCategory extends SqlModel {
   })
   @IsString()
   status: string;
+
+  @HasMany(() => Products)
+  products: Products[];
 
 }
