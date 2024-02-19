@@ -51,7 +51,7 @@ export class Products extends SqlModel {
     example: 'product category',
   })
   @IsString()
-  product_category: string;
+  product_category: number;
 
   @Column
   @Index
@@ -137,6 +137,9 @@ export class Products extends SqlModel {
     example: 'product rating',
   })
   product_rating?: string;
+
+  @BelongsTo(() => ProductCategory)
+  productCategory: ProductCategory;
 
 
 }
