@@ -24,9 +24,7 @@ export class Products extends SqlModel {
   @IsString()
   product_name: string;
 
-  @Column({
-    type: DataType.STRING(500),
-  })
+  @Column
   @Index
   @ApiProperty({
     description: 'Products Description',
@@ -61,9 +59,7 @@ export class Products extends SqlModel {
   })
   product_image?: string;
 
-  @Column({
-    type: DataType.STRING(500),
-  })
+  @Column
   @Index
   @ApiProperty({
     description: 'Products description html',
@@ -140,6 +136,5 @@ export class Products extends SqlModel {
 
   @BelongsTo(() => ProductCategory)
   productCategory: ProductCategory;
-
 
 }

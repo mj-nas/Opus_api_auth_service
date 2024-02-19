@@ -24,9 +24,7 @@ export class ProductCategory extends SqlModel {
   })
   parent_category?: number;
 
-  @Column({
-    type: DataType.STRING(500),
-  })
+  @Column
   @Index
   @ApiProperty({
     description: 'Category description',
@@ -41,7 +39,6 @@ export class ProductCategory extends SqlModel {
     example: 'https://image',
   })
   category_image?: string;
-
 
   @Column
   @Index
