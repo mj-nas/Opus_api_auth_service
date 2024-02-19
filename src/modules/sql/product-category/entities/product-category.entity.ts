@@ -1,7 +1,7 @@
+/* eslint-disable prettier/prettier */
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
-import { DataTypes } from 'sequelize';
 import { Column, DataType, Index, Table } from 'sequelize-typescript';
 
 @Table
@@ -23,7 +23,9 @@ export class ProductCategory extends SqlModel {
   })
   parent_category?: number;
 
-  @Column(DataTypes.TEXT({ length: 'long' }))
+  @Column({
+    type: DataType.STRING(500),
+  })
   @Index
   @ApiProperty({
     description: 'Category description',
@@ -39,16 +41,16 @@ export class ProductCategory extends SqlModel {
   })
   category_image?: string;
 
-  
+
   @Column
   @Index
   @ApiProperty({
     description: 'sort',
     example: '6',
   })
-  sort:number;
+  sort: number;
 
-  @Column({type: DataType.ENUM('Y', 'N')})
+  @Column({ type: DataType.ENUM('Y', 'N') })
   @Index
   @ApiProperty({
     description: 'Y | N',

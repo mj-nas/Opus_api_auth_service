@@ -1,8 +1,14 @@
+/* eslint-disable prettier/prettier */
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
+import {
+  Table,
+  Column,
+  Index,
+  DataType,
+} from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
-import { Column, DataType, Index, Table } from 'sequelize-typescript';
 
 @Table
 export class Products extends SqlModel {
@@ -15,7 +21,9 @@ export class Products extends SqlModel {
   @IsString()
   product_name: string;
 
-  @Column(DataTypes.TEXT({ length: 'long' }))
+  @Column({
+    type: DataType.STRING(500),
+  })
   @Index
   @ApiProperty({
     description: 'Products Description',
@@ -24,7 +32,7 @@ export class Products extends SqlModel {
   @IsString()
   product_description: string;
 
-  @Column(DataTypes.FLOAT)
+  @Column
   @Index
   @ApiProperty({
     description: 'Products Description',
@@ -50,7 +58,9 @@ export class Products extends SqlModel {
   })
   product_image?: string;
 
-  @Column(DataTypes.TEXT({ length: 'long' }))
+  @Column({
+    type: DataType.STRING(500),
+  })
   @Index
   @ApiProperty({
     description: 'Products description html',
@@ -58,7 +68,7 @@ export class Products extends SqlModel {
   })
   product_description_html?: string;
 
-  @Column({type: DataType.ENUM('Y', 'N')})
+  @Column({ type: DataType.ENUM('Y', 'N') })
   @Index
   @ApiProperty({
     description: 'Y | N',
@@ -67,7 +77,7 @@ export class Products extends SqlModel {
   @IsString()
   status: string;
 
-  @Column({type: DataType.ENUM('Y', 'N')})
+  @Column({ type: DataType.ENUM('Y', 'N') })
   @Index
   @ApiProperty({
     description: 'Y | N',
@@ -76,7 +86,7 @@ export class Products extends SqlModel {
   @IsString()
   is_featured: string;
 
-  @Column({type: DataType.ENUM('Y', 'N')})
+  @Column({ type: DataType.ENUM('Y', 'N') })
   @Index
   @ApiProperty({
     description: 'Y | N',
