@@ -205,7 +205,6 @@ export class User extends SqlModel {
   })
   address?: string;
 
-  
   @Column
   @ApiProperty({
     description: 'zip_code',
@@ -254,7 +253,6 @@ export class User extends SqlModel {
     example: 'unique url',
   })
   unique_url?: string;
-
 
   @Column({ defaultValue: false })
   @ApiProperty({

@@ -10,6 +10,7 @@ import { EmailModule } from '@core/email';
 import { TwilioModule } from '@core/twilio';
 import { FirebaseModule } from '@core/firebase';
 import { StripeModule } from '@core/stripe';
+import { ProductsModule } from './modules/sql/products/products.module';
 
 @Module({
   imports: [
@@ -17,10 +18,7 @@ import { StripeModule } from '@core/stripe';
     MongoModule.root({ seeder: true }),
     CommonModule.register(),
     SqlModule.root({ seeder: true }),
-    //EmailModule,
-    //TwilioModule,
-    //FirebaseModule,
-    //StripeModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],
