@@ -170,6 +170,92 @@ export class User extends SqlModel {
     );
   }
 
+  @Column
+  @ApiProperty({
+    description: 'Title',
+    example: 'Title',
+  })
+  title?: string;
+
+  @Column
+  @ApiProperty({
+    description: 'occupation',
+    example: 'Titoccupationle',
+  })
+  occupation?: number;
+
+  @Column
+  @ApiProperty({
+    description: 'occupation',
+    example: 'Titoccupationle',
+  })
+  speciality?: number;
+
+  @Column
+  @ApiProperty({
+    description: 'occupation',
+    example: 'occupation',
+  })
+  about?: string;
+
+  @Column
+  @ApiProperty({
+    description: 'address',
+    example: 'address',
+  })
+  address?: string;
+
+  
+  @Column
+  @ApiProperty({
+    description: 'zip_code',
+    example: 'zip_code',
+  })
+  zip_code?: string;
+
+  @Column
+  @ApiProperty({
+    description: 'state',
+    example: 'state',
+  })
+  state?: string;
+
+  @Column
+  @ApiProperty({
+    description: 'city',
+    example: 'city',
+  })
+  city?: string;
+
+  @Column
+  @ApiProperty({
+    description: 'country',
+    example: 'country',
+  })
+  country?: string;
+
+  @Column
+  @ApiProperty({
+    description: 'lat',
+    example: 'lat',
+  })
+  lat?: string;
+
+  @Column
+  @ApiProperty({
+    description: 'lng',
+    example: 'lng',
+  })
+  lng?: string;
+
+  @Column
+  @ApiProperty({
+    description: 'unique url',
+    example: 'unique url',
+  })
+  unique_url?: string;
+
+
   @Column({ defaultValue: false })
   @ApiProperty({
     description: 'Enable 2FA?',
