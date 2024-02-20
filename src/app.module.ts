@@ -12,6 +12,7 @@ import { FirebaseModule } from '@core/firebase';
 import { StripeModule } from '@core/stripe';
 import { ProductsModule } from './modules/sql/products/products.module';
 import { ProductCategoryModule } from './modules/sql/product-category/product-category.module';
+import { ProductGalleryModule } from './modules/sql/product-gallery/product-gallery.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ProductCategoryModule } from './modules/sql/product-category/product-ca
     SqlModule.root({ seeder: true }),
     ProductsModule,
     ProductCategoryModule,
+    ProductGalleryModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],

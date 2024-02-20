@@ -9,9 +9,11 @@ import {
   DataType,
   ForeignKey,
   BelongsTo,
+  HasMany,
 } from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
 import { ProductCategory } from '../../product-category/entities/product-category.entity';
+import { ProductGallery } from '../../product-gallery/entities/product-gallery.entity';
 
 @Table
 export class Products extends SqlModel {
@@ -139,5 +141,8 @@ export class Products extends SqlModel {
 
   @BelongsTo(() => ProductCategory)
   productCategory: ProductCategory;
+
+  @HasMany(() =>ProductGallery )
+  productGallery: ProductGallery[];
 
 }
