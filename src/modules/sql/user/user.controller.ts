@@ -361,7 +361,7 @@ export class UserController {
   /**
    * Change password for logged in user
    */
-  @Put('password')
+  @Post('password')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Change password for logged in user' })
   @ApiOkResponse({
@@ -383,12 +383,6 @@ export class UserController {
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
 
-    console.log(req)
-
- 
-    console.log(owner)
-    console.log(changePasswordDto)
-
     const { error } = await this.userService.changePassword(
       {
         owner,
@@ -400,14 +394,14 @@ export class UserController {
       if (error instanceof NotFoundError) {
         return NotFound(res, {
           error,
-          message: `Record not found${owner}`,
+          message: `Record not found`,
         });
       }
       return ErrorResponse(res, {
         error,
-        message: `${error.message || error,owner}`,
+        message: `${error.message|| error}`,
       });
     }
-    return Result(res, { message: 'Password changed',owner });
+    return Result(res, { message: 'Password changed'});
   }
 }

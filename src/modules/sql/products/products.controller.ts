@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Body,
   Controller,
@@ -126,6 +127,9 @@ export class ProductsController {
     @Owner() owner: OwnerDto,
     @Query() query: any,
   ) {
+
+    console.log(query)
+
     const { error, data, offset, limit, count } =
       await this.productsService.findAll({
         owner,

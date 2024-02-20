@@ -22,8 +22,6 @@ export class UserService extends ModelService<User> {
     // eslint-disable-next-line prefer-const
     let { owner, payload } = job
 
-    console.log(owner,payload)
-
     const password = await generateHash(payload.password);
     if (!(await compareHash(payload.old_password, owner.password))) {
       return { error: 'Your current password is wrong. Please try again.' };
