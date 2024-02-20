@@ -78,6 +78,9 @@ export class UserController {
     @Body() createUserDto: CreateUserDto,
     @Query() query: any,
   ) {
+
+    console.log(query)
+
     const { error, data } = await this.userService.create({
       owner,
       action: 'create',
@@ -379,6 +382,13 @@ export class UserController {
     @Owner() owner: OwnerDto,
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
+
+    console.log(req)
+
+ 
+    console.log(owner)
+    console.log(changePasswordDto)
+
     const { error } = await this.userService.changePassword(
       {
         owner,
@@ -390,14 +400,14 @@ export class UserController {
       if (error instanceof NotFoundError) {
         return NotFound(res, {
           error,
-          message: `Record not found`,
+          message: `Record not found${owner}`,
         });
       }
       return ErrorResponse(res, {
         error,
-        message: `${error.message || error}`,
+        message: `${error.message || error,owner}`,
       });
     }
-    return Result(res, { message: 'Password changed' });
+    return Result(res, { message: 'Password changed',owner });
   }
 }

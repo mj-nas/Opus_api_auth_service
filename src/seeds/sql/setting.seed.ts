@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Seed } from '@core/sql/seeder/seeder.dto';
 import { Setting } from '../../modules/sql/setting/entities/setting.entity';
 
@@ -11,6 +12,14 @@ export default <Seed<Setting>>{
       value: 'value 1',
       group_id: 1,
     },
+    
+      {
+        name: 'setting_1',
+        display_name: 'Setting 1',
+        value: 'value 1',
+        group_id: 1,
+      },
+    
     {
       name: 'setting_2',
       display_name: 'Setting 2',
