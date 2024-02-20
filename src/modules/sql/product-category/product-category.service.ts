@@ -8,7 +8,7 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['name'];
+  searchFields: string[] = ['category_name'];
 
   constructor(db: SqlService<ProductCategory>) {
     super(db);
