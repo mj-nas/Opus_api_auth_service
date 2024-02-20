@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 import { Column, DataType, HasMany, Index, Table } from 'sequelize-typescript';
 import { Products } from '../../products/entities/products.entity';
 
@@ -22,7 +22,8 @@ export class ProductCategory extends SqlModel {
     description: 'parrent categoy',
     example: 'US',
   })
-  parent_category?: number;
+  @IsOptional()
+  parent_category: number;
 
   @Column
   @Index
@@ -30,7 +31,8 @@ export class ProductCategory extends SqlModel {
     description: 'Category description',
     example: 'Category description html',
   })
-  category_description?: string;
+  @IsOptional()
+  category_description: string;
 
   @Column
   @Index
@@ -38,7 +40,8 @@ export class ProductCategory extends SqlModel {
     description: 'category image',
     example: 'https://image',
   })
-  category_image?: string;
+  @IsOptional()
+  category_image: string;
 
   @Column
   @Index

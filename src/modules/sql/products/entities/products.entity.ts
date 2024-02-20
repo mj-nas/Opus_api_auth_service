@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 import {
   Table,
   Column,
@@ -57,7 +57,8 @@ export class Products extends SqlModel {
     description: 'Products image',
     example: 'product image',
   })
-  product_image?: string;
+  @IsOptional()
+  product_image: string;
 
   @Column
   @Index
@@ -65,7 +66,8 @@ export class Products extends SqlModel {
     description: 'Products description html',
     example: 'product description html',
   })
-  product_description_html?: string;
+  @IsOptional()
+  product_description_html: string;
 
   @Column({ type: DataType.ENUM('Y', 'N') })
   @Index
@@ -132,7 +134,8 @@ export class Products extends SqlModel {
     description: 'Products rating',
     example: 'product rating',
   })
-  product_rating?: string;
+  @IsOptional()
+  product_rating: string;
 
   @BelongsTo(() => ProductCategory)
   productCategory: ProductCategory;
