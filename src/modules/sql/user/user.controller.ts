@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Body,
   Controller,
@@ -14,6 +15,7 @@ import {
   ApiBearerAuth,
   ApiConsumes,
   ApiExtraModels,
+  ApiOkResponse,
   ApiOperation,
   ApiQuery,
   ApiTags,
@@ -48,6 +50,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
+import { OwnerIncludeAttribute } from 'src/core/decorators/sql/owner-attributes.decorator';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('user')
 @ApiBearerAuth()
@@ -55,7 +59,7 @@ import { UserService } from './user.service';
 @ApiExtraModels(User)
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   /**
    * Create a new User
@@ -348,5 +352,52 @@ export class UserController {
       });
     }
     return Result(res, { data: { user: data }, message: 'Deleted' });
+  }
+
+
+  /**
+   * Change password for logged in user
+   */
+  @Put('password')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Change password for logged in user' })
+  @ApiOkResponse({
+    description: 'Success',
+    schema: {
+      properties: {
+        message: {
+          type: 'string',
+          example: 'Password changed',
+        },
+      },
+    },
+  })
+  @OwnerIncludeAttribute('password')
+  async changePassword(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    const { error } = await this.userService.changePassword(
+      {
+        owner,
+        payload: changePasswordDto,
+      }
+    );
+
+    if (!!error) {
+      if (error instanceof NotFoundError) {
+        return NotFound(res, {
+          error,
+          message: `Record not found`,
+        });
+      }
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { message: 'Password changed' });
   }
 }
