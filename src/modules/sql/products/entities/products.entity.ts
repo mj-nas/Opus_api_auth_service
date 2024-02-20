@@ -14,6 +14,7 @@ import {
 import { DataTypes } from 'sequelize';
 import { ProductCategory } from '../../product-category/entities/product-category.entity';
 import { ProductGallery } from '../../product-gallery/entities/product-gallery.entity';
+import { ProductSpecifications } from '../../product-specifications/entities/product-specifications.entity';
 
 @Table
 export class Products extends SqlModel {
@@ -26,7 +27,9 @@ export class Products extends SqlModel {
   @IsString()
   product_name: string;
 
-  @Column
+  @Column({
+    type: DataType.STRING(500),
+  })
   @Index
   @ApiProperty({
     description: 'Products Description',
@@ -48,7 +51,7 @@ export class Products extends SqlModel {
   @Index
   @ApiProperty({
     description: 'Products category',
-    example: 'product category',
+    example: 1,
   })
   @IsString()
   product_category: number;
@@ -62,7 +65,9 @@ export class Products extends SqlModel {
   @IsOptional()
   product_image: string;
 
-  @Column
+  @Column({
+    type: DataType.STRING(500),
+  })
   @Index
   @ApiProperty({
     description: 'Products description html',
@@ -142,7 +147,10 @@ export class Products extends SqlModel {
   @BelongsTo(() => ProductCategory)
   productCategory: ProductCategory;
 
-  @HasMany(() =>ProductGallery )
+  @HasMany(() => ProductGallery)
   productGallery: ProductGallery[];
+
+  @HasMany(() => ProductSpecifications)
+  productSpecifications: ProductSpecifications[];
 
 }

@@ -25,7 +25,9 @@ export class ProductCategory extends SqlModel {
   @IsOptional()
   parent_category: number;
 
-  @Column
+  @Column({
+    type: DataType.STRING(500),
+  })
   @Index
   @ApiProperty({
     description: 'Category description',

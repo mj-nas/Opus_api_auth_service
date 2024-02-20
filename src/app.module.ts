@@ -13,6 +13,7 @@ import { StripeModule } from '@core/stripe';
 import { ProductsModule } from './modules/sql/products/products.module';
 import { ProductCategoryModule } from './modules/sql/product-category/product-category.module';
 import { ProductGalleryModule } from './modules/sql/product-gallery/product-gallery.module';
+import { ProductSpecificationsModule } from './modules/sql/product-specifications/product-specifications.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ProductGalleryModule } from './modules/sql/product-gallery/product-gall
     ProductsModule,
     ProductCategoryModule,
     ProductGalleryModule,
+    ProductSpecificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],

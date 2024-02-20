@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Seed } from '@core/sql/seeder/seeder.dto';
 import { User } from '../../modules/sql/user/entities/user.entity';
 
