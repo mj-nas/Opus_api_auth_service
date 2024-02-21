@@ -17,7 +17,7 @@ export default registerAs(
       },
     },
     defaults: {
-      from: `"NewAgeSMB" <${process.env.SMTP_USER}>`,
+      from: `"OPUS" <${process.env.SMTP_USER}>`,
     },
   }),
 );

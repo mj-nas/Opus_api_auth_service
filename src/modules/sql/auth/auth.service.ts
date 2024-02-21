@@ -245,9 +245,10 @@ export class AuthService {
       },
     });
     // TODO: send a email/sms notification
+    console.log("🚀 ~ AuthService ~ forgotOtp ~ data:", data)
 
 
-    const tst = await this.notificationService.send(new Job(
+    const tst = await this.notificationService.send(
       {
         action: 'send',
         payload: {
@@ -258,9 +259,10 @@ export class AuthService {
           },
         },
       }
-    ))
+    )
+    // console.log("🚀 ~ AuthService ~ forgotOtp ~ tst:", tst)
 
-    console.log(tst)
+
 
 
     //  await this.msClient.executeJob(
