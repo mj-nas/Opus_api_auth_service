@@ -10,12 +10,15 @@ export class MsClientService {
     private readonly jobLogService: JobLogService,
   ) {}
 
+
   async executeJob(queue: string, job: Job): Promise<JobResponse> {
+    console.log({queue,job})
     try {
       if (job.logging !== false) {
         const { error, data } = await this.jobLogService.create({
           body: { ...JSON.parse(JSON.stringify(job)), queue },
         });
+        console.log({error,data})
         if (error) throw error;
         job.uid = data._id.toString();
         this.client.emit(queue, job);
@@ -25,6 +28,8 @@ export class MsClientService {
         return { data: job };
       }
     } catch (error) {
+      console.log(error)
+
       return { error };
     }
   }

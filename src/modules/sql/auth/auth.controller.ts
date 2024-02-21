@@ -166,7 +166,6 @@ export class AuthController {
       });
     }
 
-    console.log(forgotOtp)
 
     return Result(res, {
       data: { session_id: forgotOtp.data._id },

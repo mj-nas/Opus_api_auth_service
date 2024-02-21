@@ -16,9 +16,11 @@ export class NotificationController {
    */
   @MsListener('controller.notification')
   async execute(job: Job): Promise<void> {
+    console.log('controller.notification ===============>>>>')
     const response = await this.notificationService[job.action]<JobResponse>(
       new Job(job),
     );
-    await this.client.jobDone(job, response);
+   const jobDones = await this.client.jobDone(job, response);
+   console.log(jobDones)
   }
 }

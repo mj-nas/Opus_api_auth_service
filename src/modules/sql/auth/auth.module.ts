@@ -10,6 +10,7 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt/jwt.strategy';
 import { TokenStrategy } from './strategies/token/token.strategy';
 import { MsClientModule } from 'src/core/modules/ms-client/ms-client.module';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { MsClientModule } from 'src/core/modules/ms-client/ms-client.module';
     OtpSessionModule,
     UserModule,
     CachingModule,
-    MsClientModule
+    MsClientModule,
+    NotificationModule
   ],
   providers: [AuthService, JwtStrategy, TokenStrategy],
   controllers: [AuthController],

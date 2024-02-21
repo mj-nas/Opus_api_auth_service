@@ -10,5 +10,6 @@ import { NotificationService } from './notification.service';
   imports: [MsClientModule, TemplateModule, UserModule, ConfigModule],
   controllers: [NotificationController],
   providers: [NotificationService],
+  exports:[NotificationService]
 })
 export class NotificationModule {}

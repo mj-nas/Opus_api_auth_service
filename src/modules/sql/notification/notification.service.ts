@@ -35,6 +35,7 @@ export class NotificationService {
    * @return {JobResponse}
    */
   async send(job: Job): Promise<JobResponse> {
+    console.log('notification',job)
     const payload = job.payload;
     const getTemplate = await this.templateService.$db.findOneRecord({
       options: {
@@ -85,6 +86,7 @@ export class NotificationService {
       }
 
       users.push(getUser.data.toJSON());
+      console.log(users)
     }
 
     if (!!payload.user_where) {
