@@ -243,7 +243,19 @@ export class AuthService {
       },
     });
     // TODO: send a email/sms notification
-    await this.adminForgotOtp(user)
+    await this.msClient.executeJob(
+      'controller.notification',
+      {
+        action: 'send',
+        payload: {
+          user_id: user.id,
+          template: 'forgot_password',
+          variables: {
+            OTP: data.otp
+          },
+        },
+      }
+    );
     return { error, data };
   }
 
@@ -342,31 +354,5 @@ export class AuthService {
 
 
 
-  async adminForgotOtp(user: User): Promise<JobResponse> {
-    const { error, data } = await this.otpSessionService.$db.createRecord(
-      {
-        body: {
-          user_id: user.id,
-          otp: otp(),
-          type: OtpSessionType.Forgot,
-          expire_at: moment().add(15, 'minutes').toDate(),
-        },
-      }
-    );
 
-    await this.msClient.executeJob(
-      'controller.notification',
-      {
-        action: 'send',
-        payload: {
-          user_id: user.id,
-          template: 'forgot_password',
-          variables: {
-            OTP: data.otp
-          },
-        },
-      }
-    );
-    return { error, data };
-  }
 }
