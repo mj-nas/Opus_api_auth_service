@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   Res,
 } from '@nestjs/common';
 import {
@@ -43,6 +44,9 @@ import { ProductGalleryService } from './product-gallery.service';
 import { CreateProductGalleryDto } from './dto/create-product-gallery.dto';
 import { UpdateProductGalleryDto } from './dto/update-product-gallery.dto';
 import { ProductGallery } from './entities/product-gallery.entity';
+import { CreatePresignedUrl } from './dto/create-presigned-url.dto';
+import { Public } from 'src/core/decorators/public.decorator';
+
 
 const entity = snakeCase(ProductGallery.name);
 
@@ -52,7 +56,10 @@ const entity = snakeCase(ProductGallery.name);
 @ApiExtraModels(ProductGallery)
 @Controller(entity)
 export class ProductGalleryController {
-  constructor(private readonly productGalleryService: ProductGalleryService) {}
+  constructor(
+    private readonly productGalleryService: ProductGalleryService,
+
+  ) { }
 
   /**
    * Create a new entity document
@@ -276,5 +283,24 @@ export class ProductGalleryController {
       });
     }
     return Result(res, { data: { [entity]: data }, message: 'Deleted' });
+  }
+
+  @Post('presigned-url')
+  @Public()
+  @ApiOperation({ summary: 'To create presigned url for s3' })
+  async putObject(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Body() createPresignedUrl: CreatePresignedUrl
+  ) {
+    //createPresignedUrl.key,
+    const operation = 'putObject'; // Change this according to your use case
+    const bucketName = 'opus-dev-s3';
+    const key = createPresignedUrl.key // Object key
+    const expiresIn = 3600; // URL expiration time in seconds
+
+    return this.productGalleryService.generatePresignedUrl(operation, bucketName, key, expiresIn);
+
   }
 }
