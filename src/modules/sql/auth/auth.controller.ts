@@ -165,6 +165,9 @@ export class AuthController {
         message: `${forgotOtp.error.message || forgotOtp.error}`,
       });
     }
+
+    console.log(forgotOtp)
+
     return Result(res, {
       data: { session_id: forgotOtp.data._id },
       message: 'OTP sent',

@@ -53,13 +53,13 @@ export class ProductCategory extends SqlModel {
   })
   sort: number;
 
-  @Column({ type: DataType.ENUM('Y', 'N') })
+  @Column({ type: DataType.ENUM('Y', 'N'), defaultValue: 'Y' })
   @Index
   @ApiProperty({
     description: 'Y | N',
     example: 'Y',
   })
-  @IsString()
+  @IsOptional()
   status: string;
 
   @HasMany(() => Products)
