@@ -139,14 +139,13 @@ export class Products extends SqlModel {
   @Index
   @ApiProperty({
     description: 'Products rating',
-    example: 'product rating',
+    example: 1,
   })
   @IsOptional()
-  product_rating: string;
+  product_rating:number;
 
   @BelongsTo(() => ProductCategory)
   productCategory: ProductCategory;
-
   @HasMany(() => ProductGallery)
   productGallery: ProductGallery[];
 
