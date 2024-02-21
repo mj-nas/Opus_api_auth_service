@@ -17,6 +17,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { TokenAuthDto } from './strategies/token/token-auth.dto';
+import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 
 export interface AuthResponse {
   error?: any;
@@ -31,6 +32,7 @@ export class AuthService {
     private loginLogService: LoginLogService,
     private otpSessionService: OtpSessionService,
     private _cache: CachingService,
+    private msClient:MsClientService
   ) {}
 
   async createSession(owner: OwnerDto, info: any): Promise<any> {
@@ -241,6 +243,7 @@ export class AuthService {
       },
     });
     // TODO: send a email/sms notification
+    await this.adminForgotOtp(user)
     return { error, data };
   }
 
@@ -333,5 +336,37 @@ export class AuthService {
       id: body.session_id,
     });
     return { error: false };
+  }
+
+
+
+
+
+  async adminForgotOtp(user: User): Promise<JobResponse> {
+    const { error, data } = await this.otpSessionService.$db.createRecord(
+      {
+        body: {
+          user_id: user.id,
+          otp: otp(),
+          type: OtpSessionType.Forgot,
+          expire_at: moment().add(15, 'minutes').toDate(),
+        },
+      }
+    );
+
+    await this.msClient.executeJob(
+      'controller.notification',
+      {
+        action: 'send',
+        payload: {
+          user_id: user.id,
+          template: 'forgot_password',
+          variables: {
+            OTP: data.otp
+          },
+        },
+      }
+    );
+    return { error, data };
   }
 }
