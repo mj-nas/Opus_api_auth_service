@@ -31,6 +31,7 @@ import {
   ResponseGetOne,
   ResponseUpdated,
 } from 'src/core/core.decorators';
+import { Job, JobResponse } from 'src/core/core.job';
 import { NotFoundError } from 'src/core/core.errors';
 import {
   Created,
