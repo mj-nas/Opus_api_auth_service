@@ -300,7 +300,7 @@ export class ProductGalleryController {
         payload: {
           operation: 'putObject',
           params: {
-            Bucket: 'car-upbucket',
+            Bucket: 'opus-dev-s3',
             Key: createPresignedUrl.key,
             Expires: 60 * 60 * 36,
           },
