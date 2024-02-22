@@ -285,6 +285,7 @@ export class ProductGalleryController {
     return Result(res, { data: { [entity]: data }, message: 'Deleted' });
   }
 
+ 
   @Post('presigned-url')
   @Public()
   @ApiOperation({ summary: 'To create presigned url for s3' })
@@ -294,13 +295,23 @@ export class ProductGalleryController {
     @Owner() owner: OwnerDto,
     @Body() createPresignedUrl: CreatePresignedUrl
   ) {
-    //createPresignedUrl.key,
-    const operation = 'putObject'; // Change this according to your use case
-    const bucketName = 'opus-dev-s3';
-    const key = createPresignedUrl.key // Object key
-    const expiresIn = 3600; // URL expiration time in seconds
+    const signed_image_url = await this.productGalleryService.getSignedURL(
+      new Job({
+        payload: {
+          operation: 'putObject',
+          params: {
+            Bucket: 'car-upbucket',
+            Key: createPresignedUrl.key,
+            Expires: 60 * 60 * 36,
+          },
+        },
+      })
+    );
 
-    return this.productGalleryService.generatePresignedUrl(operation, bucketName, key, expiresIn);
-
+    return Result(res, {
+      data: { signed_url: signed_image_url.data },
+      message: 'Ok',
+    });
   }
+
 }

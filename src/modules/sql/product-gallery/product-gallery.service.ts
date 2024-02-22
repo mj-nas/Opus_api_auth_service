@@ -21,21 +21,14 @@ export class ProductGalleryService extends ModelService<ProductGallery> {
     
   }
 
-  async generatePresignedUrl(operation: string, bucketName: string, key: string, expiresIn: number): Promise<string> {
-    const params = {
-      Bucket: bucketName,
-      Key: key,
-      Expires: expiresIn,
-    };
 
-    return new Promise<string>((resolve, reject) => {
-      this.s3.getSignedUrl(operation, params, (err, url) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(url);
-        }
-      });
-    });
+  async getSignedURL(job: Job) {
+    try {
+      const data = await this.s3.getSignedUrlPromise(job.payload.operation, job.payload.params);
+      return { data };
+    } catch (error) {
+      return { error };
+    }
   }
+
 }

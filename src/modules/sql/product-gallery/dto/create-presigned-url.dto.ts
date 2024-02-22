@@ -2,7 +2,7 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { ProductGallery } from '../entities/product-gallery.entity';
 
-export class CreatePresignedUrl extends OmitType(ProductGallery, ['active',]) {
+export class CreatePresignedUrl extends OmitType(ProductGallery, ['active','product_id','product_image','is_primary']) {
   
   @ApiProperty({
     description: 'key for creating presigned url',
