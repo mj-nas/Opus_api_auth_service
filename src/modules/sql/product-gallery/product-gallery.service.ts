@@ -2,7 +2,6 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ModelService, SqlService } from '@core/sql';
 import { Injectable } from '@nestjs/common';
-import * as AWS from 'aws-sdk';
 import { Job } from 'src/core/core.job';
 import { ProductGallery } from './entities/product-gallery.entity';
 
@@ -13,11 +12,9 @@ export class ProductGalleryService extends ModelService<ProductGallery> {
    * @property array of fields to include in search
    */
   searchFields: string[] = ['name'];
-  private readonly s3: AWS.S3;
 
   constructor(db: SqlService<ProductGallery>) {
     super(db);
-    this.s3 = new AWS.S3();
   }
 
   async getSignedURL(job: Job) {
@@ -28,21 +25,11 @@ export class ProductGalleryService extends ModelService<ProductGallery> {
         Bucket,
         Key,
       });
+      const signedUrl = getSignedUrl(client, command, { expiresIn: Expires });
+      console.log({ signedUrl });
       return {
-        signedUrl: getSignedUrl(client, command, { expiresIn: Expires }),
+        signedUrl,
       };
-    } catch (error) {
-      return { error };
-    }
-  }
-
-  async getSignedURL1(job: Job) {
-    try {
-      const data = await this.s3.getSignedUrlPromise(
-        job.payload.operation,
-        job.payload.params,
-      );
-      return { data };
     } catch (error) {
       return { error };
     }
