@@ -4,6 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { DataTypes } from 'sequelize';
 import {
+  BeforeCreate,
   BelongsTo,
   Column,
   DataType,
@@ -12,12 +13,21 @@ import {
   Index,
   Table,
 } from 'sequelize-typescript';
+import { slugify } from 'src/core/core.utils';
 import { ProductCategory } from '../../product-category/entities/product-category.entity';
 import { ProductGallery } from '../../product-gallery/entities/product-gallery.entity';
 import { ProductSpecifications } from '../../product-specifications/entities/product-specifications.entity';
 
 @Table
 export class Products extends SqlModel {
+  @Column({ unique: true })
+  @ApiProperty({
+    description: 'Slug',
+    example: 'product-slug',
+    readOnly: true,
+  })
+  slug: string;
+
   @Column
   @Index
   @ApiProperty({
@@ -156,4 +166,20 @@ export class Products extends SqlModel {
 
   @HasMany(() => ProductSpecifications)
   productSpecifications: ProductSpecifications[];
+
+  @BeforeCreate
+  static async setUuid(instance: Products) {
+    const slug = slugify(instance.product_name);
+
+    // Check if the generated slug already exists in the database
+    let uniqueSlug = slug;
+    let num = 2;
+    while (await Products.findOne({ where: { slug: uniqueSlug } })) {
+      uniqueSlug = `${slug}-${num}`;
+      num++;
+    }
+
+    // Assign the unique slug to the instance
+    instance.slug = uniqueSlug;
+  }
 }

@@ -1,7 +1,14 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
-import { Column, DataType, ForeignKey, BelongsTo, Index, Table } from 'sequelize-typescript';
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  Index,
+  Table,
+} from 'sequelize-typescript';
 import { Products } from '../../products/entities/products.entity';
 
 @Table
@@ -34,7 +41,7 @@ export class ProductSpecifications extends SqlModel {
     example: 'specification',
   })
   @IsString()
-  specification_detaila: string;
+  specification_details: string;
 
   @BelongsTo(() => Products)
   products: Products;
