@@ -1,17 +1,17 @@
 /* eslint-disable prettier/prettier */
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { DataTypes } from 'sequelize';
 import {
-  Table,
+  BelongsTo,
   Column,
-  Index,
   DataType,
   ForeignKey,
-  BelongsTo,
   HasMany,
+  Index,
+  Table,
 } from 'sequelize-typescript';
-import { DataTypes } from 'sequelize';
 import { ProductCategory } from '../../product-category/entities/product-category.entity';
 import { ProductGallery } from '../../product-gallery/entities/product-gallery.entity';
 import { ProductSpecifications } from '../../product-specifications/entities/product-specifications.entity';
@@ -44,6 +44,7 @@ export class Products extends SqlModel {
     description: 'Products Description',
     example: 32.04,
   })
+  @IsNumber()
   product_price: number;
 
   @ForeignKey(() => ProductCategory)
@@ -109,6 +110,7 @@ export class Products extends SqlModel {
     description: 'Products weight',
     example: '30.02',
   })
+  @IsNumber()
   weight: number;
 
   @Column(DataTypes.FLOAT)
@@ -117,6 +119,7 @@ export class Products extends SqlModel {
     description: 'Products length',
     example: '30.02',
   })
+  @IsNumber()
   length: number;
 
   @Column(DataTypes.FLOAT)
@@ -125,6 +128,7 @@ export class Products extends SqlModel {
     description: 'Products length',
     example: '30.02',
   })
+  @IsNumber()
   width: number;
 
   @Column(DataTypes.FLOAT)
@@ -133,6 +137,7 @@ export class Products extends SqlModel {
     description: 'Products length',
     example: '30.02',
   })
+  @IsNumber()
   height: number;
 
   @Column
@@ -142,7 +147,7 @@ export class Products extends SqlModel {
     example: 1,
   })
   @IsOptional()
-  product_rating:number;
+  product_rating: number;
 
   @BelongsTo(() => ProductCategory)
   productCategory: ProductCategory;
@@ -151,5 +156,4 @@ export class Products extends SqlModel {
 
   @HasMany(() => ProductSpecifications)
   productSpecifications: ProductSpecifications[];
-
 }

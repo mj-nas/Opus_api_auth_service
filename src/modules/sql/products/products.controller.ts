@@ -40,10 +40,10 @@ import {
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
-import { ProductsService } from './products.service';
 import { CreateProductsDto } from './dto/create-products.dto';
 import { UpdateProductsDto } from './dto/update-products.dto';
 import { Products } from './entities/products.entity';
+import { ProductsService } from './products.service';
 
 const entity = snakeCase(Products.name);
 
@@ -127,9 +127,6 @@ export class ProductsController {
     @Owner() owner: OwnerDto,
     @Query() query: any,
   ) {
-
-    console.log(query)
-
     const { error, data, offset, limit, count } =
       await this.productsService.findAll({
         owner,

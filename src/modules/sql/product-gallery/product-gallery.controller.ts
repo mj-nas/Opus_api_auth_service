@@ -31,8 +31,8 @@ import {
   ResponseGetOne,
   ResponseUpdated,
 } from 'src/core/core.decorators';
-import { Job, JobResponse } from 'src/core/core.job';
 import { NotFoundError } from 'src/core/core.errors';
+import { Job } from 'src/core/core.job';
 import {
   Created,
   ErrorResponse,
@@ -40,14 +40,13 @@ import {
   Result,
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
+import { Public } from 'src/core/decorators/public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
-import { ProductGalleryService } from './product-gallery.service';
+import { CreatePresignedUrl } from './dto/create-presigned-url.dto';
 import { CreateProductGalleryDto } from './dto/create-product-gallery.dto';
 import { UpdateProductGalleryDto } from './dto/update-product-gallery.dto';
 import { ProductGallery } from './entities/product-gallery.entity';
-import { CreatePresignedUrl } from './dto/create-presigned-url.dto';
-import { Public } from 'src/core/decorators/public.decorator';
-
+import { ProductGalleryService } from './product-gallery.service';
 
 const entity = snakeCase(ProductGallery.name);
 
@@ -57,10 +56,7 @@ const entity = snakeCase(ProductGallery.name);
 @ApiExtraModels(ProductGallery)
 @Controller(entity)
 export class ProductGalleryController {
-  constructor(
-    private readonly productGalleryService: ProductGalleryService,
-
-  ) { }
+  constructor(private readonly productGalleryService: ProductGalleryService) {}
 
   /**
    * Create a new entity document
@@ -286,7 +282,6 @@ export class ProductGalleryController {
     return Result(res, { data: { [entity]: data }, message: 'Deleted' });
   }
 
- 
   @Post('presigned-url')
   @Public()
   @ApiOperation({ summary: 'To create presigned url for s3' })
@@ -294,25 +289,30 @@ export class ProductGalleryController {
     @Req() req: Request,
     @Res() res: Response,
     @Owner() owner: OwnerDto,
-    @Body() createPresignedUrl: CreatePresignedUrl
+    @Body() createPresignedUrl: CreatePresignedUrl,
   ) {
-    const signed_image_url = await this.productGalleryService.getSignedURL(
-      new Job({
-        payload: {
-          operation: 'putObject',
-          params: {
-            Bucket: 'opus-dev-s3',
-            Key: createPresignedUrl.key,
-            Expires: 60 * 60 * 36,
+    try {
+      const signed_image_url = await this.productGalleryService.getSignedURL(
+        new Job({
+          payload: {
+            operation: 'putObject',
+            params: {
+              Bucket: 'opus-dev-s3',
+              Key: createPresignedUrl.key,
+              Expires: 60 * 60 * 36,
+            },
           },
-        },
-      })
-    );
-
-    return Result(res, {
-      data: { signed_url: signed_image_url.data },
-      message: 'Ok',
-    });
+        }),
+      );
+      return Result(res, {
+        data: { signed_url: signed_image_url.data },
+        message: 'Ok',
+      });
+    } catch (error) {
+      return Result(res, {
+        error,
+        message: 'Ok',
+      });
+    }
   }
-
 }
