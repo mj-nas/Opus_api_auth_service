@@ -55,6 +55,8 @@
     }
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.521.0",
+    "@aws-sdk/s3-request-presigner": "^3.521.0",
     "@nestjs-modules/mailer": "^1.9.1",
     "@nestjs/cache-manager": "^2.1.0",
     "@nestjs/common": "^10.1.0",

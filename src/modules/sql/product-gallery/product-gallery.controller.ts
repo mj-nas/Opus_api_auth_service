@@ -291,28 +291,28 @@ export class ProductGalleryController {
     @Owner() owner: OwnerDto,
     @Body() createPresignedUrl: CreatePresignedUrl,
   ) {
-    try {
-      const signed_image_url = await this.productGalleryService.getSignedURL(
-        new Job({
-          payload: {
-            operation: 'putObject',
-            params: {
-              Bucket: 'opus-dev-s3',
-              Key: createPresignedUrl.key,
-              Expires: 60 * 60 * 36,
-            },
+    const { error, signedUrl } = await this.productGalleryService.getSignedURL(
+      new Job({
+        payload: {
+          operation: 'putObject',
+          params: {
+            Bucket: 'opus-dev-s3',
+            Key: createPresignedUrl.key,
+            Expires: 60 * 60 * 36,
+            region: 'us-east-1',
           },
-        }),
-      );
-      return Result(res, {
-        data: { signed_url: signed_image_url.data },
-        message: 'Ok',
-      });
-    } catch (error) {
-      return Result(res, {
+        },
+      }),
+    );
+    if (error) {
+      return ErrorResponse(res, {
         error,
-        message: 'Ok',
+        message: `${error.message || error}`,
       });
     }
+    return Result(res, {
+      data: { signed_url: signedUrl },
+      message: 'Ok',
+    });
   }
 }
