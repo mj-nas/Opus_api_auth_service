@@ -128,7 +128,7 @@ export class ProductCategoryController {
 
 
 
-  @Post('update-update/status')
+  @Post('update-bulk/status')
   @ApiExtraModels(BulkUpdateProductStatusDto)
   @ApiOperation({ summary: 'Update bulk status by id' })
   @ApiBody({
