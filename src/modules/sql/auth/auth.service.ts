@@ -19,6 +19,7 @@ import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { TokenAuthDto } from './strategies/token/token-auth.dto';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { NotificationService } from '../notification/notification.service';
+import { NotFoundError } from 'src/core/core.errors';
 
 export interface AuthResponse {
   error?: any;
@@ -223,6 +224,14 @@ export class AuthService {
         allowEmpty: true,
       },
     });
+
+    console.log(data, error);
+    if (error instanceof NotFoundError) {
+      return { error: 'User not found' };
+
+
+    }
+
     if (!!error) {
       return { error };
     } else if (!!data) {
