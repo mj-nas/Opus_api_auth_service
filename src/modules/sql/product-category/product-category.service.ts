@@ -19,9 +19,6 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
   constructor(db: SqlService<ProductCategory>) {
     super(db);
   }
-
-
-
   /**
    * update bulk
    * @function update array of record using primary key
