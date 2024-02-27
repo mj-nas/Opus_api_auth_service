@@ -15,6 +15,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiExtraModels,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
   getSchemaPath,
@@ -139,7 +140,28 @@ export class ProductCategoryController {
       },
     },
   })
-
+  @ApiOkResponse({
+    description: 'Updated',
+    schema: {
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            settings: {
+              type: 'array',
+              items: {
+                $ref: getSchemaPath(ProductCategory),
+              },
+            },
+          },
+        },
+        message: {
+          type: 'string',
+          example: 'Updated',
+        },
+      },
+    },
+  })
   async BulkupdateStatus(
     @Req() req: Request,
     @Res() res: Response,
@@ -161,7 +183,7 @@ export class ProductCategoryController {
         message: `${error.message || error}`,
       });
     }
-    return Result(res, { data: { settings: data }, message: 'Updated' });
+    return Result(res, { data: data , message: 'Updated' });
   }
 
   /**

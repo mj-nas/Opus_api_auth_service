@@ -43,7 +43,7 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
         id: record.id,
         body: record,
         options: {
-          fields: ['status'],
+          fields: ['sort'],
         },
       });
       productSort.push(response.data);

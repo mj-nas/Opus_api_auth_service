@@ -7,7 +7,7 @@ export class BulkUpdateProductSortDto extends PickType(ProductCategory, [
 ] as const) {
   @ApiProperty({
     format: 'int32',
-    description: 'Setting Id',
+    description: 'Id',
     example: 1,
   })
   @IsNumber()
