@@ -4,16 +4,20 @@ import {
   Delete,
   Get,
   Param,
+  ParseArrayPipe,
   Post,
   Put,
   Query,
+  Req,
   Res,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiExtraModels,
   ApiOperation,
   ApiTags,
+  getSchemaPath,
 } from '@nestjs/swagger';
 import { Response } from 'express';
 import {
@@ -43,6 +47,7 @@ import { ProductCategoryService } from './product-category.service';
 import { CreateProductCategoryDto } from './dto/create-product-category.dto';
 import { UpdateProductCategoryDto } from './dto/update-product-category.dto';
 import { ProductCategory } from './entities/product-category.entity';
+import { BulkUpdateProductStatusDto } from './dto/bulk-update-product-status';
 
 const entity = snakeCase(ProductCategory.name);
 
@@ -112,6 +117,51 @@ export class ProductCategoryController {
       });
     }
     return Result(res, { data: { [entity]: data }, message: 'Updated' });
+  }
+
+
+
+
+  /**
+   * Update an entity document by using id
+   */
+
+
+
+  @Post('update-update/status')
+  @ApiExtraModels(BulkUpdateProductStatusDto)
+  @ApiOperation({ summary: 'Update bulk status by id' })
+  @ApiBody({
+    schema: {
+      type: 'array',
+      items: {
+        $ref: getSchemaPath(BulkUpdateProductStatusDto),
+      },
+    },
+  })
+
+  async BulkupdateStatus(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Body(new ParseArrayPipe({ items: BulkUpdateProductStatusDto }))
+    bulkUpdateProductStatusDto: BulkUpdateProductStatusDto[],
+
+  ) {
+
+    const { error, data } = await this.productCategoryService.updateBulk({
+      owner,
+      action: 'updateBulk',
+      records: bulkUpdateProductStatusDto,
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { data: { settings: data }, message: 'Updated' });
   }
 
   /**
