@@ -117,11 +117,20 @@ export class Products extends SqlModel {
   @Column(DataTypes.FLOAT)
   @Index
   @ApiProperty({
-    description: 'Products weight',
+    description: 'Products width lbs',
     example: '30.02',
   })
   @IsNumber()
-  weight: number;
+  weight_lbs: number;
+
+  @Column(DataTypes.FLOAT)
+  @Index
+  @ApiProperty({
+    description: 'Products width Ounce',
+    example: '30.02',
+  })
+  @IsOptional()
+  weight_ounce: number;
 
   @Column(DataTypes.FLOAT)
   @Index

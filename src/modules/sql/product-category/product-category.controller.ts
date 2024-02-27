@@ -121,14 +121,9 @@ export class ProductCategoryController {
   }
 
 
-
-
   /**
    * Update an entity document by using id
    */
-
-
-
   @Post('bulk-update-sort')
   @ApiExtraModels(BulkUpdateProductSortDto)
   @ApiOperation({ summary: 'Update bulk sort by id' })
