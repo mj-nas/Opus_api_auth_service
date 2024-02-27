@@ -2,8 +2,8 @@ import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
 import { ProductCategory } from '../entities/product-category.entity';
 
-export class BulkUpdateProductStatusDto extends PickType(ProductCategory, [
-  'status',
+export class BulkUpdateProductSortDto extends PickType(ProductCategory, [
+  'sort',
 ] as const) {
   @ApiProperty({
     format: 'int32',

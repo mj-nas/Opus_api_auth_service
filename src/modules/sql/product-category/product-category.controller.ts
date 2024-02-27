@@ -47,7 +47,7 @@ import { ProductCategoryService } from './product-category.service';
 import { CreateProductCategoryDto } from './dto/create-product-category.dto';
 import { UpdateProductCategoryDto } from './dto/update-product-category.dto';
 import { ProductCategory } from './entities/product-category.entity';
-import { BulkUpdateProductStatusDto } from './dto/bulk-update-product-status';
+import { BulkUpdateProductSortDto } from './dto/bulk-update-product-sort';
 
 const entity = snakeCase(ProductCategory.name);
 
@@ -128,14 +128,14 @@ export class ProductCategoryController {
 
 
 
-  @Post('update-bulk/status')
-  @ApiExtraModels(BulkUpdateProductStatusDto)
-  @ApiOperation({ summary: 'Update bulk status by id' })
+  @Post('bulk-update-sort')
+  @ApiExtraModels(BulkUpdateProductSortDto)
+  @ApiOperation({ summary: 'Update bulk sort by id' })
   @ApiBody({
     schema: {
       type: 'array',
       items: {
-        $ref: getSchemaPath(BulkUpdateProductStatusDto),
+        $ref: getSchemaPath(BulkUpdateProductSortDto),
       },
     },
   })
@@ -144,15 +144,15 @@ export class ProductCategoryController {
     @Req() req: Request,
     @Res() res: Response,
     @Owner() owner: OwnerDto,
-    @Body(new ParseArrayPipe({ items: BulkUpdateProductStatusDto }))
-    bulkUpdateProductStatusDto: BulkUpdateProductStatusDto[],
+    @Body(new ParseArrayPipe({ items: BulkUpdateProductSortDto }))
+    bulkUpdateProductSortDto: BulkUpdateProductSortDto[],
 
   ) {
 
     const { error, data } = await this.productCategoryService.updateBulk({
       owner,
       action: 'updateBulk',
-      records: bulkUpdateProductStatusDto,
+      records: bulkUpdateProductSortDto,
     });
 
     if (error) {

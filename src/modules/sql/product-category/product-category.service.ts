@@ -34,7 +34,7 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
     if (!isArray(job.records) || !job.records.length) {
       return { error: 'Records missing' };
     }
-    const productStatus: ModelWrap<ProductCategory>[] = [];
+    const productSort: ModelWrap<ProductCategory>[] = [];
     for (let index = 0; index < job.records.length; index++) {
       const record = job.records[index];
       const response = await this.update({
@@ -46,8 +46,8 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
           fields: ['status'],
         },
       });
-      productStatus.push(response.data);
+      productSort.push(response.data);
     }
-    return { data: productStatus };
+    return { data: productSort };
   }
 }
