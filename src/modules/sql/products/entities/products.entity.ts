@@ -57,6 +57,15 @@ export class Products extends SqlModel {
   @IsNumber()
   product_price: number;
 
+  @Column(DataTypes.FLOAT({ precision: 11, scale: 2 }))
+  @Index
+  @ApiProperty({
+    description: 'Products Description',
+    example: 32.04,
+  })
+  @IsNumber()
+  wholesale_price: number;
+
   @ForeignKey(() => ProductCategory)
   @Column
   @Index
