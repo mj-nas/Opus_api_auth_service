@@ -20,6 +20,7 @@ import { ProductSpecifications } from '../../product-specifications/entities/pro
 
 @Table
 export class Products extends SqlModel {
+  @Index
   @Column({ unique: true })
   @ApiProperty({
     description: 'Slug',
@@ -29,7 +30,6 @@ export class Products extends SqlModel {
   slug: string;
 
   @Column
-  @Index
   @ApiProperty({
     description: 'Products name',
     example: 'product name',
@@ -40,7 +40,6 @@ export class Products extends SqlModel {
   @Column({
     type: DataType.STRING(500),
   })
-  @Index
   @ApiProperty({
     description: 'Products Description',
     example: 'product description',
@@ -49,7 +48,6 @@ export class Products extends SqlModel {
   product_description: string;
 
   @Column(DataTypes.FLOAT({ precision: 11, scale: 2 }))
-  @Index
   @ApiProperty({
     description: 'Products Description',
     example: 32.04,
@@ -58,7 +56,6 @@ export class Products extends SqlModel {
   product_price: number;
 
   @Column(DataTypes.FLOAT({ precision: 11, scale: 2 }))
-  @Index
   @ApiProperty({
     description: 'Products Description',
     example: 32.04,
@@ -68,7 +65,6 @@ export class Products extends SqlModel {
 
   @ForeignKey(() => ProductCategory)
   @Column
-  @Index
   @ApiProperty({
     description: 'Products category',
     example: 1,
@@ -77,7 +73,6 @@ export class Products extends SqlModel {
   product_category: number;
 
   @Column
-  @Index
   @ApiProperty({
     description: 'Products image',
     example: 'product image',
@@ -88,7 +83,6 @@ export class Products extends SqlModel {
   @Column({
     type: DataType.STRING(500),
   })
-  @Index
   @ApiProperty({
     description: 'Products description html',
     example: 'product description html',
@@ -97,7 +91,6 @@ export class Products extends SqlModel {
   product_description_html: string;
 
   @Column({ type: DataType.ENUM('Y', 'N') })
-  @Index
   @ApiProperty({
     description: 'Y | N',
     example: 'Y',
@@ -106,7 +99,6 @@ export class Products extends SqlModel {
   status: string;
 
   @Column({ type: DataType.ENUM('Y', 'N') })
-  @Index
   @ApiProperty({
     description: 'Y | N',
     example: 'Y',
@@ -115,7 +107,6 @@ export class Products extends SqlModel {
   is_featured: string;
 
   @Column({ type: DataType.ENUM('Y', 'N') })
-  @Index
   @ApiProperty({
     description: 'Y | N',
     example: 'Y',
@@ -124,7 +115,6 @@ export class Products extends SqlModel {
   is_veg: string;
 
   @Column(DataTypes.FLOAT)
-  @Index
   @ApiProperty({
     description: 'Products width lbs',
     example: '30.02',
@@ -133,7 +123,6 @@ export class Products extends SqlModel {
   weight_lbs: number;
 
   @Column(DataTypes.FLOAT)
-  @Index
   @ApiProperty({
     description: 'Products width Ounce',
     example: '30.02',
@@ -142,7 +131,6 @@ export class Products extends SqlModel {
   weight_ounce: number;
 
   @Column(DataTypes.FLOAT)
-  @Index
   @ApiProperty({
     description: 'Products length',
     example: '30.02',
@@ -151,7 +139,6 @@ export class Products extends SqlModel {
   length: number;
 
   @Column(DataTypes.FLOAT)
-  @Index
   @ApiProperty({
     description: 'Products length',
     example: '30.02',
@@ -160,7 +147,6 @@ export class Products extends SqlModel {
   width: number;
 
   @Column(DataTypes.FLOAT)
-  @Index
   @ApiProperty({
     description: 'Products length',
     example: '30.02',
@@ -169,7 +155,6 @@ export class Products extends SqlModel {
   height: number;
 
   @Column
-  @Index
   @ApiProperty({
     description: 'Products rating',
     example: 1,
