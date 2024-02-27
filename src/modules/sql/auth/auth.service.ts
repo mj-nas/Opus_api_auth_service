@@ -313,7 +313,7 @@ export class AuthService {
       try {
         data.retry_limit--;
         await data.save();
-        return { error: 'Invalid OTP' };
+        return { error: 'Invalid Code' };
       } catch (error) {
         return { error };
       }

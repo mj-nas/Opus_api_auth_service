@@ -12,7 +12,7 @@ export class LocalAuthDto {
 
   @ApiProperty({
     description: 'Passsword',
-    example: '123456',
+    example: 'Admin@123',
   })
   @IsString()
   @MinLength(6)

@@ -139,7 +139,7 @@ export class AuthController {
         },
         message: {
           type: 'string',
-          example: 'OTP sent',
+          example: 'Code sent',
         },
       },
     },
@@ -169,7 +169,7 @@ export class AuthController {
 
     return Result(res, {
       data: { session_id: forgotOtp.data._id },
-      message: 'OTP sent',
+      message: 'Code sent',
     });
   }
 
@@ -189,7 +189,7 @@ export class AuthController {
         },
         message: {
           type: 'string',
-          example: 'OTP sent',
+          example: 'Code sent',
         },
       },
     },
@@ -218,7 +218,7 @@ export class AuthController {
         session_id: verifyOtp.data._id,
         resend_limit: verifyOtp.data.resend_limit,
       },
-      message: 'OTP sent',
+      message: 'Code sent',
     });
   }
 
@@ -279,7 +279,7 @@ export class AuthController {
     }
     return Result(res, {
       data: { session_id: verifyOtp.data._id },
-      message: 'OTP verified',
+      message: 'Code verified',
     });
   }
 
