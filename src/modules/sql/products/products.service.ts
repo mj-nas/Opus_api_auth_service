@@ -50,7 +50,7 @@ export class ProductsService extends ModelService<Products> {
         'Featured',
       ]);
 
-      const products = JSON.parse(JSON.stringify(data));
+      const products: Products[] = JSON.parse(JSON.stringify(data));
 
       await Promise.all(
         products.map(async (x, index) => {
@@ -91,6 +91,7 @@ export class ProductsService extends ModelService<Products> {
         data: {
           url: `${file_baseurl}/${filename}`,
           filename,
+          isData: !!products.length,
         },
       };
     } catch (error) {
