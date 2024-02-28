@@ -60,7 +60,7 @@ export class ProductsService extends ModelService<Products> {
             `$${x.product_price}`,
             x?.productCategory?.category_name,
             x?.product_description,
-            moment(x.created_at).tz(timezone).format('MM/DD/YYYY HH:mm A'),
+            moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
             x.status == 'Y' ? 'Active' : 'Inactive',
             x.is_featured == 'Y' ? 'Yes' : 'No',
           ]);
