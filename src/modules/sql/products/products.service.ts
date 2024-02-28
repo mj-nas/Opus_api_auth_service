@@ -94,6 +94,7 @@ export class ProductsService extends ModelService<Products> {
         },
       };
     } catch (error) {
+      console.log(error);
       return { error };
     }
   }
