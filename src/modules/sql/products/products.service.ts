@@ -79,7 +79,7 @@ export class ProductsService extends ModelService<Products> {
       ];
 
       const file_dir = config().cdnPath + '/product-excel';
-      const file_baseurl = config().cdnURL + 'product-excel';
+      const file_baseurl = config().cdnLocalURL + 'product-excel';
 
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
