@@ -59,18 +59,18 @@ export class Coupon extends SqlModel {
   @Column
   @ApiProperty({
     description: 'Coupon valid from date',
-    example: '2021-01-01T00:00:00Z',
+    example: '2021-01-01',
     type: Date,
   })
-  valid_from: Date;
+  valid_from: string;
 
   @Column
   @ApiProperty({
     description: 'Coupon valid to date',
-    example: '2021-01-01T00:00:00Z',
+    example: '2021-01-01',
     type: Date,
   })
-  valid_to: Date;
+  valid_to: string;
 
   @Column({ type: DataType.ENUM('price', 'percentage') })
   @ApiProperty({
