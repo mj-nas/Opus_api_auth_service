@@ -59,8 +59,8 @@ export class Coupon extends SqlModel {
   @Column(DataTypes.DATE)
   @ApiProperty({
     description: 'Coupon valid from date',
-    example: '2024-03-01',
-    type: Date,
+    example: '2024-03-01T00:00:00.000Z', 
+    type: String,
   })
   @IsDate()
   valid_from: Date;
@@ -68,8 +68,8 @@ export class Coupon extends SqlModel {
   @Column(DataTypes.DATE)
   @ApiProperty({
     description: 'Coupon valid to date',
-    example: '2024-03-31',
-    type: Date,
+    example: '2024-03-31T23:59:59.999Z',
+    type: String,
   })
   @IsDate()
   valid_to: Date;
