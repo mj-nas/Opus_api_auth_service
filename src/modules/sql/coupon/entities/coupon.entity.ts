@@ -62,6 +62,7 @@ export class Coupon extends SqlModel {
     example: '2021-01-01',
     type: Date,
   })
+  @IsString()
   valid_from: string;
 
   @Column
@@ -70,6 +71,7 @@ export class Coupon extends SqlModel {
     example: '2021-01-01',
     type: Date,
   })
+  @IsString()
   valid_to: string;
 
   @Column({ type: DataType.ENUM('price', 'percentage') })
