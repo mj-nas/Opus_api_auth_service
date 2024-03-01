@@ -45,7 +45,7 @@ export class Coupon extends SqlModel {
     type: Number,
   })
   @IsNumber()
-  discount_percentage: number;
+  discount: number;
 
   @Column
   @ApiProperty({
