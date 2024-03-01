@@ -8,5 +8,6 @@ import { Products } from './entities/products.entity';
   imports: [SqlModule.register(Products)],
   controllers: [ProductsController],
   providers: [ProductsService],
+  exports:[ProductsService]
 })
 export class ProductsModule {}
