@@ -171,13 +171,15 @@ export class Products extends SqlModel {
   productSpecifications: ProductSpecifications[];
 
   @BeforeCreate
-  static async setUuid(instance: Products) {
+  static async setSlug(instance: Products) {
     const slug = slugify(instance.product_name);
 
     // Check if the generated slug already exists in the database
     let uniqueSlug = slug;
     let num = 2;
-    while (await Products.findOne({ where: { slug: uniqueSlug } })) {
+    while (
+      await Products.findOne({ where: { slug: uniqueSlug }, paranoid: false })
+    ) {
       uniqueSlug = `${slug}-${num}`;
       num++;
     }

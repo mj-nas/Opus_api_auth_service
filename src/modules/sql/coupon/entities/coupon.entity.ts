@@ -1,7 +1,6 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsNumber, IsString } from 'class-validator';
-import { DataTypes } from 'sequelize';
+import { IsNumber, IsString } from 'class-validator';
 import { Column, DataType, Index, Table } from 'sequelize-typescript';
 
 @Table
@@ -32,7 +31,8 @@ export class Coupon extends SqlModel {
   @Index
   @ApiProperty({
     description: 'Coupon description',
-    example: 'This coupon offers a discount for purchases in the United States.',
+    example:
+      'This coupon offers a discount for purchases in the United States.',
     type: String,
   })
   @IsString()
