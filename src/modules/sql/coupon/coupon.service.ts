@@ -36,7 +36,7 @@ export class CouponService extends ModelService<Coupon> {
       if (error) throw error;
 
       const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Products');
+      const worksheet = workbook.addWorksheet('Coupons');
 
       worksheet.addRow([
         'Sl. No',
@@ -50,10 +50,10 @@ export class CouponService extends ModelService<Coupon> {
         'Status',
       ]);
 
-      const products: Coupon[] = JSON.parse(JSON.stringify(data));
+      const coupons: Coupon[] = JSON.parse(JSON.stringify(data));
 
       await Promise.all(
-        products.map(async (x, index) => {
+        coupons.map(async (x, index) => {
           worksheet.addRow([
             index + 1,
             x?.name,
@@ -88,14 +88,14 @@ export class CouponService extends ModelService<Coupon> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `Coupon.xlsx`;
+      const filename = `Coupons.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {
         data: {
           url: `${file_baseurl}/${filename}`,
           filename,
-          isData: !!products.length,
+          isData: !!coupons.length,
         },
       };
     } catch (error) {
