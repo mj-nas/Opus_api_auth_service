@@ -15,6 +15,7 @@ import { ProductCategoryModule } from './modules/sql/product-category/product-ca
 import { ProductGalleryModule } from './modules/sql/product-gallery/product-gallery.module';
 import { ProductSpecificationsModule } from './modules/sql/product-specifications/product-specifications.module';
 import { CouponModule } from './modules/sql/coupon/coupon.module';
+import { TestimonialsModule } from './modules/sql/testimonials/testimonials.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { CouponModule } from './modules/sql/coupon/coupon.module';
     ProductGalleryModule,
     ProductSpecificationsModule,
     CouponModule,
+    TestimonialsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],
