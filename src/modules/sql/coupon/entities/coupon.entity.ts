@@ -1,6 +1,7 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
+
 import { Column, DataType, Index, Table } from 'sequelize-typescript';
 
 @Table
@@ -38,7 +39,7 @@ export class Coupon extends SqlModel {
   @IsString()
   description: string;
 
-  @Column(DataType.Decimal)
+  @Column(DataType.DECIMAL(11, 10))
   @ApiProperty({
     description: 'Coupon discount percentage',
     example: 32.04,
