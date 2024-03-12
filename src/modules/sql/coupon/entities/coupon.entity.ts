@@ -38,7 +38,7 @@ export class Coupon extends SqlModel {
   @IsString()
   description: string;
 
-  @Column(DataType.FLOAT({ precision: 11, scale: 2 }))
+  @Column(DataType.Decimal)
   @ApiProperty({
     description: 'Coupon discount percentage',
     example: 32.04,
