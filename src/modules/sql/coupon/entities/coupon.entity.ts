@@ -39,14 +39,14 @@ export class Coupon extends SqlModel {
   @IsString()
   description: string;
 
-  @Column(DataType.DECIMAL)
+  @Column
   @ApiProperty({
     description: 'Coupon discount percentage',
-    example: 32.04,
+    example: "32.04",
     type: Number,
   })
   @IsNumber()
-  discount: number;
+  discount: string;
 
   @Column
   @ApiProperty({
