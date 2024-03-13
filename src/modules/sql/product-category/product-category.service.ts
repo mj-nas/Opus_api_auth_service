@@ -7,9 +7,8 @@ import {
 } from '@core/sql';
 import { Injectable } from '@nestjs/common';
 import { ProductCategory } from './entities/product-category.entity';
-import { isArray } from 'class-validator';
 import { ProductsService } from '../products/products.service';
-import { Job } from 'src/core/core.job';
+
 @Injectable()
 export class ProductCategoryService extends ModelService<ProductCategory> {
   /**
@@ -31,8 +30,8 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
   protected async doBeforeDelete(job: SqlJob<ProductCategory>): Promise<void> {
     try {
       /**check if any category is assigned to any product */
-      const products = (await this.productsService.findAll({ options: { where: { product_category: job.body.id } } })).data;
-      if (products.length) throw new Error('Cannot delete category because it is assigned to one or more products.');
+      const products = (await this.productsService.findAll({ options: { where: { product_category: job.body.id } } }))?.data;
+      if (products?.length) throw new Error('Cannot delete category because it is assigned to one or more products.');
     } catch (error) {
       console.error('Error occurred during category deletion validation:', error.message);
       throw error;
