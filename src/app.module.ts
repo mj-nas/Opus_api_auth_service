@@ -13,6 +13,8 @@ import { ProductGalleryModule } from './modules/sql/product-gallery/product-gall
 import { ProductSpecificationsModule } from './modules/sql/product-specifications/product-specifications.module';
 import { ProductsModule } from './modules/sql/products/products.module';
 import { TestimonialsModule } from './modules/sql/testimonials/testimonials.module';
+import { LearnYoutubeModule } from './modules/sql/learn-youtube/learn-youtube.module';
+import { LearnArticleModule } from './modules/sql/learn-article/learn-article.module';
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { TestimonialsModule } from './modules/sql/testimonials/testimonials.modu
     CouponModule,
     TestimonialsModule,
     ContactUsModule,
+    LearnYoutubeModule,
+    LearnArticleModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],
