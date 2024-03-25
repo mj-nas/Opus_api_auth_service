@@ -4,16 +4,21 @@ import {
   Delete,
   Get,
   Param,
+  ParseArrayPipe,
   Post,
   Put,
   Query,
+  Req,
   Res,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiExtraModels,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
+  getSchemaPath,
 } from '@nestjs/swagger';
 import { Response } from 'express';
 import {
@@ -36,6 +41,7 @@ import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
 import { Role } from '../user/role.enum';
+import { BulkUpdateSortDto } from './dto/bulk-update-sort.dto';
 import { CreateLearnYoutubeDto } from './dto/create-learn-youtube.dto';
 import { UpdateLearnYoutubeDto } from './dto/update-learn-youtube.dto';
 import { LearnYoutube } from './entities/learn-youtube.entity';
@@ -76,6 +82,65 @@ export class LearnYoutubeController {
       });
     }
     return Created(res, { data: { [entity]: data }, message: 'Created' });
+  }
+
+  /**
+   * Update an entity document by using id
+   */
+  @Post('bulk-update-sort')
+  @Roles(Role.Admin)
+  @ApiExtraModels(BulkUpdateSortDto)
+  @ApiOperation({ summary: 'Update bulk sort by id' })
+  @ApiBody({
+    schema: {
+      type: 'array',
+      items: {
+        $ref: getSchemaPath(BulkUpdateSortDto),
+      },
+    },
+  })
+  @ApiOkResponse({
+    description: 'Updated',
+    schema: {
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            settings: {
+              type: 'array',
+              items: {
+                $ref: getSchemaPath(LearnYoutube),
+              },
+            },
+          },
+        },
+        message: {
+          type: 'string',
+          example: 'Updated',
+        },
+      },
+    },
+  })
+  async bulkUpdateStatus(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Body(new ParseArrayPipe({ items: BulkUpdateSortDto }))
+    bulkUpdateSortDto: BulkUpdateSortDto[],
+  ) {
+    const { error, data } = await this.learnYoutubeService.updateBulk({
+      owner,
+      action: 'updateBulk',
+      records: bulkUpdateSortDto,
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { data: data, message: 'Updated' });
   }
 
   /**
