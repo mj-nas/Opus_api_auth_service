@@ -1,0 +1,28 @@
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { Injectable } from '@nestjs/common';
+import { Job } from 'src/core/core.job';
+
+@Injectable()
+export class CommonService {
+  constructor() {}
+
+  async getSignedURL(job: Job) {
+    try {
+      const { Bucket, Key, Expires, region } = job.payload.params;
+      const client = new S3Client({ region });
+      const command = new PutObjectCommand({
+        Bucket,
+        Key,
+      });
+      const signedUrl = await getSignedUrl(client, command, {
+        expiresIn: Expires,
+      });
+      return {
+        signedUrl,
+      };
+    } catch (error) {
+      return { error };
+    }
+  }
+}

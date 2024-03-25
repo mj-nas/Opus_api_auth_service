@@ -288,7 +288,6 @@ export class ProductGalleryController {
   async putObject(
     @Req() req: Request,
     @Res() res: Response,
-    @Owner() owner: OwnerDto,
     @Body() createPresignedUrl: CreatePresignedUrl,
   ) {
     const { error, signedUrl } = await this.productGalleryService.getSignedURL(
@@ -296,10 +295,10 @@ export class ProductGalleryController {
         payload: {
           operation: 'putObject',
           params: {
-            Bucket: 'opus-dev-s3',
+            Bucket: process.env.AWS_BUCKET_NAME,
             Key: createPresignedUrl.key,
             Expires: 60 * 60 * 36,
-            region: 'us-east-1',
+            region: process.env.AWS_REGION,
           },
         },
       }),
