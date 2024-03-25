@@ -43,12 +43,13 @@ import {
   Result,
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
+import { Public } from 'src/core/decorators/public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
-import { ProductCategoryService } from './product-category.service';
+import { BulkUpdateProductSortDto } from './dto/bulk-update-product-sort';
 import { CreateProductCategoryDto } from './dto/create-product-category.dto';
 import { UpdateProductCategoryDto } from './dto/update-product-category.dto';
 import { ProductCategory } from './entities/product-category.entity';
-import { BulkUpdateProductSortDto } from './dto/bulk-update-product-sort';
+import { ProductCategoryService } from './product-category.service';
 
 const entity = snakeCase(ProductCategory.name);
 
@@ -58,7 +59,9 @@ const entity = snakeCase(ProductCategory.name);
 @ApiExtraModels(ProductCategory)
 @Controller(entity)
 export class ProductCategoryController {
-  constructor(private readonly productCategoryService: ProductCategoryService) {}
+  constructor(
+    private readonly productCategoryService: ProductCategoryService,
+  ) {}
 
   /**
    * Create a new entity document
@@ -120,7 +123,6 @@ export class ProductCategoryController {
     return Result(res, { data: { [entity]: data }, message: 'Updated' });
   }
 
-
   /**
    * Update an entity document by using id
    */
@@ -163,9 +165,7 @@ export class ProductCategoryController {
     @Owner() owner: OwnerDto,
     @Body(new ParseArrayPipe({ items: BulkUpdateProductSortDto }))
     bulkUpdateProductSortDto: BulkUpdateProductSortDto[],
-
   ) {
-
     const { error, data } = await this.productCategoryService.updateBulk({
       owner,
       action: 'updateBulk',
@@ -178,7 +178,7 @@ export class ProductCategoryController {
         message: `${error.message || error}`,
       });
     }
-    return Result(res, { data: data , message: 'Updated' });
+    return Result(res, { data: data, message: 'Updated' });
   }
 
   /**
@@ -208,6 +208,30 @@ export class ProductCategoryController {
     }
     return Result(res, {
       data: { [pluralizeString(entity)]: data, offset, limit, count },
+      message: 'Ok',
+    });
+  }
+
+  /**
+   * Return all entity documents list for home page
+   */
+  @Public()
+  @Get('home-category-list')
+  @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
+  @ApiQueryGetAll()
+  @ResponseGetAll(ProductCategory)
+  async getHomeCategoryList(@Res() res: Response) {
+    const { error, data } =
+      await this.productCategoryService.getHomeCategoryList();
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { [pluralizeString(entity)]: data },
       message: 'Ok',
     });
   }
