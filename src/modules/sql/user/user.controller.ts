@@ -43,15 +43,15 @@ import {
   NotFound,
   Result,
 } from 'src/core/core.responses';
+import { OwnerIncludeAttribute } from 'src/core/decorators/sql/owner-attributes.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
 import { Role } from '../user/role.enum';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
-import { OwnerIncludeAttribute } from 'src/core/decorators/sql/owner-attributes.decorator';
-import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('user')
 @ApiBearerAuth()
@@ -59,7 +59,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 @ApiExtraModels(User)
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   /**
    * Create a new User
@@ -78,9 +78,6 @@ export class UserController {
     @Body() createUserDto: CreateUserDto,
     @Query() query: any,
   ) {
-
-    console.log(query)
-
     const { error, data } = await this.userService.create({
       owner,
       action: 'create',
@@ -357,7 +354,6 @@ export class UserController {
     return Result(res, { data: { user: data }, message: 'Deleted' });
   }
 
-
   /**
    * Change password for logged in user
    */
@@ -382,13 +378,10 @@ export class UserController {
     @Owner() owner: OwnerDto,
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
-
-    const { error } = await this.userService.changePassword(
-      {
-        owner,
-        payload: changePasswordDto,
-      }
-    );
+    const { error } = await this.userService.changePassword({
+      owner,
+      payload: changePasswordDto,
+    });
 
     if (!!error) {
       if (error instanceof NotFoundError) {
@@ -399,9 +392,9 @@ export class UserController {
       }
       return ErrorResponse(res, {
         error,
-        message: `${error.message|| error}`,
+        message: `${error.message || error}`,
       });
     }
-    return Result(res, { message: 'Password changed'});
+    return Result(res, { message: 'Password changed' });
   }
 }

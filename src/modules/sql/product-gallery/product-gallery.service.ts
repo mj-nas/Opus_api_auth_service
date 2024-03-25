@@ -28,7 +28,6 @@ export class ProductGalleryService extends ModelService<ProductGallery> {
       const signedUrl = await getSignedUrl(client, command, {
         expiresIn: Expires,
       });
-      console.log({ signedUrl });
       return {
         signedUrl,
       };

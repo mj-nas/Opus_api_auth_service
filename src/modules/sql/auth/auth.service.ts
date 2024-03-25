@@ -2,24 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { randomBytes } from 'crypto';
 import * as moment from 'moment-timezone';
 import { Op } from 'sequelize';
-import { Job, JobResponse } from 'src/core/core.job';
+import { NotFoundError } from 'src/core/core.errors';
+import { JobResponse } from 'src/core/core.job';
 import { generateHash, otp } from 'src/core/core.utils';
 import { OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { CachingService } from 'src/core/modules/caching/caching.service';
+import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { SessionService } from 'src/core/modules/session/session.service';
 import { LoginLog } from 'src/modules/mongo/login-log/entities/login-log.entity';
 import { LoginLogService } from 'src/modules/mongo/login-log/login-log.service';
 import { OtpSessionType } from 'src/modules/mongo/otp-session/entities/otp-session.entity';
 import { OtpSessionService } from 'src/modules/mongo/otp-session/otp-session.service';
+import { NotificationService } from '../notification/notification.service';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { TokenAuthDto } from './strategies/token/token-auth.dto';
-import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
-import { NotificationService } from '../notification/notification.service';
-import { NotFoundError } from 'src/core/core.errors';
 
 export interface AuthResponse {
   error?: any;
@@ -35,8 +35,8 @@ export class AuthService {
     private otpSessionService: OtpSessionService,
     private _cache: CachingService,
     private msClient: MsClientService,
-    private notificationService: NotificationService
-  ) { }
+    private notificationService: NotificationService,
+  ) {}
 
   async createSession(owner: OwnerDto, info: any): Promise<any> {
     try {
@@ -225,11 +225,8 @@ export class AuthService {
       },
     });
 
-    console.log(data, error);
     if (error instanceof NotFoundError) {
       return { error: 'User not found' };
-
-
     }
 
     if (!!error) {
@@ -253,43 +250,16 @@ export class AuthService {
         expire_at: new Date(Date.now() + 15 * 60 * 1000),
       },
     });
-    // TODO: send a email/sms notification
-    console.log("🚀 ~ AuthService ~ forgotOtp ~ data:", data)
-
-
-    const tst = await this.notificationService.send(
-      {
-        action: 'send',
-        payload: {
-          user_id: user.id,
-          template: 'forgot_password',
-          variables: {
-            OTP: data.otp
-          },
+    await this.notificationService.send({
+      action: 'send',
+      payload: {
+        user_id: user.id,
+        template: 'forgot_password',
+        variables: {
+          OTP: data.otp,
         },
-      }
-    )
-    // console.log("🚀 ~ AuthService ~ forgotOtp ~ tst:", tst)
-
-
-
-
-    //  await this.msClient.executeJob(
-    //   'controller.notification',
-    //   {
-    //     action: 'send',
-    //     payload: {
-    //       user_id: user.id,
-    //       template: 'forgot_password',
-    //       variables: {
-    //         OTP: data.otp
-    //       },
-    //     },
-    //   }
-    // );
-
-
-
+      },
+    });
     return { error, data };
   }
 
@@ -383,6 +353,4 @@ export class AuthService {
     });
     return { error: false };
   }
-
-
 }

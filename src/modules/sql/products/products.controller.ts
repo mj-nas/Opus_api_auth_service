@@ -40,6 +40,7 @@ import {
   Result,
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
+import { Public } from 'src/core/decorators/public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { CreateProductsDto } from './dto/create-products.dto';
 import { UpdateProductsDto } from './dto/update-products.dto';
@@ -143,6 +144,50 @@ export class ProductsController {
     }
     return Result(res, {
       data: { [pluralizeString(entity)]: data, offset, limit, count },
+      message: 'Ok',
+    });
+  }
+
+  /**
+   * Return all entity documents list for home page
+   */
+  @Public()
+  @Get('featured-products-list')
+  @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
+  @ResponseGetAll(Products)
+  async getFeaturedProducts(@Res() res: Response) {
+    const { error, data } = await this.productsService.getFeaturedProducts();
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { [pluralizeString(entity)]: data },
+      message: 'Ok',
+    });
+  }
+
+  /**
+   * Return all entity documents list for home page
+   */
+  @Public()
+  @Get('recommended-products-list')
+  @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
+  @ResponseGetAll(Products)
+  async getRecommendedProducts(@Res() res: Response) {
+    const { error, data } = await this.productsService.getRecommendedProducts();
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { [pluralizeString(entity)]: data },
       message: 'Ok',
     });
   }

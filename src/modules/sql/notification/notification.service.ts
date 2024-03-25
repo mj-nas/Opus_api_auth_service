@@ -1,3 +1,4 @@
+import { EmailService } from '@core/email/email.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { readFileSync } from 'fs';
@@ -7,7 +8,6 @@ import { Job, JobResponse } from 'src/core/core.job';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { TemplateService } from '../template/template.service';
 import { UserService } from '../user/user.service';
-import { EmailService } from '@core/email/email.service';
 
 @Injectable()
 export class NotificationService {
@@ -37,8 +37,6 @@ export class NotificationService {
    * @return {JobResponse}
    */
   async send(job: Job): Promise<JobResponse> {
-    console.log("🚀 ~ NotificationService ~ send ~ job:", job)
-    
     const payload = job.payload;
     const getTemplate = await this.templateService.$db.findOneRecord({
       options: {
@@ -89,9 +87,7 @@ export class NotificationService {
       }
 
       users.push(getUser.data.toJSON());
-     
     }
-      console.log("🚀 ~ NotificationService ~ send ~ users:", users)
 
     if (!!payload.user_where) {
       const getUsers = await this.userService.$db.getAllRecords({
@@ -142,28 +138,27 @@ export class NotificationService {
         !!template.getDataValue('send_email') &&
         (!!payload.skipUserConfig || !!user.send_email)
       ) {
-      //   await this.msClient.executeJob(
-      //     'controller.email',
-      //     new Job({
-      //       action: 'sendMail',
-      //       payload: {
-      //         to: user.email,
-      //         subject: _email_subject,
-      //         html: _email_template,
-      //       },
-      //     }),
-      //   );
+        //   await this.msClient.executeJob(
+        //     'controller.email',
+        //     new Job({
+        //       action: 'sendMail',
+        //       payload: {
+        //         to: user.email,
+        //         subject: _email_subject,
+        //         html: _email_template,
+        //       },
+        //     }),
+        //   );
 
-      await this.emailService.sendMail({
-            action: 'sendMail',
-            payload: {
-              to: user.email,
-              subject: _email_subject,
-              html: _email_template,
-            },
-      })
+        await this.emailService.sendMail({
+          action: 'sendMail',
+          payload: {
+            to: user.email,
+            subject: _email_subject,
+            html: _email_template,
+          },
+        });
       }
-
     }
 
     return { error: false };

@@ -99,4 +99,34 @@ export class ProductsService extends ModelService<Products> {
       return { error };
     }
   }
+
+  async getFeaturedProducts() {
+    try {
+      const { data } = await this.$db.getAllRecords({
+        options: {
+          limit: -1,
+          order: [['created_at', 'desc']],
+          where: { status: 'Y', is_featured: 'Y' },
+        },
+      });
+      return { data };
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  async getRecommendedProducts() {
+    try {
+      const { data } = await this.$db.getAllRecords({
+        options: {
+          limit: 10,
+          order: [['created_at', 'desc']],
+          where: { status: 'Y' },
+        },
+      });
+      return { data };
+    } catch (error) {
+      return { error };
+    }
+  }
 }

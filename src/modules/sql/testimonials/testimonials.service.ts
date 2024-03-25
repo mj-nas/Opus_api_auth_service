@@ -13,4 +13,19 @@ export class TestimonialsService extends ModelService<Testimonials> {
   constructor(db: SqlService<Testimonials>) {
     super(db);
   }
+
+  async getHomePageTestimonials() {
+    try {
+      const { data } = await this.$db.getAllRecords({
+        options: {
+          limit: 10,
+          order: [['created_at', 'desc']],
+          where: { active: true },
+        },
+      });
+      return { data };
+    } catch (error) {
+      return { error };
+    }
+  }
 }

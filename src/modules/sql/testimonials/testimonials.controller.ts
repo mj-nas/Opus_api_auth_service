@@ -38,11 +38,12 @@ import {
   Result,
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
+import { Public } from 'src/core/decorators/public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
-import { TestimonialsService } from './testimonials.service';
 import { CreateTestimonialsDto } from './dto/create-testimonials.dto';
 import { UpdateTestimonialsDto } from './dto/update-testimonials.dto';
 import { Testimonials } from './entities/testimonials.entity';
+import { TestimonialsService } from './testimonials.service';
 
 const entity = snakeCase(Testimonials.name);
 
@@ -141,6 +142,29 @@ export class TestimonialsController {
     }
     return Result(res, {
       data: { [pluralizeString(entity)]: data, offset, limit, count },
+      message: 'Ok',
+    });
+  }
+
+  /**
+   * Return all entity documents list for home page
+   */
+  @Public()
+  @Get('home-page-testimonials')
+  @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
+  @ResponseGetAll(Testimonials)
+  async getHomePageTestimonials(@Res() res: Response) {
+    const { error, data } =
+      await this.testimonialsService.getHomePageTestimonials();
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { [pluralizeString(entity)]: data },
       message: 'Ok',
     });
   }
