@@ -29,12 +29,12 @@ import { Role } from '../role.enum';
 export class User extends SqlModel {
   @Column({
     type: DataType.ENUM(...Object.keys(Role)),
-    defaultValue: Role.User,
+    defaultValue: Role.Customer,
   })
   @ApiProperty({
     enum: Role,
     description: 'Role',
-    example: Role.User,
+    example: Role.Customer,
   })
   @IsEnum(Role)
   role: Role;

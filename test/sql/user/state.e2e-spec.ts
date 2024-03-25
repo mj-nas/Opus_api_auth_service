@@ -41,7 +41,7 @@ describe('State module as User', () => {
           expect(response.body.data.refresh_token);
           expect(response.body.data.user);
           expect(response.body.data.user.id);
-          expect(response.body.data.user.role).toEqual(Role.User);
+          expect(response.body.data.user.role).toEqual(Role.Customer);
           expect(response.body.data.user.email).toEqual(UserCred.username);
           expect(response.body.data.user.password).toBeUndefined();
           auth = response.body.data;

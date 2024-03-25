@@ -8,7 +8,7 @@ import { AdminCred } from '../../test-credential';
 describe('User module as Admin', () => {
   let app: INestApplication;
   const body: Partial<User> = {
-    role: Role.User,
+    role: Role.Customer,
     first_name: 'Test',
     last_name: 'User',
     email: 'test@user.com',

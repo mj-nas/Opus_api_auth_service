@@ -8,7 +8,7 @@ import { UserCred } from '../../test-credential';
 describe('User module as User', () => {
   let app: INestApplication;
   const body: Partial<User> = {
-    role: Role.User,
+    role: Role.Customer,
     first_name: 'Test',
     last_name: 'User',
     email: 'test@user.com',
@@ -45,7 +45,7 @@ describe('User module as User', () => {
           expect(response.body.data.refresh_token);
           expect(response.body.data.user);
           expect(response.body.data.user.id);
-          expect(response.body.data.user.role).toEqual(Role.User);
+          expect(response.body.data.user.role).toEqual(Role.Customer);
           expect(response.body.data.user.email).toEqual(UserCred.username);
           expect(response.body.data.user.password).toBeUndefined();
           auth = response.body.data;
