@@ -43,6 +43,7 @@ import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
 import { Role } from '../user/role.enum';
 import { ContactUsService } from './contact-us.service';
+import { BulkDeleteDto } from './dto/bulk-delete.dto';
 import { CreateContactUsDto } from './dto/create-contact-us.dto';
 import { UpdateContactUsDto } from './dto/update-contact-us.dto';
 import { ContactUs } from './entities/contact-us.entity';
@@ -82,6 +83,33 @@ export class ContactUsController {
       });
     }
     return Created(res, { data: { [entity]: data }, message: 'Created' });
+  }
+
+  @Post('bulk-delete')
+  @Roles(Role.Admin)
+  @ApiExtraModels(BulkDeleteDto)
+  @ApiOperation({ summary: `Delete multiple ${entity} entity using ids` })
+  @ApiQueryGetAll()
+  async bulkDelete(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Body() bulkDeleteDto: BulkDeleteDto,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.contactUsService.bulkDelete({
+      owner,
+      action: 'BulkDelete',
+      body: bulkDeleteDto,
+      payload: { ...query },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Created(res, { data: { rows: data }, message: 'Deleted' });
   }
 
   /**

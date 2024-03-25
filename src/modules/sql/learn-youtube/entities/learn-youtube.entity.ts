@@ -1,7 +1,6 @@
 import { SqlModel } from '@core/sql/sql.model';
-import { IsUnique } from '@core/sql/sql.unique-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, MaxLength } from 'class-validator';
+import { IsNumber, IsString, MaxLength } from 'class-validator';
 import { Column, Index, Table } from 'sequelize-typescript';
 import config from 'src/config';
 
@@ -45,10 +44,10 @@ export class LearnYoutube extends SqlModel {
   }
 
   @Column
-  @IsUnique('LearnYoutube')
   @ApiProperty({
     description: 'sort',
     example: '1',
   })
+  @IsNumber()
   sort: number;
 }

@@ -2,7 +2,7 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
-import { BeforeDestroy, Column, DataType, HasMany, Index, Table } from 'sequelize-typescript';
+import { Column, DataType, HasMany, Index, Table } from 'sequelize-typescript';
 import { Products } from '../../products/entities/products.entity';
 
 @Table
@@ -64,14 +64,4 @@ export class ProductCategory extends SqlModel {
 
   @HasMany(() => Products)
   products: Products[];
-
-
-  @BeforeDestroy
-  static async checkProductsExist(instance: ProductCategory) {
-    const count = await Products.count({ where: { product_category: instance.id } });
-    if (count > 0) {
-      throw new Error('Cannot delete category because it is assigned to one or more products.');
-    }
-  }
-
 }
