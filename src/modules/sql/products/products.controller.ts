@@ -20,12 +20,10 @@ import {
 import { Response } from 'express';
 import {
   ApiErrorResponses,
-  ApiQueryCountAll,
   ApiQueryDelete,
   ApiQueryGetAll,
   ApiQueryGetById,
   ApiQueryGetOne,
-  ResponseCountAll,
   ResponseCreated,
   ResponseDeleted,
   ResponseGetAll,
@@ -42,6 +40,8 @@ import {
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Public } from 'src/core/decorators/public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
+import { Roles } from 'src/core/decorators/sql/roles.decorator';
+import { Role } from '../user/role.enum';
 import { CreateProductsDto } from './dto/create-products.dto';
 import { UpdateProductsDto } from './dto/update-products.dto';
 import { Products } from './entities/products.entity';
@@ -61,6 +61,7 @@ export class ProductsController {
    * Create a new entity document
    */
   @Post()
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Create new ${entity}` })
   @ResponseCreated(Products)
   async create(
@@ -87,6 +88,7 @@ export class ProductsController {
    * Update an entity document by using id
    */
   @Put(':id')
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Update ${entity} using id` })
   @ResponseUpdated(Products)
   async update(
@@ -196,6 +198,7 @@ export class ProductsController {
    * Return all entity documents list
    */
   @Get('export-xls')
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Create ${pluralizeString(entity)} xls` })
   @ApiQueryGetAll()
   @ApiOkResponse({
@@ -236,36 +239,6 @@ export class ProductsController {
     }
     return Result(res, {
       data: { ...data },
-      message: 'Ok',
-    });
-  }
-
-  /**
-   * Return count of entity documents
-   */
-  @Get('count')
-  @ApiOperation({ summary: `Get count of ${pluralizeString(entity)}` })
-  @ApiQueryCountAll()
-  @ResponseCountAll()
-  async countAll(
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Query() query: any,
-  ) {
-    const { error, count } = await this.productsService.getCount({
-      owner,
-      action: 'getCount',
-      payload: { ...query },
-    });
-
-    if (!!error) {
-      return ErrorResponse(res, {
-        error,
-        message: `${error.message || error}`,
-      });
-    }
-    return Result(res, {
-      data: { count },
       message: 'Ok',
     });
   }
@@ -342,6 +315,7 @@ export class ProductsController {
    * Delete an entity document by using id
    */
   @Delete(':id')
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Delete ${entity} using id` })
   @ApiQueryDelete()
   @ResponseDeleted(Products)

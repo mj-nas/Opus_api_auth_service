@@ -19,12 +19,9 @@ import {
 import { Response } from 'express';
 import {
   ApiErrorResponses,
-  ApiQueryCountAll,
   ApiQueryDelete,
   ApiQueryGetAll,
-  ApiQueryGetById,
   ApiQueryGetOne,
-  ResponseCountAll,
   ResponseCreated,
   ResponseDeleted,
   ResponseGetAll,
@@ -40,6 +37,8 @@ import {
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
+import { Roles } from 'src/core/decorators/sql/roles.decorator';
+import { Role } from '../user/role.enum';
 import { CouponService } from './coupon.service';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
@@ -59,6 +58,7 @@ export class CouponController {
    * Create a new entity document
    */
   @Post()
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Create new ${entity}` })
   @ResponseCreated(Coupon)
   async create(
@@ -85,6 +85,7 @@ export class CouponController {
    * Update an entity document by using id
    */
   @Put(':id')
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Update ${entity} using id` })
   @ResponseUpdated(Coupon)
   async update(
@@ -150,6 +151,7 @@ export class CouponController {
    * Return all entity documents list
    */
   @Get('export-xls')
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Create ${pluralizeString(entity)} xls` })
   @ApiQueryGetAll()
   @ApiOkResponse({
@@ -195,36 +197,6 @@ export class CouponController {
   }
 
   /**
-   * Return count of entity documents
-   */
-  @Get('count')
-  @ApiOperation({ summary: `Get count of ${pluralizeString(entity)}` })
-  @ApiQueryCountAll()
-  @ResponseCountAll()
-  async countAll(
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Query() query: any,
-  ) {
-    const { error, count } = await this.couponService.getCount({
-      owner,
-      action: 'getCount',
-      payload: { ...query },
-    });
-
-    if (!!error) {
-      return ErrorResponse(res, {
-        error,
-        message: `${error.message || error}`,
-      });
-    }
-    return Result(res, {
-      data: { count },
-      message: 'Ok',
-    });
-  }
-
-  /**
    * Find one entity document
    */
   @Get('find')
@@ -258,44 +230,10 @@ export class CouponController {
   }
 
   /**
-   * Get an entity document by using id
-   */
-  @Get(':id')
-  @ApiOperation({ summary: `Find ${entity} using id` })
-  @ApiQueryGetById()
-  @ResponseGetOne(Coupon)
-  async findById(
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Param('id') id: number,
-    @Query() query: any,
-  ) {
-    const { error, data } = await this.couponService.findById({
-      owner,
-      action: 'findById',
-      id: +id,
-      payload: { ...query },
-    });
-
-    if (error) {
-      if (error instanceof NotFoundError) {
-        return NotFound(res, {
-          error,
-          message: `Record not found`,
-        });
-      }
-      return ErrorResponse(res, {
-        error,
-        message: `${error.message || error}`,
-      });
-    }
-    return Result(res, { data: { [entity]: data }, message: 'Ok' });
-  }
-
-  /**
    * Delete an entity document by using id
    */
   @Delete(':id')
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Delete ${entity} using id` })
   @ApiQueryDelete()
   @ResponseDeleted(Coupon)

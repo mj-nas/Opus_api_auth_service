@@ -40,6 +40,8 @@ import {
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Public } from 'src/core/decorators/public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
+import { Roles } from 'src/core/decorators/sql/roles.decorator';
+import { Role } from '../user/role.enum';
 import { ContactUsService } from './contact-us.service';
 import { CreateContactUsDto } from './dto/create-contact-us.dto';
 import { UpdateContactUsDto } from './dto/update-contact-us.dto';
@@ -86,6 +88,7 @@ export class ContactUsController {
    * Update an entity document by using id
    */
   @Put(':id')
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Update ${entity} using id` })
   @ResponseUpdated(ContactUs)
   async update(
@@ -120,6 +123,7 @@ export class ContactUsController {
    * Return all entity documents list
    */
   @Get()
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
   @ApiQueryGetAll()
   @ResponseGetAll(ContactUs)
@@ -151,6 +155,7 @@ export class ContactUsController {
    * Return count of entity documents
    */
   @Get('count')
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Get count of ${pluralizeString(entity)}` })
   @ApiQueryCountAll()
   @ResponseCountAll()
@@ -181,6 +186,7 @@ export class ContactUsController {
    * Find one entity document
    */
   @Get('find')
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Find one ${entity}` })
   @ApiQueryGetOne()
   @ResponseGetOne(ContactUs)
@@ -214,6 +220,7 @@ export class ContactUsController {
    * Get an entity document by using id
    */
   @Get(':id')
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Find ${entity} using id` })
   @ApiQueryGetById()
   @ResponseGetOne(ContactUs)
@@ -249,6 +256,7 @@ export class ContactUsController {
    * Delete an entity document by using id
    */
   @Delete(':id')
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Delete ${entity} using id` })
   @ApiQueryDelete()
   @ResponseDeleted(ContactUs)

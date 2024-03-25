@@ -18,16 +18,11 @@ import {
 import { Response } from 'express';
 import {
   ApiErrorResponses,
-  ApiQueryCountAll,
   ApiQueryDelete,
   ApiQueryGetAll,
-  ApiQueryGetById,
-  ApiQueryGetOne,
-  ResponseCountAll,
   ResponseCreated,
   ResponseDeleted,
   ResponseGetAll,
-  ResponseGetOne,
   ResponseUpdated,
 } from 'src/core/core.decorators';
 import { NotFoundError } from 'src/core/core.errors';
@@ -39,10 +34,12 @@ import {
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
-import { LearnArticleService } from './learn-article.service';
+import { Roles } from 'src/core/decorators/sql/roles.decorator';
+import { Role } from '../user/role.enum';
 import { CreateLearnArticleDto } from './dto/create-learn-article.dto';
 import { UpdateLearnArticleDto } from './dto/update-learn-article.dto';
 import { LearnArticle } from './entities/learn-article.entity';
+import { LearnArticleService } from './learn-article.service';
 
 const entity = snakeCase(LearnArticle.name);
 
@@ -58,6 +55,7 @@ export class LearnArticleController {
    * Create a new entity document
    */
   @Post()
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Create new ${entity}` })
   @ResponseCreated(LearnArticle)
   async create(
@@ -84,6 +82,7 @@ export class LearnArticleController {
    * Update an entity document by using id
    */
   @Put(':id')
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Update ${entity} using id` })
   @ResponseUpdated(LearnArticle)
   async update(
@@ -146,107 +145,10 @@ export class LearnArticleController {
   }
 
   /**
-   * Return count of entity documents
-   */
-  @Get('count')
-  @ApiOperation({ summary: `Get count of ${pluralizeString(entity)}` })
-  @ApiQueryCountAll()
-  @ResponseCountAll()
-  async countAll(
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Query() query: any,
-  ) {
-    const { error, count } = await this.learnArticleService.getCount({
-      owner,
-      action: 'getCount',
-      payload: { ...query },
-    });
-
-    if (!!error) {
-      return ErrorResponse(res, {
-        error,
-        message: `${error.message || error}`,
-      });
-    }
-    return Result(res, {
-      data: { count },
-      message: 'Ok',
-    });
-  }
-
-  /**
-   * Find one entity document
-   */
-  @Get('find')
-  @ApiOperation({ summary: `Find one ${entity}` })
-  @ApiQueryGetOne()
-  @ResponseGetOne(LearnArticle)
-  async findOne(
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Query() query: any,
-  ) {
-    const { error, data } = await this.learnArticleService.findOne({
-      owner,
-      action: 'findOne',
-      payload: { ...query },
-    });
-
-    if (error) {
-      if (error instanceof NotFoundError) {
-        return NotFound(res, {
-          error,
-          message: `Record not found`,
-        });
-      }
-      return ErrorResponse(res, {
-        error,
-        message: `${error.message || error}`,
-      });
-    }
-    return Result(res, { data: { [entity]: data }, message: 'Ok' });
-  }
-
-  /**
-   * Get an entity document by using id
-   */
-  @Get(':id')
-  @ApiOperation({ summary: `Find ${entity} using id` })
-  @ApiQueryGetById()
-  @ResponseGetOne(LearnArticle)
-  async findById(
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Param('id') id: number,
-    @Query() query: any,
-  ) {
-    const { error, data } = await this.learnArticleService.findById({
-      owner,
-      action: 'findById',
-      id: +id,
-      payload: { ...query },
-    });
-
-    if (error) {
-      if (error instanceof NotFoundError) {
-        return NotFound(res, {
-          error,
-          message: `Record not found`,
-        });
-      }
-      return ErrorResponse(res, {
-        error,
-        message: `${error.message || error}`,
-      });
-    }
-    return Result(res, { data: { [entity]: data }, message: 'Ok' });
-  }
-
-  /**
    * Delete an entity document by using id
    */
   @Delete(':id')
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Delete ${entity} using id` })
   @ApiQueryDelete()
   @ResponseDeleted(LearnArticle)
