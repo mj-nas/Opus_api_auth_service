@@ -218,7 +218,6 @@ export class ProductCategoryController {
   @Public()
   @Get('home-category-list')
   @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
-  @ApiQueryGetAll()
   @ResponseGetAll(ProductCategory)
   async getHomeCategoryList(@Res() res: Response) {
     const { error, data } =
