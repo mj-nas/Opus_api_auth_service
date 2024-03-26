@@ -95,4 +95,19 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
       return { error };
     }
   }
+
+  async getFooterCategoryList() {
+    try {
+      const { data } = await this.$db.getAllRecords({
+        options: {
+          limit: 5,
+          order: [['sort', 'asc']],
+          where: { status: 'Y' },
+        },
+      });
+      return { data };
+    } catch (error) {
+      return { error };
+    }
+  }
 }

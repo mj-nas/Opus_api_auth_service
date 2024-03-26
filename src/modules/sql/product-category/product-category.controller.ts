@@ -236,6 +236,29 @@ export class ProductCategoryController {
   }
 
   /**
+   * Return all entity documents list for home page
+   */
+  @Public()
+  @Get('footer-category-list')
+  @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
+  @ResponseGetAll(ProductCategory)
+  async getFooterCategoryList(@Res() res: Response) {
+    const { error, data } =
+      await this.productCategoryService.getFooterCategoryList();
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { [pluralizeString(entity)]: data },
+      message: 'Ok',
+    });
+  }
+
+  /**
    * Delete an entity document by using id
    */
   @Delete(':id')
