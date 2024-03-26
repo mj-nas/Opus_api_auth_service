@@ -3,6 +3,7 @@ import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 import {
+  BeforeUpdate,
   BelongsTo,
   Column,
   DataType,
@@ -54,4 +55,14 @@ export class ProductGallery extends SqlModel {
 
   @BelongsTo(() => Products)
   products: Products;
+
+  @BeforeUpdate
+  static async formatThumb(instance: ProductGallery) {
+    if (instance.product_image) {
+      instance.product_image = instance.product_image.replace(
+        config().cdnURL,
+        '',
+      );
+    }
+  }
 }

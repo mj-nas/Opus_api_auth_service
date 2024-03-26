@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 import {
   BeforeCreate,
+  BeforeUpdate,
   Column,
   DataType,
   Index,
@@ -84,5 +85,12 @@ export class LearnArticle extends SqlModel {
   static async setSortMaxValue(instance: LearnArticle) {
     const sort = await LearnArticle.max('sort');
     instance.sort = sort as number;
+  }
+
+  @BeforeUpdate
+  static async formatThumb(instance: LearnArticle) {
+    if (instance.thumb) {
+      instance.thumb = instance.thumb.replace(config().cdnURL, '');
+    }
   }
 }

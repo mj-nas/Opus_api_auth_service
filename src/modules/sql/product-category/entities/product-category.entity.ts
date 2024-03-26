@@ -4,6 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 import {
   BeforeCreate,
+  BeforeUpdate,
   Column,
   DataType,
   HasMany,
@@ -85,5 +86,15 @@ export class ProductCategory extends SqlModel {
   static async setSortMaxValue(instance: ProductCategory) {
     const sort = await ProductCategory.max('sort');
     instance.sort = sort as number;
+  }
+
+  @BeforeUpdate
+  static async formatThumb(instance: ProductCategory) {
+    if (instance.category_image) {
+      instance.category_image = instance.category_image.replace(
+        config().cdnURL,
+        '',
+      );
+    }
   }
 }
