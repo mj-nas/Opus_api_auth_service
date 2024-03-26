@@ -105,8 +105,9 @@ export class ContactUsService extends ModelService<ContactUs> {
         { header: 'Created On', key: 'created_at', width: 25 },
       ];
 
-      const file_dir = config().cdnPath + '/contact-us-excel';
-      const file_baseurl = config().cdnLocalURL + 'contact-us';
+      const folder = 'contact-us-excel';
+      const file_dir = config().cdnPath + `/${folder}`;
+      const file_baseurl = config().cdnLocalURL + `/${folder}`;
 
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
