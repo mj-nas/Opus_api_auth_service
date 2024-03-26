@@ -81,7 +81,7 @@ export class ContactUsService extends ModelService<ContactUs> {
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Contact Us');
 
-      worksheet.addRow(['Sl. No', 'Name', 'Email', 'Message', 'Created At']);
+      worksheet.addRow(['Sl. No', 'Name', 'Email', 'Message', 'Created On']);
 
       const contact_us: ContactUs[] = JSON.parse(JSON.stringify(data));
 
@@ -102,7 +102,7 @@ export class ContactUsService extends ModelService<ContactUs> {
         { header: 'Name', key: 'name', width: 25 },
         { header: 'Email', key: 'email', width: 25 },
         { header: 'Message', key: 'message', width: 50 },
-        { header: 'Created At', key: 'created_at', width: 25 },
+        { header: 'Created On', key: 'created_at', width: 25 },
       ];
 
       const file_dir = config().cdnPath + '/contact-us-excel';
