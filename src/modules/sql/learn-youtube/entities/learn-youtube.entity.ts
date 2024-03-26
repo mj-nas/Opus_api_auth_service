@@ -1,7 +1,13 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
-import { BeforeCreate, Column, Index, Table } from 'sequelize-typescript';
+import {
+  BeforeCreate,
+  BeforeUpdate,
+  Column,
+  Index,
+  Table,
+} from 'sequelize-typescript';
 import config from 'src/config';
 
 @Table
@@ -57,5 +63,12 @@ export class LearnYoutube extends SqlModel {
   static async setSortMaxValue(instance: LearnYoutube) {
     const sort = await LearnYoutube.max('sort');
     instance.sort = sort as number;
+  }
+
+  @BeforeUpdate
+  static async formatThumb(instance: LearnYoutube) {
+    if (instance.thumb) {
+      instance.thumb = instance.thumb.replace(config().cdnURL, '');
+    }
   }
 }
