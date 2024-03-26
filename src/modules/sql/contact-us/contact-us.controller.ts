@@ -12,6 +12,7 @@ import {
 import {
   ApiBearerAuth,
   ApiExtraModels,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
@@ -206,6 +207,55 @@ export class ContactUsController {
     }
     return Result(res, {
       data: { count },
+      message: 'Ok',
+    });
+  }
+
+  /**
+   * Return all entity documents list
+   */
+  @Get('export-xls')
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: `Create ${pluralizeString(entity)} xls` })
+  @ApiQueryGetAll()
+  @ApiOkResponse({
+    description: 'xls file created',
+    schema: {
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+            },
+          },
+        },
+        message: {
+          type: 'string',
+          example: 'xls file created',
+        },
+      },
+    },
+  })
+  async exportXls(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.contactUsService.createXls({
+      owner,
+      action: 'createXls',
+      payload: { ...query },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { ...data },
       message: 'Ok',
     });
   }

@@ -68,7 +68,7 @@ export class ProductsService extends ModelService<Products> {
       );
 
       worksheet.columns = [
-        { header: 'Sl. No', key: 'date_time', width: 25 },
+        { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Product Name', key: 'product_name', width: 25 },
         { header: 'Price', key: 'product_price', width: 25 },
         { header: 'Category Name', key: 'category_name', width: 25 },
