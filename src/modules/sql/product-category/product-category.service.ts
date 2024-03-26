@@ -31,6 +31,7 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
    * @return {void}
    */
   protected async doBeforeDelete(job: SqlJob<ProductCategory>): Promise<void> {
+    await super.doBeforeDelete(job);
     try {
       /**check if any category is assigned to any product */
       const products = (

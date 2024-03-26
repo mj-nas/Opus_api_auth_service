@@ -1,7 +1,13 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString, MaxLength } from 'class-validator';
-import { Column, DataType, Index, Table } from 'sequelize-typescript';
+import { IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  BeforeCreate,
+  Column,
+  DataType,
+  Index,
+  Table,
+} from 'sequelize-typescript';
 import config from 'src/config';
 
 @Table
@@ -71,5 +77,12 @@ export class LearnArticle extends SqlModel {
     example: '1',
   })
   @IsNumber()
+  @IsOptional()
   sort: number;
+
+  @BeforeCreate
+  static async setSortMaxValue(instance: LearnArticle) {
+    const sort = await LearnArticle.max('sort');
+    instance.sort = sort as number;
+  }
 }

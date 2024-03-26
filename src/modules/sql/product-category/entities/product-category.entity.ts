@@ -1,8 +1,16 @@
 /* eslint-disable prettier/prettier */
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
-import { Column, DataType, HasMany, Index, Table } from 'sequelize-typescript';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  BeforeCreate,
+  Column,
+  DataType,
+  HasMany,
+  Index,
+  Table,
+} from 'sequelize-typescript';
+import config from 'src/config';
 import { Products } from '../../products/entities/products.entity';
 
 @Table
@@ -17,7 +25,6 @@ export class ProductCategory extends SqlModel {
   category_name: string;
 
   @Column
-  @Index
   @ApiProperty({
     description: 'parrent categoy',
     example: 'US',
@@ -28,7 +35,6 @@ export class ProductCategory extends SqlModel {
   @Column({
     type: DataType.STRING(500),
   })
-  @Index
   @ApiProperty({
     description: 'Category description',
     example: 'Category description html',
@@ -37,24 +43,34 @@ export class ProductCategory extends SqlModel {
   category_description: string;
 
   @Column
-  @Index
   @ApiProperty({
-    description: 'category image',
-    example: 'https://image',
+    description: 'Category Image',
+    example: 'image1.png',
   })
-  @IsOptional()
-  category_image: string;
+  @IsString()
+  get category_image(): string {
+    return this.getDataValue('category_image')
+      ? config().cdnURL + this.getDataValue('category_image')
+      : null;
+  }
+
+  set category_image(v: string) {
+    this.setDataValue(
+      'category_image',
+      typeof v === 'string' ? v.replace(config().cdnURL, '') : null,
+    );
+  }
 
   @Column
-  @Index
   @ApiProperty({
     description: 'sort',
     example: '6',
   })
+  @IsNumber()
+  @IsOptional()
   sort: number;
 
   @Column({ type: DataType.ENUM('Y', 'N'), defaultValue: 'Y' })
-  @Index
   @ApiProperty({
     description: 'Y | N',
     example: 'Y',
@@ -64,4 +80,10 @@ export class ProductCategory extends SqlModel {
 
   @HasMany(() => Products)
   products: Products[];
+
+  @BeforeCreate
+  static async setSortMaxValue(instance: ProductCategory) {
+    const sort = await ProductCategory.max('sort');
+    instance.sort = sort as number;
+  }
 }
