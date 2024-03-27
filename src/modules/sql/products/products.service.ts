@@ -107,6 +107,7 @@ export class ProductsService extends ModelService<Products> {
           limit: -1,
           order: [['created_at', 'desc']],
           where: { status: 'Y', is_featured: 'Y' },
+          include: [{ association: 'product_primary_image' }],
         },
       });
       return { data };
@@ -122,6 +123,7 @@ export class ProductsService extends ModelService<Products> {
           limit: 10,
           order: [['created_at', 'desc']],
           where: { status: 'Y' },
+          include: [{ association: 'product_primary_image' }],
         },
       });
       return { data };

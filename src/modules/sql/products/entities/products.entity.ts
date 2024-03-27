@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
@@ -10,6 +11,7 @@ import {
   DataType,
   ForeignKey,
   HasMany,
+  HasOne,
   Index,
   Table,
 } from 'sequelize-typescript';
@@ -164,8 +166,13 @@ export class Products extends SqlModel {
 
   @BelongsTo(() => ProductCategory)
   productCategory: ProductCategory;
+
   @HasMany(() => ProductGallery)
   productGallery: ProductGallery[];
+
+  @Include({ attributes: ['product_image'], where: { is_primary: 'Y' } })
+  @HasOne(() => ProductGallery)
+  product_primary_image: ProductGallery;
 
   @HasMany(() => ProductSpecifications)
   productSpecifications: ProductSpecifications[];
