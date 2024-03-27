@@ -41,9 +41,7 @@ export class LearnYoutube extends SqlModel {
       ? config().cdnURL + this.getDataValue('thumb')
       : null;
   }
-
   set thumb(v: string) {
-    console.log('set thumb', v);
     this.setDataValue(
       'thumb',
       typeof v === 'string' ? v.replace(config().cdnURL, '') : null,

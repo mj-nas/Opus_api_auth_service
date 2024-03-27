@@ -38,6 +38,7 @@ import {
   Result,
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
+import { Public } from 'src/core/decorators/public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
 import { Role } from '../user/role.enum';
@@ -181,6 +182,7 @@ export class LearnArticleController {
   /**
    * Return all entity documents list
    */
+  @Public()
   @Get()
   @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
   @ApiQueryGetAll()
