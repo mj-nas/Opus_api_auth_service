@@ -157,6 +157,7 @@ export class PageController {
   /**
    * Find one CMS page
    */
+  @Public()
   @Get('find')
   @ApiOperation({ summary: 'Find a page' })
   @ApiQueryGetOne()
