@@ -7,11 +7,13 @@ import {
   IsNumberString,
   IsOptional,
   IsString,
+  MaxLength,
   MinLength,
 } from 'class-validator';
 import {
   BeforeCreate,
   BeforeSave,
+  BeforeUpdate,
   Column,
   DataType,
   DefaultScope,
@@ -97,6 +99,7 @@ export class User extends SqlModel {
     example: 'Ross',
   })
   @IsString()
+  @MaxLength(50)
   first_name: string;
 
   @Column
@@ -105,6 +108,7 @@ export class User extends SqlModel {
     example: 'Geller',
   })
   @IsString()
+  @MaxLength(50)
   last_name: string;
 
   @Column
@@ -138,6 +142,7 @@ export class User extends SqlModel {
     example: '9999999999',
   })
   @IsNumberString()
+  @MaxLength(10)
   phone: string;
 
   @Column
@@ -203,13 +208,17 @@ export class User extends SqlModel {
     description: 'address',
     example: 'address',
   })
-  address?: string;
+  @IsString()
+  @MaxLength(100)
+  address: string;
 
   @Column
   @ApiProperty({
     description: 'zip_code',
     example: 'zip_code',
   })
+  @IsString()
+  @MaxLength(6)
   zip_code?: string;
 
   @Column
@@ -217,6 +226,8 @@ export class User extends SqlModel {
     description: 'state',
     example: 'state',
   })
+  @IsString()
+  @MaxLength(30)
   state?: string;
 
   @Column
@@ -224,6 +235,8 @@ export class User extends SqlModel {
     description: 'city',
     example: 'city',
   })
+  @IsString()
+  @MaxLength(30)
   city?: string;
 
   @Column
@@ -320,5 +333,12 @@ export class User extends SqlModel {
   @BeforeCreate
   static setUuid(instance: User) {
     instance.uid = uuid();
+  }
+
+  @BeforeUpdate
+  static async formatThumb(instance: User) {
+    if (instance.avatar) {
+      instance.avatar = instance.avatar.replace(config().cdnURL, '');
+    }
   }
 }

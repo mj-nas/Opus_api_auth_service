@@ -4,6 +4,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  getSchemaPath,
 } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { ApiErrorResponses } from 'src/core/core.decorators';
@@ -12,11 +13,13 @@ import {
   ErrorResponse,
   Forbidden,
   Result,
+  Unauthorized,
 } from 'src/core/core.responses';
 import { Public } from 'src/core/decorators/public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
 import { LoginLog } from 'src/modules/mongo/login-log/entities/login-log.entity';
+import { User } from '../user/entities/user.entity';
 import { Role } from '../user/role.enum';
 import { AuthService } from './auth.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -24,6 +27,7 @@ import { LoginAsDto } from './dto/login-as.dto';
 import { LogoutDto } from './dto/logout.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SendOtpDto } from './dto/send-otp.dto';
+import { SignupDto } from './dto/signup.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { TokenAuthDto } from './strategies/token/token-auth.dto';
 import { TokenAuthGuard } from './strategies/token/token-auth.guard';
@@ -165,7 +169,6 @@ export class AuthController {
         message: `${forgotOtp.error.message || forgotOtp.error}`,
       });
     }
-
 
     return Result(res, {
       data: { session_id: forgotOtp.data._id },
@@ -312,5 +315,63 @@ export class AuthController {
     return Result(res, {
       message: 'Password changed',
     });
+  }
+
+  @Public()
+  @ApiOperation({ summary: 'Customer Signup' })
+  @ApiOkResponse({
+    description: 'Login success',
+    schema: {
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            user: {
+              $ref: getSchemaPath(User),
+            },
+            token: {
+              type: 'string',
+            },
+            token_expiry: {
+              type: 'string',
+              format: 'date-time',
+            },
+            refresh_token: {
+              type: 'string',
+            },
+          },
+        },
+        message: {
+          type: 'string',
+          example: 'Created',
+        },
+      },
+    },
+  })
+  @Post('signup')
+  async signup(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() body: SignupDto,
+  ) {
+    const signup = await this.authService.signup(body);
+    if (!!signup.error) {
+      return BadRequest(res, {
+        error: signup.error,
+        message: `${signup.error.message || signup.error}`,
+      });
+    }
+
+    const { error, data } = await this.authService.createSession(
+      signup.data,
+      body.info,
+    );
+    if (!!error) {
+      return Unauthorized(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { data, message: 'Signup success' });
   }
 }

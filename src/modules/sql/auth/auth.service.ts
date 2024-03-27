@@ -3,7 +3,7 @@ import { randomBytes } from 'crypto';
 import * as moment from 'moment-timezone';
 import { Op } from 'sequelize';
 import { NotFoundError } from 'src/core/core.errors';
-import { JobResponse } from 'src/core/core.job';
+import { Job, JobResponse } from 'src/core/core.job';
 import { generateHash, otp } from 'src/core/core.utils';
 import { OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { CachingService } from 'src/core/modules/caching/caching.service';
@@ -18,6 +18,7 @@ import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SendOtpDto } from './dto/send-otp.dto';
+import { SignupDto } from './dto/signup.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { TokenAuthDto } from './strategies/token/token-auth.dto';
 
@@ -352,5 +353,51 @@ export class AuthService {
       id: body.session_id,
     });
     return { error: false };
+  }
+
+  async signup(body: SignupDto): Promise<JobResponse> {
+    try {
+      const checkEmail = await this.userService.findOne({
+        payload: {
+          where: { email: body.email },
+        },
+      });
+      if (!!checkEmail.data) {
+        return {
+          error:
+            'This email address is already associated with an existing account. Please use a different email address or try logging in with your existing account.',
+        };
+      }
+
+      // Create a new user
+      const { error, data } = await this.userService.create({
+        action: 'Create',
+        body: {
+          ...body,
+        },
+      });
+      if (error) {
+        return { error, message: 'User signup failed' };
+      }
+
+      await this.msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_id: data.dataValues.id,
+            template: 'welcome_mail',
+            skipUserConfig: true,
+            variables: {
+              TO_NAME: data.dataValues.name,
+            },
+          },
+        }),
+      );
+
+      return { data };
+    } catch (error) {
+      return { error };
+    }
   }
 }
