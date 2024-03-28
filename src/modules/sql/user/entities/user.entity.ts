@@ -17,10 +17,11 @@ import {
   Column,
   DataType,
   DefaultScope,
+  Index,
   Table,
 } from 'sequelize-typescript';
 import config from 'src/config';
-import { generateHash, uuid } from 'src/core/core.utils';
+import { generateHash, slugify, uuid } from 'src/core/core.utils';
 import { AuthProvider } from '../../auth/auth-provider.enum';
 import { Role } from '../role.enum';
 
@@ -29,6 +30,15 @@ import { Role } from '../role.enum';
 }))
 @Table
 export class User extends SqlModel {
+  @Index
+  @Column({ unique: true })
+  @ApiProperty({
+    description: 'Slug',
+    example: 'user-slug',
+    readOnly: true,
+  })
+  slug: string;
+
   @Column({
     type: DataType.ENUM(...Object.keys(Role)),
     defaultValue: Role.Customer,
@@ -333,6 +343,24 @@ export class User extends SqlModel {
   @BeforeCreate
   static setUuid(instance: User) {
     instance.uid = uuid();
+  }
+
+  @BeforeCreate
+  static async setSlug(instance: User) {
+    const slug = slugify(instance.name);
+
+    // Check if the generated slug already exists in the database
+    let uniqueSlug = slug;
+    let num = 2;
+    while (
+      await User.findOne({ where: { slug: uniqueSlug }, paranoid: false })
+    ) {
+      uniqueSlug = `${slug}-${num}`;
+      num++;
+    }
+
+    // Assign the unique slug to the instance
+    instance.slug = uniqueSlug;
   }
 
   @BeforeUpdate
