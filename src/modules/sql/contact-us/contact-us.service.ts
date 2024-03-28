@@ -72,7 +72,7 @@ export class ContactUsService extends ModelService<ContactUs> {
         payload: {
           ...payload,
           offset: 0,
-          limit: 10000,
+          limit: -1,
         },
       });
 

@@ -30,7 +30,7 @@ export class ProductsService extends ModelService<Products> {
         payload: {
           ...payload,
           offset: 0,
-          limit: 10000,
+          limit: -1,
         },
       });
 

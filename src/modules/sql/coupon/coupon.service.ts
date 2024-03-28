@@ -29,7 +29,7 @@ export class CouponService extends ModelService<Coupon> {
         payload: {
           ...payload,
           offset: 0,
-          limit: 10000,
+          limit: -1,
         },
       });
 
