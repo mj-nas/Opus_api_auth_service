@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { ModelService, SqlJob, SqlService } from '@core/sql';
+import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
 import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
@@ -7,6 +7,7 @@ import * as moment from 'moment-timezone';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
 import { compareHash, generateHash } from 'src/core/core.utils';
+import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { User } from './entities/user.entity';
 import { Role } from './role.enum';
 
@@ -18,7 +19,10 @@ export class UserService extends ModelService<User> {
    */
   searchFields: string[] = ['name', 'email'];
 
-  constructor(db: SqlService<User>) {
+  constructor(
+    db: SqlService<User>,
+    private msClient: MsClientService,
+  ) {
     super(db);
   }
 
@@ -54,6 +58,41 @@ export class UserService extends ModelService<User> {
       return userResult;
     } catch (error) {
       return { error };
+    }
+  }
+
+  /**
+   * doAfterUpdate
+   * @function function will execute after update function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @param {object} response - mandatory - a object representing the job response information
+   * @return {void}
+   */
+  protected async doAfterUpdate(
+    job: SqlJob<User>,
+    response: SqlUpdateResponse<User>,
+  ): Promise<void> {
+    await super.doAfterUpdate(job, response);
+    const data = response.data.dataValues;
+    const previousData = response.previousData.dataValues;
+
+    // check if the status changed
+    if (previousData.active !== data.active) {
+      const status = data.active ? 'activated' : 'deactivated';
+      await this.msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            template: 'account_status_update',
+            variables: {
+              STATUS: status,
+            },
+            skipUserConfig: true,
+            user_id: data.id,
+          },
+        }),
+      );
     }
   }
 
