@@ -1,4 +1,10 @@
-import { ModelService, SqlJob, SqlService, WrapSqlJob } from '@core/sql';
+import {
+  ModelService,
+  SqlCreateResponse,
+  SqlJob,
+  SqlService,
+  WrapSqlJob,
+} from '@core/sql';
 import { ReadPayload } from '@core/sql/sql.decorator';
 import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
@@ -6,6 +12,8 @@ import * as fs from 'fs';
 import * as moment from 'moment-timezone';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
+import { NotificationService } from '../notification/notification.service';
+import { SettingService } from '../setting/setting.service';
 import { BulkDeleteMode } from './bulk-delete-mode.enum';
 import { ContactUs } from './entities/contact-us.entity';
 
@@ -17,8 +25,55 @@ export class ContactUsService extends ModelService<ContactUs> {
    */
   searchFields: string[] = ['name', 'email'];
 
-  constructor(db: SqlService<ContactUs>) {
+  constructor(
+    db: SqlService<ContactUs>,
+    private notificationService: NotificationService,
+    private settingService: SettingService,
+  ) {
     super(db);
+  }
+
+  /**
+   * doAfterCreate
+   * @function function will execute after create function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @param {object} response - mandatory - a object representing the job response information
+   * @return {void}
+   */
+  protected async doAfterCreate(
+    job: SqlJob<ContactUs>,
+    response: SqlCreateResponse<ContactUs>,
+  ): Promise<void> {
+    await super.doAfterCreate(job, response);
+    const { owner } = job;
+    const { data } = await this.settingService.findOne({
+      owner,
+      action: 'findOne',
+      payload: { where: { name: 'contact_us' } },
+    });
+    if (data && data?.getDataValue('value')) {
+      await this.notificationService.send({
+        action: 'send',
+        payload: {
+          template: 'contact_us',
+          variables: {
+            FIRST_NAME: response.data?.dataValues?.first_name,
+            LAST_NAME: response.data?.dataValues?.last_name,
+            NAME: response.data?.dataValues?.name,
+            EMAIL: response.data?.dataValues?.email,
+            MESSAGE: response.data?.dataValues?.message,
+          },
+          skipUserConfig: true,
+          users: [
+            {
+              name: 'Super Admin',
+              email: data.getDataValue('value'),
+              send_email: true,
+            },
+          ],
+        },
+      });
+    }
   }
 
   @WrapSqlJob

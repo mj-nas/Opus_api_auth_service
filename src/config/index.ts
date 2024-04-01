@@ -35,7 +35,7 @@ export default () => ({
   /**
    * @property {string} appId - app unique id
    */
-  appId: process.env.npm_package_name,
+  appId: process.env.APP_ID || process.env.npm_package_name,
   /**
    * @property {string} appVersion - app version
    */

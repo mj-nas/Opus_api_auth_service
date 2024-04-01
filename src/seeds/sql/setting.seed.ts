@@ -14,9 +14,9 @@ export default <Seed<Setting>>{
     },
 
     {
-      name: 'email',
+      name: 'contact_us',
       display_name: 'Contact Email',
-      value: 'priya@newagesmb.com',
+      value: 'contact_us@mailinator.com',
       group_id: 1,
       option: {
         type: 'email',
