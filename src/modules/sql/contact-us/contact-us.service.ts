@@ -12,7 +12,7 @@ import * as fs from 'fs';
 import * as moment from 'moment-timezone';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
-import { NotificationService } from '../notification/notification.service';
+import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { SettingService } from '../setting/setting.service';
 import { BulkDeleteMode } from './bulk-delete-mode.enum';
 import { ContactUs } from './entities/contact-us.entity';
@@ -27,7 +27,7 @@ export class ContactUsService extends ModelService<ContactUs> {
 
   constructor(
     db: SqlService<ContactUs>,
-    private notificationService: NotificationService,
+    private msClient: MsClientService,
     private settingService: SettingService,
   ) {
     super(db);
@@ -52,27 +52,30 @@ export class ContactUsService extends ModelService<ContactUs> {
       payload: { where: { name: 'contact_us' } },
     });
     if (data && data?.getDataValue('value')) {
-      await this.notificationService.send({
-        action: 'send',
-        payload: {
-          template: 'contact_us',
-          variables: {
-            FIRST_NAME: response.data?.dataValues?.first_name,
-            LAST_NAME: response.data?.dataValues?.last_name,
-            NAME: response.data?.dataValues?.name,
-            EMAIL: response.data?.dataValues?.email,
-            MESSAGE: response.data?.dataValues?.message,
-          },
-          skipUserConfig: true,
-          users: [
-            {
-              name: 'Super Admin',
-              email: data.getDataValue('value'),
-              send_email: true,
+      await this.msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            template: 'contact_us',
+            variables: {
+              FIRST_NAME: response.data?.dataValues?.first_name,
+              LAST_NAME: response.data?.dataValues?.last_name,
+              NAME: response.data?.dataValues?.name,
+              EMAIL: response.data?.dataValues?.email,
+              MESSAGE: response.data?.dataValues?.message,
             },
-          ],
-        },
-      });
+            skipUserConfig: true,
+            users: [
+              {
+                name: 'Super Admin',
+                email: data.getDataValue('value'),
+                send_email: true,
+              },
+            ],
+          },
+        }),
+      );
     }
   }
 
