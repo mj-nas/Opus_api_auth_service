@@ -143,7 +143,7 @@ export class AuthService {
     const { error, data } = await this.otpSessionService.create({
       body: {
         user_id: user.id,
-        otp: otp(),
+        otp: otp(4),
         type: OtpSessionType.Login,
         expire_at: new Date(Date.now() + 15 * 60 * 1000),
         payload,
@@ -246,7 +246,7 @@ export class AuthService {
     const { error, data } = await this.otpSessionService.create({
       body: {
         user_id: user.id,
-        otp: otp(),
+        otp: otp(4),
         type: OtpSessionType.Forgot,
         expire_at: new Date(Date.now() + 15 * 60 * 1000),
       },
