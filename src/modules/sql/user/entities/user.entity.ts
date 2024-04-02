@@ -1,4 +1,5 @@
 import { SqlModel } from '@core/sql/sql.model';
+import { IsUnique } from '@core/sql/sql.unique-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
@@ -136,6 +137,10 @@ export class User extends SqlModel {
   })
   @IsString()
   @IsEmail()
+  @IsUnique('User', {
+    message:
+      'This email address is already associated with an existing account. Please use a different email address',
+  })
   email: string;
 
   @Column({ type: DataType.STRING(7), defaultValue: '+1' })

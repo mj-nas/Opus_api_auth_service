@@ -68,9 +68,9 @@ export class UserController {
   @Post()
   @Roles(Role.Admin)
   @ApiOperation({ summary: 'Create a new user' })
-  @ApiConsumes('application/json', 'multipart/form-data')
-  @FileUploads([{ name: 'avatar_file', required: false, bodyField: 'avatar' }])
-  @ApiQuery(QueryPopulate)
+  // @ApiConsumes('application/json', 'multipart/form-data')
+  // @FileUploads([{ name: 'avatar_file', required: false, bodyField: 'avatar' }])
+  // @ApiQuery(QueryPopulate)
   @ResponseCreated(User)
   async create(
     @Req() req: Request,
