@@ -73,7 +73,7 @@ export class UserService extends ModelService<User> {
     response: SqlUpdateResponse<User>,
   ): Promise<void> {
     await super.doAfterUpdate(job, response);
-    console.log({ json: JSON.stringify(response) });
+    console.log({ json: response });
     const { active, id } = response.data.dataValues;
     const { active: previousActive } = response.previousData.dataValues;
 
