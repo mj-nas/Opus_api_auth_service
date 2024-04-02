@@ -346,6 +346,7 @@ export class AuthService {
         password: await generateHash(body.password),
       },
     });
+    console.log(userUpdate);
     if (!!userUpdate.error) {
       return { error: 'Unable to change password, Please try again' };
     }

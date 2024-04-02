@@ -306,6 +306,7 @@ export class AuthController {
     @Body() body: ResetPasswordDto,
   ) {
     const resetPassword = await this.authService.resetPassword(body);
+    console.log(resetPassword);
     if (!!resetPassword.error) {
       return BadRequest(res, {
         error: resetPassword.error,
