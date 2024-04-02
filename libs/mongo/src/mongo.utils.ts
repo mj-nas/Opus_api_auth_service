@@ -13,12 +13,10 @@ const setVirtualPopulates = (model: any, schema: Schema): void => {
 const setDefaultHooks = (schema: Schema): void => {
   schema.pre(
     [
-      'count',
       'countDocuments',
       'find',
       'findOne',
       'findOneAndDelete',
-      'findOneAndRemove',
       'findOneAndReplace',
       'findOneAndUpdate',
     ],

@@ -20,23 +20,33 @@ export class MongoUniqueValidator<M> implements ValidatorConstraintInterface {
     const {
       property,
       constraints: [modelNameOrOption],
+      object,
     }: {
       property: string;
       constraints: (string | UniqueValidatorOptions<M>)[];
+      object: any;
     } = args;
     if (typeof value === 'undefined') return true;
     if (typeof modelNameOrOption === 'string') {
+      const where = { [property]: value };
+      if (object.id) {
+        where._id = { $ne: object.id };
+      }
       return this.connection.models[modelNameOrOption]
-        .findOne({ [property]: value })
+        .findOne(where)
         .then((data) => {
           return data === null;
         });
     } else {
       const { modelName, options } = modelNameOrOption;
-      const findOptions =
+      const { where, ...findOptions } =
         typeof options === 'function' ? options(args) : options;
+      const whereCond: any = where || { [property]: value };
+      if (object.id) {
+        whereCond._id = { $ne: object.id };
+      }
       return this.connection.models[modelName]
-        .findOne(findOptions.where || { [property]: value }, null, findOptions)
+        .findOne(whereCond, null, findOptions)
         .then((data) => {
           return data === null;
         });

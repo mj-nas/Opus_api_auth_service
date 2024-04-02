@@ -25,7 +25,12 @@ export const ReadPayload = <M extends MongoSchema>(
         for (let index = 0; index < this.searchFields.length; index++) {
           const field = this.searchFields[index];
           whereOR.push({
-            [field]: { $regex: new RegExp(payload.search, 'i') },
+            [field]: {
+              $regex: new RegExp(
+                payload.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+                'i',
+              ),
+            },
           });
         }
         where.$and.push({ $or: whereOR });
@@ -50,7 +55,13 @@ export const ReadPayload = <M extends MongoSchema>(
       if (typeof sort[0] === 'string') {
         sort = [sort];
       }
-      sort = sort.map((x) => ({ [x[0]]: x[1] }));
+      sort = sort.reduce(
+        (accumulator, currentValue) => ({
+          ...accumulator,
+          [currentValue[0]]: currentValue[1],
+        }),
+        {},
+      );
 
       job.options = {
         where: where || undefined,

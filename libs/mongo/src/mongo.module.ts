@@ -51,6 +51,7 @@ export class MongoModule {
           useValue: options || {},
         },
         MongoService,
+        MongoUniqueValidator,
       ],
       exports: [MongoService],
     };

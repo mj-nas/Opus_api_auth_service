@@ -1,15 +1,18 @@
 export interface SeedReference {
   model: string;
   where: any;
+  engine?: 'mongo' | 'sql';
 }
 
 export class SeedReference {
   model: string;
   where: any;
+  engine?: 'mongo' | 'sql';
 
   constructor(ref: SeedReference) {
     this.model = ref.model;
     this.where = ref.where;
+    this.engine = ref.engine ?? 'sql';
   }
 }
 

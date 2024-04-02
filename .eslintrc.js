@@ -21,12 +21,12 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
-    // 'prettier/prettier':['error',{
-    //   'endOfLine':'auto',
-    //   "singleQuote": true,
-    //   "parser": "flow"
-    // }]
-    'prettier/prettier': 'off',
-    
+    '@typescript-eslint/no-unsafe-declaration-merging': 'off',
+    'prettier/prettier': [
+      'error',
+      {
+        endOfLine: 'auto',
+      },
+    ],
   },
 };

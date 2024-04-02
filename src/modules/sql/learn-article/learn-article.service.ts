@@ -1,6 +1,5 @@
 import {
   ModelService,
-  ModelWrap,
   SqlCreateBulkResponse,
   SqlJob,
   SqlService,
@@ -32,7 +31,7 @@ export class LearnArticleService extends ModelService<LearnArticle> {
     if (!Array.isArray(job.records) || !job.records.length) {
       return { error: 'Records missing' };
     }
-    const productSort: ModelWrap<LearnArticle>[] = [];
+    const productSort: LearnArticle[] = [];
     for (let index = 0; index < job.records.length; index++) {
       const record = job.records[index];
       const response = await this.update({

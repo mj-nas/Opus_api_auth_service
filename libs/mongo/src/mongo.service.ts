@@ -152,7 +152,8 @@ export class MongoService<M extends MongoSchema> {
       if (data === null) throw new NotFoundError('Record not found');
       const previousData = JSON.parse(JSON.stringify(data));
       for (const prop in body) {
-        data[prop] = body[prop];
+        data.set(prop, body[prop]);
+        data.markModified(prop);
       }
       if (owner && owner.id) {
         data.set('updated_by', owner.id);
@@ -203,7 +204,8 @@ export class MongoService<M extends MongoSchema> {
       if (data === null) throw new NotFoundError('Record not found');
       const previousData = JSON.parse(JSON.stringify(data));
       for (const prop in body) {
-        data[prop] = body[prop];
+        data.set(prop, body[prop]);
+        data.markModified(prop);
       }
       if (owner && owner.id) {
         data.set('updated_by', owner.id);
@@ -249,7 +251,7 @@ export class MongoService<M extends MongoSchema> {
         body.updated_by = owner.id;
       }
       const { where = {} } = options;
-      const data = await this.model.updateMany(where, body, options);
+      const data = await this.model.updateMany(where, body);
       if (this.options.history) {
         // Create history
         this.connection.models.History.create({
@@ -279,6 +281,7 @@ export class MongoService<M extends MongoSchema> {
         projection,
         pagination = false,
         withDeleted = false,
+        skip = 0,
       } = options;
       options.limit = options.limit
         ? +options.limit === -1
@@ -288,6 +291,7 @@ export class MongoService<M extends MongoSchema> {
       if (pagination) {
         const data = await this.model.paginate(where, {
           ...options,
+          offset: skip,
           lean: Boolean(options.lean), // type mismatch fix
           options: {
             withDeleted,
@@ -319,7 +323,7 @@ export class MongoService<M extends MongoSchema> {
   async countAllRecords(job: MongoJob<M>): Promise<MongoCountResponse> {
     try {
       const { where = {} } = job.options;
-      const data = await this.model.countDocuments(where, job.options);
+      const data = await this.model.countDocuments(where);
       return { count: data };
     } catch (error) {
       return { error };
@@ -535,7 +539,8 @@ export class MongoService<M extends MongoSchema> {
       if (data !== null) {
         const previousData = JSON.parse(JSON.stringify(data));
         for (const prop in body) {
-          data[prop] = body[prop];
+          data.set(prop, body[prop]);
+          data.markModified(prop);
         }
         if (owner && owner.id) {
           data.set('updated_by', owner.id);

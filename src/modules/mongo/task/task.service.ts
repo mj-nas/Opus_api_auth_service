@@ -105,18 +105,18 @@ export class TaskService extends ModelService<Task> {
       // Sample cron category
       case 'test':
         try {
-          const job = new CronJob({
-            cronTime: task.scheduled_time,
-            onTick: () => {
+          const job = new CronJob(
+            task.scheduled_time,
+            () => {
               this.logger.log('Task running');
               // Write your code here and save the result in task.result
               // task.result = { status: true };
               job.stop();
             },
-            onComplete: async () => {
+            async () => {
               await this.markAsCompleted(task);
             },
-          });
+          );
           this.schedulerRegistry.addCronJob(task._id.toString(), job);
           job.start();
         } catch (error) {

@@ -24,7 +24,8 @@ export class SeederService {
         continue;
       } else if (seed.action === 'once') {
         try {
-          const count = await this.connection.models[seed.model].count();
+          const count =
+            await this.connection.models[seed.model].countDocuments();
           if (count > 0) {
             this.logger.log(`Ignoring - ${seed.model} already exist`);
             continue;

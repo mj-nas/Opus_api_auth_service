@@ -41,7 +41,11 @@ export class CachingService {
     value: unknown;
     expireAt?: number;
   }): Promise<void> {
-    await this._cache.set(key, value, expireAt);
+    try {
+      await this._cache.set(key, value, expireAt);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async getList<T>({ key }): Promise<T> {

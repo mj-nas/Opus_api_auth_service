@@ -1,4 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 import { Sequelize } from 'sequelize-typescript';
 import seeds from 'src/seeds/sql';
 import { SeedReference } from './seeder.dto';
@@ -7,7 +9,10 @@ import { SeedReference } from './seeder.dto';
 export class SeederService {
   private logger: Logger = new Logger('SqlSeeder');
 
-  constructor(private sequelize: Sequelize) {}
+  constructor(
+    private sequelize: Sequelize,
+    @InjectConnection() private connection: Connection,
+  ) {}
 
   async seed() {
     this.logger.log('Started');
@@ -52,11 +57,19 @@ export class SeederService {
             if (Object.prototype.hasOwnProperty.call(body, key)) {
               const value = body[key];
               if (value instanceof SeedReference) {
-                const parent = await this.sequelize.models[value.model].findOne(
-                  { where: value.where },
-                );
-                if (parent) body[key] = parent.getDataValue('id');
-                else body[key] = null;
+                if (value.engine === 'mongo') {
+                  const parent = await this.connection.models[
+                    value.model
+                  ].findOne(value.where);
+                  if (parent) body[key] = parent.id;
+                  else body[key] = null;
+                } else {
+                  const parent = await this.sequelize.models[
+                    value.model
+                  ].findOne({ where: value.where });
+                  if (parent) body[key] = parent.getDataValue('id');
+                  else body[key] = null;
+                }
               }
             }
           }

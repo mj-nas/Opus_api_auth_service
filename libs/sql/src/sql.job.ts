@@ -9,7 +9,6 @@ import {
 } from 'sequelize';
 import { Job, JobResponse } from 'src/core/core.job';
 import { SqlModel } from './sql.model';
-import { ModelWrap } from './sql.service';
 
 export type SqlJobOptions<M> = FindOptions<M> &
   CreateOptions<M> &
@@ -52,14 +51,14 @@ export interface SqlGetOneResponse<M> extends JobResponse {
   /**
    * Response data
    */
-  data?: ModelWrap<M>;
+  data?: M;
 }
 
 export interface SqlGetAllResponse<M> extends JobResponse {
   /**
    * Response data
    */
-  data?: ModelWrap<M>[];
+  data?: M[];
   /**
    * Offset for pagination
    */
@@ -85,21 +84,21 @@ export interface SqlUpdateResponse<M> extends SqlGetOneResponse<M> {
   /**
    * Previous data object
    */
-  previousData?: ModelWrap<M>;
+  previousData?: M;
 }
 
 export interface SqlDeleteResponse<M> extends JobResponse {
   /**
    * Response data
    */
-  data?: ModelWrap<M>;
+  data?: M;
 }
 
 export interface SqlCreateBulkResponse<M> extends JobResponse {
   /**
    * Response data
    */
-  data?: ModelWrap<M>[];
+  data?: M[];
 }
 
 export interface SqlJob<M extends SqlModel> extends Job {
@@ -114,15 +113,11 @@ export interface SqlJob<M extends SqlModel> extends Job {
   /**
    * body object used for create or update
    */
-  body?: Partial<M> & {
-    [key: string]: any;
-  };
+  body?: any;
   /**
    * array of records used for bulk create
    */
-  records?: {
-    [key: string]: any;
-  }[];
+  records?: any[];
   /**
    * parameters for sql
    */
@@ -134,7 +129,7 @@ export class SqlJob<M extends SqlModel> extends Job {
     super(job);
     this.pk = job.pk || 'id';
     this.id = job.id || null;
-    this.body = job.body || {};
+    this.body = job.body || undefined;
     this.records = job.records || [];
     this.options = job.options || {};
   }

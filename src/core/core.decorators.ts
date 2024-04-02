@@ -6,7 +6,7 @@ import {
   UseInterceptors,
   Version,
 } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { EventPattern, MessagePattern } from '@nestjs/microservices';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
   MulterField,
@@ -292,6 +292,10 @@ export const FileUploads = (
 
 export const MsListener = (metadata?: string) => {
   return applyDecorators(UseGuards(MsGuard), MessagePattern(metadata));
+};
+
+export const MsEventListener = (metadata?: string) => {
+  return applyDecorators(UseGuards(MsGuard), EventPattern(metadata));
 };
 
 export const ForVersion = (version: number) => {

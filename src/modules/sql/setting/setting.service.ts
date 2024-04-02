@@ -1,6 +1,5 @@
 import {
   ModelService,
-  ModelWrap,
   SqlCreateBulkResponse,
   SqlJob,
   SqlService,
@@ -15,13 +14,7 @@ export class SettingService extends ModelService<Setting> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['name', '$country.name$'];
-
-  /**
-   * searchPopulate
-   * @property array of associations to include for search
-   */
-  searchPopulate: string[] = ['country'];
+  searchFields: string[] = ['name'];
 
   constructor(db: SqlService<Setting>) {
     super(db);
@@ -39,7 +32,7 @@ export class SettingService extends ModelService<Setting> {
     if (!isArray(job.records) || !job.records.length) {
       return { error: 'Records missing' };
     }
-    const settings: ModelWrap<Setting>[] = [];
+    const settings: Setting[] = [];
     for (let index = 0; index < job.records.length; index++) {
       const record = job.records[index];
       const response = await this.update({

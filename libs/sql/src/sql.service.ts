@@ -21,11 +21,11 @@ import {
 import { SqlModel } from './sql.model';
 import { SqlOption } from './sql.module';
 
-export type ModelWrap<T> = Model<T, T>;
+export type ModelWrap<T extends SqlModel> = Model<T, T>;
 
 @Injectable()
 export class SqlService<M extends SqlModel> {
-  private readonly model: ModelStatic<Model<any, any>>;
+  private readonly model: ModelStatic<M>;
 
   constructor(
     @Inject('MODEL_NAME') modelName: string,
@@ -34,7 +34,7 @@ export class SqlService<M extends SqlModel> {
     @InjectConnection() private connection: Connection,
     private _config: ConfigService,
   ) {
-    this.model = sequelize.models[modelName];
+    this.model = <ModelStatic<M>>sequelize.models[modelName];
   }
 
   /**
@@ -61,14 +61,15 @@ export class SqlService<M extends SqlModel> {
       await data.save(options);
 
       if (this.options.history) {
-        // Create history
         this.connection.models.History.create({
           entity: this.model.name,
           entity_id: data.getDataValue('id'),
-          action: 'CreateRecord',
+          action: 'create',
           created: true,
           data: data.toJSON(),
           expire_in: addDays(this.options.historyExpireIn),
+          created_by: owner.id,
+          created_by_name: owner.name,
         });
       }
 
@@ -101,23 +102,30 @@ export class SqlService<M extends SqlModel> {
         return {
           error: 'Error calling createBulkRecord - records are missing',
         };
-      if (owner && owner.id) {
-        records.forEach((x) => {
-          x.created_by = owner.id;
-          x.updated_by = owner.id;
-        });
-      }
-      const data = await this.model.bulkCreate(records, options);
+
+      const data = await this.model.bulkCreate(
+        records.map((record) => ({
+          ...record,
+          created_by: owner && owner.id ? owner.id : undefined,
+          updated_by: owner && owner.id ? owner.id : undefined,
+        })),
+        options,
+      );
 
       if (this.options.history) {
-        // Create history
-        this.connection.models.History.create({
-          entity: this.model.name,
-          action: 'CreateBulkRecords',
-          created: true,
-          data: data,
-          expire_in: addDays(this.options.historyExpireIn),
-        });
+        for (let index = 0; index < data.length; index++) {
+          const item = data[index];
+          this.connection.models.History.create({
+            entity: this.model.name,
+            entity_id: item.getDataValue('id'),
+            action: 'create',
+            created: true,
+            data: item.toJSON(),
+            expire_in: addDays(this.options.historyExpireIn),
+            created_by: owner.id,
+            created_by_name: owner.name,
+          });
+        }
       }
 
       return { data };
@@ -146,7 +154,7 @@ export class SqlService<M extends SqlModel> {
         where: { ...where, [pk]: job.id },
       });
       if (data === null) throw new NotFoundError('Record not found');
-      const previousData = JSON.parse(JSON.stringify(data));
+      const previousData = data.toJSON();
       for (const prop in body) {
         data.setDataValue(prop, body[prop]);
       }
@@ -156,14 +164,15 @@ export class SqlService<M extends SqlModel> {
       await data.save(options);
 
       if (this.options.history) {
-        // Create history
         this.connection.models.History.create({
           entity: this.model.name,
           entity_id: data.getDataValue('id'),
-          action: 'UpdateRecord',
+          action: 'update',
           data: data.toJSON(),
           previous_data: previousData,
           expire_in: addDays(this.options.historyExpireIn),
+          created_by: owner.id,
+          created_by_name: owner.name,
         });
       }
 
@@ -200,24 +209,15 @@ export class SqlService<M extends SqlModel> {
         return {
           error: 'Error calling updateBulkRecords - options.where is missing',
         };
-      if (owner && owner.id) {
-        body.updated_by = owner.id;
-      }
-      const { where = {} } = options;
-      const data = await this.model.update(body, {
-        ...options,
-        where,
-      });
 
-      if (this.options.history) {
-        // Create history
-        this.connection.models.History.create({
-          entity: this.model.name,
-          action: 'UpdateBulkRecords',
-          data: data,
-          expire_in: addDays(this.options.historyExpireIn),
-        });
-      }
+      const { where = {} } = options;
+      const data = await this.model.update(
+        { ...body, updated_by: owner && owner.id ? owner.id : undefined },
+        {
+          ...options,
+          where,
+        },
+      );
 
       return { data };
     } catch (error) {
@@ -254,14 +254,15 @@ export class SqlService<M extends SqlModel> {
       await data.save(options);
 
       if (this.options.history) {
-        // Create history
         this.connection.models.History.create({
           entity: this.model.name,
           entity_id: data.getDataValue('id'),
-          action: 'FindAndUpdateRecord',
+          action: 'update',
           data: data.toJSON(),
           previous_data: previousData,
           expire_in: addDays(this.options.historyExpireIn),
+          created_by: owner.id,
+          created_by_name: owner.name,
         });
       }
 
@@ -385,12 +386,23 @@ export class SqlService<M extends SqlModel> {
         force,
       });
       if (job.options.force) {
-        await this.connection.models.Trash.create({
+        this.connection.models.Trash.create({
           entity: this.model.name,
           entity_id: data.getDataValue('id'),
-          action: 'DeleteRecord',
           data: data.toJSON(),
           expire_in: addDays(this.options.trashExpireIn),
+          created_by: owner.id,
+          created_by_name: owner.name,
+        });
+      } else {
+        this.connection.models.History.create({
+          entity: this.model.name,
+          entity_id: data.getDataValue('id'),
+          action: 'delete',
+          data: data.toJSON(),
+          expire_in: addDays(this.options.historyExpireIn),
+          created_by: owner.id,
+          created_by_name: owner.name,
         });
       }
       return { data };
@@ -424,15 +436,27 @@ export class SqlService<M extends SqlModel> {
       }
       await data.destroy(options);
 
-      if (force) {
+      if (job.options.force) {
         this.connection.models.Trash.create({
           entity: this.model.name,
           entity_id: data.getDataValue('id'),
-          action: 'FindAndDeleteRecord',
           data: data.toJSON(),
           expire_in: addDays(this.options.trashExpireIn),
+          created_by: owner.id,
+          created_by_name: owner.name,
+        });
+      } else {
+        this.connection.models.History.create({
+          entity: this.model.name,
+          entity_id: data.getDataValue('id'),
+          action: 'delete',
+          data: data.toJSON(),
+          expire_in: addDays(this.options.historyExpireIn),
+          created_by: owner.id,
+          created_by_name: owner.name,
         });
       }
+
       return { data };
     } catch (error) {
       return { error };
@@ -452,17 +476,7 @@ export class SqlService<M extends SqlModel> {
         return {
           error: 'Error calling deleteBulkRecords - options.where is missing',
         };
-      const { force = false } = options;
       const data = await this.model.destroy(options);
-
-      if (force) {
-        this.connection.models.Trash.create({
-          entity: this.model.name,
-          action: 'FindAndDeleteRecord',
-          data: data,
-          expire_in: addDays(this.options.trashExpireIn),
-        });
-      }
       return { data };
     } catch (error) {
       return { error };
@@ -487,6 +501,16 @@ export class SqlService<M extends SqlModel> {
         data.setDataValue('updated_by', owner.id);
         data.setDataValue('deleted_by', null);
       }
+      this.connection.models.History.create({
+        entity: this.model.name,
+        entity_id: data.getDataValue('id'),
+        action: 'restore',
+        data: data.toJSON(),
+        expire_in: addDays(this.options.historyExpireIn),
+        created_by: owner.id,
+        created_by_name: owner.name,
+      });
+
       await data.restore(options);
       return { data };
     } catch (error) {
@@ -511,10 +535,7 @@ export class SqlService<M extends SqlModel> {
         return {
           error: 'Error calling findOrCreate - options.where is missing',
         };
-      if (owner && owner.id) {
-        body.created_by = owner.id;
-        body.updated_by = owner.id;
-      }
+
       const [data, created] = await this.model.findOrBuild(options);
 
       if (created) {
@@ -526,18 +547,34 @@ export class SqlService<M extends SqlModel> {
           data.setDataValue('updated_by', owner.id);
         }
         await data.save(options);
-      }
 
-      if (this.options.history) {
-        // Create history
-        this.connection.models.History.create({
-          entity: this.model.name,
-          entity_id: data.getDataValue('id'),
-          action: 'FindOrCreate',
-          created,
-          data: data.toJSON(),
-          expire_in: addDays(this.options.historyExpireIn),
-        });
+        if (this.options.history) {
+          this.connection.models.History.create({
+            entity: this.model.name,
+            entity_id: data.getDataValue('id'),
+            action: 'create',
+            created,
+            data: data.toJSON(),
+            expire_in: addDays(this.options.historyExpireIn),
+            created_by: owner.id,
+            created_by_name: owner.name,
+          });
+        }
+
+        const { include, attributes } = options;
+
+        if (include || attributes) {
+          const dataWithInclude = await this.model.findByPk(
+            data.getDataValue('id'),
+            {
+              include,
+              attributes,
+            },
+          );
+          return { data: dataWithInclude, created };
+        }
+
+        return { data, created };
       }
 
       return { data, created };
@@ -577,15 +614,16 @@ export class SqlService<M extends SqlModel> {
       await data.save(options);
 
       if (this.options.history) {
-        // Create history
         this.connection.models.History.create({
           entity: this.model.name,
           entity_id: data.getDataValue('id'),
-          action: 'CreateOrUpdate',
+          action: created ? 'create' : 'update',
           created,
           data: data.toJSON(),
-          previous_data: !created ? previousData : null,
+          previous_data: created ? null : previousData,
           expire_in: addDays(this.options.historyExpireIn),
+          created_by: owner.id,
+          created_by_name: owner.name,
         });
       }
 
