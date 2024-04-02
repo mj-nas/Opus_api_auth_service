@@ -73,12 +73,12 @@ export class UserService extends ModelService<User> {
     response: SqlUpdateResponse<User>,
   ): Promise<void> {
     await super.doAfterUpdate(job, response);
-    const data = response.data.dataValues;
-    const previousData = response.previousData.dataValues;
-
+    const { active, id } = response.data.dataValues;
+    const { active: previousActive } = response.previousData.dataValues;
+    console.log({ previousActive, active });
     // check if the status changed
-    if (previousData.active !== data.active) {
-      const status = data.active ? 'activated' : 'deactivated';
+    if (previousActive !== active) {
+      const status = active ? 'activated' : 'deactivated';
       await this.msClient.executeJob(
         'controller.notification',
         new Job({
@@ -89,7 +89,7 @@ export class UserService extends ModelService<User> {
               STATUS: status,
             },
             skipUserConfig: true,
-            user_id: data.id,
+            user_id: id,
           },
         }),
       );
