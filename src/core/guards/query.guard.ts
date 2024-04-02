@@ -12,15 +12,15 @@ export class QueryGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean | never {
-    const params =
+    const apiParams =
       this.reflector.getAllAndOverride<any[]>('swagger/apiParameters', [
         context.getHandler(),
         context.getClass(),
       ]) || [];
     const errors = [];
-    const { query } = context.switchToHttp().getRequest();
-    for (let index = 0; index < params.length; index++) {
-      const param = params[index];
+    const { query, params, body, method } = context.switchToHttp().getRequest();
+    for (let index = 0; index < apiParams.length; index++) {
+      const param = apiParams[index];
       if (param.schema && param.schema.format === 'json' && query[param.name]) {
         try {
           query[param.name] = JSON.parse(query[param.name]);
@@ -43,6 +43,9 @@ export class QueryGuard implements CanActivate {
       }
     }
     if (errors.length) throw new BadRequestException(errors);
+    if (method === 'PUT' && params.id) {
+      body.id = params.id;
+    }
     return true;
   }
 }

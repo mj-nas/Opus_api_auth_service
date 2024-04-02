@@ -6,7 +6,7 @@ import {
   ValidatorConstraintInterface,
   registerDecorator,
 } from 'class-validator';
-import { FindOptions } from 'sequelize';
+import { FindOptions, Op } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { SqlModel } from './sql.model';
 
@@ -19,23 +19,33 @@ export class SqlUniqueValidator<M> implements ValidatorConstraintInterface {
     const {
       property,
       constraints: [modelNameOrOption],
+      object,
     }: {
       property: string;
       constraints: (string | UniqueValidatorOptions<M>)[];
+      object: any;
     } = args;
     if (typeof value === 'undefined') return true;
     if (typeof modelNameOrOption === 'string') {
+      const where = { [property]: value };
+      if (object.id) {
+        where.id = { [Op.ne]: +object.id };
+      }
       return this.sequelize.models[modelNameOrOption]
-        .findOne({ where: { [property]: value } })
+        .findOne({ where })
         .then((data) => {
           return data === null;
         });
     } else {
       const { modelName, options } = modelNameOrOption;
-      const findOptions =
+      const { where, ...findOptions } =
         typeof options === 'function' ? options(args) : options;
+      const whereCond: any = where || { [property]: value };
+      if (object.id) {
+        whereCond.id = { [Op.ne]: +object.id };
+      }
       return this.sequelize.models[modelName]
-        .findOne({ where: { [property]: value }, ...findOptions })
+        .findOne({ where: whereCond, ...findOptions })
         .then((data) => {
           return data === null;
         });
