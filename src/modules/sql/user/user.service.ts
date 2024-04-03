@@ -243,6 +243,7 @@ export class UserService extends ModelService<User> {
         'ZIP_CODE',
       ];
       const fileContent = fs.readFileSync(csvFilePath, { encoding: 'utf-8' });
+      fs.unlinkSync(csvFilePath);
 
       const { error, records } = await this.parseFile(fileContent, headers);
       if (!!error) {
