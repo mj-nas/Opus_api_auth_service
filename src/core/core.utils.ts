@@ -1,10 +1,11 @@
 import { BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { isObject, validate } from 'class-validator';
+import { ValidationError, isObject, validate } from 'class-validator';
 import { Request } from 'express';
 import { plural } from 'pluralize';
 import { APP_MIN_VERSION, APP_VERSION } from 'src/app.config';
 import { v1 as uuidv1 } from 'uuid';
+import { ZodString, z } from 'zod';
 
 const saltOrRounds = 10;
 
@@ -142,3 +143,63 @@ export const extractVersion = (request: Request) => {
 
 export const getVersions = () =>
   getNumbersBetweenAsString(APP_MIN_VERSION, APP_VERSION);
+
+export const parseStringWithWhitespace = (pipes: ZodString) =>
+  z
+    .string()
+    .refine((value) => !/^\s|\s$/.test(value), {
+      message: 'Leading or trailing white spaces are not allowed',
+    })
+    .pipe(pipes);
+
+export const generateRandomPassword = (length: number): string => {
+  const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
+  const numberChars = '1234567890';
+  const symbols = '!@#&';
+
+  const allChars = uppercaseChars + lowercaseChars + numberChars + symbols;
+  let password = '';
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * allChars.length);
+    password += allChars[randomIndex];
+  }
+
+  return password;
+};
+
+/**
+ * trimAndValidateCustom - function to trim all field and validate based on dto
+ *
+ * @param {any} dto DTO definition
+ * @param {any} payload Payload object to be validated
+ * @param {string[]} [exclude] Fields to be excluded from trim
+ *
+ *```js
+ * const payload = await trimAndValidateCustom(
+      LocalAuthDto,
+      payload,
+      ['password'],
+    )
+ * ```
+ */
+export async function trimAndValidateCustom(
+  dto: any,
+  payload: any,
+  exclude?: string[],
+): Promise<{ errors?: ValidationError[]; payload?: any }> {
+  const dtoObj = new dto();
+  payload = trimFields(payload, exclude);
+  for (const key in payload) {
+    dtoObj[key] = payload[key];
+  }
+  const errors = await validate(dtoObj, {
+    whitelist: true,
+    validationError: {
+      target: false,
+    },
+  });
+  if (errors.length > 0) return { errors };
+  return { payload };
+}

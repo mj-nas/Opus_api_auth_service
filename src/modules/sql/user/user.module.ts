@@ -33,8 +33,13 @@ import { UserService } from './user.service';
         }),
         fileFilter: function (req, file, cb) {
           const ext = extname(file.originalname);
-          const validExtensions = ['.png', '.jpeg', '.jpg'];
-          const validMimetypes = ['image/png', 'image/jpeg', 'image/jpg'];
+          const validExtensions = ['.png', '.jpeg', '.jpg', '.csv'];
+          const validMimetypes = [
+            'image/png',
+            'image/jpeg',
+            'image/jpg',
+            'text/csv',
+          ];
           if (
             validMimetypes.includes(file.mimetype) &&
             validExtensions.includes(ext)

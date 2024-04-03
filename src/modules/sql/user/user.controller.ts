@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import {
   Body,
   Controller,
@@ -10,6 +9,7 @@ import {
   Query,
   Req,
   Res,
+  UploadedFiles,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -99,6 +99,42 @@ export class UserController {
       });
     }
     return Created(res, { data: { user: data }, message: 'Created' });
+  }
+
+  /**
+   * Create a new User
+   */
+  @Post('import')
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: 'Import Users' })
+  @ApiConsumes('multipart/form-data')
+  @FileUploads([{ name: 'csv_file', required: true }])
+  @ResponseCreated(User)
+  async importExcel(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @UploadedFiles() files: { csv_file: any },
+  ) {
+    const { error, data } = await this.userService.importExcel({
+      owner,
+      action: 'importExcel',
+      payload: { ...files },
+    });
+
+    if (error) {
+      if (error instanceof ValidationError) {
+        return BadRequest(res, {
+          error,
+          message: error.message,
+        });
+      }
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Created(res, { data, message: 'Created' });
   }
 
   /**
