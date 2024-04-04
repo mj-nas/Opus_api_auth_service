@@ -163,7 +163,7 @@ export class UserService extends ModelService<User> {
             x?.first_name,
             x?.last_name,
             x.email,
-            `${x?.phone_code} ${x?.phone}`,
+            `${x?.phone}`,
             x?.address,
             x?.city,
             x?.state,
