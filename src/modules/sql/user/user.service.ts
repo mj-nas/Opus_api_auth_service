@@ -142,7 +142,8 @@ export class UserService extends ModelService<User> {
 
       worksheet.addRow([
         'Sl. No',
-        'Name',
+        'First Name',
+        'Last Name',
         'Email',
         'Phone',
         'Address',
@@ -150,6 +151,7 @@ export class UserService extends ModelService<User> {
         'State',
         'Zip Code',
         'Created On',
+        'Status',
       ]);
 
       const users: User[] = JSON.parse(JSON.stringify(data));
@@ -158,7 +160,8 @@ export class UserService extends ModelService<User> {
         users.map(async (x, index) => {
           worksheet.addRow([
             index + 1,
-            x?.name,
+            x?.first_name,
+            x?.last_name,
             x.email,
             `${x?.phone_code} ${x?.phone}`,
             x?.address,
@@ -166,13 +169,15 @@ export class UserService extends ModelService<User> {
             x?.state,
             x?.zip_code,
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
+            x?.active ? 'Active' : 'Inactive',
           ]);
         }),
       );
 
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
-        { header: 'Name', key: 'name', width: 25 },
+        { header: 'First Name', key: 'first_name', width: 25 },
+        { header: 'Last Name', key: 'last_name', width: 25 },
         { header: 'Email', key: 'email', width: 25 },
         { header: 'Phone', key: 'phone', width: 50 },
         { header: 'Address', key: 'address', width: 50 },
@@ -180,6 +185,7 @@ export class UserService extends ModelService<User> {
         { header: 'State', key: 'state', width: 50 },
         { header: 'Zip Code', key: 'zip_code', width: 15 },
         { header: 'Created On', key: 'created_at', width: 25 },
+        { header: 'Status', key: 'active', width: 25 },
       ];
 
       const folder = 'customer-excel';
