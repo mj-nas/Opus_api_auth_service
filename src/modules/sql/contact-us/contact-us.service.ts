@@ -98,6 +98,8 @@ export class ContactUsService extends ModelService<ContactUs> {
     try {
       const { body, payload } = job;
       if (body?.mode === BulkDeleteMode.All) {
+        delete payload.limit;
+        delete payload.offset;
         const { error, data } = await this.allDelete({
           payload: { ...payload },
         });
