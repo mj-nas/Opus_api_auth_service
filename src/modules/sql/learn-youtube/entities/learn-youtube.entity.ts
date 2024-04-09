@@ -59,8 +59,9 @@ export class LearnYoutube extends SqlModel {
 
   @BeforeCreate
   static async setSortMaxValue(instance: LearnYoutube) {
-    const sort = await LearnYoutube.max('sort');
-    instance.sort = sort as number;
+    const maxSort = await LearnYoutube.max('sort');
+    const sort = maxSort as number;
+    instance.sort = sort + 1;
   }
 
   @BeforeUpdate

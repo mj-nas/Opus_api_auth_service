@@ -83,8 +83,9 @@ export class LearnArticle extends SqlModel {
 
   @BeforeCreate
   static async setSortMaxValue(instance: LearnArticle) {
-    const sort = await LearnArticle.max('sort');
-    instance.sort = sort as number;
+    const maxSort = await LearnArticle.max('sort');
+    const sort = maxSort as number;
+    instance.sort = sort + 1;
   }
 
   @BeforeUpdate

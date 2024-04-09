@@ -84,8 +84,9 @@ export class ProductCategory extends SqlModel {
 
   @BeforeCreate
   static async setSortMaxValue(instance: ProductCategory) {
-    const sort = await ProductCategory.max('sort');
-    instance.sort = sort as number;
+    const maxSort = await ProductCategory.max('sort');
+    const sort = maxSort as number;
+    instance.sort = sort + 1;
   }
 
   @BeforeUpdate
