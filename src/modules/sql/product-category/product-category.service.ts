@@ -24,6 +24,23 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
   }
 
   /**
+   * doBeforeRead
+   * @function function will execute before findAll, getCount, findById and findOne function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeRead(job: SqlJob<ProductCategory>): Promise<void> {
+    super.doBeforeRead(job);
+    if (job.action === 'publicFindAll')
+      job.options.attributes = [
+        'id',
+        'category_name',
+        'category_image',
+        'sort',
+      ];
+  }
+
+  /**
    * doBeforeDelete
    * @function function will execute before delete function
    * @param {object} job - mandatory - a job object representing the job information
@@ -43,10 +60,6 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
           'Cannot delete category because it is assigned to one or more products.',
         );
     } catch (error) {
-      console.error(
-        'Error occurred during category deletion validation:',
-        error.message,
-      );
       throw error;
     }
   }

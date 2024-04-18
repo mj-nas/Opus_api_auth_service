@@ -183,7 +183,6 @@ export class ContactUsService extends ModelService<ContactUs> {
         },
       };
     } catch (error) {
-      console.log(error);
       return { error };
     }
   }

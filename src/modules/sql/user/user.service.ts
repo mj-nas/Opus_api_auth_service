@@ -206,7 +206,6 @@ export class UserService extends ModelService<User> {
         },
       };
     } catch (error) {
-      console.log(error);
       return { error };
     }
   }
@@ -343,7 +342,6 @@ export class UserService extends ModelService<User> {
             'password',
           ]);
           if (!!errors) {
-            console.log(errors);
             import_status.failed.push({
               ...user,
               error: errors.flatMap((err) => ({
@@ -414,8 +412,6 @@ export class UserService extends ModelService<User> {
           }
         }
       }
-
-      console.log(import_status);
       return { data: import_status };
     } catch (error) {
       return { error };

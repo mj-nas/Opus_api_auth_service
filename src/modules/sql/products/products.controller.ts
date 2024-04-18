@@ -38,7 +38,7 @@ import {
   Result,
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
-import { Public } from 'src/core/decorators/public.decorator';
+import { OptionalPublic } from 'src/core/decorators/optional-public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
 import { Role } from '../user/role.enum';
@@ -150,15 +150,47 @@ export class ProductsController {
     });
   }
 
+  @OptionalPublic()
+  @Get('public')
+  @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
+  @ApiQueryGetAll()
+  @ResponseGetAll(Products)
+  async publicFindAll(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data, offset, limit, count } =
+      await this.productsService.findAll({
+        owner,
+        action: 'publicFindAll',
+        payload: { ...query },
+      });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { [pluralizeString(entity)]: data, offset, limit, count },
+      message: 'Ok',
+    });
+  }
+
   /**
    * Return all entity documents list for home page
    */
-  @Public()
+  @OptionalPublic()
   @Get('featured-products-list')
   @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
   @ResponseGetAll(Products)
-  async getFeaturedProducts(@Res() res: Response) {
-    const { error, data } = await this.productsService.getFeaturedProducts();
+  async getFeaturedProducts(@Res() res: Response, @Owner() owner: OwnerDto) {
+    const { error, data } = await this.productsService.getFeaturedProducts({
+      owner,
+      action: 'getFeaturedProducts',
+    });
 
     if (error) {
       return ErrorResponse(res, {
@@ -175,12 +207,15 @@ export class ProductsController {
   /**
    * Return all entity documents list for home page
    */
-  @Public()
+  @OptionalPublic()
   @Get('recommended-products-list')
   @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
   @ResponseGetAll(Products)
-  async getRecommendedProducts(@Res() res: Response) {
-    const { error, data } = await this.productsService.getRecommendedProducts();
+  async getRecommendedProducts(@Res() res: Response, @Owner() owner: OwnerDto) {
+    const { error, data } = await this.productsService.getRecommendedProducts({
+      owner,
+      action: 'getFeaturedProducts',
+    });
 
     if (error) {
       return ErrorResponse(res, {

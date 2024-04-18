@@ -1,8 +1,9 @@
-import { ModelService, SqlService } from '@core/sql';
+import { ModelService, SqlJob, SqlService } from '@core/sql';
 import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import * as moment from 'moment-timezone';
+import { IncludeOptions } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
 import { Products } from './entities/products.entity';
@@ -17,6 +18,42 @@ export class ProductsService extends ModelService<Products> {
 
   constructor(db: SqlService<Products>) {
     super(db);
+  }
+
+  /**
+   * doBeforeRead
+   * @function function will execute before findAll, getCount, findById and findOne function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeRead(job: SqlJob<Products>): Promise<void> {
+    super.doBeforeRead(job);
+    const include = job.options.include as IncludeOptions[];
+
+    // Populate
+    const image = include.findIndex(
+      (x) => x.association === 'product_primary_image',
+    );
+    if (image === -1) {
+      include.push({
+        association: 'product_primary_image',
+      });
+    }
+
+    const wishlisted = include.findIndex((x) => x.association === 'wishlisted');
+    if (wishlisted > -1) {
+      if (!!job.owner?.id) {
+        include[wishlisted].where = {
+          ...include[wishlisted].where,
+          user_id: job.owner.id,
+        };
+        include[wishlisted].required = false;
+      } else {
+        include.splice(wishlisted, 1);
+      }
+    }
+
+    job.options.include = include;
   }
 
   async createXls(job: Job): Promise<JobResponse> {
@@ -95,19 +132,27 @@ export class ProductsService extends ModelService<Products> {
         },
       };
     } catch (error) {
-      console.log(error);
       return { error };
     }
   }
 
-  async getFeaturedProducts() {
+  async getFeaturedProducts(job: Job): Promise<JobResponse> {
     try {
+      const include: IncludeOptions[] = [
+        { association: 'product_primary_image' },
+      ];
+      if (!!job.owner?.id) {
+        include.push({
+          association: 'wishlisted',
+          where: { user_id: job.owner.id },
+        });
+      }
       const { data } = await this.$db.getAllRecords({
         options: {
           limit: -1,
           order: [['created_at', 'desc']],
           where: { status: 'Y', is_featured: 'Y' },
-          include: [{ association: 'product_primary_image' }],
+          include,
         },
       });
       return { data };
@@ -116,14 +161,23 @@ export class ProductsService extends ModelService<Products> {
     }
   }
 
-  async getRecommendedProducts() {
+  async getRecommendedProducts(job: Job): Promise<JobResponse> {
     try {
+      const include: IncludeOptions[] = [
+        { association: 'product_primary_image' },
+      ];
+      if (!!job.owner?.id) {
+        include.push({
+          association: 'wishlisted',
+          where: { user_id: job.owner.id },
+        });
+      }
       const { data } = await this.$db.getAllRecords({
         options: {
           limit: 10,
           order: [['created_at', 'desc']],
           where: { status: 'Y' },
-          include: [{ association: 'product_primary_image' }],
+          include: include,
         },
       });
       return { data };

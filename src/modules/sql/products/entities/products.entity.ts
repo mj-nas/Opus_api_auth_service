@@ -19,6 +19,7 @@ import { slugify } from 'src/core/core.utils';
 import { ProductCategory } from '../../product-category/entities/product-category.entity';
 import { ProductGallery } from '../../product-gallery/entities/product-gallery.entity';
 import { ProductSpecifications } from '../../product-specifications/entities/product-specifications.entity';
+import { Wishlist } from '../../wishlist/entities/wishlist.entity';
 
 @Table
 export class Products extends SqlModel {
@@ -164,9 +165,13 @@ export class Products extends SqlModel {
   @IsOptional()
   product_rating: number;
 
+  @Include({
+    attributes: ['id', 'category_name', 'category_image'],
+  })
   @BelongsTo(() => ProductCategory)
   productCategory: ProductCategory;
 
+  @Include({ attributes: ['id', 'product_image', 'is_primary'] })
   @HasMany(() => ProductGallery)
   productGallery: ProductGallery[];
 
@@ -176,6 +181,12 @@ export class Products extends SqlModel {
 
   @HasMany(() => ProductSpecifications)
   productSpecifications: ProductSpecifications[];
+
+  @Include({
+    attributes: ['user_id', 'product_id'],
+  })
+  @HasOne(() => Wishlist)
+  wishlisted: Wishlist;
 
   @BeforeCreate
   static async setSlug(instance: Products) {

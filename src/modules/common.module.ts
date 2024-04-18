@@ -29,6 +29,7 @@ import { StateModule } from './sql/state/state.module';
 import { TemplateModule } from './sql/template/template.module';
 import { TestimonialsModule } from './sql/testimonials/testimonials.module';
 import { UserModule } from './sql/user/user.module';
+import { WishlistModule } from './sql/wishlist/wishlist.module';
 
 @Module({})
 export class CommonModule {
@@ -58,6 +59,7 @@ export class CommonModule {
       ContactUsModule,
       LearnYoutubeModule,
       LearnArticleModule,
+      WishlistModule,
     ];
 
     // common providers

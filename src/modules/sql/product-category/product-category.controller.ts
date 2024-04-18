@@ -185,6 +185,7 @@ export class ProductCategoryController {
    * Return all entity documents list
    */
   @Get()
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
   @ApiQueryGetAll()
   @ResponseGetAll(ProductCategory)
@@ -197,6 +198,39 @@ export class ProductCategoryController {
       await this.productCategoryService.findAll({
         owner,
         action: 'findAll',
+        payload: { ...query },
+      });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { [pluralizeString(entity)]: data, offset, limit, count },
+      message: 'Ok',
+    });
+  }
+
+  /**
+   * Return all entity documents list
+   */
+  @Public()
+  @Get('public')
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
+  @ApiQueryGetAll()
+  @ResponseGetAll(ProductCategory)
+  async publicFindAll(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data, offset, limit, count } =
+      await this.productCategoryService.findAll({
+        owner,
+        action: 'publicFindAll',
         payload: { ...query },
       });
 

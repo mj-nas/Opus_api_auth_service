@@ -99,7 +99,6 @@ export class CouponService extends ModelService<Coupon> {
         },
       };
     } catch (error) {
-      console.log(error);
       return { error };
     }
   }
