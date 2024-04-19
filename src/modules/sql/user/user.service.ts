@@ -63,6 +63,23 @@ export class UserService extends ModelService<User> {
           password,
         },
       });
+
+      await this.msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_id: payload.id,
+            template: 'change_password',
+            skipUserConfig: true,
+            variables: {
+              TO_NAME: userResult.data.name,
+              USERNAME: userResult.data.email,
+              PASSWORD: payload.password,
+            },
+          },
+        }),
+      );
       return userResult;
     } catch (error) {
       return { error };
@@ -76,13 +93,6 @@ export class UserService extends ModelService<User> {
    */
   async changePasswordByAdmin(job: Job): Promise<JobResponse> {
     const { payload } = job;
-    const { data, error } = await this.$db.findRecordById({
-      id: payload.id,
-      options: { allowEmpty: true },
-    });
-
-    if (!!error || data === null)
-      throw 'Something went wrong. Please try again later.';
 
     const password = await generateHash(payload.password);
     try {
@@ -103,8 +113,8 @@ export class UserService extends ModelService<User> {
             template: 'change_password_by_admin',
             skipUserConfig: true,
             variables: {
-              TO_NAME: data.name,
-              USERNAME: data.email,
+              TO_NAME: userResult.data.name,
+              USERNAME: userResult.data.email,
               PASSWORD: payload.password,
             },
           },
