@@ -70,6 +70,54 @@ export class UserService extends ModelService<User> {
   }
 
   /**
+   * change user password
+   * @param job
+   * @returns Promise<JobResponse>
+   */
+  async changePasswordByAdmin(job: Job): Promise<JobResponse> {
+    const { payload } = job;
+    const { data, error } = await this.$db.findRecordById({
+      id: payload.id,
+      options: { allowEmpty: true },
+    });
+
+    if (!!error || data === null)
+      throw 'Something went wrong. Please try again later.';
+
+    const password = await generateHash(payload.password);
+    try {
+      const userResult = await this.$db.updateRecord({
+        action: 'updateRecord',
+        id: payload.id,
+        body: {
+          password,
+        },
+      });
+
+      await this.msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_id: payload.id,
+            template: 'change_password_by_admin',
+            skipUserConfig: true,
+            variables: {
+              TO_NAME: data.name,
+              USERNAME: data.email,
+              PASSWORD: payload.password,
+            },
+          },
+        }),
+      );
+
+      return userResult;
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  /**
    * doAfterUpdate
    * @function function will execute after update function
    * @param {object} job - mandatory - a job object representing the job information

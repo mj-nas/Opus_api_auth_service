@@ -48,6 +48,7 @@ import { OwnerIncludeAttribute } from 'src/core/decorators/sql/owner-attributes.
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
 import { Role } from '../user/role.enum';
+import { ChangePasswordByAdminDto } from './dto/change-password-by-admin.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -499,6 +500,50 @@ export class UserController {
     const { error } = await this.userService.changePassword({
       owner,
       payload: changePasswordDto,
+    });
+
+    if (!!error) {
+      if (error instanceof NotFoundError) {
+        return NotFound(res, {
+          error,
+          message: `Record not found`,
+        });
+      }
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { message: 'Password changed' });
+  }
+
+  /**
+   * Change password for logged in user
+   */
+  @Post('password-by-admin')
+  @Roles(Role.Admin)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Change password for user by admin' })
+  @ApiOkResponse({
+    description: 'Success',
+    schema: {
+      properties: {
+        message: {
+          type: 'string',
+          example: 'Password changed',
+        },
+      },
+    },
+  })
+  async changePasswordByAdmin(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Body() changePasswordByAdminDto: ChangePasswordByAdminDto,
+  ) {
+    const { error } = await this.userService.changePasswordByAdmin({
+      owner,
+      payload: changePasswordByAdminDto,
     });
 
     if (!!error) {
