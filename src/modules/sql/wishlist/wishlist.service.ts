@@ -10,7 +10,7 @@ export class WishlistService extends ModelService<Wishlist> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['name'];
+  searchFields: string[] = [];
 
   constructor(db: SqlService<Wishlist>) {
     super(db);
