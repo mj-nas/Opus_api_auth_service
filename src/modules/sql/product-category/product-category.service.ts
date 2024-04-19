@@ -30,7 +30,7 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
    * @return {void}
    */
   protected async doBeforeRead(job: SqlJob<ProductCategory>): Promise<void> {
-    super.doBeforeRead(job);
+    await super.doBeforeRead(job);
     if (job.action === 'publicFindAll')
       job.options.attributes = [
         'id',

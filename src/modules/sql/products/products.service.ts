@@ -27,7 +27,7 @@ export class ProductsService extends ModelService<Products> {
    * @return {void}
    */
   protected async doBeforeRead(job: SqlJob<Products>): Promise<void> {
-    super.doBeforeRead(job);
+    await super.doBeforeRead(job);
     const include = job.options.include as IncludeOptions[];
 
     // Populate

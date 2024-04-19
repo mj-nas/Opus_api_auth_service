@@ -17,6 +17,17 @@ export class WishlistService extends ModelService<Wishlist> {
   }
 
   /**
+   * doBeforeFindAll
+   * @function function will execute before findAll function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeFindAll(job: SqlJob<Wishlist>): Promise<void> {
+    await super.doBeforeFindAll(job);
+    job.options.where = { ...job.options.where, user_id: job.owner.id };
+  }
+
+  /**
    * doBeforeCreate
    * @function function will execute before create function
    * @param {object} job - mandatory - a job object representing the job information
