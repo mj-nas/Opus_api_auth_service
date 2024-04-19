@@ -212,6 +212,7 @@ export class ProductsController {
   @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
   @ResponseGetAll(Products)
   async getRecommendedProducts(@Res() res: Response, @Owner() owner: OwnerDto) {
+    console.log(owner);
     const { error, data } = await this.productsService.getRecommendedProducts({
       owner,
       action: 'getFeaturedProducts',
