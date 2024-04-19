@@ -145,6 +145,7 @@ export class ProductsService extends ModelService<Products> {
         include.push({
           association: 'wishlisted',
           where: { user_id: job.owner.id },
+          required: false,
         });
       }
       const { data } = await this.$db.getAllRecords({
@@ -170,6 +171,7 @@ export class ProductsService extends ModelService<Products> {
         include.push({
           association: 'wishlisted',
           where: { user_id: job.owner.id },
+          required: false,
         });
       }
       const { data } = await this.$db.getAllRecords({
