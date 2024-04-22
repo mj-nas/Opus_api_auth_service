@@ -96,13 +96,15 @@ export class UserService extends ModelService<User> {
 
     const password = await generateHash(payload.password);
     try {
-      const { data } = await this.$db.updateRecord({
+      const { data, error } = await this.$db.updateRecord({
         action: 'updateRecord',
         id: payload.id,
         body: {
           password,
         },
       });
+
+      console.log({ data, error, payload });
 
       await this.msClient.executeJob(
         'controller.notification',

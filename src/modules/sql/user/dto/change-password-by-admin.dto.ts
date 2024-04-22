@@ -1,4 +1,5 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
+import { IsNumber } from 'class-validator';
 import { User } from '../entities/user.entity';
 
 export class ChangePasswordByAdminDto extends PickType(User, [
@@ -9,5 +10,6 @@ export class ChangePasswordByAdminDto extends PickType(User, [
     description: 'User ID',
     example: 1,
   })
-  id: number;
+  @IsNumber()
+  user_id: number;
 }
