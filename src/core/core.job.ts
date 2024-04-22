@@ -61,8 +61,8 @@ export interface Job {
   status?: 'Pending' | 'Completed' | 'Errored';
 
   /**
- * array of records used for bulk create
- */
+   * array of records used for bulk create
+   */
   records?: {
     [key: string]: any;
   }[];
@@ -79,6 +79,6 @@ export class Job {
     this.files = job.files || {};
     this.payload = job.payload || {};
     this.status = job.status || 'Pending';
-    this.records = job.records || []
+    this.records = job.records || [];
   }
 }

@@ -96,7 +96,7 @@ export class UserService extends ModelService<User> {
 
     const password = await generateHash(payload.password);
     try {
-      const userResult = await this.$db.updateRecord({
+      const { data } = await this.$db.updateRecord({
         action: 'updateRecord',
         id: payload.id,
         body: {
@@ -113,15 +113,15 @@ export class UserService extends ModelService<User> {
             template: 'change_password_by_admin',
             skipUserConfig: true,
             variables: {
-              TO_NAME: userResult.data.getDataValue('name'),
-              USERNAME: userResult.data.getDataValue('email'),
+              TO_NAME: data.name,
+              USERNAME: data.email,
               PASSWORD: payload.password,
             },
           },
         }),
       );
 
-      return userResult;
+      return { data };
     } catch (error) {
       return { error };
     }
