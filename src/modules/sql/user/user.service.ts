@@ -98,7 +98,7 @@ export class UserService extends ModelService<User> {
     try {
       const { data, error } = await this.$db.updateRecord({
         action: 'updateRecord',
-        id: payload.id,
+        id: payload.user_id,
         body: {
           password,
         },
@@ -111,7 +111,7 @@ export class UserService extends ModelService<User> {
         new Job({
           action: 'send',
           payload: {
-            user_id: payload.id,
+            user_id: payload.user_id,
             template: 'change_password_by_admin',
             skipUserConfig: true,
             variables: {
