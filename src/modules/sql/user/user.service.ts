@@ -113,8 +113,8 @@ export class UserService extends ModelService<User> {
             template: 'change_password_by_admin',
             skipUserConfig: true,
             variables: {
-              TO_NAME: userResult.data.name,
-              USERNAME: userResult.data.email,
+              TO_NAME: userResult.data.getDataValue('name'),
+              USERNAME: userResult.data.getDataValue('email'),
               PASSWORD: payload.password,
             },
           },
