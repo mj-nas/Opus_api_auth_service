@@ -104,7 +104,7 @@ export class UserService extends ModelService<User> {
         },
       });
 
-      console.log({ data, error, payload });
+      if (!!error) return { error };
 
       await this.msClient.executeJob(
         'controller.notification',
