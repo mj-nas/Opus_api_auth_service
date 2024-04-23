@@ -7,20 +7,26 @@ import {
   ValidatorConstraintInterface,
   registerDecorator,
 } from 'class-validator';
+import { Request } from 'express';
 import { Connection } from 'mongoose';
+import { CLS_REQ, ClsService } from 'nestjs-cls';
+import { CoreClsStore } from 'src/core/core.module';
 import { MongoJobOptions } from './mongo.job';
 import { MongoSchema } from './mongo.schema';
 
 @ValidatorConstraint({ name: 'isUnique', async: true })
 @Injectable()
 export class MongoUniqueValidator<M> implements ValidatorConstraintInterface {
-  constructor(@InjectConnection() private connection: Connection) {}
+  constructor(
+    @InjectConnection() private connection: Connection,
+    private readonly cls: ClsService<CoreClsStore>,
+  ) {}
 
   async validate(value: any, args: ValidationArguments) {
+    const req = this.cls.get<Request>(CLS_REQ);
     const {
       property,
       constraints: [modelNameOrOption],
-      object,
     }: {
       property: string;
       constraints: (string | UniqueValidatorOptions<M>)[];
@@ -29,11 +35,12 @@ export class MongoUniqueValidator<M> implements ValidatorConstraintInterface {
     if (typeof value === 'undefined') return true;
     if (typeof modelNameOrOption === 'string') {
       const where = { [property]: value };
-      if (object.id) {
-        where._id = { $ne: object.id };
+      if (req.method === 'PUT' && !!req.params.id) {
+        where._id = { $ne: req.params.id };
       }
       return this.connection.models[modelNameOrOption]
         .findOne(where)
+        .collation({ locale: 'en', strength: 2 })
         .then((data) => {
           return data === null;
         });
@@ -42,11 +49,12 @@ export class MongoUniqueValidator<M> implements ValidatorConstraintInterface {
       const { where, ...findOptions } =
         typeof options === 'function' ? options(args) : options;
       const whereCond: any = where || { [property]: value };
-      if (object.id) {
-        whereCond._id = { $ne: object.id };
+      if (req.method === 'PUT' && !!req.params.id) {
+        whereCond._id = { $ne: req.params.id };
       }
       return this.connection.models[modelName]
         .findOne(whereCond, null, findOptions)
+        .collation({ locale: 'en', strength: 2 })
         .then((data) => {
           return data === null;
         });

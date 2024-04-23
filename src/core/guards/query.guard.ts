@@ -18,7 +18,7 @@ export class QueryGuard implements CanActivate {
         context.getClass(),
       ]) || [];
     const errors = [];
-    const { query, params, body, method } = context.switchToHttp().getRequest();
+    const { query } = context.switchToHttp().getRequest();
     for (let index = 0; index < apiParams.length; index++) {
       const param = apiParams[index];
       if (param.schema && param.schema.format === 'json' && query[param.name]) {
@@ -43,9 +43,6 @@ export class QueryGuard implements CanActivate {
       }
     }
     if (errors.length) throw new BadRequestException(errors);
-    if (method === 'PUT' && params.id) {
-      body.id = params.id;
-    }
     return true;
   }
 }

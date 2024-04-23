@@ -6,11 +6,14 @@ import {
 } from '@nestjs/serve-static';
 import { ThrottlerModule } from '@nestjs/throttler/dist/throttler.module';
 import { existsSync, mkdirSync } from 'fs';
+import { ClsModule, ClsStore } from 'nestjs-cls';
 import { MsClientModule } from 'src/core/modules/ms-client/ms-client.module';
 import config from '../config';
 import { CachingModule } from './modules/caching/caching.module';
 import { SessionModule } from './modules/session/session.module';
 import { SocketModule } from './modules/socket/socket.module';
+
+export interface CoreClsStore extends ClsStore {}
 
 @Module({
   imports: [
@@ -18,6 +21,12 @@ import { SocketModule } from './modules/socket/socket.module';
       load: [config],
     }),
     CachingModule,
+    ClsModule.forRoot({
+      global: true,
+      middleware: {
+        mount: true,
+      },
+    }),
     MsClientModule,
     SessionModule,
     SocketModule,

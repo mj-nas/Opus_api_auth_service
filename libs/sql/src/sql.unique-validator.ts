@@ -6,20 +6,26 @@ import {
   ValidatorConstraintInterface,
   registerDecorator,
 } from 'class-validator';
+import { Request } from 'express';
+import { CLS_REQ, ClsService } from 'nestjs-cls';
 import { FindOptions, Op } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
+import { CoreClsStore } from 'src/core/core.module';
 import { SqlModel } from './sql.model';
 
 @ValidatorConstraint({ name: 'isUnique', async: true })
 @Injectable()
 export class SqlUniqueValidator<M> implements ValidatorConstraintInterface {
-  constructor(private sequelize: Sequelize) {}
+  constructor(
+    private sequelize: Sequelize,
+    private readonly cls: ClsService<CoreClsStore>,
+  ) {}
 
   async validate(value: any, args: ValidationArguments) {
+    const req = this.cls.get<Request>(CLS_REQ);
     const {
       property,
       constraints: [modelNameOrOption],
-      object,
     }: {
       property: string;
       constraints: (string | UniqueValidatorOptions<M>)[];
@@ -28,8 +34,8 @@ export class SqlUniqueValidator<M> implements ValidatorConstraintInterface {
     if (typeof value === 'undefined') return true;
     if (typeof modelNameOrOption === 'string') {
       const where = { [property]: value };
-      if (object.id) {
-        where.id = { [Op.ne]: +object.id };
+      if (req.method === 'PUT' && !!req.params.id) {
+        where.id = { [Op.ne]: +req.params.id };
       }
       return this.sequelize.models[modelNameOrOption]
         .findOne({ where })
@@ -41,8 +47,8 @@ export class SqlUniqueValidator<M> implements ValidatorConstraintInterface {
       const { where, ...findOptions } =
         typeof options === 'function' ? options(args) : options;
       const whereCond: any = where || { [property]: value };
-      if (object.id) {
-        whereCond.id = { [Op.ne]: +object.id };
+      if (req.method === 'PUT' && !!req.params.id) {
+        whereCond.id = { [Op.ne]: +req.params.id };
       }
       return this.sequelize.models[modelName]
         .findOne({ where: whereCond, ...findOptions })
