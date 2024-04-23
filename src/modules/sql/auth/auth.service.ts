@@ -355,6 +355,28 @@ export class AuthService {
     return { error: false };
   }
 
+  async emailVerifyOtp(type: OtpSessionType, user: User): Promise<JobResponse> {
+    const { error, data } = await this.otpSessionService.create({
+      body: {
+        user_id: user.id,
+        otp: otp(4),
+        type: type,
+        expire_at: new Date(Date.now() + 15 * 60 * 1000),
+      },
+    });
+    await this.notificationService.send({
+      action: 'send',
+      payload: {
+        user_id: user.id,
+        template: 'email_verification',
+        variables: {
+          OTP: data.otp,
+        },
+      },
+    });
+    return { error, data };
+  }
+
   async signup(body: SignupDto): Promise<JobResponse> {
     try {
       const checkEmail = await this.userService.findOne({
@@ -380,22 +402,63 @@ export class AuthService {
         return { error, message: 'User signup failed' };
       }
 
+      return { data };
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  async emailOtpVerify(body: VerifyOtpDto): Promise<JobResponse> {
+    try {
+      const { data, errorCode, error } = await this.verifyOtp(body);
+      if (!!error || !data.verified) {
+        return { error, errorCode, data };
+      }
+
+      const userDetails = await this.userService.$db.updateRecord({
+        id: data.user_id,
+        body: {
+          email_verified: 'Y',
+        },
+      });
+
+      if (!!userDetails.error) {
+        return { error };
+      }
+
       await this.msClient.executeJob(
         'controller.notification',
         new Job({
           action: 'send',
           payload: {
-            user_id: data.dataValues.id,
-            template: 'welcome_mail',
+            user_id: data.user_id,
+            template: 'email_verification_completed',
             skipUserConfig: true,
             variables: {
-              TO_NAME: data.dataValues.name,
+              TO_NAME: userDetails.data.name,
             },
           },
         }),
       );
 
-      return { data };
+      // await this.msClient.executeJob(
+      //   'controller.notification',
+      //   new Job({
+      //     action: 'send',
+      //     payload: {
+      //       user_id: data.user_id,
+      //       template: 'welcome_mail',
+      //       skipUserConfig: true,
+      //       variables: {
+      //         TO_NAME: userDetails.data.name,
+      //         USERNAME: userDetails.data.email,
+      //         PASSWORD: '',
+      //       },
+      //     },
+      //   }),
+      // );
+
+      return { error: false, data };
     } catch (error) {
       return { error };
     }

@@ -7,6 +7,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export enum OtpSessionType {
   Login = 'Login',
   Signup = 'Signup',
+  EmailVerify = 'EmailVerify',
   Forgot = 'Forgot',
 }
 

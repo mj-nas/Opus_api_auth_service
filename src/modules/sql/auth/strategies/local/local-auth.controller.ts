@@ -17,6 +17,8 @@ import { ErrorResponse, Result, Unauthorized } from 'src/core/core.responses';
 import { GetIP } from 'src/core/decorators/ip.decorator';
 import { Public } from 'src/core/decorators/public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
+import { OtpSessionType } from 'src/modules/mongo/otp-session/entities/otp-session.entity';
+import { Role } from 'src/modules/sql/user/role.enum';
 import { User } from '../../../user/entities/user.entity';
 import { AuthService } from '../../auth.service';
 import { LocalAuthDto } from './local-auth.dto';
@@ -73,6 +75,25 @@ export class LocalAuthController {
     @Body() auth: LocalAuthDto,
     @GetIP() ip: string,
   ) {
+    if (owner.role !== Role.Admin && owner.email_verified !== 'Y') {
+      const u = owner as User;
+      const emailVerifyOtp = await this.authService.emailVerifyOtp(
+        OtpSessionType.Login,
+        u,
+      );
+      if (!!emailVerifyOtp.error) {
+        return ErrorResponse(res, {
+          error: emailVerifyOtp.error,
+          message: `${emailVerifyOtp.error.message || emailVerifyOtp.error}`,
+        });
+      }
+
+      return Result(res, {
+        data: { otp: true, session_id: emailVerifyOtp.data._id },
+        message: 'Code sent',
+      });
+    }
+
     if (owner.enable_2fa) {
       const _2faOtp = await this.authService.createOtpSession(owner, {
         ...auth.info,
@@ -86,7 +107,7 @@ export class LocalAuthController {
       }
       return Result(res, {
         data: { otp: true, session_id: _2faOtp.data._id },
-        message: 'OTP sent',
+        message: 'Code sent',
       });
     }
     const { error, data } = await this.authService.createSession(owner, {

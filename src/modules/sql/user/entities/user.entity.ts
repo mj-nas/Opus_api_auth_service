@@ -331,6 +331,16 @@ export class User extends SqlModel {
   })
   last_login_at?: Date;
 
+  @Column({ type: DataType.ENUM('Y', 'N'), defaultValue: 'N' })
+  @ApiProperty({
+    enum: { Y: 'Y', N: 'N' },
+    description: 'Y | N',
+    example: 'Y',
+  })
+  @IsOptional()
+  @IsEnum({ Y: 'Y', N: 'N' })
+  email_verified?: string;
+
   @BeforeSave
   static setName(instance: User) {
     if (instance.first_name && instance.last_name) {

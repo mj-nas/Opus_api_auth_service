@@ -13,12 +13,12 @@ import {
   ErrorResponse,
   Forbidden,
   Result,
-  Unauthorized,
 } from 'src/core/core.responses';
 import { Public } from 'src/core/decorators/public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
 import { LoginLog } from 'src/modules/mongo/login-log/entities/login-log.entity';
+import { OtpSessionType } from 'src/modules/mongo/otp-session/entities/otp-session.entity';
 import { User } from '../user/entities/user.entity';
 import { Role } from '../user/role.enum';
 import { AuthService } from './auth.service';
@@ -362,16 +362,81 @@ export class AuthController {
       });
     }
 
-    const { error, data } = await this.authService.createSession(
+    const emailVerifyOtp = await this.authService.emailVerifyOtp(
+      OtpSessionType.EmailVerify,
       signup.data,
-      body.info,
     );
-    if (!!error) {
-      return Unauthorized(res, {
-        error,
-        message: `${error.message || error}`,
+    if (!!emailVerifyOtp.error) {
+      return ErrorResponse(res, {
+        error: emailVerifyOtp.error,
+        message: `${emailVerifyOtp.error.message || emailVerifyOtp.error}`,
       });
     }
-    return Result(res, { data, message: 'Signup success' });
+
+    return Result(res, {
+      data: { session_id: emailVerifyOtp.data._id },
+      message: 'Code sent',
+    });
+  }
+
+  @Public()
+  @ApiOperation({ summary: 'Verify Email OTP' })
+  @ApiOkResponse({
+    description: 'Ok',
+    schema: {
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            session_id: {
+              type: 'string',
+            },
+          },
+        },
+        message: {
+          type: 'string',
+          example: 'OTP verified',
+        },
+      },
+    },
+  })
+  @Post('otp/verify-email-otp')
+  async verifyEmailOtp(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() body: VerifyOtpDto,
+  ) {
+    const verifyOtp = await this.authService.emailOtpVerify(body);
+    if (!!verifyOtp.error) {
+      if (verifyOtp.errorCode === 403) {
+        return Forbidden(res, {
+          error: verifyOtp.error,
+          message: `${verifyOtp.error.message || verifyOtp.error}`,
+        });
+      }
+      return BadRequest(res, {
+        error: verifyOtp.error,
+        message: `${verifyOtp.error.message || verifyOtp.error}`,
+      });
+    }
+
+    if (verifyOtp.data.type === 'Login') {
+      const { error, data } = await this.authService.createUserSession(
+        verifyOtp.data.user_id,
+        false,
+        verifyOtp.data.payload,
+      );
+      if (!!error) {
+        return Forbidden(res, {
+          error,
+          message: `${error.message || error}`,
+        });
+      }
+      return Result(res, { data, message: 'Login success' });
+    }
+    return Result(res, {
+      data: { session_id: verifyOtp.data._id },
+      message: 'Code verified',
+    });
   }
 }
