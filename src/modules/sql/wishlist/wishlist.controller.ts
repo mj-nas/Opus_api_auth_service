@@ -51,7 +51,7 @@ export class WishlistController {
         message: `${error.message || error}`,
       });
     }
-    return Created(res, { data: { [entity]: data }, message });
+    return Created(res, { data, message });
   }
 
   /**

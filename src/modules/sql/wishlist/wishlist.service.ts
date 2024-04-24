@@ -61,7 +61,7 @@ export class WishlistService extends ModelService<Wishlist> {
           });
           if (!!createErr) return { error: createErr };
           return {
-            data: createdData,
+            data: { wishlisted: true, wishlist: createdData },
             message: 'The product has been wishlisted successfully.',
           };
         }
@@ -75,7 +75,7 @@ export class WishlistService extends ModelService<Wishlist> {
       });
       if (!!deleteErr) return { error: deleteErr };
       return {
-        data: deleteData,
+        data: { wishlisted: false, wishlist: deleteData },
         message: 'The product has been removed from the wishlist.',
       };
     } catch (error) {
