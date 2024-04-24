@@ -312,6 +312,40 @@ export class ProductsController {
   }
 
   /**
+   * Find one entity document
+   */
+  @OptionalPublic()
+  @Get('find/public')
+  @ApiOperation({ summary: `Find one ${entity} public` })
+  @ApiQueryGetOne()
+  @ResponseGetOne(Products)
+  async findOnePublic(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.productsService.findOne({
+      owner,
+      action: 'findOnePublic',
+      payload: { ...query },
+    });
+
+    if (error) {
+      if (error instanceof NotFoundError) {
+        return NotFound(res, {
+          error,
+          message: `Record not found`,
+        });
+      }
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { data: { [entity]: data }, message: 'Ok' });
+  }
+
+  /**
    * Get an entity document by using id
    */
   @Get(':id')
