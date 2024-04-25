@@ -218,7 +218,6 @@ export class ProductCategoryController {
    */
   @Public()
   @Get('public')
-  @Roles(Role.Admin)
   @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
   @ApiQueryGetAll()
   @ResponseGetAll(ProductCategory)
