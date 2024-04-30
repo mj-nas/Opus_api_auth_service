@@ -13,7 +13,7 @@ export class CouponService extends ModelService<Coupon> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['name'];
+  searchFields: string[] = ['name', 'code'];
 
   constructor(db: SqlService<Coupon>) {
     super(db);
