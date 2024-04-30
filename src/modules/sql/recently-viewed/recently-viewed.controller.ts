@@ -43,7 +43,7 @@ export class RecentlyViewedController {
       owner,
       action: 'findOrCreate',
       body: { product_id, user_id: owner.id },
-      payload: {
+      options: {
         where: {
           product_id,
           user_id: owner.id,
