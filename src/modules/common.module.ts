@@ -24,6 +24,7 @@ import { ProductCategoryModule } from './sql/product-category/product-category.m
 import { ProductGalleryModule } from './sql/product-gallery/product-gallery.module';
 import { ProductSpecificationsModule } from './sql/product-specifications/product-specifications.module';
 import { ProductsModule } from './sql/products/products.module';
+import { RecentlyViewedModule } from './sql/recently-viewed/recently-viewed.module';
 import { SettingModule } from './sql/setting/setting.module';
 import { StateModule } from './sql/state/state.module';
 import { TemplateModule } from './sql/template/template.module';
@@ -60,6 +61,7 @@ export class CommonModule {
       LearnYoutubeModule,
       LearnArticleModule,
       WishlistModule,
+      RecentlyViewedModule,
     ];
 
     // common providers
