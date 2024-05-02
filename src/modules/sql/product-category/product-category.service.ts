@@ -52,7 +52,7 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
       /**check if any category is assigned to any product */
       const products = (
         await this.productsService.findAll({
-          options: { where: { product_category: job.body.id } },
+          options: { where: { product_category: job.id } },
         })
       )?.data;
       if (products?.length)
