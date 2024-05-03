@@ -70,7 +70,7 @@ export class UserService extends ModelService<User> {
         new Job({
           action: 'send',
           payload: {
-            user_id: payload.id,
+            user_id: owner.id,
             template: 'change_password',
             skipUserConfig: true,
             variables: {
