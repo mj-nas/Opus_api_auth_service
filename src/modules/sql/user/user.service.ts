@@ -51,7 +51,8 @@ export class UserService extends ModelService<User> {
     //check password and old password are same
     if (await compareHash(payload.password, owner.password)) {
       return {
-        error: 'Your new password has to be different from  your old password ',
+        error:
+          'Your new password cannot be the same as your current password. Please choose a different password.',
       };
     }
 
