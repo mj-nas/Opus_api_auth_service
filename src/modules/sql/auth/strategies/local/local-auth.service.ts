@@ -30,7 +30,10 @@ export class LocalAuthService {
         return { error: 'Invalid credentials' };
       }
       if (!data.getDataValue('active')) {
-        return { error: 'Account is inactive' };
+        return {
+          error:
+            'Your account has been blocked by the Admin. Please contact Admin to activate your account',
+        };
       }
       data.setDataValue('last_login_at', new Date());
       await data.save();

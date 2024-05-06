@@ -51,7 +51,8 @@ export class UserService extends ModelService<User> {
     //check password and old password are same
     if (await compareHash(payload.password, owner.password)) {
       return {
-        error: 'Your new password has to be different from  your old password ',
+        error:
+          'Your new password cannot be the same as your current password. Please choose a different password.',
       };
     }
 
@@ -69,7 +70,7 @@ export class UserService extends ModelService<User> {
         new Job({
           action: 'send',
           payload: {
-            user_id: payload.id,
+            user_id: owner.id,
             template: 'change_password',
             skipUserConfig: true,
             variables: {

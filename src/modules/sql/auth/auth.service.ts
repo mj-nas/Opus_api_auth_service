@@ -441,22 +441,21 @@ export class AuthService {
         }),
       );
 
-      // await this.msClient.executeJob(
-      //   'controller.notification',
-      //   new Job({
-      //     action: 'send',
-      //     payload: {
-      //       user_id: data.user_id,
-      //       template: 'welcome_mail',
-      //       skipUserConfig: true,
-      //       variables: {
-      //         TO_NAME: userDetails.data.name,
-      //         USERNAME: userDetails.data.email,
-      //         PASSWORD: '',
-      //       },
-      //     },
-      //   }),
-      // );
+      await this.msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_id: data.user_id,
+            template: 'welcome_mail',
+            skipUserConfig: true,
+            variables: {
+              TO_NAME: userDetails.data.name,
+              USERNAME: userDetails.data.email,
+            },
+          },
+        }),
+      );
 
       return { error: false, data };
     } catch (error) {
