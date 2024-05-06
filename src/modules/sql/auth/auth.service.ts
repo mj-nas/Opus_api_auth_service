@@ -234,7 +234,10 @@ export class AuthService {
       return { error };
     } else if (!!data) {
       if (!data.getDataValue('active')) {
-        return { error: 'Account is inactive' };
+        return {
+          error:
+            'Your account has been blocked by the Admin. Please contact Admin to activate your account',
+        };
       }
       return { error: false, data };
     } else {
