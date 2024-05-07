@@ -1,5 +1,6 @@
 import { ModelService, SqlJob, SqlService } from '@core/sql';
 import { Injectable } from '@nestjs/common';
+import { IncludeOptions } from 'sequelize';
 import { NotFoundError } from 'src/core/core.errors';
 import { Job, JobResponse } from 'src/core/core.job';
 import { Wishlist } from './entities/wishlist.entity';
@@ -25,6 +26,29 @@ export class WishlistService extends ModelService<Wishlist> {
   protected async doBeforeFindAll(job: SqlJob<Wishlist>): Promise<void> {
     await super.doBeforeFindAll(job);
     job.options.where = { ...job.options.where, user_id: job.owner.id };
+    const include = job.options.include as IncludeOptions[];
+    const product = include.findIndex((x) => x.association === 'product');
+    if (product > -1) {
+      const productInclude = include[product].include as IncludeOptions[];
+      const wishlisted = productInclude.findIndex(
+        (x) => x.association === 'wishlisted',
+      );
+      if (wishlisted > -1) {
+        if (!!job.owner?.id) {
+          productInclude[wishlisted].where = {
+            ...productInclude[wishlisted].where,
+            user_id: job.owner.id,
+          };
+          productInclude[wishlisted].required = false;
+        } else {
+          productInclude.splice(wishlisted, 1);
+        }
+      }
+
+      include[product].include = productInclude;
+    }
+
+    job.options.include = include;
   }
 
   /**
