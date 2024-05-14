@@ -13,6 +13,8 @@ import { AuthModule } from './sql/auth/auth.module';
 import { RolesGuard } from './sql/auth/roles.guard';
 import { JwtAuthGuard } from './sql/auth/strategies/jwt/jwt-auth.guard';
 import { LocalAuthModule } from './sql/auth/strategies/local/local-auth.module';
+import { CartItemModule } from './sql/cart-item/cart-item.module';
+import { CartModule } from './sql/cart/cart.module';
 import { ContactUsModule } from './sql/contact-us/contact-us.module';
 import { CountryModule } from './sql/country/country.module';
 import { CouponModule } from './sql/coupon/coupon.module';
@@ -62,6 +64,8 @@ export class CommonModule {
       LearnArticleModule,
       WishlistModule,
       RecentlyViewedModule,
+      CartModule,
+      CartItemModule,
     ];
 
     // common providers

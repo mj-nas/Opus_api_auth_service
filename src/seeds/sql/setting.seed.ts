@@ -7,13 +7,6 @@ export default <Seed<Setting>>{
   action: 'once',
   data: [
     {
-      name: 'setting_1',
-      display_name: 'Setting 1',
-      value: 'value 1',
-      group_id: 1,
-    },
-
-    {
       name: 'contact_us',
       display_name: 'Contact Email',
       value: 'contact_us@mailinator.com',
@@ -51,7 +44,7 @@ export default <Seed<Setting>>{
     },
     {
       name: 'minus_price',
-      display_name: ' Minus Price (Shipping)',
+      display_name: 'Minus Price (Shipping)',
       value: '25',
       group_id: 1,
       option: {
@@ -61,16 +54,15 @@ export default <Seed<Setting>>{
         min: 0,
       },
     },
-
     {
-      name: 'setting_2',
-      display_name: 'Setting 2',
-      value: 'value 2',
+      name: 'shipping_price',
+      display_name: 'Shipping Price',
+      value: '25',
       group_id: 1,
       option: {
         type: 'number',
         format: 'amount',
-        required: false,
+        required: true,
         min: 0,
       },
     },
