@@ -90,7 +90,7 @@ export default () => ({
    * Enable Socket IO
    * @default true
    */
-  useSocketIO: true,
+  useSocketIO: process.env.APP_ID === 'socket',
   /**
    * @property {number} paginationLimit
    * Default pagination limit
