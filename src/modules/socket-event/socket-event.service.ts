@@ -11,7 +11,16 @@ export class SocketEventService {
     this.redisPropagatorService.propagateEvent({
       userId: `${job.payload.user_id}`,
       event: SocketEvent.Logout,
-      data: { reason: 'blocked' },
+      data: { reason: 'account_blocked' },
+    });
+    return { error: false };
+  }
+
+  async userDeleted(job: Job) {
+    this.redisPropagatorService.propagateEvent({
+      userId: `${job.payload.user_id}`,
+      event: SocketEvent.Logout,
+      data: { reason: 'account_deleted' },
     });
     return { error: false };
   }

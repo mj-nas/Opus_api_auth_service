@@ -4,7 +4,13 @@ import {
   trimAndValidateCustom,
 } from './../../../core/core.utils';
 /* eslint-disable prettier/prettier */
-import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
+import {
+  ModelService,
+  SqlDeleteResponse,
+  SqlJob,
+  SqlService,
+  SqlUpdateResponse,
+} from '@core/sql';
 import { Injectable } from '@nestjs/common';
 import { CsvError, parse } from 'csv-parse';
 import * as ExcelJS from 'exceljs';
@@ -173,6 +179,27 @@ export class UserService extends ModelService<User> {
         });
       }
     }
+  }
+
+  /**
+   * doAfterDelete
+   * @function function will execute after delete function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @param {object} response - mandatory - a object representing the job response information
+   * @return {void}
+   */
+  protected async doAfterDelete(
+    job: SqlJob<User>,
+    response: SqlDeleteResponse<User>,
+  ): Promise<void> {
+    await super.doAfterDelete(job, response);
+    const { id } = response.data;
+    this.msClient.executeJob('controller.socket-event', {
+      action: 'userDeleted',
+      payload: {
+        user_id: id,
+      },
+    });
   }
 
   /**
