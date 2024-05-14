@@ -1,3 +1,3 @@
 export enum SocketEvent {
-  Logout = 'Logout',
+  Logout = 'user.logout',
 }
