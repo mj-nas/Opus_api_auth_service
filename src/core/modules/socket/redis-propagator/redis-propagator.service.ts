@@ -3,6 +3,7 @@ import { tap } from 'rxjs/operators';
 import { Server } from 'socket.io';
 
 import { RedisService } from '../redis/redis.service';
+import { AuthenticatedSocket } from '../socket-state/socket-state.adapter';
 import { SocketStateService } from '../socket-state/socket-state.service';
 import { RedisSocketEventEmitDTO } from './dto/socket-event-emit.dto';
 import { RedisSocketEventSendDTO } from './dto/socket-event-send.dto';
@@ -13,7 +14,6 @@ import {
   REDIS_SOCKET_EVENT_EMIT_ROOM_NAME,
   REDIS_SOCKET_EVENT_SEND_NAME,
 } from './redis-propagator.constants';
-import { AuthenticatedSocket } from '../socket-state/socket-state.adapter';
 
 @Injectable()
 export class RedisPropagatorService {
@@ -21,7 +21,7 @@ export class RedisPropagatorService {
 
   public constructor(
     private readonly socketStateService: SocketStateService,
-    private readonly redisService: RedisService
+    private readonly redisService: RedisService,
   ) {
     this.redisService
       .fromEvent(REDIS_SOCKET_EVENT_SEND_NAME)
@@ -63,13 +63,13 @@ export class RedisPropagatorService {
   };
 
   private consumeEmitToAllEvent = (
-    eventInfo: RedisSocketEventEmitDTO
+    eventInfo: RedisSocketEventEmitDTO,
   ): void => {
     this.socketServer?.emit(eventInfo.event, eventInfo.data);
   };
 
   private consumeEmitToRoomEvent = (
-    eventInfo: RedisSocketEventSendDTO
+    eventInfo: RedisSocketEventSendDTO,
   ): void => {
     this.socketServer
       ?.to(`${eventInfo.room}`)
@@ -77,7 +77,7 @@ export class RedisPropagatorService {
   };
 
   private consumeEmitToAuthenticatedEvent = (
-    eventInfo: RedisSocketEventEmitDTO
+    eventInfo: RedisSocketEventEmitDTO,
   ): void => {
     const { event, data } = eventInfo;
     return this.socketStateService
@@ -86,13 +86,13 @@ export class RedisPropagatorService {
   };
 
   private consumeEmitToRoleEvent = (
-    eventInfo: RedisSocketEventSendDTO
+    eventInfo: RedisSocketEventSendDTO,
   ): void => {
     const { event, data } = eventInfo;
     return this.socketStateService
       .getAll()
       .filter(
-        (socket: AuthenticatedSocket) => socket.auth?.role === eventInfo.role
+        (socket: AuthenticatedSocket) => socket.auth?.role === eventInfo.role,
       )
       .forEach((socket) => socket.emit(event, data));
   };
@@ -108,7 +108,7 @@ export class RedisPropagatorService {
   public emitToAuthenticated(eventInfo: RedisSocketEventEmitDTO): boolean {
     this.redisService.publish(
       REDIS_SOCKET_EVENT_EMIT_AUTHENTICATED_NAME,
-      eventInfo
+      eventInfo,
     );
     return true;
   }

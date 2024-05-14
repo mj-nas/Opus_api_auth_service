@@ -162,6 +162,16 @@ export class UserService extends ModelService<User> {
           },
         }),
       );
+
+      if (!active) {
+        // send socket notification to the user
+        this.msClient.executeJob('controller.socket-event', {
+          action: 'userBlocked',
+          payload: {
+            user_id: id,
+          },
+        });
+      }
     }
   }
 
