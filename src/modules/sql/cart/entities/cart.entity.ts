@@ -19,6 +19,7 @@ export class Cart extends SqlModel {
   @ApiProperty({
     description: 'User Id',
     example: 1,
+    readOnly: true,
   })
   @IsNumber()
   user_id: number;

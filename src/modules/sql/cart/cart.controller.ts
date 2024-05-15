@@ -1,5 +1,4 @@
 import {
-  Body,
   Controller,
   Delete,
   Get,
@@ -33,7 +32,6 @@ import {
 import { snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { CartService } from './cart.service';
-import { CreateCartDto } from './dto/create-cart.dto';
 import { Cart } from './entities/cart.entity';
 
 const entity = snakeCase(Cart.name);
@@ -52,15 +50,10 @@ export class CartController {
   @Post()
   @ApiOperation({ summary: `Create new ${entity}` })
   @ResponseCreated(Cart)
-  async create(
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Body() createCartDto: CreateCartDto,
-  ) {
+  async create(@Res() res: Response, @Owner() owner: OwnerDto) {
     const { error, data } = await this.cartService.create({
       owner,
       action: 'create',
-      body: createCartDto,
     });
 
     if (error) {
