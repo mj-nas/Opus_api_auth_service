@@ -17,7 +17,6 @@ import { Response } from 'express';
 import {
   ApiErrorResponses,
   ApiQueryDelete,
-  ApiQueryGetById,
   ResponseCreated,
   ResponseDeleted,
   ResponseGetOne,
@@ -68,21 +67,14 @@ export class CartController {
   /**
    * Get an entity document by using id
    */
-  @Get(':id')
-  @ApiOperation({ summary: `Find ${entity} using id` })
-  @ApiQueryGetById()
+  @Get('me')
+  @ApiOperation({ summary: `Get logged in user ${entity}` })
   @ResponseGetOne(Cart)
-  async findById(
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Param('id') id: number,
-    @Query() query: any,
-  ) {
-    const { error, data } = await this.cartService.findById({
+  async findById(@Res() res: Response, @Owner() owner: OwnerDto) {
+    const { error, data } = await this.cartService.findOne({
       owner,
-      action: 'findById',
-      id: +id,
-      payload: { ...query },
+      action: 'me',
+      payload: { where: { user_id: owner.id } },
     });
 
     if (error) {
