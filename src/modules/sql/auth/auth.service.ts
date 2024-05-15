@@ -325,11 +325,38 @@ export class AuthService {
       return { error };
     }
 
-    // if (data.type === 'Forgot') {
-    //   // TODO: send a email/sms notification for forgot_password
-    // } else if (data.type === 'Login') {
-    //   // TODO: send a 2fa_otp login notification
-    // }
+    if (data.type === OtpSessionType.Forgot) {
+      await this.msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_id: data.user_id,
+            template: 'forgot_password',
+            variables: {
+              OTP: data.otp,
+            },
+          },
+        }),
+      );
+    } else if (
+      data.type === OtpSessionType.EmailVerify ||
+      data.type === OtpSessionType.Login
+    ) {
+      await this.msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_id: data.user_id,
+            template: 'email_verification',
+            variables: {
+              OTP: data.otp,
+            },
+          },
+        }),
+      );
+    }
     return { error: false, data };
   }
 
@@ -396,7 +423,7 @@ export class AuthService {
 
       // Create a new user
       const { error, data } = await this.userService.create({
-        action: 'Create',
+        action: 'create',
         body: {
           ...body,
         },
