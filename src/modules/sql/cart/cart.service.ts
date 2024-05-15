@@ -18,4 +18,20 @@ export class CartService extends ModelService<Cart> {
     await super.doBeforeCreate(job);
     job.body = { user_id: job.owner.id };
   }
+
+  /**
+   * doBeforeRead
+   * @function function will execute before findById and findOne function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeRead(job: SqlJob<Cart>): Promise<void> {
+    await super.doBeforeRead(job);
+    if (job.action === 'me') {
+      job.options.where = {
+        ...job.options.where,
+        user_id: job.owner.id,
+      };
+    }
+  }
 }
