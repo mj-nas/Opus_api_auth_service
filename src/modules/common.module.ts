@@ -10,6 +10,7 @@ import { OtpSessionModule } from './mongo/otp-session/otp-session.module';
 import { TaskModule } from './mongo/task/task.module';
 import { TrashModule } from './mongo/trash/trash.module';
 import { SocketEventModule } from './socket-event/socket-event.module';
+import { AddressModule } from './sql/address/address.module';
 import { AuthModule } from './sql/auth/auth.module';
 import { RolesGuard } from './sql/auth/roles.guard';
 import { JwtAuthGuard } from './sql/auth/strategies/jwt/jwt-auth.guard';
@@ -68,6 +69,7 @@ export class CommonModule {
       CartModule,
       CartItemModule,
       SocketEventModule,
+      AddressModule,
     ];
 
     // common providers
