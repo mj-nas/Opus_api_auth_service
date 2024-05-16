@@ -27,6 +27,7 @@ import { LoginAsDto } from './dto/login-as.dto';
 import { LogoutDto } from './dto/logout.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SendOtpDto } from './dto/send-otp.dto';
+import { SignupDispenserDto } from './dto/signup-dispenser.dto';
 import { SignupDto } from './dto/signup.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { TokenAuthDto } from './strategies/token/token-auth.dto';
@@ -414,7 +415,7 @@ export class AuthController {
   async signupDispenser(
     @Req() req: Request,
     @Res() res: Response,
-    @Body() body: SignupDto,
+    @Body() body: SignupDispenserDto,
   ) {
     body.role = Role.Dispenser;
     const signup = await this.authService.signup(body);

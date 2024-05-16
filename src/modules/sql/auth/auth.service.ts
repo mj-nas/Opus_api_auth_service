@@ -18,6 +18,7 @@ import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SendOtpDto } from './dto/send-otp.dto';
+import { SignupDispenserDto } from './dto/signup-dispenser.dto';
 import { SignupDto } from './dto/signup.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { TokenAuthDto } from './strategies/token/token-auth.dto';
@@ -407,7 +408,7 @@ export class AuthService {
     return { error, data };
   }
 
-  async signup(body: SignupDto): Promise<JobResponse> {
+  async signup(body: SignupDto | SignupDispenserDto): Promise<JobResponse> {
     try {
       const checkEmail = await this.userService.findOne({
         payload: {
