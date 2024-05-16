@@ -17,6 +17,7 @@ import { CsvError, parse } from 'csv-parse';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import * as moment from 'moment-timezone';
+import { Op } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
 import { compareHash, generateHash } from 'src/core/core.utils';
@@ -223,12 +224,13 @@ export class UserService extends ModelService<User> {
       job.options.where = {
         ...job.options.where,
         role: Role.Dispenser,
+        status: Status.Approve,
       };
     } else if (job.action === 'findAllDispenserApplicant') {
       job.options.where = {
         ...job.options.where,
         role: Role.Dispenser,
-        status: Status.Pending,
+        status: { [Op.in]: [Status.Pending, Status.Deny] },
       };
     }
   }
