@@ -6,6 +6,7 @@ import {
 /* eslint-disable prettier/prettier */
 import {
   ModelService,
+  SqlCreateResponse,
   SqlDeleteResponse,
   SqlJob,
   SqlService,
@@ -21,6 +22,7 @@ import { Job, JobResponse } from 'src/core/core.job';
 import { compareHash, generateHash } from 'src/core/core.utils';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { ZodError, z } from 'zod';
+import { AddressService } from '../address/address.service';
 import { SignupDto } from '../auth/dto/signup.dto';
 import { User } from './entities/user.entity';
 import { Role } from './role.enum';
@@ -36,6 +38,7 @@ export class UserService extends ModelService<User> {
   constructor(
     db: SqlService<User>,
     private msClient: MsClientService,
+    private addressService: AddressService,
   ) {
     super(db);
   }
@@ -216,6 +219,45 @@ export class UserService extends ModelService<User> {
         role: Role.Customer,
       };
     }
+  }
+
+  /**
+   * doAfterCreate
+   * @function function will execute after create function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @param {object} response - mandatory - a object representing the job response information
+   * @return {void}
+   */
+  protected async doAfterCreate(
+    job: SqlJob<User>,
+    response: SqlCreateResponse<User>,
+  ): Promise<void> {
+    await super.doAfterCreate(job, response);
+    const {
+      id,
+      first_name,
+      last_name,
+      phone,
+      email,
+      address,
+      city,
+      state,
+      zip_code,
+    } = response.data;
+    await this.addressService.create({
+      action: 'create',
+      body: {
+        user_id: id,
+        first_name,
+        last_name,
+        phone,
+        email,
+        address,
+        city,
+        state,
+        zip_code,
+      },
+    });
   }
 
   async createCustomerXls(job: Job): Promise<JobResponse> {

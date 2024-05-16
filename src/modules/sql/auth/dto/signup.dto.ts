@@ -13,6 +13,7 @@ export class SignupDto extends PickType(User, [
   'city',
   'state',
   'zip_code',
+  'role',
 ] as const) {
   @ApiProperty({
     description: 'Additional session info',

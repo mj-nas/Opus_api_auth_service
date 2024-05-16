@@ -8,6 +8,7 @@ import { extname } from 'path';
 import { UploadException } from 'src/core/core.errors';
 import { uuid } from 'src/core/core.utils';
 import { MsClientModule } from 'src/core/modules/ms-client/ms-client.module';
+import { AddressModule } from '../address/address.module';
 import { User } from './entities/user.entity';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
@@ -58,6 +59,7 @@ import { UserService } from './user.service';
       inject: [ConfigService],
     }),
     MsClientModule,
+    AddressModule,
   ],
   controllers: [UserController],
   providers: [UserService],

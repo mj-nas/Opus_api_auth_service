@@ -25,6 +25,7 @@ import config from 'src/config';
 import { generateHash, slugify, uuid } from 'src/core/core.utils';
 import { AuthProvider } from '../../auth/auth-provider.enum';
 import { Role } from '../role.enum';
+import { Status } from '../status.enum';
 
 @DefaultScope(() => ({
   attributes: { exclude: ['password'] },
@@ -50,7 +51,7 @@ export class User extends SqlModel {
     example: Role.Customer,
   })
   @IsEnum(Role)
-  role: Role;
+  role?: Role;
 
   @Column({ unique: 'uid' })
   @ApiProperty({
@@ -192,34 +193,6 @@ export class User extends SqlModel {
 
   @Column
   @ApiProperty({
-    description: 'Title',
-    example: 'Title',
-  })
-  title?: string;
-
-  @Column
-  @ApiProperty({
-    description: 'occupation',
-    example: 'Titoccupationle',
-  })
-  occupation?: number;
-
-  @Column
-  @ApiProperty({
-    description: 'occupation',
-    example: 'Titoccupationle',
-  })
-  speciality?: number;
-
-  @Column
-  @ApiProperty({
-    description: 'occupation',
-    example: 'occupation',
-  })
-  about?: string;
-
-  @Column
-  @ApiProperty({
     description: 'address',
     example: 'address',
   })
@@ -260,27 +233,6 @@ export class User extends SqlModel {
     example: 'country',
   })
   country?: string;
-
-  @Column
-  @ApiProperty({
-    description: 'lat',
-    example: 'lat',
-  })
-  lat?: string;
-
-  @Column
-  @ApiProperty({
-    description: 'lng',
-    example: 'lng',
-  })
-  lng?: string;
-
-  @Column
-  @ApiProperty({
-    description: 'unique url',
-    example: 'unique url',
-  })
-  unique_url?: string;
 
   @Column({ defaultValue: false })
   @ApiProperty({
@@ -340,6 +292,18 @@ export class User extends SqlModel {
   @IsOptional()
   @IsEnum({ Y: 'Y', N: 'N' })
   email_verified?: string;
+
+  @Column({
+    type: DataType.ENUM(...Object.keys(Status)),
+    defaultValue: Status.Pending,
+  })
+  @ApiProperty({
+    enum: Status,
+    description: 'Status',
+    example: Status.Approve,
+  })
+  @IsEnum(Status)
+  status: Status;
 
   @BeforeSave
   static setName(instance: User) {

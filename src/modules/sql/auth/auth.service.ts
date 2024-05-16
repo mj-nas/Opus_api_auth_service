@@ -13,7 +13,6 @@ import { LoginLog } from 'src/modules/mongo/login-log/entities/login-log.entity'
 import { LoginLogService } from 'src/modules/mongo/login-log/login-log.service';
 import { OtpSessionType } from 'src/modules/mongo/otp-session/entities/otp-session.entity';
 import { OtpSessionService } from 'src/modules/mongo/otp-session/otp-session.service';
-import { AddressService } from '../address/address.service';
 import { NotificationService } from '../notification/notification.service';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
@@ -38,7 +37,6 @@ export class AuthService {
     private _cache: CachingService,
     private msClient: MsClientService,
     private notificationService: NotificationService,
-    private addressService: AddressService,
   ) {}
 
   async createSession(owner: OwnerDto, info: any): Promise<any> {
@@ -434,21 +432,6 @@ export class AuthService {
       if (error) {
         return { error, message: 'User signup failed' };
       }
-
-      await this.addressService.create({
-        action: 'create',
-        body: {
-          user_id: data.id,
-          first_name: body.first_name,
-          last_name: body.last_name,
-          phone: body.phone,
-          email: body.email,
-          address: body.address,
-          city: body.city,
-          state: body.state,
-          zip_code: body.zip_code,
-        },
-      });
 
       return { data };
     } catch (error) {

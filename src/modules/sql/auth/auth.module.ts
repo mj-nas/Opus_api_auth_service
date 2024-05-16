@@ -5,7 +5,6 @@ import { MsClientModule } from 'src/core/modules/ms-client/ms-client.module';
 import { SessionModule } from 'src/core/modules/session/session.module';
 import { LoginLogModule } from 'src/modules/mongo/login-log/login-log.module';
 import { OtpSessionModule } from 'src/modules/mongo/otp-session/otp-session.module';
-import { AddressModule } from '../address/address.module';
 import { NotificationModule } from '../notification/notification.module';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
@@ -23,7 +22,6 @@ import { TokenStrategy } from './strategies/token/token.strategy';
     CachingModule,
     MsClientModule,
     NotificationModule,
-    AddressModule,
   ],
   providers: [AuthService, JwtStrategy, TokenStrategy],
   controllers: [AuthController],

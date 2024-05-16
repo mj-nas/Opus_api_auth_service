@@ -380,6 +380,59 @@ export class AuthController {
   }
 
   @Public()
+  @ApiOperation({ summary: 'Customer Signup' })
+  @ApiOkResponse({
+    description: 'Login success',
+    schema: {
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            user: {
+              $ref: getSchemaPath(User),
+            },
+            token: {
+              type: 'string',
+            },
+            token_expiry: {
+              type: 'string',
+              format: 'date-time',
+            },
+            refresh_token: {
+              type: 'string',
+            },
+          },
+        },
+        message: {
+          type: 'string',
+          example: 'Created',
+        },
+      },
+    },
+  })
+  @Post('signup/dispenser')
+  async signupDispenser(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() body: SignupDto,
+  ) {
+    body.role = Role.Dispenser;
+    const signup = await this.authService.signup(body);
+    if (!!signup.error) {
+      return BadRequest(res, {
+        error: signup.error,
+        message: `${signup.error.message || signup.error}`,
+      });
+    }
+
+    return Result(res, {
+      data: { user: signup.data },
+      message:
+        'Thank you for applying. Your application has been received and is under review. You will receive an email notification once the verification is complete.',
+    });
+  }
+
+  @Public()
   @ApiOperation({ summary: 'Verify Email OTP' })
   @ApiOkResponse({
     description: 'Ok',
