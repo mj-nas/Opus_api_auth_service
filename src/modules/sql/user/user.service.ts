@@ -230,7 +230,7 @@ export class UserService extends ModelService<User> {
       job.options.where = {
         ...job.options.where,
         role: Role.Dispenser,
-        status: { [Op.in]: [Status.Pending, Status.Deny] },
+        status: { [Op.in]: [Status.Pending, Status.Deny, Status.Approve] },
       };
     }
   }
