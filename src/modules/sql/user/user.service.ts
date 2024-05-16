@@ -228,9 +228,11 @@ export class UserService extends ModelService<User> {
       };
     } else if (job.action === 'findAllDispenserApplicant') {
       job.options.where = {
+        status: {
+          [Op.in]: [Status.Pending, Status.Deny, Status.Approve],
+        },
         ...job.options.where,
         role: Role.Dispenser,
-        status: { [Op.in]: [Status.Pending, Status.Deny, Status.Approve] },
       };
     }
   }
