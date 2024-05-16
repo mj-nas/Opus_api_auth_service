@@ -26,6 +26,7 @@ import { AddressService } from '../address/address.service';
 import { SignupDto } from '../auth/dto/signup.dto';
 import { User } from './entities/user.entity';
 import { Role } from './role.enum';
+import { Status } from './status.enum';
 
 @Injectable()
 export class UserService extends ModelService<User> {
@@ -217,6 +218,17 @@ export class UserService extends ModelService<User> {
       job.options.where = {
         ...job.options.where,
         role: Role.Customer,
+      };
+    } else if (job.action === 'findAllDispenser') {
+      job.options.where = {
+        ...job.options.where,
+        role: Role.Dispenser,
+      };
+    } else if (job.action === 'findAllDispenserApplicant') {
+      job.options.where = {
+        ...job.options.where,
+        role: Role.Dispenser,
+        status: Status.Pending,
       };
     }
   }

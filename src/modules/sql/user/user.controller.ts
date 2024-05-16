@@ -283,6 +283,70 @@ export class UserController {
   }
 
   /**
+   * Return all customer list
+   */
+  @Get('dispenser')
+  @ApiOperation({ summary: 'Get all customers' })
+  @ApiQueryGetAll()
+  @ResponseGetAll(User)
+  async findAllDispenser(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data, offset, limit, count } =
+      await this.userService.findAll({
+        owner,
+        action: 'findAllDispenser',
+        payload: { ...query },
+      });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { users: data, offset, limit, count },
+      message: 'Ok',
+    });
+  }
+
+  /**
+   * Return all customer list
+   */
+  @Get('applicant')
+  @ApiOperation({ summary: 'Get all customers' })
+  @ApiQueryGetAll()
+  @ResponseGetAll(User)
+  async findAllDispenserApplicant(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data, offset, limit, count } =
+      await this.userService.findAll({
+        owner,
+        action: 'findAllDispenserApplicant',
+        payload: { ...query },
+      });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { users: data, offset, limit, count },
+      message: 'Ok',
+    });
+  }
+
+  /**
    * Return all entity documents list
    */
   @Get('customer-export-xls')
