@@ -431,6 +431,10 @@ export class AuthService {
         },
       });
 
+      if (error) {
+        return { error, message: 'User signup failed' };
+      }
+
       await this.addressService.create({
         action: 'create',
         body: {
@@ -445,10 +449,6 @@ export class AuthService {
           zip_code: body.zip_code,
         },
       });
-
-      if (error) {
-        return { error, message: 'User signup failed' };
-      }
 
       return { data };
     } catch (error) {
