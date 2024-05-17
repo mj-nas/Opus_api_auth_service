@@ -7,6 +7,7 @@ import { AppGateway } from './app.gateway';
 import { AppService } from './app.service';
 import { CoreModule } from './core/core.module';
 import { CommonModule } from './modules/common.module';
+import { OrderItemModule } from './modules/sql/order-item/order-item.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { CommonModule } from './modules/common.module';
     SqlModule.root({ seeder: true }),
     EmailModule,
     CommonModule.register(),
+    OrderItemModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],

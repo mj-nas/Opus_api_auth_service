@@ -8,6 +8,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import {
+  BeforeSave,
   BelongsTo,
   Column,
   DataType,
@@ -120,4 +121,11 @@ export class Address extends SqlModel {
 
   @BelongsTo(() => User)
   user: User;
+
+  @BeforeSave
+  static setName(instance: Address) {
+    if (instance.first_name && instance.last_name) {
+      instance.name = `${instance.first_name} ${instance.last_name}`;
+    }
+  }
 }

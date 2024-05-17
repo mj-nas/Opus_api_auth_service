@@ -33,7 +33,7 @@ import { Status } from '../status.enum';
 @Table
 export class User extends SqlModel {
   @Index
-  @Column({ unique: true })
+  @Column({ unique: 'slug' })
   @ApiProperty({
     description: 'Slug',
     example: 'user-slug',
@@ -42,7 +42,7 @@ export class User extends SqlModel {
   slug: string;
 
   @Column({
-    type: DataType.ENUM(...Object.keys(Role)),
+    type: DataType.ENUM(...Object.values(Role)),
     defaultValue: Role.Customer,
   })
   @ApiProperty({
@@ -62,7 +62,7 @@ export class User extends SqlModel {
   uid: string;
 
   @Column({
-    type: DataType.ENUM(...Object.keys(AuthProvider)),
+    type: DataType.ENUM(...Object.values(AuthProvider)),
     defaultValue: 'Local',
   })
   @ApiProperty({
@@ -294,7 +294,7 @@ export class User extends SqlModel {
   email_verified?: string;
 
   @Column({
-    type: DataType.ENUM(...Object.keys(Status)),
+    type: DataType.ENUM(...Object.values(Status)),
     defaultValue: Status.Pending,
   })
   @ApiProperty({

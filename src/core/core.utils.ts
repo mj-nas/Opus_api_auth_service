@@ -2,6 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { ValidationError, isObject, validate } from 'class-validator';
 import { Request } from 'express';
+import * as moment from 'moment-timezone';
 import { plural } from 'pluralize';
 import { APP_MIN_VERSION, APP_VERSION } from 'src/app.config';
 import { v1 as uuidv1 } from 'uuid';
@@ -33,6 +34,12 @@ export function slugify(text: string): string {
     .replace(/^-+/, '') // Trim - from start of text
     .replace(/-+$/, ''); // Trim - from end of text
 }
+
+export const getUTCDateNow = (format = 'YYYY-MM-DD') =>
+  moment().utc().format(format);
+
+export const zeroPad = (str: string, max: number) =>
+  str.length < max ? zeroPad('0' + str, max) : str;
 
 export const otp = (length = 6): string =>
   !!process.env.OTP_TEST_MODE
