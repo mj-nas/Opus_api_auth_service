@@ -1,13 +1,13 @@
 import { EmailModule } from '@core/email';
 import { MongoModule } from '@core/mongo';
 import { SqlModule } from '@core/sql';
+import { StripeModule } from '@core/stripe';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppGateway } from './app.gateway';
 import { AppService } from './app.service';
 import { CoreModule } from './core/core.module';
 import { CommonModule } from './modules/common.module';
-import { OrderItemModule } from './modules/sql/order-item/order-item.module';
 
 @Module({
   imports: [
@@ -15,8 +15,8 @@ import { OrderItemModule } from './modules/sql/order-item/order-item.module';
     MongoModule.root({ seeder: true }),
     SqlModule.root({ seeder: true }),
     EmailModule,
+    StripeModule,
     CommonModule.register(),
-    OrderItemModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],

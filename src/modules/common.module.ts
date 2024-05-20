@@ -24,6 +24,7 @@ import { LearnArticleModule } from './sql/learn-article/learn-article.module';
 import { LearnYoutubeModule } from './sql/learn-youtube/learn-youtube.module';
 import { NotificationModule } from './sql/notification/notification.module';
 import { OrderAddressModule } from './sql/order-address/order-address.module';
+import { OrderItemModule } from './sql/order-item/order-item.module';
 import { OrderModule } from './sql/order/order.module';
 import { PageModule } from './sql/page/page.module';
 import { ProductCategoryModule } from './sql/product-category/product-category.module';
@@ -74,6 +75,7 @@ export class CommonModule {
       AddressModule,
       OrderModule,
       OrderAddressModule,
+      OrderItemModule,
     ];
 
     // common providers

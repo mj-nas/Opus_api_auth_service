@@ -1,4 +1,5 @@
 import { ModelService, SqlService } from '@core/sql';
+import { StripeService } from '@core/stripe';
 import { Injectable } from '@nestjs/common';
 import { Sequelize } from 'sequelize-typescript';
 import { Job, JobResponse } from 'src/core/core.job';
@@ -14,14 +15,16 @@ export class OrderService extends ModelService<Order> {
     private _orderAddressService: OrderAddressService,
     private _orderItemService: OrderItemService,
     private _sequelize: Sequelize,
+    private _stripeService: StripeService,
   ) {
     super(db);
   }
 
   async orderCreate(job: Job): Promise<JobResponse> {
+    const transaction = await this._sequelize.transaction();
     try {
       const { body } = job.payload;
-      const transaction = await this._sequelize.transaction();
+
       const order = await this.create({
         owner: job.owner,
         action: 'create',
@@ -75,8 +78,42 @@ export class OrderService extends ModelService<Order> {
         }
       }
 
+      const product = await this._stripeService.stripe.products.create({
+        name: order.data.uid,
+        metadata: {
+          order_id: order.data.id,
+        },
+      });
+
+      const cents = order.data.total * 100;
+      const price = await this._stripeService.stripe.prices.create({
+        currency: 'usd',
+        unit_amount_decimal: `${cents}`,
+        product: product.id,
+      });
+      console.log(price);
+      const paymentLink = await this._stripeService.stripe.paymentLinks.create({
+        line_items: [
+          {
+            price: price.id,
+            quantity: 1,
+          },
+        ],
+      });
+
       await transaction.commit();
-      return { data: order.data };
+      return { data: { order: order.data, payment_link: paymentLink.url } };
+    } catch (error) {
+      await transaction.rollback();
+      return { error };
+    }
+  }
+
+  async webhook(job: Job): Promise<JobResponse> {
+    try {
+      const { payload } = job;
+      console.log(payload.body.data);
+      return { data: payload };
     } catch (error) {
       return { error };
     }

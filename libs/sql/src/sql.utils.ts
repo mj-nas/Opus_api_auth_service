@@ -96,7 +96,7 @@ export function convertPopulate(
         }
       }
     }
-    return _populate;
+    return _populate.length ? _populate : undefined;
   } catch (error) {
     return [];
   }

@@ -1,6 +1,7 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
+import { DataTypes } from 'sequelize';
 import {
   BelongsTo,
   Column,
@@ -40,6 +41,14 @@ export class OrderItem extends SqlModel {
   })
   @IsNumber()
   quantity: number;
+
+  @Column(DataTypes.FLOAT({ precision: 11, scale: 2 }))
+  @ApiProperty({
+    description: 'Price',
+    example: 32.04,
+  })
+  @IsNumber()
+  price: number;
 
   @BelongsTo(() => Order)
   order: Order;

@@ -50,7 +50,7 @@ export class SqlService<M extends SqlModel> {
         return {
           error: 'Error calling createRecord - body is missing',
         };
-      const { include, attributes } = options;
+      const { include, attributes, transaction } = options;
       const data = this.model.build(body, {
         include,
       });
@@ -79,6 +79,7 @@ export class SqlService<M extends SqlModel> {
           {
             include,
             attributes,
+            transaction,
           },
         );
         return { data: dataWithInclude };

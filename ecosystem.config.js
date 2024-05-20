@@ -25,5 +25,17 @@ module.exports = {
         APP_ID: 'socket',
       },
     },
+    {
+      name: `${pkg.name}-webhooks`,
+      script: 'dist/main.js',
+      instances: 2,
+      exec_mode: 'cluster',
+      autorestart: true,
+      watch: false,
+      env: {
+        PORT: 3002,
+        APP_ID: 'webhooks',
+      },
+    },
   ],
 };
