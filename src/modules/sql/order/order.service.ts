@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Sequelize } from 'sequelize-typescript';
 import { Job, JobResponse } from 'src/core/core.job';
 import { OrderAddressService } from '../order-address/order-address.service';
+import { OrderItemService } from '../order-item/order-item.service';
 import { Order } from './entities/order.entity';
 import { OrderStatus } from './order-status.enum';
 
@@ -11,6 +12,7 @@ export class OrderService extends ModelService<Order> {
   constructor(
     db: SqlService<Order>,
     private _orderAddressService: OrderAddressService,
+    private _orderItemService: OrderItemService,
     private _sequelize: Sequelize,
   ) {
     super(db);
@@ -51,6 +53,26 @@ export class OrderService extends ModelService<Order> {
       if (!!address.error) {
         await transaction.rollback();
         return { error: address.error };
+      }
+
+      const items = body.items;
+
+      for await (const item of items) {
+        const itemCreate = await this._orderItemService.create({
+          owner: job.owner,
+          action: 'create',
+          body: {
+            order_id: order.data.id,
+            ...item,
+          },
+          options: {
+            transaction,
+          },
+        });
+        if (!!itemCreate.error) {
+          await transaction.rollback();
+          return { error: itemCreate.error };
+        }
       }
 
       await transaction.commit();
