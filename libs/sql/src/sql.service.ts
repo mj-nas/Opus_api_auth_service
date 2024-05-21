@@ -149,7 +149,7 @@ export class SqlService<M extends SqlModel> {
         return {
           error: 'Error calling updateRecord - body is missing',
         };
-      const { where = {}, include, attributes } = options;
+      const { where = {}, include, attributes, transaction } = options;
       const data = await this.model.findOne({
         ...options,
         where: { ...where, [pk]: job.id },
@@ -183,6 +183,7 @@ export class SqlService<M extends SqlModel> {
           {
             include,
             attributes,
+            transaction,
           },
         );
         return { data: dataWithInclude, previousData };
@@ -562,7 +563,7 @@ export class SqlService<M extends SqlModel> {
           });
         }
 
-        const { include, attributes } = options;
+        const { include, attributes, transaction } = options;
 
         if (include || attributes) {
           const dataWithInclude = await this.model.findByPk(
@@ -570,6 +571,7 @@ export class SqlService<M extends SqlModel> {
             {
               include,
               attributes,
+              transaction,
             },
           );
           return { data: dataWithInclude, created };

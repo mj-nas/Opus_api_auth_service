@@ -142,7 +142,7 @@ export class OrderService extends ModelService<Order> {
         ],
       });
 
-      // Create order status log
+      // Create order payment
       const payment = await this._orderPaymentService.create({
         owner: job.owner,
         action: 'create',

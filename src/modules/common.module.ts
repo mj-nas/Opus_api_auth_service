@@ -9,6 +9,7 @@ import { LoginLogModule } from './mongo/login-log/login-log.module';
 import { OtpSessionModule } from './mongo/otp-session/otp-session.module';
 import { TaskModule } from './mongo/task/task.module';
 import { TrashModule } from './mongo/trash/trash.module';
+import { WebhookModule } from './mongo/webhook/webhook.module';
 import { SocketEventModule } from './socket-event/socket-event.module';
 import { AddressModule } from './sql/address/address.module';
 import { AuthModule } from './sql/auth/auth.module';
@@ -80,6 +81,7 @@ export class CommonModule {
       OrderItemModule,
       OrderStatusLogModule,
       OrderPaymentModule,
+      WebhookModule,
     ];
 
     // common providers
