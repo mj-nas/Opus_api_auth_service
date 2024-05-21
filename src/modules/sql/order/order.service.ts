@@ -1,4 +1,4 @@
-import { ModelService, SqlService } from '@core/sql';
+import { ModelService, SqlJob, SqlService } from '@core/sql';
 import { StripeService } from '@core/stripe';
 import { Injectable } from '@nestjs/common';
 import { Sequelize } from 'sequelize-typescript';
@@ -22,6 +22,19 @@ export class OrderService extends ModelService<Order> {
     private _stripeService: StripeService,
   ) {
     super(db);
+  }
+
+  /**
+   * doBeforeFindAll
+   * @function function will execute before findAll function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeFindAll(job: SqlJob<Order>): Promise<void> {
+    await super.doBeforeFindAll(job);
+    if (job.action === 'findAllMe') {
+      job.options.where = { ...job.options.where, user_id: job.owner.id };
+    }
   }
 
   async orderCreate(job: Job): Promise<JobResponse> {

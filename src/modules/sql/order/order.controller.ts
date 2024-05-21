@@ -146,7 +146,7 @@ export class OrderController {
    * Return all entity documents list
    */
   @Get()
-  @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
+  @ApiOperation({ summary: `Get my ${pluralizeString(entity)}` })
   @ApiQueryGetAll()
   @ResponseGetAll(Order)
   async findAll(
@@ -158,6 +158,37 @@ export class OrderController {
       await this.orderService.findAll({
         owner,
         action: 'findAll',
+        payload: { ...query },
+      });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { [pluralizeString(entity)]: data, offset, limit, count },
+      message: 'Ok',
+    });
+  }
+
+  /**
+   * Return all entity documents list
+   */
+  @Get('me')
+  @ApiOperation({ summary: `Get my ${pluralizeString(entity)}` })
+  @ApiQueryGetAll()
+  @ResponseGetAll(Order)
+  async findAllMe(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data, offset, limit, count } =
+      await this.orderService.findAll({
+        owner,
+        action: 'findAllMe',
         payload: { ...query },
       });
 
