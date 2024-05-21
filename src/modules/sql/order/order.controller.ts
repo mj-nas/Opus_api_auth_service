@@ -90,10 +90,12 @@ export class OrderController {
   @ApiOperation({ summary: `Webhook` })
   @ResponseCreated(Order)
   async stripeWebhook(@Res() res: Response, @Body() body: any) {
+    const sig = res.getHeader('stripe-signature');
     const { error, data } = await this.orderService.webhook({
       action: 'webhook',
       payload: {
         body,
+        sig,
       },
     });
 

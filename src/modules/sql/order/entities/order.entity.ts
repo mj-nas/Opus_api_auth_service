@@ -127,7 +127,7 @@ export class Order extends SqlModel {
 
   @Column({
     type: DataType.ENUM(...Object.values(OrderStatus)),
-    defaultValue: OrderStatus.Ordered,
+    defaultValue: OrderStatus.PaymentPending,
   })
   @ApiProperty({
     enum: OrderStatus,

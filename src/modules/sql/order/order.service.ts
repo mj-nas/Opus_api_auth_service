@@ -5,6 +5,8 @@ import { Sequelize } from 'sequelize-typescript';
 import { Job, JobResponse } from 'src/core/core.job';
 import { OrderAddressService } from '../order-address/order-address.service';
 import { OrderItemService } from '../order-item/order-item.service';
+import { OrderPaymentService } from '../order-payment/order-payment.service';
+import { OrderStatusLogService } from '../order-status-log/order-status-log.service';
 import { Order } from './entities/order.entity';
 import { OrderStatus } from './order-status.enum';
 
@@ -14,6 +16,8 @@ export class OrderService extends ModelService<Order> {
     db: SqlService<Order>,
     private _orderAddressService: OrderAddressService,
     private _orderItemService: OrderItemService,
+    private _orderStatusLogService: OrderStatusLogService,
+    private _orderPaymentService: OrderPaymentService,
     private _sequelize: Sequelize,
     private _stripeService: StripeService,
   ) {
@@ -25,6 +29,7 @@ export class OrderService extends ModelService<Order> {
     try {
       const { body } = job.payload;
 
+      // Create a new order
       const order = await this.create({
         owner: job.owner,
         action: 'create',
@@ -42,6 +47,8 @@ export class OrderService extends ModelService<Order> {
         await transaction.rollback();
         return { error: order.error };
       }
+
+      // Create a new order address
       const address = await this._orderAddressService.create({
         owner: job.owner,
         action: 'create',
@@ -58,9 +65,10 @@ export class OrderService extends ModelService<Order> {
         return { error: address.error };
       }
 
+      // Loop through the products
       const items = body.items;
-
       for await (const item of items) {
+        // Create a order product
         const itemCreate = await this._orderItemService.create({
           owner: job.owner,
           action: 'create',
@@ -78,6 +86,24 @@ export class OrderService extends ModelService<Order> {
         }
       }
 
+      // Create order status log
+      const status = await this._orderStatusLogService.create({
+        owner: job.owner,
+        action: 'create',
+        body: {
+          order_id: order.data.id,
+          status: OrderStatus.PaymentPending,
+        },
+        options: {
+          transaction,
+        },
+      });
+      if (!!status.error) {
+        await transaction.rollback();
+        return { error: status.error };
+      }
+
+      // Create a new stripe product against the order
       const product = await this._stripeService.stripe.products.create({
         name: order.data.uid,
         metadata: {
@@ -85,13 +111,15 @@ export class OrderService extends ModelService<Order> {
         },
       });
 
+      // Create a new stripe price for the order
       const cents = order.data.total * 100;
       const price = await this._stripeService.stripe.prices.create({
         currency: 'usd',
         unit_amount_decimal: `${cents}`,
         product: product.id,
       });
-      console.log(price);
+
+      // Create a stripe payment link for the order
       const paymentLink = await this._stripeService.stripe.paymentLinks.create({
         line_items: [
           {
@@ -100,6 +128,24 @@ export class OrderService extends ModelService<Order> {
           },
         ],
       });
+
+      // Create order status log
+      const payment = await this._orderPaymentService.create({
+        owner: job.owner,
+        action: 'create',
+        body: {
+          order_id: order.data.id,
+          payment_link: paymentLink.id,
+          payment_link_url: paymentLink.url,
+        },
+        options: {
+          transaction,
+        },
+      });
+      if (!!payment.error) {
+        await transaction.rollback();
+        return { error: payment.error };
+      }
 
       await transaction.commit();
       return { data: { order: order.data, payment_link: paymentLink.url } };
@@ -112,7 +158,24 @@ export class OrderService extends ModelService<Order> {
   async webhook(job: Job): Promise<JobResponse> {
     try {
       const { payload } = job;
-      console.log(payload.body.data);
+      console.log(JSON.stringify(payload.body));
+      const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
+      const event = this._stripeService.stripe.webhooks.constructEvent(
+        payload.body,
+        payload.body,
+        endpointSecret,
+      );
+
+      // Handle the event
+      switch (event.type) {
+        case 'checkout.session.completed':
+          const paymentSuccess = event.data.object;
+          console.log(paymentSuccess);
+          break;
+        // ... handle other event types
+        default:
+          console.log(`Unhandled event type ${event.type}`);
+      }
       return { data: payload };
     } catch (error) {
       return { error };

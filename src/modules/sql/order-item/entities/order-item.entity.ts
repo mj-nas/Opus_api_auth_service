@@ -18,7 +18,7 @@ export class OrderItem extends SqlModel {
   @Column
   @Index
   @ApiProperty({
-    description: 'Cart Id',
+    description: 'Order Id',
     example: 1,
   })
   @IsNumber()
