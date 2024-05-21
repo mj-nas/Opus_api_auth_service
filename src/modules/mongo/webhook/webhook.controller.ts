@@ -1,21 +1,17 @@
 import { Body, Controller, Post, Res } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiExtraModels,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiExtraModels, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ApiErrorResponses, ResponseCreated } from 'src/core/core.decorators';
 import { Created, ErrorResponse } from 'src/core/core.responses';
 import { snakeCase } from 'src/core/core.utils';
+import { Public } from 'src/core/decorators/public.decorator';
 import { Webhook } from './entities/webhook.entity';
 import { WebhookService } from './webhook.service';
 
 const entity = snakeCase(Webhook.name);
 
 @ApiTags(entity)
-@ApiBearerAuth()
+@Public()
 @ApiErrorResponses()
 @ApiExtraModels(Webhook)
 @Controller(entity)
