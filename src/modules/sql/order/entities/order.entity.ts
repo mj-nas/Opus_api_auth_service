@@ -167,30 +167,7 @@ export class Order extends SqlModel {
   address: OrderAddress;
 
   @Include({
-    attributes: [
-      'order_id',
-      'billing_address_id',
-      'billing_first_name',
-      'billing_last_name',
-      'billing_name',
-      'billing_email',
-      'billing_phone_code',
-      'billing_phone',
-      'billing_address',
-      'billing_city',
-      'billing_state',
-      'billing_zip_code',
-      'shipping_first_name',
-      'shipping_last_name',
-      'shipping_name',
-      'shipping_email',
-      'shipping_phone_code',
-      'shipping_phone',
-      'shipping_address',
-      'shipping_city',
-      'shipping_state',
-      'shipping_zip_code',
-    ],
+    attributes: ['order_id', 'product_id', 'quantity', 'price'],
   })
   @HasMany(() => OrderItem)
   items: OrderItem;
