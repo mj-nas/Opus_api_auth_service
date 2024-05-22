@@ -2,7 +2,7 @@ import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNumber, IsOptional, ValidateIf } from 'class-validator';
-import sequelize, { DataTypes } from 'sequelize';
+import sequelize, { DataTypes, Op, col } from 'sequelize';
 import {
   BeforeCreate,
   Column,
@@ -17,6 +17,8 @@ import { getUTCDateNow, zeroPad } from 'src/core/core.utils';
 import { Cart } from '../../cart/entities/cart.entity';
 import { OrderAddress } from '../../order-address/entities/order-address.entity';
 import { OrderItem } from '../../order-item/entities/order-item.entity';
+import { OrderPayment } from '../../order-payment/entities/order-payment.entity';
+import { OrderStatusLog } from '../../order-status-log/entities/order-status-log.entity';
 import { User } from '../../user/entities/user.entity';
 import { OrderStatus } from '../order-status.enum';
 
@@ -170,7 +172,34 @@ export class Order extends SqlModel {
     attributes: ['order_id', 'product_id', 'quantity', 'price'],
   })
   @HasMany(() => OrderItem)
-  items: OrderItem;
+  items: OrderItem[];
+
+  @Include({
+    attributes: [
+      'order_id',
+      'type',
+      'payment_link',
+      'payment_link_url',
+      'status',
+    ],
+  })
+  @HasMany(() => OrderPayment)
+  payments: OrderPayment[];
+
+  @Include({
+    attributes: ['order_id', 'status', 'created_at'],
+  })
+  @HasMany(() => OrderStatusLog)
+  status_logs: OrderStatusLog[];
+
+  @Include({
+    attributes: ['order_id', 'status', 'created_at'],
+    where: {
+      status: { [Op.eq]: col('Order.status') },
+    },
+  })
+  @HasOne(() => OrderStatusLog)
+  current_status: OrderStatusLog;
 
   @BeforeCreate
   static async setSlug(instance: Order) {

@@ -2,6 +2,7 @@ import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNumber } from 'class-validator';
 import {
+  BelongsTo,
   Column,
   DataType,
   ForeignKey,
@@ -34,4 +35,7 @@ export class OrderStatusLog extends SqlModel {
   })
   @IsEnum(OrderStatus)
   status: OrderStatus;
+
+  @BelongsTo(() => Order)
+  order: Order;
 }
