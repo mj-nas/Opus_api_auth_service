@@ -40,6 +40,19 @@ export class OrderService extends ModelService<Order> {
   }
 
   /**
+   * doBeforeFind
+   * @function function will execute before findById and findOne function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeFind(job: SqlJob<Order>): Promise<void> {
+    await super.doBeforeFind(job);
+    if (job.action === 'findOneMe') {
+      job.options.where = { ...job.options.where, user_id: job.owner.id };
+    }
+  }
+
+  /**
    * doAfterUpdate
    * @function function will execute after update function
    * @param {object} job - mandatory - a job object representing the job information

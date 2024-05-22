@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   Post,
-  Put,
   Query,
   Res,
 } from '@nestjs/common';
@@ -18,17 +17,14 @@ import {
 import { Response } from 'express';
 import {
   ApiErrorResponses,
-  ApiQueryCountAll,
   ApiQueryDelete,
   ApiQueryGetAll,
   ApiQueryGetById,
   ApiQueryGetOne,
   MsEventListener,
-  ResponseCountAll,
   ResponseDeleted,
   ResponseGetAll,
   ResponseGetOne,
-  ResponseUpdated,
 } from 'src/core/core.decorators';
 import { NotFoundError } from 'src/core/core.errors';
 import { Job } from 'src/core/core.job';
@@ -40,9 +36,10 @@ import {
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
+import { Roles } from 'src/core/decorators/sql/roles.decorator';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
+import { Role } from '../user/role.enum';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './entities/order.entity';
 import { OrderService } from './order.service';
 
@@ -107,43 +104,10 @@ export class OrderController {
   }
 
   /**
-   * Update an entity document by using id
-   */
-  @Put(':id')
-  @ApiOperation({ summary: `Update ${entity} using id` })
-  @ResponseUpdated(Order)
-  async update(
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Param('id') id: number,
-    @Body() updateOrderDto: UpdateOrderDto,
-  ) {
-    const { error, data } = await this.orderService.update({
-      owner,
-      action: 'update',
-      id: +id,
-      body: updateOrderDto,
-    });
-
-    if (error) {
-      if (error instanceof NotFoundError) {
-        return NotFound(res, {
-          error,
-          message: `Record not found`,
-        });
-      }
-      return ErrorResponse(res, {
-        error,
-        message: `${error.message || error}`,
-      });
-    }
-    return Result(res, { data: { [entity]: data }, message: 'Updated' });
-  }
-
-  /**
    * Return all entity documents list
    */
   @Get()
+  @Roles(Role.Admin)
   @ApiOperation({ summary: `Get my ${pluralizeString(entity)}` })
   @ApiQueryGetAll()
   @ResponseGetAll(Order)
@@ -203,51 +167,22 @@ export class OrderController {
   }
 
   /**
-   * Return count of entity documents
-   */
-  @Get('count')
-  @ApiOperation({ summary: `Get count of ${pluralizeString(entity)}` })
-  @ApiQueryCountAll()
-  @ResponseCountAll()
-  async countAll(
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Query() query: any,
-  ) {
-    const { error, count } = await this.orderService.getCount({
-      owner,
-      action: 'getCount',
-      payload: { ...query },
-    });
-
-    if (!!error) {
-      return ErrorResponse(res, {
-        error,
-        message: `${error.message || error}`,
-      });
-    }
-    return Result(res, {
-      data: { count },
-      message: 'Ok',
-    });
-  }
-
-  /**
    * Find one entity document
    */
-  @Get('find')
-  @ApiOperation({ summary: `Find one ${entity}` })
+  @Get('me/:uid')
+  @ApiOperation({ summary: `Find my ${entity}` })
   @ApiQueryGetOne()
   @ResponseGetOne(Order)
-  async findOne(
+  async findOneMe(
     @Res() res: Response,
     @Owner() owner: OwnerDto,
+    @Param('uid') uid: string,
     @Query() query: any,
   ) {
     const { error, data } = await this.orderService.findOne({
       owner,
-      action: 'findOne',
-      payload: { ...query },
+      action: 'findOneMe',
+      payload: { ...query, where: { ...query.where, uid } },
     });
 
     if (error) {
