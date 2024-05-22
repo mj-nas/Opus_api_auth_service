@@ -1,6 +1,7 @@
 import { SqlModule } from '@core/sql';
 import { StripeModule } from '@core/stripe';
 import { Module } from '@nestjs/common';
+import { MsClientModule } from 'src/core/modules/ms-client/ms-client.module';
 import { OrderAddressModule } from '../order-address/order-address.module';
 import { OrderItemModule } from '../order-item/order-item.module';
 import { OrderPaymentModule } from '../order-payment/order-payment.module';
@@ -17,6 +18,7 @@ import { OrderService } from './order.service';
     OrderStatusLogModule,
     OrderPaymentModule,
     StripeModule,
+    MsClientModule,
   ],
   controllers: [OrderController],
   providers: [OrderService],

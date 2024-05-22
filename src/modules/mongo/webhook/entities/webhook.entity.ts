@@ -2,6 +2,7 @@ import { MongoDocument } from '@core/mongo';
 import { defaultSchemaOptions, MongoSchema } from '@core/mongo/mongo.schema';
 import { createMongoSchema } from '@core/mongo/mongo.utils';
 import { Prop, Schema } from '@nestjs/mongoose';
+import { WebhookStatus } from '../webhook-status.enum';
 
 export type WebhookDocument = MongoDocument<Webhook>;
 
@@ -22,7 +23,7 @@ export class Webhook extends MongoSchema {
   @Prop({ type: 'Mixed' })
   payload: any;
 
-  @Prop()
+  @Prop({ type: String, enum: WebhookStatus, default: WebhookStatus.Pending })
   status: string;
 }
 export const WebhookSchema = createMongoSchema(Webhook);

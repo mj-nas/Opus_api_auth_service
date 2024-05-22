@@ -4,12 +4,19 @@ import {
   MongoJob,
   MongoService,
 } from '@core/mongo';
+import { StripeService } from '@core/stripe';
 import { Injectable } from '@nestjs/common';
+import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
+import { PaymentStatus } from 'src/modules/sql/order-payment/payment-status.enum';
 import { Webhook } from './entities/webhook.entity';
 
 @Injectable()
 export class WebhookService extends ModelService<Webhook> {
-  constructor(db: MongoService<Webhook>) {
+  constructor(
+    db: MongoService<Webhook>,
+    private _stripeService: StripeService,
+    private _msClient: MsClientService,
+  ) {
     super(db);
   }
 
@@ -20,6 +27,7 @@ export class WebhookService extends ModelService<Webhook> {
    * @return {void}
    */
   protected async doBeforeCreate(job: MongoJob<Webhook>): Promise<void> {
+    super.doBeforeCreate(job);
     job.body.action = job.action;
   }
 
@@ -34,6 +42,36 @@ export class WebhookService extends ModelService<Webhook> {
     job: MongoJob<Webhook>,
     response: MongoCreateResponse<Webhook>,
   ): Promise<void> {
-    console.log({ job, response });
+    super.doAfterCreate(job, response);
+
+    switch (response.data.action) {
+      case 'checkout.session.completed':
+        const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
+        const event = this._stripeService.stripe.webhooks.constructEvent(
+          job.body.payload,
+          job.body.signature,
+          endpointSecret,
+        );
+
+        // Handle the event
+        switch (event.type) {
+          case 'checkout.session.completed':
+            const paymentSuccess = event.data.object;
+            await this._msClient.executeJob('payment.status.update', {
+              payload: {
+                payment_link: paymentSuccess.payment_link,
+                status: PaymentStatus.Completed,
+              },
+            });
+            break;
+          // ... handle other event types
+          default:
+            console.log(`Unhandled event type ${event.type}`);
+        }
+        break;
+
+      default:
+        break;
+    }
   }
 }

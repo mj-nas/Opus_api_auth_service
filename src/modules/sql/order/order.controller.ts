@@ -23,14 +23,15 @@ import {
   ApiQueryGetAll,
   ApiQueryGetById,
   ApiQueryGetOne,
+  MsEventListener,
   ResponseCountAll,
-  ResponseCreated,
   ResponseDeleted,
   ResponseGetAll,
   ResponseGetOne,
   ResponseUpdated,
 } from 'src/core/core.decorators';
 import { NotFoundError } from 'src/core/core.errors';
+import { Job } from 'src/core/core.job';
 import {
   Created,
   ErrorResponse,
@@ -38,8 +39,8 @@ import {
   Result,
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
-import { Public } from 'src/core/decorators/public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
+import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './entities/order.entity';
@@ -53,7 +54,30 @@ const entity = snakeCase(Order.name);
 @ApiExtraModels(Order)
 @Controller(entity)
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    private _msClient: MsClientService,
+  ) {}
+
+  /**
+   * Queue listener for order status update
+   */
+  @MsEventListener('order.status.update')
+  async userListener(job: Job): Promise<void> {
+    const { order_id, status } = job.payload;
+    const response = await this.orderService.update({
+      action: 'order.status.update',
+      options: {
+        where: {
+          id: order_id,
+        },
+      },
+      body: {
+        status,
+      },
+    });
+    await this._msClient.jobDone(job, response);
+  }
 
   /**
    * Create a new entity document
@@ -80,32 +104,6 @@ export class OrderController {
       });
     }
     return Created(res, { data: { [entity]: data }, message: 'Created' });
-  }
-
-  /**
-   * Create a new entity document
-   */
-  @Public()
-  @Post('webhook')
-  @ApiOperation({ summary: `Webhook` })
-  @ResponseCreated(Order)
-  async stripeWebhook(@Res() res: Response, @Body() body: any) {
-    const sig = res.getHeader('stripe-signature');
-    const { error, data } = await this.orderService.webhook({
-      action: 'webhook',
-      payload: {
-        body,
-        sig,
-      },
-    });
-
-    if (error) {
-      return ErrorResponse(res, {
-        error,
-        message: `${error.message || error}`,
-      });
-    }
-    return Result(res, { data: { [entity]: data }, message: 'Success' });
   }
 
   /**

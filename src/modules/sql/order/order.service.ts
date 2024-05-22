@@ -1,8 +1,9 @@
-import { ModelService, SqlJob, SqlService } from '@core/sql';
+import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
 import { StripeService } from '@core/stripe';
 import { Injectable } from '@nestjs/common';
 import { Sequelize } from 'sequelize-typescript';
 import { Job, JobResponse } from 'src/core/core.job';
+import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { OrderAddressService } from '../order-address/order-address.service';
 import { OrderItemService } from '../order-item/order-item.service';
 import { OrderPaymentService } from '../order-payment/order-payment.service';
@@ -20,6 +21,7 @@ export class OrderService extends ModelService<Order> {
     private _orderPaymentService: OrderPaymentService,
     private _sequelize: Sequelize,
     private _stripeService: StripeService,
+    private _msClient: MsClientService,
   ) {
     super(db);
   }
@@ -34,6 +36,27 @@ export class OrderService extends ModelService<Order> {
     await super.doBeforeFindAll(job);
     if (job.action === 'findAllMe') {
       job.options.where = { ...job.options.where, user_id: job.owner.id };
+    }
+  }
+
+  /**
+   * doAfterUpdate
+   * @function function will execute after update function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @param {object} response - mandatory - a object representing the job response information
+   * @return {void}
+   */
+  protected async doAfterUpdate(
+    job: SqlJob<Order>,
+    response: SqlUpdateResponse<Order>,
+  ): Promise<void> {
+    if (job.action === 'order.status.update') {
+      await this._msClient.executeJob('order-status-log.create', {
+        payload: {
+          order_id: response.data.id,
+          status: response.data.status,
+        },
+      });
     }
   }
 
@@ -164,33 +187,6 @@ export class OrderService extends ModelService<Order> {
       return { data: { order: order.data, payment_link: paymentLink.url } };
     } catch (error) {
       await transaction.rollback();
-      return { error };
-    }
-  }
-
-  async webhook(job: Job): Promise<JobResponse> {
-    try {
-      const { payload } = job;
-      console.log(JSON.stringify(payload.body));
-      const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
-      const event = this._stripeService.stripe.webhooks.constructEvent(
-        payload.body,
-        payload.body,
-        endpointSecret,
-      );
-
-      // Handle the event
-      switch (event.type) {
-        case 'checkout.session.completed':
-          const paymentSuccess = event.data.object;
-          console.log(paymentSuccess);
-          break;
-        // ... handle other event types
-        default:
-          console.log(`Unhandled event type ${event.type}`);
-      }
-      return { data: payload };
-    } catch (error) {
       return { error };
     }
   }
