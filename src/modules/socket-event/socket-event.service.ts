@@ -24,4 +24,13 @@ export class SocketEventService {
     });
     return { error: false };
   }
+
+  async orderPlaced(job: Job) {
+    this.redisPropagatorService.propagateEvent({
+      userId: `${job.payload.user_id}`,
+      event: SocketEvent.OrderPlaced,
+      data: { ...job.payload.data, reason: 'Order Placed' },
+    });
+    return { error: false };
+  }
 }

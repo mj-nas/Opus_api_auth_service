@@ -64,11 +64,7 @@ export class OrderController {
     const { order_id, status } = job.payload;
     const response = await this.orderService.update({
       action: 'order.status.update',
-      options: {
-        where: {
-          id: order_id,
-        },
-      },
+      id: order_id,
       body: {
         status,
       },
@@ -86,9 +82,9 @@ export class OrderController {
     @Owner() owner: OwnerDto,
     @Body() createOrderDto: CreateOrderDto,
   ) {
-    const { error, data } = await this.orderService.orderCreate({
+    const { error, data } = await this.orderService.createOrder({
       owner,
-      action: 'orderCreate',
+      action: 'createOrder',
       payload: {
         body: createOrderDto,
       },

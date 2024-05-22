@@ -8,6 +8,7 @@ import { OrderAddressService } from '../order-address/order-address.service';
 import { OrderItemService } from '../order-item/order-item.service';
 import { OrderPaymentService } from '../order-payment/order-payment.service';
 import { OrderStatusLogService } from '../order-status-log/order-status-log.service';
+import { Role } from '../user/role.enum';
 import { Order } from './entities/order.entity';
 import { OrderStatus } from './order-status.enum';
 
@@ -64,16 +65,50 @@ export class OrderService extends ModelService<Order> {
     response: SqlUpdateResponse<Order>,
   ): Promise<void> {
     if (job.action === 'order.status.update') {
+      /**
+       * @description Trigger the 'order-status-log.create' event for updating the order status log
+       */
       await this._msClient.executeJob('order-status-log.create', {
         payload: {
           order_id: response.data.id,
           status: response.data.status,
         },
       });
+
+      if (
+        response.previousData.status === OrderStatus.PaymentPending &&
+        response.data.status === OrderStatus.Ordered
+      ) {
+        // Send order placed socket notification
+        await this._msClient.executeJob('controller.socket-event', {
+          action: 'orderPlaced',
+          payload: {
+            user_id: response.data.user_id,
+            data: {
+              order_id: response.data.uid,
+            },
+          },
+        });
+
+        // Send order confirmation mail notification
+        await this._msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              user_id: response.data.user_id,
+              template: 'order_confirm_to_customer',
+              variables: {
+                ORDER_ID: response.data.uid,
+              },
+            },
+          }),
+        );
+      }
     }
   }
 
-  async orderCreate(job: Job): Promise<JobResponse> {
+  async createOrder(job: Job): Promise<JobResponse> {
     const transaction = await this._sequelize.transaction();
     try {
       const { body } = job.payload;
@@ -197,6 +232,22 @@ export class OrderService extends ModelService<Order> {
       }
 
       await transaction.commit();
+
+      // New order alert to admin
+      await this._msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_where: { role: Role.Admin },
+            template: 'new_order_alert_to_admin',
+            variables: {
+              ORDER_ID: order.data.uid,
+              CUSTOMER_NAME: job.owner.name,
+            },
+          },
+        }),
+      );
       return { data: { order: order.data, payment_link: paymentLink.url } };
     } catch (error) {
       await transaction.rollback();
