@@ -5,6 +5,7 @@ import { IsEnum, IsNumber, IsOptional, ValidateIf } from 'class-validator';
 import sequelize, { DataTypes, Op, col } from 'sequelize';
 import {
   BeforeCreate,
+  BelongsTo,
   Column,
   DataType,
   ForeignKey,
@@ -200,6 +201,9 @@ export class Order extends SqlModel {
   })
   @HasOne(() => OrderStatusLog)
   current_status: OrderStatusLog;
+
+  @BelongsTo(() => User)
+  user: User;
 
   @BeforeCreate
   static async setSlug(instance: Order) {

@@ -14,6 +14,18 @@ import { OrderStatus } from './order-status.enum';
 
 @Injectable()
 export class OrderService extends ModelService<Order> {
+  /**
+   * searchFields
+   * @property array of fields to include in search
+   */
+  searchFields: string[] = ['uid', '$user.name$'];
+
+  /**
+   * searchPopulate
+   * @property array of associations to include for search
+   */
+  searchPopulate: string[] = ['user'];
+
   constructor(
     db: SqlService<Order>,
     private _orderAddressService: OrderAddressService,
