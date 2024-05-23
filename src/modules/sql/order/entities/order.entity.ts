@@ -202,6 +202,21 @@ export class Order extends SqlModel {
   @HasOne(() => OrderStatusLog)
   current_status: OrderStatusLog;
 
+  @Include({
+    attributes: [
+      'id',
+      'slug',
+      'role',
+      'uid',
+      'first_name',
+      'last_name',
+      'name',
+      'email',
+      'phone_code',
+      'phone',
+      'avatar',
+    ],
+  })
   @BelongsTo(() => User)
   user: User;
 

@@ -32,6 +32,7 @@ import { OrderModule } from './sql/order/order.module';
 import { PageModule } from './sql/page/page.module';
 import { ProductCategoryModule } from './sql/product-category/product-category.module';
 import { ProductGalleryModule } from './sql/product-gallery/product-gallery.module';
+import { ProductReviewModule } from './sql/product-review/product-review.module';
 import { ProductSpecificationsModule } from './sql/product-specifications/product-specifications.module';
 import { ProductsModule } from './sql/products/products.module';
 import { RecentlyViewedModule } from './sql/recently-viewed/recently-viewed.module';
@@ -82,6 +83,7 @@ export class CommonModule {
       OrderStatusLogModule,
       OrderPaymentModule,
       WebhookModule,
+      ProductReviewModule,
     ];
 
     // common providers
