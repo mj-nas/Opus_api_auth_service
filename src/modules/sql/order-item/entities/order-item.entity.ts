@@ -1,3 +1,4 @@
+import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
@@ -6,10 +7,12 @@ import {
   BelongsTo,
   Column,
   ForeignKey,
+  HasOne,
   Index,
   Table,
 } from 'sequelize-typescript';
 import { Order } from '../../order/entities/order.entity';
+import { ProductReview } from '../../product-review/entities/product-review.entity';
 import { Products } from '../../products/entities/products.entity';
 
 @Table
@@ -55,4 +58,18 @@ export class OrderItem extends SqlModel {
 
   @BelongsTo(() => Products)
   product: Products;
+
+  @Include({
+    attributes: [
+      'id',
+      'order_id',
+      'product_id',
+      'order_item_id',
+      'rating',
+      'review',
+      'created_at',
+    ],
+  })
+  @HasOne(() => ProductReview)
+  item_review: ProductReview;
 }
