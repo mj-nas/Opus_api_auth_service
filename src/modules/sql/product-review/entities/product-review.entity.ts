@@ -9,6 +9,7 @@ import {
   Index,
   Table,
 } from 'sequelize-typescript';
+import { OrderItem } from '../../order-item/entities/order-item.entity';
 import { Order } from '../../order/entities/order.entity';
 import { Products } from '../../products/entities/products.entity';
 import { User } from '../../user/entities/user.entity';
@@ -34,6 +35,16 @@ export class ProductReview extends SqlModel {
   })
   @IsNumber()
   product_id: number;
+
+  @ForeignKey(() => OrderItem)
+  @Column
+  @Index
+  @ApiProperty({
+    description: 'Order Item Id',
+    example: 1,
+  })
+  @IsNumber()
+  order_item_id: number;
 
   @Column
   @ApiProperty({
