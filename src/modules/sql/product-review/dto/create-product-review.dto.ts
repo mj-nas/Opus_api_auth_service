@@ -4,6 +4,7 @@ import { ProductReview } from '../entities/product-review.entity';
 export class CreateProductReviewDto extends PickType(ProductReview, [
   'order_id',
   'product_id',
+  'order_item_id',
   'rating',
   'review',
 ] as const) {}
