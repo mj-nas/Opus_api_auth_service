@@ -142,6 +142,7 @@ export class Order extends SqlModel {
 
   @Include({
     attributes: [
+      'id',
       'order_id',
       'billing_address_id',
       'billing_first_name',
@@ -170,13 +171,14 @@ export class Order extends SqlModel {
   address: OrderAddress;
 
   @Include({
-    attributes: ['order_id', 'product_id', 'quantity', 'price'],
+    attributes: ['id', 'order_id', 'product_id', 'quantity', 'price'],
   })
   @HasMany(() => OrderItem)
   items: OrderItem[];
 
   @Include({
     attributes: [
+      'id',
       'order_id',
       'type',
       'payment_link',
@@ -188,13 +190,13 @@ export class Order extends SqlModel {
   payments: OrderPayment[];
 
   @Include({
-    attributes: ['order_id', 'status', 'created_at'],
+    attributes: ['id', 'order_id', 'status', 'created_at'],
   })
   @HasMany(() => OrderStatusLog)
   status_logs: OrderStatusLog[];
 
   @Include({
-    attributes: ['order_id', 'status', 'created_at'],
+    attributes: ['id', 'order_id', 'status', 'created_at'],
     where: {
       status: { [Op.eq]: col('Order.status') },
     },
