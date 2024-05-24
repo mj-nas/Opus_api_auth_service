@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Query,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiExtraModels,
@@ -17,12 +8,9 @@ import {
 import { Response } from 'express';
 import {
   ApiErrorResponses,
-  ApiQueryDelete,
   ApiQueryGetAll,
-  ApiQueryGetById,
   ApiQueryGetOne,
   MsEventListener,
-  ResponseDeleted,
   ResponseGetAll,
   ResponseGetOne,
 } from 'src/core/core.decorators';
@@ -132,7 +120,7 @@ export class OrderController {
   }
 
   /**
-   * Return all entity documents list
+   * Return all entity documents list by me
    */
   @Get('me')
   @ApiOperation({ summary: `Get my ${pluralizeString(entity)}` })
@@ -199,21 +187,20 @@ export class OrderController {
   /**
    * Get an entity document by using id
    */
-  @Get(':id')
+  @Get(':uid')
   @ApiOperation({ summary: `Find ${entity} using id` })
-  @ApiQueryGetById()
+  @ApiQueryGetOne()
   @ResponseGetOne(Order)
-  async findById(
+  async findByUid(
     @Res() res: Response,
     @Owner() owner: OwnerDto,
-    @Param('id') id: number,
+    @Param('uid') uid: number,
     @Query() query: any,
   ) {
-    const { error, data } = await this.orderService.findById({
+    const { error, data } = await this.orderService.findOne({
       owner,
-      action: 'findById',
-      id: +id,
-      payload: { ...query },
+      action: 'findByUid',
+      payload: { ...query, where: { ...query.where, uid } },
     });
 
     if (error) {
@@ -229,40 +216,5 @@ export class OrderController {
       });
     }
     return Result(res, { data: { [entity]: data }, message: 'Ok' });
-  }
-
-  /**
-   * Delete an entity document by using id
-   */
-  @Delete(':id')
-  @ApiOperation({ summary: `Delete ${entity} using id` })
-  @ApiQueryDelete()
-  @ResponseDeleted(Order)
-  async delete(
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Param('id') id: number,
-    @Query() query: any,
-  ) {
-    const { error, data } = await this.orderService.delete({
-      owner,
-      action: 'delete',
-      id: +id,
-      payload: { ...query },
-    });
-
-    if (error) {
-      if (error instanceof NotFoundError) {
-        return NotFound(res, {
-          error,
-          message: `Record not found`,
-        });
-      }
-      return ErrorResponse(res, {
-        error,
-        message: `${error.message || error}`,
-      });
-    }
-    return Result(res, { data: { [entity]: data }, message: 'Deleted' });
   }
 }
