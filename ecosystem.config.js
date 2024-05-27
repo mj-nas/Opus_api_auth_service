@@ -37,5 +37,15 @@ module.exports = {
         APP_ID: 'webhooks',
       },
     },
+    {
+      name: `${pkg.name}-crons`,
+      script: 'dist/main.js',
+      autorestart: true,
+      watch: false,
+      env: {
+        PORT: 3003,
+        APP_ID: 'crons',
+      },
+    },
   ],
 };
