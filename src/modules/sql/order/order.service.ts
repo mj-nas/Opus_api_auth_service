@@ -294,6 +294,8 @@ export class OrderService extends ModelService<Order> {
 
       const orders = data;
       for await (const o of orders) {
+        const orderJson = o.toJSON();
+        console.log(orderJson);
         const transaction = await this._sequelize.transaction();
         // Create a new order
         const order = await this.create({
@@ -308,18 +310,25 @@ export class OrderService extends ModelService<Order> {
             repeating_days: o.repeating_days,
             is_base_order: 'Y',
             user_id: o.user_id,
+            parent_order_id: o.parent_order_id ?? o.id,
             status: OrderStatus.PaymentPending,
           },
           options: {
             transaction,
           },
         });
+        if (!!order.error) {
+          await transaction.rollback();
+          return { error: order.error };
+        }
 
         // Create a new order address
+        const addressJson = orderJson.address;
+        delete addressJson.id;
         const address = await this._orderAddressService.create({
           action: 'create',
           body: {
-            ...o.address,
+            ...addressJson,
             order_id: order.data.id,
           },
           options: {
@@ -332,8 +341,9 @@ export class OrderService extends ModelService<Order> {
         }
 
         // Loop through the products
-        const items = o.items;
+        const items = orderJson.items;
         for await (const item of items) {
+          delete item.id;
           // Create a order product
           const itemCreate = await this._orderItemService.create({
             action: 'create',
@@ -414,10 +424,7 @@ export class OrderService extends ModelService<Order> {
         await transaction.commit();
 
         o.setDataValue('is_base_order', 'N');
-        o.setDataValue(
-          'parent_order_id',
-          order.data.parent_order_id ?? order.data.id,
-        );
+        o.save();
 
         // New order alert to admin
         await this._msClient.executeJob(
@@ -438,6 +445,7 @@ export class OrderService extends ModelService<Order> {
 
       return { data };
     } catch (error) {
+      console.error(error);
       return { error };
     }
   }

@@ -1,4 +1,5 @@
 import { Module, OnApplicationBootstrap } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { isPrimaryInstance } from 'src/core/core.utils';
 import { OrderModule } from 'src/modules/sql/order/order.module';
@@ -17,6 +18,7 @@ import { TaskService } from './task.service';
     HistoryModule,
     TrashModule,
     OrderModule,
+    ConfigModule,
     MongoModule.register({ name: Task.name, schema: TaskSchema }),
   ],
   providers: [TaskService, HistoryCron, TrashCron, OrderCron],

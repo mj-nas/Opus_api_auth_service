@@ -88,6 +88,24 @@ export class OrderController {
   }
 
   /**
+   * Reorder cron
+   */
+  // @Public()
+  // @Post('cron')
+  // @ApiOperation({ summary: `Reorder cron` })
+  // async reorderCron(@Res() res: Response) {
+  //   const { error, data } = await this.orderService.reorderCron();
+
+  //   if (error) {
+  //     return ErrorResponse(res, {
+  //       error,
+  //       message: `${error.message || error}`,
+  //     });
+  //   }
+  //   return Created(res, { data: { [entity]: data }, message: 'Created' });
+  // }
+
+  /**
    * Return all entity documents list
    */
   @Get()
