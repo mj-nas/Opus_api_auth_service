@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { OrderService } from 'src/modules/sql/order/order.service';
 
 @Injectable()
@@ -8,7 +8,7 @@ export class OrderCron {
   constructor(private _orderService: OrderService) {}
 
   // Reorder order
-  @Cron('0 0 12 * * *')
+  @Cron(CronExpression.EVERY_DAY_AT_NOON)
   async deleteExpiredOrder() {
     this.logger.log('Reorder order cron started...');
     const { error } = await this._orderService.reorderCron();
