@@ -295,7 +295,6 @@ export class OrderService extends ModelService<Order> {
       const orders = data;
       for await (const o of orders) {
         const orderJson = o.toJSON();
-        console.log(orderJson);
         const transaction = await this._sequelize.transaction();
         // Create a new order
         const order = await this.create({

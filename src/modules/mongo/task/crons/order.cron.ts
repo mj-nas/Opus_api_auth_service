@@ -15,7 +15,6 @@ export class OrderCron {
   @Cron(CronExpression.EVERY_DAY_AT_NOON)
   async reorderCron() {
     if (this.configService.get('appId') != 'crons') {
-      console.log('Error cron');
       return;
     }
     this.logger.log('Reorder order cron started...');
