@@ -1,6 +1,7 @@
 import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
 import { StripeService } from '@core/stripe';
 import { Injectable } from '@nestjs/common';
+import { literal } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { Job, JobResponse } from 'src/core/core.job';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
@@ -263,6 +264,180 @@ export class OrderService extends ModelService<Order> {
       return { data: { order: order.data, payment_link: paymentLink.url } };
     } catch (error) {
       await transaction.rollback();
+      return { error };
+    }
+  }
+
+  async reorderCron(): Promise<JobResponse> {
+    try {
+      const { data, error } = await this.$db.getAllRecords({
+        action: 'reorderCron',
+        options: {
+          limit: -1,
+          where: {
+            is_repeating_order: 'Y',
+            is_base_order: 'Y',
+            created_at: literal(
+              `DATE_FORMAT(DATE_ADD( created_at, INTERVAL repeating_days DAY ),'%Y-%M-%d') = DATE_FORMAT(CURDATE( ),'%Y-%M-%d')`,
+            ),
+          },
+          include: [
+            { association: 'address' },
+            { association: 'items' },
+            { association: 'user' },
+          ],
+        },
+      });
+      if (!!error) {
+        return { error };
+      }
+
+      const orders = data;
+      for await (const o of orders) {
+        const transaction = await this._sequelize.transaction();
+        // Create a new order
+        const order = await this.create({
+          action: 'create',
+          body: {
+            cart_id: o.cart_id,
+            sub_total: o.sub_total,
+            shipping_price: o.shipping_price,
+            tax: o.tax,
+            total: o.total,
+            is_repeating_order: 'Y',
+            repeating_days: o.repeating_days,
+            is_base_order: 'Y',
+            user_id: o.user_id,
+            status: OrderStatus.PaymentPending,
+          },
+          options: {
+            transaction,
+          },
+        });
+
+        // Create a new order address
+        const address = await this._orderAddressService.create({
+          action: 'create',
+          body: {
+            ...o.address,
+            order_id: order.data.id,
+          },
+          options: {
+            transaction,
+          },
+        });
+        if (!!address.error) {
+          await transaction.rollback();
+          return { error: address.error };
+        }
+
+        // Loop through the products
+        const items = o.items;
+        for await (const item of items) {
+          // Create a order product
+          const itemCreate = await this._orderItemService.create({
+            action: 'create',
+            body: {
+              ...item,
+              order_id: order.data.id,
+            },
+            options: {
+              transaction,
+            },
+          });
+          if (!!itemCreate.error) {
+            await transaction.rollback();
+            return { error: itemCreate.error };
+          }
+        }
+
+        // Create order status log
+        const status = await this._orderStatusLogService.create({
+          action: 'create',
+          body: {
+            order_id: order.data.id,
+            status: OrderStatus.PaymentPending,
+          },
+          options: {
+            transaction,
+          },
+        });
+        if (!!status.error) {
+          await transaction.rollback();
+          return { error: status.error };
+        }
+
+        // Create a new stripe product against the order
+        const product = await this._stripeService.stripe.products.create({
+          name: order.data.uid,
+          metadata: {
+            order_id: order.data.id,
+          },
+        });
+
+        // Create a new stripe price for the order
+        const cents = order.data.total * 100;
+        const price = await this._stripeService.stripe.prices.create({
+          currency: 'usd',
+          unit_amount_decimal: `${cents}`,
+          product: product.id,
+        });
+
+        // Create a stripe payment link for the order
+        const paymentLink =
+          await this._stripeService.stripe.paymentLinks.create({
+            line_items: [
+              {
+                price: price.id,
+                quantity: 1,
+              },
+            ],
+          });
+
+        // Create order payment
+        const payment = await this._orderPaymentService.create({
+          action: 'create',
+          body: {
+            order_id: order.data.id,
+            payment_link: paymentLink.id,
+            payment_link_url: paymentLink.url,
+          },
+          options: {
+            transaction,
+          },
+        });
+        if (!!payment.error) {
+          await transaction.rollback();
+          return { error: payment.error };
+        }
+
+        await transaction.commit();
+
+        o.setDataValue('is_base_order', 'N');
+        o.setDataValue(
+          'parent_order_id',
+          order.data.parent_order_id ?? order.data.id,
+        );
+
+        // New order alert to admin
+        await this._msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              user_where: { role: Role.Admin },
+              template: 'new_order_alert_to_admin',
+              variables: {
+                ORDER_ID: order.data.uid,
+                CUSTOMER_NAME: o.user.name,
+              },
+            },
+          }),
+        );
+      }
+
+      return { data };
+    } catch (error) {
       return { error };
     }
   }
