@@ -462,7 +462,10 @@ export class OrderService extends ModelService<Order> {
       if (!!error) {
         return { error };
       }
-      const nextRepeatingDay = moment(data.created_at).add(repeating_days);
+      const nextRepeatingDay = moment(data.created_at).add(
+        repeating_days,
+        'days',
+      );
       const currentDate = moment();
       if (!nextRepeatingDay.isAfter(currentDate)) {
         const daysDifference = currentDate.diff(
