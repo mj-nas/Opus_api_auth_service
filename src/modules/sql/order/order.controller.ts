@@ -59,7 +59,7 @@ export class OrderController {
    * Queue listener for order status update
    */
   @MsEventListener('order.status.update')
-  async userListener(job: Job): Promise<void> {
+  async orderStatusUpdateListener(job: Job): Promise<void> {
     const { order_id, status } = job.payload;
     const response = await this.orderService.update({
       action: 'order.status.update',

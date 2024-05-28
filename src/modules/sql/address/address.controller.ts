@@ -143,6 +143,37 @@ export class AddressController {
   }
 
   /**
+   * Return all my entity documents list
+   */
+  @Get('me')
+  @ApiOperation({ summary: `Get all my ${pluralizeString(entity)}` })
+  @ApiQueryGetAll()
+  @ResponseGetAll(Address)
+  async findAllMe(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data, offset, limit, count } =
+      await this.addressService.findAll({
+        owner,
+        action: 'findAllMe',
+        payload: { ...query },
+      });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { [pluralizeString(entity)]: data, offset, limit, count },
+      message: 'Ok',
+    });
+  }
+
+  /**
    * Get an entity document by using id
    */
   @Get(':id')
