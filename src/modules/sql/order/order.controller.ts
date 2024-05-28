@@ -99,10 +99,10 @@ export class OrderController {
   }
 
   /**
-   * Update an entity document by using id
+   * Reorder order with repeating days
    */
   @Put('reorder/:order_id')
-  @ApiOperation({ summary: `Update ${entity} using id` })
+  @ApiOperation({ summary: `Reorder order with repeating days` })
   @ResponseUpdated(Order)
   async update(
     @Res() res: Response,
