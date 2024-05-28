@@ -104,7 +104,7 @@ export class OrderController {
   @Put('reorder/:order_id')
   @ApiOperation({ summary: `Reorder order with repeating days` })
   @ResponseUpdated(Order)
-  async update(
+  async reorder(
     @Res() res: Response,
     @Owner() owner: OwnerDto,
     @Param('order_id') order_id: number,
@@ -113,6 +113,42 @@ export class OrderController {
     const { error, data } = await this.orderService.reorder({
       owner,
       action: 'reorder',
+      payload: {
+        ...reorderDto,
+        order_id,
+      },
+    });
+
+    if (error) {
+      if (error instanceof NotFoundError) {
+        return NotFound(res, {
+          error,
+          message: `Record not found`,
+        });
+      }
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { data: { [entity]: data }, message: 'Updated' });
+  }
+
+  /**
+   * Change reorder cycle
+   */
+  @Put('cycle-change/:order_id')
+  @ApiOperation({ summary: `Change reorder cycle` })
+  @ResponseUpdated(Order)
+  async reorderCycleChange(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Param('order_id') order_id: number,
+    @Body() reorderDto: ReorderDto,
+  ) {
+    const { error, data } = await this.orderService.reorder({
+      owner,
+      action: 'reorderCycleChange',
       payload: {
         ...reorderDto,
         order_id,

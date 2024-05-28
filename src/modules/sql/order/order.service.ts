@@ -474,6 +474,11 @@ export class OrderService extends ModelService<Order> {
         };
       }
 
+      if (job.action === 'reorder') {
+        data.setDataValue('is_repeating_order', 'Y');
+        data.setDataValue('is_base_order', 'Y');
+      }
+
       data.setDataValue('repeating_days', repeating_days);
       await data.save();
       return { data };
