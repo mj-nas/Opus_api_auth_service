@@ -66,5 +66,17 @@ export default <Seed<Setting>>{
         min: 0,
       },
     },
+    {
+      name: 'tax',
+      display_name: 'Tax',
+      value: '10',
+      group_id: 1,
+      option: {
+        type: 'number',
+        format: 'amount',
+        required: true,
+        min: 0,
+      },
+    },
   ],
 };
