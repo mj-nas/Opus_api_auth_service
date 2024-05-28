@@ -31,6 +31,7 @@ import {
 } from 'src/core/core.decorators';
 import { NotFoundError } from 'src/core/core.errors';
 import { ErrorResponse, NotFound, Result } from 'src/core/core.responses';
+import { Public } from 'src/core/decorators/public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
 import { Role } from '../user/role.enum';
@@ -176,6 +177,7 @@ export class SettingController {
   /**
    * Find one Setting
    */
+  @Public()
   @Get('find')
   @ApiOperation({ summary: 'Find a setting' })
   @ApiQueryGetOne()
