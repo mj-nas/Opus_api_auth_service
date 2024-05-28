@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  Res,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiExtraModels,
@@ -13,6 +22,7 @@ import {
   MsEventListener,
   ResponseGetAll,
   ResponseGetOne,
+  ResponseUpdated,
 } from 'src/core/core.decorators';
 import { NotFoundError } from 'src/core/core.errors';
 import { Job } from 'src/core/core.job';
@@ -28,6 +38,7 @@ import { Roles } from 'src/core/decorators/sql/roles.decorator';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { Role } from '../user/role.enum';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { ReorderDto } from './dto/reorder.dto';
 import { Order } from './entities/order.entity';
 import { OrderService } from './order.service';
 
@@ -85,6 +96,42 @@ export class OrderController {
       });
     }
     return Created(res, { data: { [entity]: data }, message: 'Created' });
+  }
+
+  /**
+   * Update an entity document by using id
+   */
+  @Put('reorder/:order_id')
+  @ApiOperation({ summary: `Update ${entity} using id` })
+  @ResponseUpdated(Order)
+  async update(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Param('order_id') order_id: number,
+    @Body() reorderDto: ReorderDto,
+  ) {
+    const { error, data } = await this.orderService.reorder({
+      owner,
+      action: 'reorder',
+      payload: {
+        ...reorderDto,
+        order_id,
+      },
+    });
+
+    if (error) {
+      if (error instanceof NotFoundError) {
+        return NotFound(res, {
+          error,
+          message: `Record not found`,
+        });
+      }
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { data: { [entity]: data }, message: 'Updated' });
   }
 
   /**

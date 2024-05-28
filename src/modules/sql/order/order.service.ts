@@ -1,6 +1,7 @@
 import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
 import { StripeService } from '@core/stripe';
 import { Injectable } from '@nestjs/common';
+import * as moment from 'moment-timezone';
 import { literal } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { Job, JobResponse } from 'src/core/core.job';
@@ -423,7 +424,7 @@ export class OrderService extends ModelService<Order> {
         await transaction.commit();
 
         o.setDataValue('is_base_order', 'N');
-        o.save();
+        await o.save();
 
         // New order alert to admin
         await this._msClient.executeJob(
@@ -445,6 +446,38 @@ export class OrderService extends ModelService<Order> {
       return { data };
     } catch (error) {
       console.error(error);
+      return { error };
+    }
+  }
+
+  async reorder(job: Job): Promise<JobResponse> {
+    try {
+      const { order_id, repeating_days } = job.payload;
+      const { error, data } = await this.$db.findRecordById({
+        id: order_id,
+        options: {
+          where: { user_id: job.owner.id },
+        },
+      });
+      if (!!error) {
+        return { error };
+      }
+      const nextRepeatingDay = moment(data.created_at).add(repeating_days);
+      const currentDate = moment();
+      if (!nextRepeatingDay.isAfter(currentDate)) {
+        const daysDifference = currentDate.diff(
+          moment(data.created_at),
+          'days',
+        );
+        return {
+          error: `Repeating days must be greater than ${daysDifference + 1}.`,
+        };
+      }
+
+      data.setDataValue('repeating_days', repeating_days);
+      await data.save();
+      return { data };
+    } catch (error) {
       return { error };
     }
   }
