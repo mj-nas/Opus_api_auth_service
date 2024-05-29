@@ -254,7 +254,7 @@ export class OrderController {
   // @Post('cron')
   // @ApiOperation({ summary: `Reorder cron` })
   // async reorderCron(@Res() res: Response) {
-  //   const { error, data } = await this.orderService.reorderCron();
+  //   const { error, data } = await this.orderService.reorderNotificationCron();
 
   //   if (error) {
   //     return ErrorResponse(res, {

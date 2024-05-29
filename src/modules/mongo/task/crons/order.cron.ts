@@ -25,4 +25,18 @@ export class OrderCron {
     }
     this.logger.log(`Reorder order cron completed successfully!`);
   }
+  // Reorder notification cron
+  @Cron(CronExpression.EVERY_DAY_AT_NOON)
+  async reorderNotificationCron() {
+    if (this.configService.get('appId') != 'crons') {
+      return;
+    }
+    this.logger.log('Reorder notification cron started...');
+    const { error } = await this._orderService.reorderNotificationCron();
+    if (error) {
+      this.logger.error(`Error - ${error.message || error}`);
+      return;
+    }
+    this.logger.log(`Reorder notification cron completed successfully!`);
+  }
 }

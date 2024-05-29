@@ -495,6 +495,56 @@ export class OrderService extends ModelService<Order> {
     }
   }
 
+  async reorderNotificationCron(): Promise<JobResponse> {
+    try {
+      const { data, error } = await this.$db.getAllRecords({
+        action: 'reorderCron',
+        options: {
+          limit: -1,
+          where: {
+            is_repeating_order: 'Y',
+            is_base_order: 'Y',
+            created_at: literal(
+              `DATE_FORMAT(DATE_ADD( created_at, INTERVAL repeating_days - 2 DAY ),'%Y-%M-%d') = DATE_FORMAT(CURDATE( ),'%Y-%M-%d')`,
+            ),
+          },
+          include: [
+            { association: 'address' },
+            { association: 'items' },
+            { association: 'user' },
+          ],
+        },
+      });
+      if (!!error) {
+        return { error };
+      }
+
+      const orders = data;
+      for await (const o of orders) {
+        // New order alert to admin
+        await this._msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              user_id: o.user_id,
+              template: 'repeat_order_reminder',
+              variables: {
+                ORDER_ID: o.uid,
+                REPEAT_DATE: moment().add(2, 'days').format('MM/DD/YYYY'),
+              },
+            },
+          }),
+        );
+      }
+
+      return { data };
+    } catch (error) {
+      console.error(error);
+      return { error };
+    }
+  }
+
   async reorder(job: Job): Promise<JobResponse> {
     try {
       const { order_id, repeating_days } = job.payload;
