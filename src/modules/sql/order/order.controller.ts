@@ -40,6 +40,7 @@ import { Role } from '../user/role.enum';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { ReorderDto } from './dto/reorder.dto';
 import { Order } from './entities/order.entity';
+import { OrderStatus } from './order-status.enum';
 import { OrderService } from './order.service';
 
 const entity = snakeCase(Order.name);
@@ -152,6 +153,44 @@ export class OrderController {
       payload: {
         ...reorderDto,
         order_id,
+      },
+    });
+
+    if (error) {
+      if (error instanceof NotFoundError) {
+        return NotFound(res, {
+          error,
+          message: `Record not found`,
+        });
+      }
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { data: { [entity]: data }, message: 'Updated' });
+  }
+
+  /**
+   * Change reorder cycle
+   */
+  @Put('cancel/:order_id')
+  @ApiOperation({ summary: `Change reorder cycle` })
+  @ResponseUpdated(Order)
+  async cancelOrder(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Param('order_id') order_id: number,
+  ) {
+    const { error, data } = await this.orderService.update({
+      owner,
+      action: 'cancelOrder',
+      id: +order_id,
+      body: { status: OrderStatus.Cancelled },
+      payload: {
+        where: {
+          user_id: owner.id,
+        },
       },
     });
 

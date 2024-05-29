@@ -68,6 +68,36 @@ export class OrderService extends ModelService<Order> {
   }
 
   /**
+   * doBeforeUpdate
+   * @function function will execute before update function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeUpdate(job: SqlJob<Order>): Promise<void> {
+    await super.doBeforeUpdate(job);
+    if (
+      job.action === 'cancelOrder' &&
+      job.body.status === OrderStatus.Cancelled
+    ) {
+      const { error, data } = await this.$db.findRecordById({
+        id: +job.id,
+      });
+
+      if (!!error) {
+        throw error;
+      }
+
+      if (data.user_id !== job.owner.id) {
+        throw "You don't have permission to change the status.";
+      }
+
+      if (data.status !== OrderStatus.PaymentPending) {
+        throw "You can't cancel this order";
+      }
+    }
+  }
+
+  /**
    * doAfterUpdate
    * @function function will execute after update function
    * @param {object} job - mandatory - a job object representing the job information
@@ -78,7 +108,7 @@ export class OrderService extends ModelService<Order> {
     job: SqlJob<Order>,
     response: SqlUpdateResponse<Order>,
   ): Promise<void> {
-    if (job.action === 'order.status.update') {
+    if (job.action === 'order.status.update' || job.action === 'cancelOrder') {
       /**
        * @description Trigger the 'order-status-log.create' event for updating the order status log
        */
@@ -89,6 +119,7 @@ export class OrderService extends ModelService<Order> {
         },
       });
 
+      // Change order status from PaymentPending to Ordered
       if (
         response.previousData.status === OrderStatus.PaymentPending &&
         response.data.status === OrderStatus.Ordered
