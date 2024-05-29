@@ -1,12 +1,6 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEmail,
-  IsNumber,
-  IsNumberString,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsEmail, IsNumberString, IsString, MaxLength } from 'class-validator';
 import {
   BeforeSave,
   BelongsTo,
@@ -28,7 +22,6 @@ export class Address extends SqlModel {
     example: 1,
     readOnly: true,
   })
-  @IsNumber()
   user_id: number;
 
   @Column
@@ -71,7 +64,6 @@ export class Address extends SqlModel {
     description: 'Phone Code',
     example: '+91',
   })
-  @IsString()
   phone_code: string;
 
   @Column(DataType.STRING(20))
@@ -115,7 +107,7 @@ export class Address extends SqlModel {
     description: 'zip_code',
     example: 'zip_code',
   })
-  @IsString()
+  @IsNumberString()
   @MaxLength(6)
   zip_code?: string;
 
