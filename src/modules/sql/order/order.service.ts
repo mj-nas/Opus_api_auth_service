@@ -95,6 +95,20 @@ export class OrderService extends ModelService<Order> {
         throw "You can't cancel this order";
       }
     }
+
+    if (job.action === 'cancelReorder') {
+      const { error, data } = await this.$db.findRecordById({
+        id: +job.id,
+      });
+
+      if (!!error) {
+        throw error;
+      }
+
+      if (data.user_id !== job.owner.id) {
+        throw "You don't have permission to change the status.";
+      }
+    }
   }
 
   /**

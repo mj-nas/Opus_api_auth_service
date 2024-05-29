@@ -172,7 +172,7 @@ export class OrderController {
   }
 
   /**
-   * Change reorder cycle
+   * Cancel order
    */
   @Put('cancel/:order_id')
   @ApiOperation({ summary: `Change reorder cycle` })
@@ -187,6 +187,44 @@ export class OrderController {
       action: 'cancelOrder',
       id: +order_id,
       body: { status: OrderStatus.Cancelled },
+      payload: {
+        where: {
+          user_id: owner.id,
+        },
+      },
+    });
+
+    if (error) {
+      if (error instanceof NotFoundError) {
+        return NotFound(res, {
+          error,
+          message: `Record not found`,
+        });
+      }
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { data: { [entity]: data }, message: 'Updated' });
+  }
+
+  /**
+   * Cancel reorder
+   */
+  @Put('cancel-reorder/:order_id')
+  @ApiOperation({ summary: `Change reorder cycle` })
+  @ResponseUpdated(Order)
+  async cancelReorder(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Param('order_id') order_id: number,
+  ) {
+    const { error, data } = await this.orderService.update({
+      owner,
+      action: 'cancelReorder',
+      id: +order_id,
+      body: { is_repeating_order: 'N' },
       payload: {
         where: {
           user_id: owner.id,
