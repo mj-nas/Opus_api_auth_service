@@ -35,6 +35,14 @@ export function slugify(text: string): string {
     .replace(/-+$/, ''); // Trim - from end of text
 }
 
+export function getEnumKeyByValue(
+  enumObj: any,
+  value: number | string,
+): string | undefined {
+  const keys = Object.keys(enumObj).filter((k) => enumObj[k] === value);
+  return keys.length > 0 ? keys[0] : undefined;
+}
+
 export const getUTCDateNow = (format = 'YYYY-MM-DD') =>
   moment().utc().format(format);
 

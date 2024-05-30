@@ -37,6 +37,7 @@ import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { Role } from '../user/role.enum';
+import { ChangeOrderStatusDto } from './dto/change-order-status.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { ReorderDto } from './dto/reorder.dto';
 import { Order } from './entities/order.entity';
@@ -175,7 +176,7 @@ export class OrderController {
    * Cancel order
    */
   @Put('cancel/:order_id')
-  @ApiOperation({ summary: `Change reorder cycle` })
+  @ApiOperation({ summary: `Cancel order` })
   @ResponseUpdated(Order)
   async cancelOrder(
     @Res() res: Response,
@@ -213,7 +214,7 @@ export class OrderController {
    * Cancel reorder
    */
   @Put('cancel-reorder/:order_id')
-  @ApiOperation({ summary: `Change reorder cycle` })
+  @ApiOperation({ summary: `Cancel reorder` })
   @ResponseUpdated(Order)
   async cancelReorder(
     @Res() res: Response,
@@ -230,6 +231,41 @@ export class OrderController {
           user_id: owner.id,
         },
       },
+    });
+
+    if (error) {
+      if (error instanceof NotFoundError) {
+        return NotFound(res, {
+          error,
+          message: `Record not found`,
+        });
+      }
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { data: { [entity]: data }, message: 'Updated' });
+  }
+
+  /**
+   * Cancel reorder
+   */
+  @Put('change-order-status/:order_id')
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: `Change reorder status` })
+  @ResponseUpdated(Order)
+  async changeOrderStatus(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Param('order_id') order_id: number,
+    @Body() changeOrderStatusDto: ChangeOrderStatusDto,
+  ) {
+    const { error, data } = await this.orderService.update({
+      owner,
+      action: 'changeOrderStatus',
+      id: +order_id,
+      body: changeOrderStatusDto,
     });
 
     if (error) {

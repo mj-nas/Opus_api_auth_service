@@ -5,6 +5,7 @@ import * as moment from 'moment-timezone';
 import { literal } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { Job, JobResponse } from 'src/core/core.job';
+import { getEnumKeyByValue } from 'src/core/core.utils';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { OrderAddressService } from '../order-address/order-address.service';
 import { OrderItemService } from '../order-item/order-item.service';
@@ -12,7 +13,7 @@ import { OrderPaymentService } from '../order-payment/order-payment.service';
 import { OrderStatusLogService } from '../order-status-log/order-status-log.service';
 import { Role } from '../user/role.enum';
 import { Order } from './entities/order.entity';
-import { OrderStatus } from './order-status.enum';
+import { OrderStatus, OrderStatusLevel } from './order-status.enum';
 
 @Injectable()
 export class OrderService extends ModelService<Order> {
@@ -107,6 +108,23 @@ export class OrderService extends ModelService<Order> {
 
       if (data.user_id !== job.owner.id) {
         throw "You don't have permission to change the status.";
+      }
+    }
+
+    if (job.action === 'changeOrderStatus') {
+      const { error, data } = await this.$db.findRecordById({
+        id: +job.id,
+      });
+
+      if (!!error) {
+        throw error;
+      }
+
+      if (
+        OrderStatusLevel[getEnumKeyByValue(OrderStatus, job.body.status)] <=
+        OrderStatusLevel[getEnumKeyByValue(OrderStatus, data.status)]
+      ) {
+        throw "You can't downgrade the order status";
       }
     }
   }
