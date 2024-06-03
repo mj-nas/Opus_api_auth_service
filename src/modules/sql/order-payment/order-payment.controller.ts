@@ -27,6 +27,7 @@ export class OrderPaymentController {
   @MsEventListener('payment.status.update')
   async userListener(job: Job): Promise<void> {
     const { payment_link, status } = job.payload;
+    console.log({ orderPayment: job.payload });
     const response = await this._orderPaymentService.$db.findAndUpdateRecord({
       action: 'payment.status.update',
       options: {

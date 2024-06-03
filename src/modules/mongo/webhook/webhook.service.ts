@@ -53,6 +53,8 @@ export class WebhookService extends ModelService<Webhook> {
           endpointSecret,
         );
 
+        console.log({ type: event.type, object: event.data.object });
+
         // Handle the event
         switch (event.type) {
           case 'checkout.session.completed':
