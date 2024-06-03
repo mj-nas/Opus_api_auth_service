@@ -19,6 +19,7 @@ import { Cart } from '../../cart/entities/cart.entity';
 import { OrderAddress } from '../../order-address/entities/order-address.entity';
 import { OrderItem } from '../../order-item/entities/order-item.entity';
 import { OrderPayment } from '../../order-payment/entities/order-payment.entity';
+import { PaymentStatus } from '../../order-payment/payment-status.enum';
 import { OrderStatusLog } from '../../order-status-log/entities/order-status-log.entity';
 import { User } from '../../user/entities/user.entity';
 import { OrderStatus } from '../order-status.enum';
@@ -188,6 +189,20 @@ export class Order extends SqlModel {
   })
   @HasMany(() => OrderPayment)
   payments: OrderPayment[];
+
+  @Include({
+    attributes: [
+      'id',
+      'order_id',
+      'type',
+      'payment_link',
+      'payment_link_url',
+      'status',
+    ],
+    where: { status: PaymentStatus.Pending },
+  })
+  @HasOne(() => OrderPayment)
+  current_payment: OrderPayment;
 
   @Include({
     attributes: ['id', 'order_id', 'status', 'created_at'],
