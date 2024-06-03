@@ -185,11 +185,9 @@ export class SettingController {
   async findOne(
     @Req() req: Request,
     @Res() res: Response,
-    @Owner() owner: OwnerDto,
     @Query() query: any,
   ) {
     const { error, data } = await this.settingService.findOne({
-      owner,
       action: 'findOne',
       payload: { ...query },
     });
