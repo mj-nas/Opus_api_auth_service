@@ -42,7 +42,6 @@ import { SettingService } from './setting.service';
 
 @ApiTags('setting')
 @ApiBearerAuth()
-@Roles(Role.Admin)
 @ApiErrorResponses()
 @ApiExtraModels(Setting)
 @Controller('setting')
@@ -53,6 +52,7 @@ export class SettingController {
    * Update a Setting using id
    */
   @Put(':id')
+  @Roles(Role.Admin)
   @ApiOperation({ summary: 'Update a setting using id' })
   @ResponseUpdated(Setting)
   async update(
@@ -88,6 +88,7 @@ export class SettingController {
    * Update bulk settings
    */
   @Post('bulk')
+  @Roles(Role.Admin)
   @ApiExtraModels(UpdateBulkSettingDto)
   @ApiOperation({ summary: 'Update bulk settings' })
   @ApiBody({
@@ -146,6 +147,7 @@ export class SettingController {
    * Return all Settings list
    */
   @Get()
+  @Roles(Role.Admin)
   @ApiOperation({ summary: 'Get all settings' })
   @ApiQueryGetAll()
   @ResponseGetAll(Setting)
@@ -211,6 +213,7 @@ export class SettingController {
    * Get a Setting by id
    */
   @Get(':id')
+  @Roles(Role.Admin)
   @ApiOperation({ summary: 'Get a setting using id' })
   @ApiQueryGetById()
   @ResponseGetOne(Setting)
