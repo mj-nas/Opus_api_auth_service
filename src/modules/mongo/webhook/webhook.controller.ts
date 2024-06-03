@@ -26,7 +26,7 @@ export class WebhookController {
   @ResponseCreated(Webhook)
   async create(@Res() res: Response, @Body() body: any) {
     const sig = res.getHeader('stripe-signature');
-    console.log({ sig });
+    console.log({ sig, he: res.getHeaders() });
     const { error } = await this.webhookService.create({
       action: 'checkout.session.completed',
       body: {
