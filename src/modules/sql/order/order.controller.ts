@@ -11,6 +11,7 @@ import {
 import {
   ApiBearerAuth,
   ApiExtraModels,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
@@ -329,6 +330,104 @@ export class OrderController {
     }
     return Result(res, {
       data: { [pluralizeString(entity)]: data, offset, limit, count },
+      message: 'Ok',
+    });
+  }
+
+  /**
+   * Export Orders xls
+   */
+  @Get('export-xls')
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: `Export ${pluralizeString('Order')} xls` })
+  @ApiQueryGetAll()
+  @ApiOkResponse({
+    description: 'xls file created',
+    schema: {
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+            },
+          },
+        },
+        message: {
+          type: 'string',
+          example: 'xls file created',
+        },
+      },
+    },
+  })
+  async exportXls(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.orderService.createXls({
+      owner,
+      action: 'createXls',
+      payload: { ...query },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { ...data },
+      message: 'Ok',
+    });
+  }
+
+  /**
+   * Export Reorders xls
+   */
+  @Get('export-reorder-xls')
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: `Export ${pluralizeString('Reorder')} xls` })
+  @ApiQueryGetAll()
+  @ApiOkResponse({
+    description: 'xls file created',
+    schema: {
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+            },
+          },
+        },
+        message: {
+          type: 'string',
+          example: 'xls file created',
+        },
+      },
+    },
+  })
+  async exportReorderXls(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.orderService.createReorderXls({
+      owner,
+      action: 'createXls',
+      payload: { ...query },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { ...data },
       message: 'Ok',
     });
   }

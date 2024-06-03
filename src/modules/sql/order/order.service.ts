@@ -1,9 +1,12 @@
 import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
 import { StripeService } from '@core/stripe';
 import { Injectable } from '@nestjs/common';
+import * as ExcelJS from 'exceljs';
+import * as fs from 'fs';
 import * as moment from 'moment-timezone';
 import { literal } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
+import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
 import { getEnumKeyByValue } from 'src/core/core.utils';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
@@ -374,6 +377,7 @@ export class OrderService extends ModelService<Order> {
             is_base_order: 'Y',
             user_id: o.user_id,
             parent_order_id: o.parent_order_id ?? o.id,
+            previous_order_id: o.id,
             status: OrderStatus.PaymentPending,
           },
           options: {
@@ -598,6 +602,170 @@ export class OrderService extends ModelService<Order> {
       data.setDataValue('repeating_days', repeating_days);
       await data.save();
       return { data };
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  async createXls(job: Job): Promise<JobResponse> {
+    try {
+      const { owner, payload } = job;
+      const timezone: string = payload.timezone;
+      delete payload.timezone;
+      const { error, data } = await this.findAll({
+        owner,
+        action: 'findAll',
+        payload: {
+          ...payload,
+          offset: 0,
+          limit: -1,
+        },
+      });
+
+      if (error) throw error;
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Orders');
+
+      worksheet.addRow([
+        'Sl. No',
+        'Order ID',
+        'Customer Name',
+        'Price',
+        'Repeated Days',
+        'Order Date',
+        'Status',
+      ]);
+
+      const orders: Order[] = JSON.parse(JSON.stringify(data));
+
+      await Promise.all(
+        orders.map(async (x, index) => {
+          worksheet.addRow([
+            index + 1,
+            x?.uid,
+            x?.user?.name,
+            `${x?.total}`,
+            x?.repeating_days,
+            moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
+            x?.status,
+          ]);
+        }),
+      );
+
+      worksheet.columns = [
+        { header: 'Sl. No', key: 'sl_no', width: 25 },
+        { header: 'Order ID', key: 'uid', width: 25 },
+        { header: 'Customer Name', key: 'name', width: 25 },
+        { header: 'Price', key: 'total', width: 10 },
+        { header: 'Repeated Days', key: 'repeating_days', width: 10 },
+        { header: 'Order Date', key: 'created_at', width: 50 },
+        { header: 'Status', key: 'active', width: 25 },
+      ];
+
+      const folder = 'order-excel';
+      const file_dir = config().cdnPath + `/${folder}`;
+      const file_baseurl = config().cdnLocalURL + `/${folder}`;
+
+      if (!fs.existsSync(file_dir)) {
+        fs.mkdirSync(file_dir);
+      }
+      const filename = `Order.xlsx`;
+      const full_path = `${file_dir}/${filename}`;
+      await workbook.xlsx.writeFile(full_path);
+      return {
+        data: {
+          url: `${file_baseurl}/${filename}`,
+          filename,
+          isData: !!orders.length,
+        },
+      };
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  async createReorderXls(job: Job): Promise<JobResponse> {
+    try {
+      const { owner, payload } = job;
+      const timezone: string = payload.timezone;
+      delete payload.timezone;
+      const { error, data } = await this.findAll({
+        owner,
+        action: 'findAll',
+        payload: {
+          ...payload,
+          offset: 0,
+          limit: -1,
+        },
+      });
+
+      if (error) throw error;
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Reorders');
+
+      worksheet.addRow([
+        'Sl. No',
+        'Order ID',
+        'Customer Name',
+        'Price',
+        'Repeated Days',
+        'Next Order Date',
+        'Previous Order Date',
+        'Status',
+      ]);
+
+      const orders: Order[] = JSON.parse(JSON.stringify(data));
+
+      await Promise.all(
+        orders.map(async (x, index) => {
+          worksheet.addRow([
+            index + 1,
+            x?.uid,
+            x?.user?.name,
+            `${x?.total}`,
+            x?.repeating_days,
+            moment(x.created_at)
+              .add(x?.repeating_days, 'days')
+              .tz(timezone)
+              .format('MM/DD/YYYY hh:mm A'),
+            moment(x.previous_order.created_at)
+              .tz(timezone)
+              .format('MM/DD/YYYY hh:mm A'),
+            x?.status,
+          ]);
+        }),
+      );
+
+      worksheet.columns = [
+        { header: 'Sl. No', key: 'sl_no', width: 25 },
+        { header: 'Order ID', key: 'uid', width: 25 },
+        { header: 'Customer Name', key: 'name', width: 25 },
+        { header: 'Price', key: 'total', width: 10 },
+        { header: 'Repeated Days', key: 'repeating_days', width: 10 },
+        { header: 'Next Order Date', key: 'created_at', width: 50 },
+        { header: 'Previous Order Date', key: 'previous_order', width: 50 },
+        { header: 'Status', key: 'active', width: 25 },
+      ];
+
+      const folder = 'order-excel';
+      const file_dir = config().cdnPath + `/${folder}`;
+      const file_baseurl = config().cdnLocalURL + `/${folder}`;
+
+      if (!fs.existsSync(file_dir)) {
+        fs.mkdirSync(file_dir);
+      }
+      const filename = `Reorder.xlsx`;
+      const full_path = `${file_dir}/${filename}`;
+      await workbook.xlsx.writeFile(full_path);
+      return {
+        data: {
+          url: `${file_baseurl}/${filename}`,
+          filename,
+          isData: !!orders.length,
+        },
+      };
     } catch (error) {
       return { error };
     }

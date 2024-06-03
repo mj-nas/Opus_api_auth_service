@@ -129,6 +129,18 @@ export class Order extends SqlModel {
   @IsNumber()
   parent_order_id?: number;
 
+  @ForeignKey(() => Order)
+  @Column
+  @Index
+  @ApiProperty({
+    description: 'Previous Order Id',
+    example: 1,
+    readOnly: true,
+  })
+  @IsOptional()
+  @IsNumber()
+  previous_order_id?: number;
+
   @Column({
     type: DataType.ENUM(...Object.values(OrderStatus)),
     defaultValue: OrderStatus.PaymentPending,
@@ -236,6 +248,12 @@ export class Order extends SqlModel {
   })
   @BelongsTo(() => User)
   user: User;
+
+  @Include({
+    attributes: ['id', 'uid', 'created_at'],
+  })
+  @BelongsTo(() => Order)
+  previous_order: Order;
 
   @BeforeCreate
   static async setSlug(instance: Order) {
