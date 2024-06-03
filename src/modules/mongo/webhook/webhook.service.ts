@@ -46,32 +46,14 @@ export class WebhookService extends ModelService<Webhook> {
 
     switch (response.data.action) {
       case 'checkout.session.completed':
-        const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
-        const event = this._stripeService.stripe.webhooks.constructEvent(
-          job.body.payload,
-          job.body.signature,
-          endpointSecret,
-        );
-
-        console.log({ type: event.type, object: event.data.object });
-
-        // Handle the event
-        switch (event.type) {
-          case 'checkout.session.completed':
-            const paymentSuccess = event.data.object;
-            await this._msClient.executeJob('payment.status.update', {
-              payload: {
-                payment_link: paymentSuccess.payment_link,
-                status: PaymentStatus.Completed,
-              },
-            });
-            break;
-          // ... handle other event types
-          default:
-            console.log(`Unhandled event type ${event.type}`);
-        }
+        const paymentSuccess = response.data.payload.data.object;
+        await this._msClient.executeJob('payment.status.update', {
+          payload: {
+            payment_link: paymentSuccess.payment_link,
+            status: PaymentStatus.Completed,
+          },
+        });
         break;
-
       default:
         break;
     }

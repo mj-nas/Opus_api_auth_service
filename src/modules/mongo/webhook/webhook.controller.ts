@@ -25,13 +25,10 @@ export class WebhookController {
   @ApiOperation({ summary: `Create new ${entity}` })
   @ResponseCreated(Webhook)
   async create(@Res() res: Response, @Body() body: any) {
-    const sig = res.getHeader('stripe-signature');
-    console.log({ sig, he: res.getHeaders() });
     const { error } = await this.webhookService.create({
       action: 'checkout.session.completed',
       body: {
         payload: body,
-        signature: sig,
       },
     });
 
