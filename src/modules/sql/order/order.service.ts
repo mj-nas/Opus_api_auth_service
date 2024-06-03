@@ -372,6 +372,7 @@ export class OrderService extends ModelService<Order> {
             shipping_price: o.shipping_price,
             tax: o.tax,
             total: o.total,
+            is_a_reorder: 'Y',
             is_repeating_order: 'Y',
             repeating_days: o.repeating_days,
             is_base_order: 'Y',

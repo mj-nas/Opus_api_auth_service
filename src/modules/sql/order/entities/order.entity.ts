@@ -141,6 +141,16 @@ export class Order extends SqlModel {
   @IsNumber()
   previous_order_id?: number;
 
+  @Column({ type: DataType.ENUM('Y', 'N'), defaultValue: 'N' })
+  @ApiProperty({
+    enum: { Y: 'Y', N: 'N' },
+    description: 'Y | N',
+    example: 'Y',
+  })
+  @IsOptional()
+  @IsEnum({ Y: 'Y', N: 'N' })
+  is_a_reorder?: string;
+
   @Column({
     type: DataType.ENUM(...Object.values(OrderStatus)),
     defaultValue: OrderStatus.PaymentPending,
