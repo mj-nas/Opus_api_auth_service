@@ -261,6 +261,7 @@ export class Order extends SqlModel {
 
   @Include({
     attributes: ['id', 'uid', 'created_at'],
+    required: false,
   })
   @BelongsTo(() => Order)
   previous_order: Order;
