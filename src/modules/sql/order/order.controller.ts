@@ -507,7 +507,7 @@ export class OrderController {
   async findByUid(
     @Res() res: Response,
     @Owner() owner: OwnerDto,
-    @Param('uid') uid: number,
+    @Param('uid') uid: string,
     @Query() query: any,
   ) {
     const { error, data } = await this.orderService.findOne({
