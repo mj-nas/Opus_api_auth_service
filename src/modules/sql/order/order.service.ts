@@ -143,7 +143,11 @@ export class OrderService extends ModelService<Order> {
     job: SqlJob<Order>,
     response: SqlUpdateResponse<Order>,
   ): Promise<void> {
-    if (job.action === 'order.status.update' || job.action === 'cancelOrder') {
+    if (
+      job.action === 'order.status.update' ||
+      job.action === 'cancelOrder' ||
+      job.action === 'changeOrderStatus'
+    ) {
       /**
        * @description Trigger the 'order-status-log.create' event for updating the order status log
        */
