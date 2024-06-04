@@ -222,6 +222,7 @@ export class Order extends SqlModel {
       'status',
     ],
     where: { status: PaymentStatus.Pending },
+    required: false,
   })
   @HasOne(() => OrderPayment)
   current_payment: OrderPayment;
