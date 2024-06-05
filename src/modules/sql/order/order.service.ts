@@ -281,6 +281,7 @@ export class OrderService extends ModelService<Order> {
 
       // Create a new stripe price for the order
       const unit_amount = order.data.total * 100;
+      console.log({ unit_amount, o: order.data.dataValues });
       const price = await this._stripeService.stripe.prices.create({
         currency: 'usd',
         unit_amount,
