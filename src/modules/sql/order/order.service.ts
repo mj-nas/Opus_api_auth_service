@@ -189,6 +189,19 @@ export class OrderService extends ModelService<Order> {
           }),
         );
       }
+
+      if (response.previousData.status !== response.data.status) {
+        // Send order placed socket notification
+        await this._msClient.executeJob('controller.socket-event', {
+          action: 'orderStatusChange',
+          payload: {
+            user_id: response.data.user_id,
+            data: {
+              order_id: response.data.uid,
+            },
+          },
+        });
+      }
     }
   }
 

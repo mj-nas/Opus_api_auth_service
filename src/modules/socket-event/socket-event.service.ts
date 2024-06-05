@@ -33,4 +33,13 @@ export class SocketEventService {
     });
     return { error: false };
   }
+
+  async orderStatusChange(job: Job) {
+    this.redisPropagatorService.propagateEvent({
+      userId: `${job.payload.user_id}`,
+      event: SocketEvent.OrderStatusUpdate,
+      data: { ...job.payload.data, reason: 'Order status updated' },
+    });
+    return { error: false };
+  }
 }
