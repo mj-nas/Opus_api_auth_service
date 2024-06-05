@@ -165,11 +165,9 @@ export class PageController {
   async findOne(
     @Req() req: Request,
     @Res() res: Response,
-    @Owner() owner: OwnerDto,
     @Query() query: any,
   ) {
     const { error, data } = await this.pageService.findOne({
-      owner,
       action: 'findOne',
       payload: { ...query },
     });
@@ -268,11 +266,9 @@ export class PageController {
   async webview(
     @Req() req: Request,
     @Res() res: Response,
-    @Owner() owner: OwnerDto,
     @Param('name') name: string,
   ) {
     const { error, data } = await this.pageService.findOne({
-      owner,
       action: 'findOne',
       payload: {
         where: {

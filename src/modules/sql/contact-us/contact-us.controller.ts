@@ -68,11 +68,9 @@ export class ContactUsController {
   @ResponseCreated(ContactUs)
   async create(
     @Res() res: Response,
-    @Owner() owner: OwnerDto,
     @Body() createContactUsDto: CreateContactUsDto,
   ) {
     const { error, data } = await this.contactUsService.create({
-      owner,
       action: 'create',
       body: createContactUsDto,
     });

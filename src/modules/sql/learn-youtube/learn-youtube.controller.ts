@@ -187,14 +187,9 @@ export class LearnYoutubeController {
   @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
   @ApiQueryGetAll()
   @ResponseGetAll(LearnYoutube)
-  async findAll(
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Query() query: any,
-  ) {
+  async findAll(@Res() res: Response, @Query() query: any) {
     const { error, data, offset, limit, count } =
       await this.learnYoutubeService.findAll({
-        owner,
         action: 'findAll',
         payload: { ...query },
       });

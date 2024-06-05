@@ -221,14 +221,9 @@ export class ProductCategoryController {
   @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
   @ApiQueryGetAll()
   @ResponseGetAll(ProductCategory)
-  async publicFindAll(
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Query() query: any,
-  ) {
+  async publicFindAll(@Res() res: Response, @Query() query: any) {
     const { error, data, offset, limit, count } =
       await this.productCategoryService.findAll({
-        owner,
         action: 'publicFindAll',
         payload: { ...query },
       });
