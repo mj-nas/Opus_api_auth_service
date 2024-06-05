@@ -280,10 +280,10 @@ export class OrderService extends ModelService<Order> {
       });
 
       // Create a new stripe price for the order
-      const cents = order.data.total * 100;
+      const unit_amount = order.data.total * 100;
       const price = await this._stripeService.stripe.prices.create({
         currency: 'usd',
-        unit_amount_decimal: `${cents}`,
+        unit_amount,
         product: product.id,
       });
 
@@ -458,10 +458,10 @@ export class OrderService extends ModelService<Order> {
         });
 
         // Create a new stripe price for the order
-        const cents = order.data.total * 100;
+        const unit_amount = order.data.total * 100;
         const price = await this._stripeService.stripe.prices.create({
           currency: 'usd',
-          unit_amount_decimal: `${cents}`,
+          unit_amount,
           product: product.id,
         });
 
