@@ -18,6 +18,7 @@ import {
 import { slugify } from 'src/core/core.utils';
 import { ProductCategory } from '../../product-category/entities/product-category.entity';
 import { ProductGallery } from '../../product-gallery/entities/product-gallery.entity';
+import { ProductReview } from '../../product-review/entities/product-review.entity';
 import { ProductSpecifications } from '../../product-specifications/entities/product-specifications.entity';
 import { Wishlist } from '../../wishlist/entities/wishlist.entity';
 
@@ -181,6 +182,9 @@ export class Products extends SqlModel {
 
   @HasMany(() => ProductSpecifications)
   productSpecifications: ProductSpecifications[];
+
+  @HasMany(() => ProductReview)
+  product_reviews: ProductReview[];
 
   @Include({
     attributes: ['user_id', 'product_id'],

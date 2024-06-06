@@ -293,7 +293,12 @@ export class OrderService extends ModelService<Order> {
       });
 
       // Create a new stripe price for the order
-      const unit_amount = order.data.total * 100;
+      const unit_amount = parseFloat(
+        (order.data.total * 100).toLocaleString('en-US', {
+          minimumIntegerDigits: 2,
+          useGrouping: false,
+        }),
+      );
       const price = await this._stripeService.stripe.prices.create({
         currency: 'usd',
         unit_amount,
@@ -471,7 +476,12 @@ export class OrderService extends ModelService<Order> {
         });
 
         // Create a new stripe price for the order
-        const unit_amount = order.data.total * 100;
+        const unit_amount = parseFloat(
+          (order.data.total * 100).toLocaleString('en-US', {
+            minimumIntegerDigits: 2,
+            useGrouping: false,
+          }),
+        );
         const price = await this._stripeService.stripe.prices.create({
           currency: 'usd',
           unit_amount,
