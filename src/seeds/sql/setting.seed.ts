@@ -14,8 +14,7 @@ export default <Seed<Setting>>{
       option: {
         type: 'email',
         format: 'email',
-        required: false,
-        min: 0,
+        required: true,
       },
     },
     {
@@ -26,7 +25,7 @@ export default <Seed<Setting>>{
       option: {
         type: 'number',
         format: 'amount',
-        required: false,
+        required: true,
         min: 0,
       },
     },
@@ -38,7 +37,7 @@ export default <Seed<Setting>>{
       option: {
         type: 'number',
         format: 'amount',
-        required: false,
+        required: true,
         min: 0,
       },
     },
@@ -50,7 +49,7 @@ export default <Seed<Setting>>{
       option: {
         type: 'number',
         format: 'amount',
-        required: false,
+        required: true,
         min: 0,
       },
     },
