@@ -71,6 +71,7 @@ export class Setting extends SqlModel {
     description: 'Settings Input Options',
     type: 'object',
   })
+  @IsString()
   options: string;
 
   static async getValue(name: string): Promise<string> {
