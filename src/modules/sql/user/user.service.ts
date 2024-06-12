@@ -153,12 +153,13 @@ export class UserService extends ModelService<User> {
     response: SqlUpdateResponse<User>,
   ): Promise<void> {
     await super.doAfterUpdate(job, response);
-    const { active, id } = response.data;
-    const { active: previousActive } = response.previousData;
+    const { active, id, status, email } = response.data;
+    const { active: previousActive, status: previousStatus } =
+      response.previousData;
 
     // check if the status changed
     if (previousActive !== active) {
-      const status = active ? 'activated' : 'deactivated';
+      const currentStatus = active ? 'activated' : 'deactivated';
       await this.msClient.executeJob(
         'controller.notification',
         new Job({
@@ -166,7 +167,7 @@ export class UserService extends ModelService<User> {
           payload: {
             template: 'account_status_update',
             variables: {
-              STATUS: status,
+              STATUS: currentStatus,
             },
             skipUserConfig: true,
             user_id: id,
@@ -182,6 +183,51 @@ export class UserService extends ModelService<User> {
             user_id: id,
           },
         });
+      }
+    }
+
+    // check previous state of user
+    if (previousStatus !== status) {
+      if (status === Status.Deny) {
+        await this.msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              template: 'dispenser_application_deny',
+              variables: {
+                STATUS: status,
+              },
+              skipUserConfig: true,
+              user_id: id,
+            },
+          }),
+        );
+      } else if (status === Status.Approve) {
+        const password = generateRandomPassword(10);
+        await this.$db.updateRecord({
+          action: 'findById',
+          id,
+          body: {
+            password,
+          },
+        });
+        await this.msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              template: 'dispenser_application_approve',
+              variables: {
+                STATUS: status,
+                USERNAME: email,
+                PASSWORD: password,
+              },
+              skipUserConfig: true,
+              user_id: id,
+            },
+          }),
+        );
       }
     }
   }
