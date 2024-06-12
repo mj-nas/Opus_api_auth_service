@@ -198,7 +198,20 @@ export class Products extends SqlModel {
   @HasOne(() => ProductGallery)
   product_primary_image: ProductGallery;
 
-  @Include({ separate: true })
+  @Include({
+    attributes: [
+      'id',
+      'product_id',
+      'specification',
+      'specification_details',
+      'active',
+      'created_at',
+      'created_by',
+      'updated_at',
+      'updated_by',
+    ],
+    separate: true,
+  })
   @HasMany(() => ProductSpecifications)
   productSpecifications: ProductSpecifications[];
 
