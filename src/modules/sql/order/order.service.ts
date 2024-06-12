@@ -582,6 +582,7 @@ export class OrderService extends ModelService<Order> {
               variables: {
                 ORDER_ID: o.uid,
                 REPEAT_DATE: moment().add(2, 'days').format('MM/DD/YYYY'),
+                ORDER_PAGE_LINK: `${process.env.WEBSITE_URL}/profile/orders/detail/${o.uid}`,
               },
             },
           }),
