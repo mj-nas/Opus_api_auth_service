@@ -26,7 +26,7 @@ export class OrderCron {
     this.logger.log(`Reorder order cron completed successfully!`);
   }
   // Reorder notification cron
-  @Cron(CronExpression.EVERY_DAY_AT_NOON)
+  @Cron(CronExpression.EVERY_DAY_AT_6AM)
   async reorderNotificationCron() {
     if (this.configService.get('appId') != 'crons') {
       return;
