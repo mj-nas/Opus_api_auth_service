@@ -3,9 +3,10 @@ import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import * as moment from 'moment-timezone';
-import { IncludeOptions } from 'sequelize';
+import sequelize, { IncludeOptions } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
+import { ProductReviewService } from '../product-review/product-review.service';
 import { Products } from './entities/products.entity';
 
 @Injectable()
@@ -16,7 +17,10 @@ export class ProductsService extends ModelService<Products> {
    */
   searchFields: string[] = ['product_name'];
 
-  constructor(db: SqlService<Products>) {
+  constructor(
+    db: SqlService<Products>,
+    private _productReviewService: ProductReviewService,
+  ) {
     super(db);
   }
 
@@ -183,6 +187,34 @@ export class ProductsService extends ModelService<Products> {
         },
       });
       return { data };
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  async calculateRatings(product_id: number) {
+    try {
+      const { data } = await this._productReviewService.$db.getAllRecords({
+        options: {
+          where: {
+            product_id,
+          },
+          attributes: [
+            [sequelize.fn('AVG', sequelize.col('rating')), 'average_rating'],
+            [sequelize.fn('COUNT', sequelize.col('rating')), 'total_reviews'],
+          ],
+          limit: -1,
+        },
+      });
+      if (!!data && data.length) {
+        const { average_rating, total_reviews } = data[0].dataValues;
+        await this.$db.findAndUpdateRecord({
+          body: { average_rating, total_reviews },
+          options: {
+            where: { id: product_id },
+          },
+        });
+      }
     } catch (error) {
       return { error };
     }

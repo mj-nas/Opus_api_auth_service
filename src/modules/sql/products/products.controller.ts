@@ -24,6 +24,7 @@ import {
   ApiQueryGetAll,
   ApiQueryGetById,
   ApiQueryGetOne,
+  MsEventListener,
   ResponseCreated,
   ResponseDeleted,
   ResponseGetAll,
@@ -31,6 +32,7 @@ import {
   ResponseUpdated,
 } from 'src/core/core.decorators';
 import { NotFoundError } from 'src/core/core.errors';
+import { Job } from 'src/core/core.job';
 import {
   Created,
   ErrorResponse,
@@ -41,6 +43,7 @@ import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { OptionalPublic } from 'src/core/decorators/optional-public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
+import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { Role } from '../user/role.enum';
 import { CreateProductsDto } from './dto/create-products.dto';
 import { UpdateProductsDto } from './dto/update-products.dto';
@@ -55,7 +58,20 @@ const entity = snakeCase(Products.name);
 @ApiExtraModels(Products)
 @Controller(entity)
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private _msClient: MsClientService,
+  ) {}
+
+  /**
+   * Queue listener for payment status update
+   */
+  @MsEventListener('product.review.create')
+  async userListener(job: Job): Promise<void> {
+    const { product_id } = job.payload;
+    const response = await this.productsService.calculateRatings(product_id);
+    await this._msClient.jobDone(job, response);
+  }
 
   /**
    * Create a new entity document

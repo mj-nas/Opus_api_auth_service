@@ -166,6 +166,24 @@ export class Products extends SqlModel {
   @IsOptional()
   product_rating: number;
 
+  @Column(DataTypes.FLOAT)
+  @ApiProperty({
+    description: 'Average rating',
+    example: '30.02',
+    readOnly: true,
+  })
+  @IsNumber()
+  average_rating: number;
+
+  @Column(DataTypes.FLOAT)
+  @ApiProperty({
+    description: 'Total reviews',
+    example: '30',
+    readOnly: true,
+  })
+  @IsNumber()
+  total_reviews: number;
+
   @Include({
     attributes: ['id', 'category_name', 'category_image'],
   })

@@ -285,7 +285,7 @@ export class SqlService<M extends SqlModel> {
       const { options } = job;
       options.limit = options.limit
         ? +options.limit === -1
-          ? 1000
+          ? 100000
           : +options.limit
         : this._config.get('paginationLimit');
       const { offset, limit, pagination = false } = options;

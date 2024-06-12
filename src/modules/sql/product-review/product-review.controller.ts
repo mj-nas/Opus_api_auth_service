@@ -60,16 +60,11 @@ export class ProductReviewController {
     @Owner() owner: OwnerDto,
     @Body() createProductReviewDto: CreateProductReviewDto,
   ) {
-    const { error, data } = await this.productReviewService.$db.findOrCreate({
+    const { error, data } = await this.productReviewService.createReview({
       owner,
-      action: 'create',
-      body: createProductReviewDto,
-      options: {
-        where: {
-          order_id: createProductReviewDto.order_id,
-          product_id: createProductReviewDto.product_id,
-          created_by: owner.id,
-        },
+      action: 'createReview',
+      payload: {
+        body: createProductReviewDto,
       },
     });
 
