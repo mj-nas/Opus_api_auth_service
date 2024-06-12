@@ -67,7 +67,7 @@ export class ProductsController {
    * Queue listener for payment status update
    */
   @MsEventListener('product.review.create')
-  async userListener(job: Job): Promise<void> {
+  async productReviewListener(job: Job): Promise<void> {
     const { product_id } = job.payload;
     const response = await this.productsService.calculateRatings(product_id);
     await this._msClient.jobDone(job, response);

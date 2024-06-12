@@ -200,7 +200,14 @@ export class ProductsService extends ModelService<Products> {
             product_id,
           },
           attributes: [
-            [sequelize.fn('AVG', sequelize.col('rating')), 'average_rating'],
+            [
+              sequelize.fn(
+                'ROUND',
+                sequelize.fn('AVG', sequelize.col('rating')),
+                1,
+              ),
+              'average_rating',
+            ],
             [sequelize.fn('COUNT', sequelize.col('rating')), 'total_reviews'],
           ],
           limit: -1,
@@ -212,9 +219,11 @@ export class ProductsService extends ModelService<Products> {
           body: { average_rating, total_reviews },
           options: {
             where: { id: product_id },
+            paranoid: false,
           },
         });
       }
+      return { data };
     } catch (error) {
       return { error };
     }
