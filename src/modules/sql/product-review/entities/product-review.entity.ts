@@ -1,6 +1,6 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 import {
   BelongsTo,
   Column,
@@ -55,7 +55,7 @@ export class ProductReview extends SqlModel {
   rating: number;
 
   @Column({
-    type: DataType.STRING(500),
+    type: DataType.STRING(2000),
   })
   @ApiProperty({
     description: 'Review',
@@ -63,6 +63,7 @@ export class ProductReview extends SqlModel {
   })
   @IsOptional()
   @IsString()
+  @MaxLength(2000)
   review?: string;
 
   @BelongsTo(() => Order)
