@@ -1,8 +1,16 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsString, ValidateIf } from 'class-validator';
 
-import { Column, DataType, Index, Table } from 'sequelize-typescript';
+import {
+  Column,
+  DataType,
+  ForeignKey,
+  Index,
+  Table,
+} from 'sequelize-typescript';
+import { User } from '../../user/entities/user.entity';
+import { CouponOwner } from '../coupon-owner.enum';
 
 @Table
 export class Coupon extends SqlModel {
@@ -16,7 +24,7 @@ export class Coupon extends SqlModel {
   @IsString()
   name: string;
 
-  @Column
+  @Column({ unique: true })
   @Index
   @ApiProperty({
     description: 'Coupon code',
@@ -25,6 +33,29 @@ export class Coupon extends SqlModel {
   })
   @IsString()
   code: string;
+
+  @Column({
+    type: DataType.ENUM(...Object.values(CouponOwner)),
+    defaultValue: CouponOwner.Admin,
+  })
+  @ApiProperty({
+    enum: CouponOwner,
+    description: 'Coupon Type',
+    example: CouponOwner.Dispenser,
+  })
+  @IsEnum(CouponOwner)
+  owner?: CouponOwner;
+
+  @ForeignKey(() => User)
+  @Column
+  @Index
+  @ApiProperty({
+    description: 'User Id',
+    example: 1,
+  })
+  @ValidateIf((object) => object.type === CouponOwner.Dispenser)
+  @IsNumber()
+  user_id?: number;
 
   @Column({
     type: DataType.STRING(500),
