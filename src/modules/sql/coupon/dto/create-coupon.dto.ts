@@ -6,7 +6,6 @@ export class CreateCouponDto extends PickType(Coupon, [
   'code',
   'owner',
   'user_id',
-  'description',
   'discount',
   'discount_usage',
   'valid_from',
