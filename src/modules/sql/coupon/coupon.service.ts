@@ -46,7 +46,6 @@ export class CouponService extends ModelService<Coupon> {
         'End Date',
         'Price/Percentage',
         'Use Per Person',
-        'Description',
         'Status',
       ]);
 
@@ -64,7 +63,6 @@ export class CouponService extends ModelService<Coupon> {
               ? `${x.discount}%`
               : `$${x.discount}`,
             x?.discount_usage,
-            x?.description,
             x.active ? 'Active' : 'Inactive',
           ]);
         }),
@@ -78,7 +76,6 @@ export class CouponService extends ModelService<Coupon> {
         { header: 'End Date', key: 'valid_to', width: 50 },
         { header: 'Price/Percentage', key: 'percentage', width: 25 },
         { header: 'Use Per Person', key: 'discount_usage', width: 25 },
-        { header: 'Description', key: 'description', width: 50 },
         { header: 'Status', key: 'active', width: 25 },
       ];
 
