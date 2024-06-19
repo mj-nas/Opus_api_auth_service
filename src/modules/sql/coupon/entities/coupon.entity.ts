@@ -2,7 +2,9 @@ import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNumber, IsString, ValidateIf } from 'class-validator';
 
+import { Include } from '@core/sql/sql.decorator';
 import {
+  BelongsTo,
   Column,
   DataType,
   ForeignKey,
@@ -57,19 +59,6 @@ export class Coupon extends SqlModel {
   @IsNumber()
   user_id?: number;
 
-  @Column({
-    type: DataType.STRING(500),
-  })
-  @Index
-  @ApiProperty({
-    description: 'Coupon description',
-    example:
-      'This coupon offers a discount for purchases in the United States.',
-    type: String,
-  })
-  @IsString()
-  description: string;
-
   @Column
   @ApiProperty({
     description: 'Coupon discount percentage',
@@ -114,4 +103,22 @@ export class Coupon extends SqlModel {
   })
   @IsString()
   coupon_type: string;
+
+  @Include({
+    attributes: [
+      'id',
+      'slug',
+      'role',
+      'uid',
+      'first_name',
+      'last_name',
+      'name',
+      'email',
+      'phone_code',
+      'phone',
+      'avatar',
+    ],
+  })
+  @BelongsTo(() => User)
+  user: User;
 }
