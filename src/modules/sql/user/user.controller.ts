@@ -103,6 +103,45 @@ export class UserController {
   }
 
   /**
+   * Create a new Dispenser
+   */
+  @Post('dispenser')
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: 'Create a new Dispencer' })
+  // @ApiConsumes('application/json', 'multipart/form-data')
+  // @FileUploads([{ name: 'avatar_file', required: false, bodyField: 'avatar' }])
+  // @ApiQuery(QueryPopulate)
+  @ResponseCreated(User)
+  async createDispenser(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Body() createUserDto: CreateUserDto,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.userService.create({
+      owner,
+      action: 'createDispencer',
+      body: { ...createUserDto, role: Role.Dispenser },
+      payload: { ...query },
+    });
+
+    if (error) {
+      if (error instanceof ValidationError) {
+        return BadRequest(res, {
+          error,
+          message: error.message,
+        });
+      }
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Created(res, { data: { user: data }, message: 'Created' });
+  }
+
+  /**
    * Create a new User
    */
   @Post('import')

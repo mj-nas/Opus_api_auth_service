@@ -272,6 +272,9 @@ export class UserService extends ModelService<User> {
         role: Role.Dispenser,
         status: Status.Approve,
       };
+      if (job.options.where.deleted_at) {
+        job.options.paranoid = false;
+      }
     } else if (job.action === 'findAllDispenserApplicant') {
       job.options.where = {
         status: {
