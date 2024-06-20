@@ -244,6 +244,16 @@ export class User extends SqlModel {
   @IsOptional()
   enable_2fa?: boolean;
 
+  @Column({ defaultValue: false })
+  @ApiProperty({
+    description: 'geotag',
+    example: false,
+    required: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  geotag?: boolean;
+
   @Column({ defaultValue: true })
   @ApiProperty({
     description: 'Send Email?',
