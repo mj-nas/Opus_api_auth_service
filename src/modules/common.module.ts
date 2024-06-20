@@ -21,6 +21,7 @@ import { CartModule } from './sql/cart/cart.module';
 import { ContactUsModule } from './sql/contact-us/contact-us.module';
 import { CountryModule } from './sql/country/country.module';
 import { CouponModule } from './sql/coupon/coupon.module';
+import { GalleryModule } from './sql/gallery/gallery.module';
 import { LearnArticleModule } from './sql/learn-article/learn-article.module';
 import { LearnYoutubeModule } from './sql/learn-youtube/learn-youtube.module';
 import { NotificationModule } from './sql/notification/notification.module';
@@ -84,6 +85,7 @@ export class CommonModule {
       OrderPaymentModule,
       WebhookModule,
       ProductReviewModule,
+      GalleryModule,
     ];
 
     // common providers
