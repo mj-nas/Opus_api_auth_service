@@ -50,6 +50,7 @@ import { Roles } from 'src/core/decorators/sql/roles.decorator';
 import { Role } from '../user/role.enum';
 import { ChangePasswordByAdminDto } from './dto/change-password-by-admin.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { CreateDispenserDto } from './dto/create-dispenser.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -116,13 +117,13 @@ export class UserController {
     @Req() req: Request,
     @Res() res: Response,
     @Owner() owner: OwnerDto,
-    @Body() createUserDto: CreateUserDto,
+    @Body() createDispenserDto: CreateDispenserDto,
     @Query() query: any,
   ) {
     const { error, data } = await this.userService.create({
       owner,
       action: 'createDispencer',
-      body: { ...createUserDto, role: Role.Dispenser },
+      body: { ...createDispenserDto, role: Role.Dispenser },
       payload: { ...query },
     });
 
