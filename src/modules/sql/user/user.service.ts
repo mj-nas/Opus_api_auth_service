@@ -880,14 +880,17 @@ export class UserService extends ModelService<User> {
       const file = canvas.toDataURL();
       const buffer = Buffer.from(file, 'base64');
       const client = new S3Client({ region: process.env.AWS_REGION });
+      const Key = `qr-code/${data.uid}/${Date.now()}.png`;
       const command = new PutObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME,
-        Key: `${data.uid}.png`,
+        Key,
         Body: buffer,
         ContentEncoding: 'base64',
         ContentType: 'image/png',
       });
       const res = await client.send(command);
+      data.setDataValue('qr_code', Key);
+      await data.save();
       return {
         data: res,
       };
