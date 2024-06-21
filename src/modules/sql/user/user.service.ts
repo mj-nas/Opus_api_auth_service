@@ -18,7 +18,7 @@ import * as QRCode from 'qrcode';
 import { Op } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
-import { compareHash, generateHash } from 'src/core/core.utils';
+import { base64ToBlob, compareHash, generateHash } from 'src/core/core.utils';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { ZodError, z } from 'zod';
 import { AddressService } from '../address/address.service';
