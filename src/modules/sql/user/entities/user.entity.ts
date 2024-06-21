@@ -13,6 +13,7 @@ import {
   MinLength,
   ValidateIf,
 } from 'class-validator';
+import { DataTypes } from 'sequelize';
 import {
   BeforeCreate,
   BeforeSave,
@@ -336,6 +337,19 @@ export class User extends SqlModel {
   })
   @IsEnum(Status)
   status: Status;
+
+  @Column(DataTypes.VIRTUAL)
+  @ApiProperty({
+    description: 'Referral Link',
+    example:
+      'https://staging.opuscompounds.com/referral/cd7c8da0-cfe0-11ee-94e2-c1e32bf24f34',
+    readOnly: true,
+  })
+  get referral_link(): string {
+    return this.getDataValue('uid')
+      ? `${process.env.WEBSITE_URL}/referral/${this.getDataValue('uid')}`
+      : null;
+  }
 
   @BeforeSave
   static setName(instance: User) {
