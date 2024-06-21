@@ -13,6 +13,8 @@ export class SignupDispenserDto extends PickType(User, [
   'city',
   'state',
   'zip_code',
+  'latitude',
+  'longitude',
 ] as const) {
   @ApiProperty({
     enum: Role,

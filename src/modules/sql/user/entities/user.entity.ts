@@ -3,6 +3,7 @@ import { IsUnique } from '@core/sql/sql.unique-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
+  IsDecimal,
   IsEmail,
   IsEnum,
   IsNumberString,
@@ -10,6 +11,7 @@ import {
   IsString,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 import {
   BeforeCreate,
@@ -190,6 +192,26 @@ export class User extends SqlModel {
       typeof v === 'string' ? v.replace(config().cdnURL, '') : null,
     );
   }
+
+  @Column(DataType.DECIMAL(10, 8))
+  @ApiProperty({
+    format: 'float',
+    description: 'Latitude',
+    example: 10.013947,
+  })
+  @ValidateIf((o) => o.role === Role.Dispenser)
+  @IsDecimal()
+  latitude: number;
+
+  @Column(DataType.DECIMAL(10, 8))
+  @ApiProperty({
+    format: 'float',
+    description: 'Longitude',
+    example: 76.363272,
+  })
+  @ValidateIf((o) => o.role === Role.Dispenser)
+  @IsDecimal()
+  longitude: number;
 
   @Column
   @ApiProperty({
