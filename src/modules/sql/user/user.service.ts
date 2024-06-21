@@ -308,6 +308,7 @@ export class UserService extends ModelService<User> {
       city,
       state,
       zip_code,
+      name,
     } = response.data;
     await this.addressService.create({
       action: 'create',
@@ -323,6 +324,35 @@ export class UserService extends ModelService<User> {
         zip_code,
       },
     });
+
+    if (job.action == 'createDispencer') {
+      const password = generateRandomPassword(10);
+      await this.$db.updateRecord({
+        action: 'findById',
+        id: id,
+        body: {
+          password,
+        },
+      });
+
+      await this.msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_id: id,
+            template: 'dispenser_account_created',
+            skipUserConfig: true,
+            variables: {
+              TO_NAME: name,
+              USERNAME: email,
+              PASSWORD: password,
+              LOGIN_LINK: process.env.WEBSITE_URL + '/auth/signin',
+            },
+          },
+        }),
+      );
+    }
   }
 
   async createCustomerXls(job: Job): Promise<JobResponse> {
