@@ -1,18 +1,32 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
 import {
   BeforeUpdate,
   Column,
+  DataType,
   ForeignKey,
   Index,
   Table,
 } from 'sequelize-typescript';
 import config from 'src/config';
 import { ProductCategory } from '../../product-category/entities/product-category.entity';
+import { GalleryType } from '../gallery-type.enum';
 
 @Table
 export class Gallery extends SqlModel {
+  @Column({
+    type: DataType.ENUM(...Object.values(GalleryType)),
+    defaultValue: GalleryType.Image,
+  })
+  @ApiProperty({
+    enum: GalleryType,
+    description: 'GalleryType',
+    example: GalleryType.Video,
+  })
+  @IsEnum(GalleryType)
+  type: GalleryType;
+
   @ForeignKey(() => ProductCategory)
   @Column
   @ApiProperty({

@@ -44,6 +44,7 @@ import {
   Result,
 } from 'src/core/core.responses';
 import { pluralizeString } from 'src/core/core.utils';
+import { Public } from 'src/core/decorators/public.decorator';
 import { OwnerIncludeAttribute } from 'src/core/decorators/sql/owner-attributes.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
@@ -170,6 +171,28 @@ export class UserController {
           message: error.message,
         });
       }
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Created(res, { data, message: 'Created' });
+  }
+
+  /**
+   * Reorder cron
+   */
+  @Public()
+  @Post('qr-code')
+  @ApiOperation({ summary: `Reorder cron` })
+  async reorderCron(@Res() res: Response) {
+    const { error, data } = await this.userService.createQRCode({
+      payload: {
+        user_id: 1,
+      },
+    });
+
+    if (error) {
       return ErrorResponse(res, {
         error,
         message: `${error.message || error}`,

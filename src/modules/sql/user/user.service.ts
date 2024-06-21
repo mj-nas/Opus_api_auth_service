@@ -1,9 +1,4 @@
-import {
-  generateRandomPassword,
-  parseStringWithWhitespace,
-  trimAndValidateCustom,
-} from './../../../core/core.utils';
-/* eslint-disable prettier/prettier */
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import {
   ModelService,
   SqlCreateResponse,
@@ -13,10 +8,13 @@ import {
   SqlUpdateResponse,
 } from '@core/sql';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { createCanvas } from 'canvas';
 import { CsvError, parse } from 'csv-parse';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import * as moment from 'moment-timezone';
+import * as QRCode from 'qrcode';
 import { Op } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
@@ -25,6 +23,11 @@ import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { ZodError, z } from 'zod';
 import { AddressService } from '../address/address.service';
 import { SignupDto } from '../auth/dto/signup.dto';
+import {
+  generateRandomPassword,
+  parseStringWithWhitespace,
+  trimAndValidateCustom,
+} from './../../../core/core.utils';
 import { User } from './entities/user.entity';
 import { Role } from './role.enum';
 import { Status } from './status.enum';
@@ -41,6 +44,7 @@ export class UserService extends ModelService<User> {
     db: SqlService<User>,
     private msClient: MsClientService,
     private addressService: AddressService,
+    private config: ConfigService,
   ) {
     super(db);
   }
@@ -618,6 +622,49 @@ export class UserService extends ModelService<User> {
         }
       }
       return { data: import_status };
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  async createQRCode(job: Job): Promise<JobResponse> {
+    try {
+      const { user_id } = job.payload;
+      const { error, data } = await this.$db.findRecordById({
+        id: +user_id,
+        options: {
+          attributes: ['id', 'uid', 'referral_link'],
+        },
+      });
+
+      if (error) {
+        return { error };
+      }
+
+      const canvas = createCanvas(400, 400);
+      await QRCode.toCanvas(canvas, data.referral_link, {
+        errorCorrectionLevel: 'H',
+        margin: 5,
+        width: 300,
+        color: {
+          dark: '#000000',
+          light: '#ffffff',
+        },
+      });
+      const file = canvas.toDataURL();
+      const buffer = Buffer.from(file, 'base64');
+      const client = new S3Client({ region: process.env.AWS_REGION });
+      const command = new PutObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: `${data.uid}.png`,
+        Body: buffer,
+        ContentEncoding: 'base64',
+        ContentType: 'image/png',
+      });
+      const res = await client.send(command);
+      return {
+        data: res,
+      };
     } catch (error) {
       return { error };
     }
