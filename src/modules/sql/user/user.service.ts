@@ -18,7 +18,7 @@ import * as QRCode from 'qrcode';
 import { Op } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
-import { base64ToBlob, compareHash, generateHash } from 'src/core/core.utils';
+import { base64ToFile, compareHash, generateHash } from 'src/core/core.utils';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { ZodError, z } from 'zod';
 import { AddressService } from '../address/address.service';
@@ -878,14 +878,15 @@ export class UserService extends ModelService<User> {
         },
       });
       const dataUrl = canvas.toDataURL();
-      const blobFile = base64ToBlob(dataUrl, 'image/png');
+      const fileName = `${Date.now()}.png`;
+      const file = base64ToFile(dataUrl, fileName);
       const client = new S3Client({ region: process.env.AWS_REGION });
-      const Key = `qr-code/${data.uid}/${Date.now()}.png`;
+      const Key = `qr-code/${data.uid}/${fileName}`;
       const command = new PutObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME,
         Key,
-        Body: blobFile,
-        ContentType: 'image/png',
+        Body: file,
+        ContentType: file.type,
       });
       const res = await client.send(command);
       data.setDataValue('qr_code', Key);

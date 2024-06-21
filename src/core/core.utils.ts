@@ -70,21 +70,23 @@ export const snakeCase = (str: string): string =>
     .join('_')
     .toLowerCase();
 
-export function base64ToBlob(base64: string, mimeType: string): Blob {
-  // Decode the base64 string to a binary string
-  const binaryString = atob(base64);
-  // Create an array buffer to hold the binary data
-  const len = binaryString.length;
-  const buffer = new ArrayBuffer(len);
-  const view = new Uint8Array(buffer);
+export function base64ToFile(base64String: string, filename: string): File {
+  // Decode the base64 string to a byte string
+  const byteString = atob(base64String);
 
-  // Fill the array buffer with the binary data
-  for (let i = 0; i < len; i++) {
-    view[i] = binaryString.charCodeAt(i);
+  // Create a Uint8Array from the byte string
+  const byteArray = new Uint8Array(byteString.length);
+  for (let i = 0; i < byteString.length; i++) {
+    byteArray[i] = byteString.charCodeAt(i);
   }
 
-  // Create a Blob from the array buffer
-  return new Blob([view], { type: mimeType });
+  // Create a Blob from the byteArray
+  const blob = new Blob([byteArray], { type: 'application/octet-stream' });
+
+  // Create a File object from Blob
+  const file = new File([blob], filename, { type: blob.type });
+
+  return file;
 }
 
 export const isPrimaryInstance = (): boolean =>
