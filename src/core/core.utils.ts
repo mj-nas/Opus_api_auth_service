@@ -70,6 +70,23 @@ export const snakeCase = (str: string): string =>
     .join('_')
     .toLowerCase();
 
+export function base64ToBlob(base64: string, mimeType: string): Blob {
+  // Decode the base64 string to a binary string
+  const binaryString = atob(base64);
+  // Create an array buffer to hold the binary data
+  const len = binaryString.length;
+  const buffer = new ArrayBuffer(len);
+  const view = new Uint8Array(buffer);
+
+  // Fill the array buffer with the binary data
+  for (let i = 0; i < len; i++) {
+    view[i] = binaryString.charCodeAt(i);
+  }
+
+  // Create a Blob from the array buffer
+  return new Blob([view], { type: mimeType });
+}
+
 export const isPrimaryInstance = (): boolean =>
   typeof process.env.NODE_APP_INSTANCE === 'undefined' ||
   process.env.NODE_APP_INSTANCE === '0';

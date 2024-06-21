@@ -877,15 +877,14 @@ export class UserService extends ModelService<User> {
           light: '#ffffff',
         },
       });
-      const file = canvas.toDataURL();
-      const buffer = Buffer.from(file, 'base64');
+      const dataUrl = canvas.toDataURL();
+      const blobFile = base64ToBlob(dataUrl, 'image/png');
       const client = new S3Client({ region: process.env.AWS_REGION });
       const Key = `qr-code/${data.uid}/${Date.now()}.png`;
       const command = new PutObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME,
         Key,
-        Body: buffer,
-        ContentEncoding: 'base64',
+        Body: blobFile,
         ContentType: 'image/png',
       });
       const res = await client.send(command);
