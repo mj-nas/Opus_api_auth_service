@@ -5,7 +5,6 @@ export class CreateDispenserDto extends PickType(User, [
   'first_name',
   'last_name',
   'phone',
-  'password',
   'avatar',
   'email',
   'address',
