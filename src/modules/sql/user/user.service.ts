@@ -25,6 +25,7 @@ import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { ZodError, z } from 'zod';
 import { AddressService } from '../address/address.service';
 import { SignupDto } from '../auth/dto/signup.dto';
+import { CreateDispenserDto } from './dto/create-dispenser.dto';
 import { User } from './entities/user.entity';
 import { Role } from './role.enum';
 import { Status } from './status.enum';
@@ -465,6 +466,201 @@ export class UserService extends ModelService<User> {
         },
       );
     });
+  }
+
+  async importDispenserExcel(job: Job): Promise<JobResponse> {
+    try {
+      const { payload } = job;
+      const csvFilePath = payload?.csv_file[0]?.path;
+      const headers = [
+        'FIRST_NAME',
+        'LAST_NAME',
+        'EMAIL',
+        'PHONE',
+        'LATITUDE',
+        'LONGITUDE',
+        'ADDRESS',
+        'CITY',
+        'STATE',
+        'COUNTRY',
+        'ZIP_CODE',
+      ];
+      const fileContent = fs.readFileSync(csvFilePath, { encoding: 'utf-8' });
+      fs.unlinkSync(csvFilePath);
+
+      const { error, records } = await this.parseFile(fileContent, headers);
+      if (!!error) {
+        return { error };
+      }
+      if (records?.length <= 1) {
+        return { error: 'Invalid csv format' };
+      }
+
+      const mandatoryFields = z.object({
+        FIRST_NAME: z
+          .string()
+          .min(1, { message: 'Please enter your first name.' })
+          .max(30, 'Your last name exceeds the character limit.')
+          .refine((value) => !/^\s|\s$/.test(value), {
+            message: 'Leading or trailing white spaces are not allowed',
+          })
+          .refine((value) => /^[a-zA-Z]+$/.test(value), {
+            message:
+              'Please enter a valid first name. Numbers are not allowed.',
+          }),
+        LAST_NAME: parseStringWithWhitespace(
+          z
+            .string()
+            .min(1, { message: 'Please enter your last name.' })
+            .max(30, 'Your last name exceeds the character limit.'),
+        ),
+        EMAIL: z
+          .string()
+          .min(1, { message: 'Please enter your email address.' })
+          .email('Please enter a valid email.'),
+        PHONE: z
+          .string()
+          .regex(new RegExp(/^\d{10}$/), 'Invalid phone number!'),
+        LATITUDE: z
+          .string()
+          .regex(
+            new RegExp(/^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}/),
+            'Invalid Latitude!',
+          ),
+        LONGITUDE: z
+          .string()
+          .regex(
+            new RegExp(/^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}/),
+            'Invalid Longitude!',
+          ),
+        ADDRESS: parseStringWithWhitespace(
+          z
+            .string()
+            .min(1, { message: 'Please enter your address.' })
+            .max(100, 'Your address exceeds the character limit.'),
+        ),
+        CITY: parseStringWithWhitespace(
+          z
+            .string()
+            .min(1, { message: 'Please enter your city.' })
+            .max(30, 'Your city exceeds the character limit.'),
+        ),
+        STATE: parseStringWithWhitespace(
+          z
+            .string()
+            .min(1, { message: 'Please enter your state.' })
+            .max(30, 'Your state exceeds the character limit.'),
+        ),
+        COUNTRY: z.string(),
+        ZIP_CODE: parseStringWithWhitespace(
+          z
+            .string()
+            .min(1, { message: 'Please enter your zip code.' })
+            .max(6, 'Your zip code exceeds the character limit.'),
+        ),
+      });
+      const schema = z.preprocess(
+        (args) => {
+          return { mandatory: args };
+        },
+        z.object({
+          mandatory: mandatoryFields,
+        }),
+      );
+
+      // Remove first element from an array
+      records.shift();
+      const import_status = { success: [], failed: [] };
+      for (let index = 0; index < records.length; index++) {
+        const user = records[index];
+        const password = generateRandomPassword(10);
+        try {
+          schema.parse(user);
+          const body = {
+            role: Role.Dispenser,
+            first_name: user.FIRST_NAME,
+            last_name: user.LAST_NAME,
+            email: user.EMAIL,
+            phone: user.PHONE,
+            latitute: user.LATITUDE,
+            longitude: user.LONGITUDE,
+            address: user.ADDRESS,
+            city: user.CITY,
+            state: user.STATE,
+            country: user.COUNTRY,
+            zip_code: user.ZIP_CODE,
+            password,
+          };
+          const { errors } = await trimAndValidateCustom(
+            CreateDispenserDto,
+            body,
+            ['password', 'role'],
+          );
+          if (!!errors) {
+            import_status.failed.push({
+              ...user,
+              error: errors.flatMap((err) => ({
+                path: [err.property?.toUpperCase()],
+                message: err.constraints[Object.keys(err.constraints)[0]],
+              })),
+            });
+            continue;
+          }
+          const { error, data } = await this.create({
+            action: 'import',
+            body,
+          });
+          if (!!error) {
+            import_status.failed.push({
+              ...user,
+              error: [
+                {
+                  message: error.message || error,
+                  path: ['server'],
+                },
+              ],
+            });
+            continue;
+          }
+
+          await this.msClient.executeJob(
+            'controller.notification',
+            new Job({
+              action: 'send',
+              payload: {
+                user_id: data.id,
+                template: 'dispenser_account_created',
+                skipUserConfig: true,
+                variables: {
+                  TO_NAME: data.name,
+                  USERNAME: data.email,
+                  PASSWORD: password,
+                  LOGIN_LINK: process.env.WEBSITE_URL + '/auth/signin',
+                },
+              },
+            }),
+          );
+
+          import_status.success.push({ ...user });
+        } catch (error) {
+          if (error instanceof ZodError) {
+            const issues = error.issues;
+            import_status.failed.push({
+              ...user,
+              error: issues.flatMap((i) => {
+                return {
+                  message: i.message,
+                  path: i.path.filter((x) => x !== 'mandatory'),
+                };
+              }),
+            });
+          }
+        }
+      }
+      return { data: import_status };
+    } catch (error) {
+      return { error };
+    }
   }
 
   async importExcel(job: Job): Promise<JobResponse> {
