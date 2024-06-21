@@ -325,7 +325,7 @@ export class UserController {
    * Return all customer list
    */
   @Get('dispenser')
-  @ApiOperation({ summary: 'Get all customers' })
+  @ApiOperation({ summary: 'Get all dispnesers' })
   @ApiQueryGetAll()
   @ResponseGetAll(User)
   async findAllDispenser(
