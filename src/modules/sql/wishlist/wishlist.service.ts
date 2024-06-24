@@ -26,7 +26,9 @@ export class WishlistService extends ModelService<Wishlist> {
   protected async doBeforeFindAll(job: SqlJob<Wishlist>): Promise<void> {
     await super.doBeforeFindAll(job);
     job.options.where = { ...job.options.where, user_id: job.owner.id };
-    const include = job.options.include as IncludeOptions[];
+    const include = job.options.include
+      ? (job.options.include as IncludeOptions[])
+      : [];
     const product = include.findIndex((x) => x.association === 'product');
     if (product > -1) {
       const productInclude = include[product].include as IncludeOptions[];
