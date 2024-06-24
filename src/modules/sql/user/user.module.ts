@@ -60,6 +60,7 @@ import { UserService } from './user.service';
     }),
     MsClientModule,
     AddressModule,
+    ConfigModule,
   ],
   controllers: [UserController],
   providers: [UserService],

@@ -75,7 +75,7 @@ export class LocalAuthController {
     @Body() auth: LocalAuthDto,
     @GetIP() ip: string,
   ) {
-    if (owner.role !== Role.Admin && owner.email_verified !== 'Y') {
+    if (owner.role === Role.Customer && owner.email_verified !== 'Y') {
       const u = owner as User;
       const emailVerifyOtp = await this.authService.emailVerifyOtp(
         OtpSessionType.Login,

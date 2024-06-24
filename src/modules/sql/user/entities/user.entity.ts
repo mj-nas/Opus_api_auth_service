@@ -351,6 +351,26 @@ export class User extends SqlModel {
       : null;
   }
 
+  @Column
+  @ApiProperty({
+    description: 'QR Code',
+    example: 'user/qr_code.png',
+  })
+  @IsOptional()
+  @IsString()
+  get qr_code(): string {
+    return this.getDataValue('qr_code')
+      ? config().cdnURL + this.getDataValue('qr_code')
+      : null;
+  }
+
+  set qr_code(v: string) {
+    this.setDataValue(
+      'qr_code',
+      typeof v === 'string' ? v.replace(config().cdnURL, '') : null,
+    );
+  }
+
   @BeforeSave
   static setName(instance: User) {
     if (instance.first_name && instance.last_name) {
@@ -392,6 +412,13 @@ export class User extends SqlModel {
   static async formatThumb(instance: User) {
     if (instance.avatar) {
       instance.avatar = instance.avatar.replace(config().cdnURL, '');
+    }
+  }
+
+  @BeforeUpdate
+  static async formatQRCode(instance: User) {
+    if (instance.qr_code) {
+      instance.qr_code = instance.qr_code.replace(config().cdnURL, '');
     }
   }
 }

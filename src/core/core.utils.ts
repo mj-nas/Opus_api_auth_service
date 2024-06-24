@@ -70,6 +70,25 @@ export const snakeCase = (str: string): string =>
     .join('_')
     .toLowerCase();
 
+export function base64ToFile(base64String: string, filename: string): File {
+  // Decode the base64 string to a byte string
+  const byteString = atob(base64String);
+
+  // Create a Uint8Array from the byte string
+  const byteArray = new Uint8Array(byteString.length);
+  for (let i = 0; i < byteString.length; i++) {
+    byteArray[i] = byteString.charCodeAt(i);
+  }
+
+  // Create a Blob from the byteArray
+  const blob = new Blob([byteArray], { type: 'application/octet-stream' });
+
+  // Create a File object from Blob
+  const file = new File([blob], filename, { type: blob.type });
+
+  return file;
+}
+
 export const isPrimaryInstance = (): boolean =>
   typeof process.env.NODE_APP_INSTANCE === 'undefined' ||
   process.env.NODE_APP_INSTANCE === '0';
