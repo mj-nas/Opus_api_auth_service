@@ -32,7 +32,9 @@ export class ProductsService extends ModelService<Products> {
    */
   protected async doBeforeRead(job: SqlJob<Products>): Promise<void> {
     await super.doBeforeRead(job);
-    const include = job.options.include as IncludeOptions[];
+    const include = job.options.include
+      ? (job.options.include as IncludeOptions[])
+      : [];
 
     // Populate
     const image = include.findIndex(

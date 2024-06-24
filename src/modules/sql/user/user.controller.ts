@@ -44,7 +44,6 @@ import {
   Result,
 } from 'src/core/core.responses';
 import { pluralizeString } from 'src/core/core.utils';
-import { Public } from 'src/core/decorators/public.decorator';
 import { OwnerIncludeAttribute } from 'src/core/decorators/sql/owner-attributes.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
@@ -124,7 +123,7 @@ export class UserController {
   ) {
     const { error, data } = await this.userService.create({
       owner,
-      action: 'createDispencer',
+      action: 'createDispenser',
       body: {
         ...createDispenserDto,
         status: Status.Approve,
@@ -222,10 +221,10 @@ export class UserController {
   /**
    * Reorder cron
    */
-  @Public()
   @Post('qr-code')
-  @ApiOperation({ summary: `Reorder cron` })
-  async reorderCron(@Res() res: Response) {
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: `QR Code Testing API` })
+  async createQRCode(@Res() res: Response) {
     const { error, data } = await this.userService.createQRCode({
       payload: {
         user_id: 1,

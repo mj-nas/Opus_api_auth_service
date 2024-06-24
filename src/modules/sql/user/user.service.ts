@@ -18,7 +18,7 @@ import * as QRCode from 'qrcode';
 import { Op } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
-import { base64ToFile, compareHash, generateHash } from 'src/core/core.utils';
+import { compareHash, generateHash } from 'src/core/core.utils';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { ZodError, z } from 'zod';
 import { AddressService } from '../address/address.service';
@@ -331,7 +331,9 @@ export class UserService extends ModelService<User> {
       },
     });
 
-    if (job.action == 'createDispencer') {
+    await this.createQRCode({ payload: { user_id: id } });
+
+    if (job.action == 'createDispenser') {
       const password = generateRandomPassword(10);
       await this.$db.updateRecord({
         action: 'findById',
@@ -950,6 +952,45 @@ export class UserService extends ModelService<User> {
     }
   }
 
+  async generateQRCode(referralLink) {
+    const canvas = createCanvas(400, 400);
+    await QRCode.toCanvas(canvas, referralLink, {
+      errorCorrectionLevel: 'H',
+      margin: 3,
+      width: 300,
+      color: {
+        dark: '#000000',
+        light: '#ffffff',
+      },
+    });
+
+    return canvas.toDataURL();
+  }
+
+  async uploadToS3(dataUrl: string, uid: string): Promise<string> {
+    const base64Data = Buffer.from(
+      dataUrl.replace(/^data:image\/\w+;base64,/, ''),
+      'base64',
+    );
+    const type = dataUrl.split(';')[0].split('/')[1];
+    const fileName = `${Date.now()}.${type}`;
+    const Key = `qr-code/${uid}/${fileName}`;
+    const client = new S3Client({
+      region: process.env.AWS_REGION,
+    });
+    const command = new PutObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key,
+      Body: base64Data,
+      ContentEncoding: 'base64',
+      ContentType: `image/${type}`,
+    });
+
+    await client.send(command);
+
+    return Key;
+  }
+
   async createQRCode(job: Job): Promise<JobResponse> {
     try {
       const { user_id } = job.payload;
@@ -964,32 +1005,13 @@ export class UserService extends ModelService<User> {
         return { error };
       }
 
-      const canvas = createCanvas(400, 400);
-      await QRCode.toCanvas(canvas, data.referral_link, {
-        errorCorrectionLevel: 'H',
-        margin: 5,
-        width: 300,
-        color: {
-          dark: '#000000',
-          light: '#ffffff',
-        },
-      });
-      const dataUrl = canvas.toDataURL();
-      const fileName = `${Date.now()}.png`;
-      const file = base64ToFile(dataUrl, fileName);
-      const client = new S3Client({ region: process.env.AWS_REGION });
-      const Key = `qr-code/${data.uid}/${fileName}`;
-      const command = new PutObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key,
-        Body: file,
-        ContentType: file.type,
-      });
-      const res = await client.send(command);
-      data.setDataValue('qr_code', Key);
+      const dataUrl = await this.generateQRCode(data.referral_link);
+      const qrCodeKey = await this.uploadToS3(dataUrl, data.uid);
+      data.setDataValue('qr_code', qrCodeKey);
       await data.save();
+
       return {
-        data: res,
+        data,
       };
     } catch (error) {
       return { error };
