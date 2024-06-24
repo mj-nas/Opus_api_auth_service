@@ -499,6 +499,55 @@ export class UserController {
   }
 
   /**
+   * Return all entity documents list
+   */
+  @Get('dispenser-export-xls')
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: `Create ${pluralizeString('Dispenser')} xls` })
+  @ApiQueryGetAll()
+  @ApiOkResponse({
+    description: 'xls file created',
+    schema: {
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+            },
+          },
+        },
+        message: {
+          type: 'string',
+          example: 'xls file created',
+        },
+      },
+    },
+  })
+  async exportDispenserXls(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.userService.createDispenserXls({
+      owner,
+      action: 'createXls',
+      payload: { ...query },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { ...data },
+      message: 'Ok',
+    });
+  }
+
+  /**
    * Find one User
    */
   @Get('find')
