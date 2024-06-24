@@ -210,11 +210,12 @@ export class UserService extends ModelService<User> {
         );
       } else if (status === Status.Approve) {
         const password = generateRandomPassword(10);
+        const passwordHash = await generateHash(password);
         await this.$db.updateRecord({
           action: 'findById',
           id,
           body: {
-            password,
+            password: passwordHash,
           },
         });
         await this.msClient.executeJob(
