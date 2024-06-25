@@ -1,6 +1,19 @@
-import { OmitType } from '@nestjs/swagger';
-import { ReferredCoupons } from '../entities/referred-coupon.entity';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsInt } from 'class-validator';
 
-export class CreateReferredCouponDto extends OmitType(ReferredCoupons, [
-  'active',
-] as const) {}
+export class CreateReferredCouponDto {
+  @ApiProperty({
+    format: 'uint32',
+    description: 'coupon_id',
+    example: 1,
+  })
+  @IsInt()
+  id: number;
+
+  @ApiProperty({
+    format: 'string',
+    description: 'code',
+    example: 'US',
+  })
+  code: string;
+}

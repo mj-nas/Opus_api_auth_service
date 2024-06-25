@@ -2,8 +2,12 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { ModelService, SqlCreateResponse, SqlJob, SqlService } from '@core/sql';
 import { Injectable } from '@nestjs/common';
 import { createCanvas } from 'canvas';
+import { readFileSync } from 'fs';
+import { handlebars } from 'hbs';
+import { join } from 'path';
 import * as QRCode from 'qrcode';
 import { Job, JobResponse } from 'src/core/core.job';
+import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { ReferredCouponService } from '../referred-coupon/referred-coupon.service';
 import { ReferredProductsService } from '../referred-products/referred-products.service';
 import { Referral } from './entities/referral.entity';
@@ -20,6 +24,7 @@ export class ReferralService extends ModelService<Referral> {
     db: SqlService<Referral>,
     private referredProductService: ReferredProductsService,
     private referredCouponService: ReferredCouponService,
+    private msClient: MsClientService,
   ) {
     super(db);
   }
@@ -119,26 +124,69 @@ export class ReferralService extends ModelService<Referral> {
       return { error };
     }
 
-    // add referral_data id to each objects in referred coupons array
     if (data.id) {
-      referred_coupons.map((e) => (e.referral_id = data.id));
-      referred_products.map((e) => (e.referral_id = data.id));
+      const coupon_data = referred_coupons.map((e) => {
+        return {
+          referral_id: data.id,
+          coupon_id: e.id,
+        };
+      });
+      const product_data = referred_products.map((e) => {
+        return {
+          referral_id: data.id,
+          product_id: e.id,
+        };
+      });
 
       const referredCoupons =
         await this.referredCouponService.$db.createBulkRecords({
           owner: job.owner,
           options: {},
-          records: referred_coupons,
+          records: coupon_data,
         });
 
       const referredProducts =
         await this.referredProductService.$db.createBulkRecords({
           owner: job.owner,
           options: {},
-          records: referred_products,
+          records: product_data,
         });
-    }
 
-    return { data };
+      if (referredCoupons.error || referredProducts.error) {
+        return {
+          error: referredCoupons.error || referredProducts.error,
+        };
+      }
+
+      try {
+        const template = readFileSync(
+          join(__dirname, '../src', 'views/referral.hbs'),
+          'utf8',
+        );
+        const emailTemplate = handlebars.compile(template);
+      } catch (error) {
+        const emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
+      }
+
+      // await this.msClient.executeJob(
+      //   'controller.email',
+      //   new Job({
+      //     action: 'sendMail',
+      //     payload: {
+      //       to: data.email,
+      //       subject: _email_subject,
+      //       html: _email_template,
+      //     },
+      //   }),
+      // );
+
+      return {
+        data: {
+          ...data.dataValues,
+          referredCoupons: referredCoupons.data,
+          referredProducts: referredProducts.data,
+        },
+      };
+    }
   }
 }

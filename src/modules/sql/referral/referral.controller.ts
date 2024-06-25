@@ -58,6 +58,7 @@ export class ReferralController {
    * Create a new entity document
    */
   @Post()
+  // @Roles(Role.Dispenser)
   @ApiOperation({ summary: `Create new ${entity}` })
   @ResponseCreated(Referral)
   async create(
@@ -77,7 +78,7 @@ export class ReferralController {
         message: `${error.message || error}`,
       });
     }
-    return Created(res, { data: { [entity]: data }, message: 'Created' });
+    return Created(res, { data, message: 'Referral link sent Successfully' });
   }
 
   /**

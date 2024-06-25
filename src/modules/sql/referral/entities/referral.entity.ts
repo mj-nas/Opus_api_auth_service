@@ -50,12 +50,12 @@ export class Referral extends SqlModel {
   @ApiProperty({
     description: 'Referral Link',
     example:
-      'https://staging.opuscompounds.com/connect/cd7c8da0-cfe0-11ee-94e2-c1e32bf24f34',
+      'https://staging.opuscompounds.com/referral/cd7c8da0-cfe0-11ee-94e2-c1e32bf24f34',
     readOnly: true,
   })
   get referral_link(): string {
     return this.getDataValue('uid')
-      ? `${process.env.WEBSITE_URL}/connect/${this.getDataValue('uid')}`
+      ? `${process.env.WEBSITE_URL}/referral/${this.getDataValue('uid')}`
       : null;
   }
 
