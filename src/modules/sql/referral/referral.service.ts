@@ -1,5 +1,5 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { ModelService, SqlCreateResponse, SqlJob, SqlService } from '@core/sql';
+import { ModelService, SqlService } from '@core/sql';
 import { Injectable } from '@nestjs/common';
 import { createCanvas } from 'canvas';
 import { readFileSync } from 'fs';
@@ -14,6 +14,8 @@ import { Referral } from './entities/referral.entity';
 
 @Injectable()
 export class ReferralService extends ModelService<Referral> {
+  private emailTemplate: HandlebarsTemplateDelegate;
+
   /**
    * searchFields
    * @property array of fields to include in search
@@ -27,22 +29,6 @@ export class ReferralService extends ModelService<Referral> {
     private msClient: MsClientService,
   ) {
     super(db);
-  }
-
-  /**
-   * doAfterCreate
-   * @function function will execute after create function
-   * @param {object} job - mandatory - a job object representing the job information
-   * @param {object} response - mandatory - a object representing the job response information
-   * @return {void}
-   */
-  protected async doAfterCreate(
-    job: SqlJob<Referral>,
-    response: SqlCreateResponse<Referral>,
-  ): Promise<void> {
-    await super.doAfterCreate(job, response);
-
-    await this.createQRCode({ payload: { referral_id: response.data.id } });
   }
 
   async generateQRCode(referralLink) {
@@ -70,6 +56,10 @@ export class ReferralService extends ModelService<Referral> {
     const Key = `qr-code/${uid}/${fileName}`;
     const client = new S3Client({
       region: process.env.AWS_REGION,
+      credentials: {
+        accessKeyId: 'AKIASV7MRPIUBKQKGVTH',
+        secretAccessKey: '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',
+      },
     });
     const command = new PutObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME,
@@ -84,109 +74,88 @@ export class ReferralService extends ModelService<Referral> {
     return Key;
   }
 
-  async createQRCode(job: Job): Promise<JobResponse> {
-    try {
-      const { referral_id } = job.payload;
-      const { error, data } = await this.$db.findRecordById({
-        id: +referral_id,
-        options: {
-          attributes: ['id', 'uid', 'referral_link'],
-        },
-      });
-
-      if (error) {
-        return { error };
-      }
-
-      const dataUrl = await this.generateQRCode(data.referral_link);
-      const qrCodeKey = await this.uploadToS3(dataUrl, data.uid);
-      data.setDataValue('qr_code', qrCodeKey);
-      await data.save();
-
-      return {
-        data,
-      };
-    } catch (error) {
-      return { error };
-    }
-  }
-
   async createReferrals(job: Job): Promise<JobResponse> {
-    const { referred_coupons, referred_products, ...referral_body } =
-      job.payload;
-    console.log(referral_body);
+    const { referred_coupons, referred_products, email } = job.payload;
+    // console.log(referral_body);
     const { error, data } = await this.create({
       owner: job.owner,
       action: 'create',
-      body: referral_body,
+      body: { email, dispenser_id: job.owner.id },
     });
+
+    console.log('data', data.toJSON());
+
     if (error) {
       return { error };
     }
 
-    if (data.id) {
-      const coupon_data = referred_coupons.map((e) => {
-        return {
-          referral_id: data.id,
-          coupon_id: e.id,
-        };
-      });
-      const product_data = referred_products.map((e) => {
-        return {
-          referral_id: data.id,
-          product_id: e.id,
-        };
-      });
+    const dataUrl = await this.generateQRCode(data.referral_link);
+    const qrCodeKey = await this.uploadToS3(dataUrl, data.uid);
+    data.setDataValue('qr_code', qrCodeKey);
+    await data.save();
 
-      const referredCoupons =
-        await this.referredCouponService.$db.createBulkRecords({
-          owner: job.owner,
-          options: {},
-          records: coupon_data,
-        });
-
-      const referredProducts =
-        await this.referredProductService.$db.createBulkRecords({
-          owner: job.owner,
-          options: {},
-          records: product_data,
-        });
-
-      if (referredCoupons.error || referredProducts.error) {
-        return {
-          error: referredCoupons.error || referredProducts.error,
-        };
-      }
-
-      try {
-        const template = readFileSync(
-          join(__dirname, '../src', 'views/referral.hbs'),
-          'utf8',
-        );
-        const emailTemplate = handlebars.compile(template);
-      } catch (error) {
-        const emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
-      }
-
-      // await this.msClient.executeJob(
-      //   'controller.email',
-      //   new Job({
-      //     action: 'sendMail',
-      //     payload: {
-      //       to: data.email,
-      //       subject: _email_subject,
-      //       html: _email_template,
-      //     },
-      //   }),
-      // );
-
+    const coupon_data = referred_coupons.map((e) => {
       return {
-        data: {
-          ...data.dataValues,
-          referredCoupons: referredCoupons.data,
-          referredProducts: referredProducts.data,
-        },
+        referral_id: data.id,
+        coupon_id: e.id,
+      };
+    });
+    const product_data = referred_products.map((e) => {
+      return {
+        referral_id: data.id,
+        product_id: e.id,
+      };
+    });
+
+    const referredCoupons =
+      await this.referredCouponService.$db.createBulkRecords({
+        owner: job.owner,
+        options: {},
+        records: coupon_data,
+      });
+
+    const referredProducts =
+      await this.referredProductService.$db.createBulkRecords({
+        owner: job.owner,
+        options: {},
+        records: product_data,
+      });
+
+    if (referredCoupons.error || referredProducts.error) {
+      return {
+        error: referredCoupons.error || referredProducts.error,
       };
     }
+
+    try {
+      const template = readFileSync(
+        join(__dirname, '../src', 'views/referral.hbs'),
+        'utf8',
+      );
+      this.emailTemplate = handlebars.compile(template);
+    } catch (error) {
+      this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
+    }
+    const _email_template = this.emailTemplate({
+      referral_link: data.referral_link,
+      qr_link: data.qr_code,
+      coupons: referred_coupons,
+    });
+
+    await this.msClient.executeJob(
+      'controller.email',
+      new Job({
+        action: 'sendMail',
+        payload: {
+          to: data.email,
+          subject: "You've been referred",
+          html: _email_template,
+        },
+      }),
+    );
+
+    return {
+      data: {},
+    };
   }
 }

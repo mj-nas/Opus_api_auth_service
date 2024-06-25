@@ -23,4 +23,11 @@ export class CreateReferredProductsDto {
     example: '',
   })
   product_image: string;
+
+  @ApiProperty({
+    format: 'string',
+    description: 'slug',
+    example: '',
+  })
+  slug: string;
 }
