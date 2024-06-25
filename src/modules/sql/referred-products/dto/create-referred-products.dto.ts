@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt } from 'class-validator';
+import { IsInt, IsString } from 'class-validator';
 
 export class CreateReferredProductsDto {
   @ApiProperty({
@@ -23,4 +23,12 @@ export class CreateReferredProductsDto {
     example: '',
   })
   product_image: string;
+
+  @ApiProperty({
+    format: 'string',
+    description: 'slug',
+    example: '',
+  })
+  @IsString()
+  slug: string;
 }

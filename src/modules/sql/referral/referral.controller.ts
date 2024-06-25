@@ -78,7 +78,7 @@ export class ReferralController {
         message: `${error.message || error}`,
       });
     }
-    return Created(res, { data, message: 'Referral link sent Successfully' });
+    return Created(res, { message: 'Referral link sent Successfully' });
   }
 
   /**

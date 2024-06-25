@@ -1,12 +1,17 @@
-import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { IsArray } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsArray, IsEmail, IsString } from 'class-validator';
 import { CreateReferredCouponDto } from '../../referred-coupon/dto/create-referred-coupon.dto';
 import { CreateReferredProductsDto } from '../../referred-products/dto/create-referred-products.dto';
-import { Referral } from '../entities/referral.entity';
 
-export class CreateReferralAllDto extends OmitType(Referral, [
-  'active',
-] as const) {
+export class CreateReferralAllDto {
+  @ApiProperty({
+    description: 'Email',
+    example: 'ross.geller@gmail.com',
+  })
+  @IsString()
+  @IsEmail()
+  email: string;
+
   @ApiProperty({
     format: 'array',
     description: 'referred_products',
@@ -15,6 +20,7 @@ export class CreateReferralAllDto extends OmitType(Referral, [
         id: 1,
         name: 'product1',
         product_image: '',
+        slug: '',
       },
     ],
   })
