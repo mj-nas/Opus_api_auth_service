@@ -1,4 +1,6 @@
 import { OmitType } from '@nestjs/swagger';
-import { ReferredCoupon } from '../entities/referred-coupon.entity';
+import { ReferredCoupons } from '../entities/referred-coupon.entity';
 
-export class CreateReferredCouponDto extends OmitType(ReferredCoupon, ['active'] as const) {}
+export class CreateReferredCouponDto extends OmitType(ReferredCoupons, [
+  'active',
+] as const) {}

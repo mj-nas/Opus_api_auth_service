@@ -39,10 +39,10 @@ import {
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
-import { ReferralService } from './referral.service';
-import { CreateReferralDto } from './dto/create-referral.dto';
+import { CreateReferralAllDto } from './dto/create-referral-all.dto';
 import { UpdateReferralDto } from './dto/update-referral.dto';
 import { Referral } from './entities/referral.entity';
+import { ReferralService } from './referral.service';
 
 const entity = snakeCase(Referral.name);
 
@@ -63,12 +63,12 @@ export class ReferralController {
   async create(
     @Res() res: Response,
     @Owner() owner: OwnerDto,
-    @Body() createReferralDto: CreateReferralDto,
+    @Body() body: CreateReferralAllDto,
   ) {
-    const { error, data } = await this.referralService.create({
+    const { error, data } = await this.referralService.createReferrals({
       owner,
       action: 'create',
-      body: createReferralDto,
+      payload: body,
     });
 
     if (error) {

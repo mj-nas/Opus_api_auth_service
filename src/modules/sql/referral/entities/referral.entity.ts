@@ -7,11 +7,14 @@ import {
   BeforeUpdate,
   Column,
   ForeignKey,
+  HasMany,
   Index,
   Table,
 } from 'sequelize-typescript';
 import config from 'src/config';
 import { uuid } from 'src/core/core.utils';
+import { ReferredCoupons } from '../../referred-coupon/entities/referred-coupon.entity';
+import { ReferredProducts } from '../../referred-products/entities/referred-products.entity';
 import { User } from '../../user/entities/user.entity';
 
 @Table
@@ -75,6 +78,12 @@ export class Referral extends SqlModel {
       typeof v === 'string' ? v.replace(config().cdnURL, '') : null,
     );
   }
+
+  @HasMany(() => ReferredProducts)
+  products: ReferredProducts[];
+
+  @HasMany(() => ReferredCoupons)
+  coupons: ReferredCoupons[];
 
   @BeforeCreate
   static setUuid(instance: Referral) {

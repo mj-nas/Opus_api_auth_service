@@ -39,17 +39,17 @@ import {
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
-import { ReferredCouponService } from './referred-coupon.service';
 import { CreateReferredCouponDto } from './dto/create-referred-coupon.dto';
 import { UpdateReferredCouponDto } from './dto/update-referred-coupon.dto';
-import { ReferredCoupon } from './entities/referred-coupon.entity';
+import { ReferredCoupons } from './entities/referred-coupon.entity';
+import { ReferredCouponService } from './referred-coupon.service';
 
-const entity = snakeCase(ReferredCoupon.name);
+const entity = snakeCase(ReferredCoupons.name);
 
 @ApiTags(entity)
 @ApiBearerAuth()
 @ApiErrorResponses()
-@ApiExtraModels(ReferredCoupon)
+@ApiExtraModels(ReferredCoupons)
 @Controller(entity)
 export class ReferredCouponController {
   constructor(private readonly referredCouponService: ReferredCouponService) {}
@@ -59,7 +59,7 @@ export class ReferredCouponController {
    */
   @Post()
   @ApiOperation({ summary: `Create new ${entity}` })
-  @ResponseCreated(ReferredCoupon)
+  @ResponseCreated(ReferredCoupons)
   async create(
     @Res() res: Response,
     @Owner() owner: OwnerDto,
@@ -85,7 +85,7 @@ export class ReferredCouponController {
    */
   @Put(':id')
   @ApiOperation({ summary: `Update ${entity} using id` })
-  @ResponseUpdated(ReferredCoupon)
+  @ResponseUpdated(ReferredCoupons)
   async update(
     @Res() res: Response,
     @Owner() owner: OwnerDto,
@@ -120,7 +120,7 @@ export class ReferredCouponController {
   @Get()
   @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
   @ApiQueryGetAll()
-  @ResponseGetAll(ReferredCoupon)
+  @ResponseGetAll(ReferredCoupons)
   async findAll(
     @Res() res: Response,
     @Owner() owner: OwnerDto,
@@ -181,7 +181,7 @@ export class ReferredCouponController {
   @Get('find')
   @ApiOperation({ summary: `Find one ${entity}` })
   @ApiQueryGetOne()
-  @ResponseGetOne(ReferredCoupon)
+  @ResponseGetOne(ReferredCoupons)
   async findOne(
     @Res() res: Response,
     @Owner() owner: OwnerDto,
@@ -214,7 +214,7 @@ export class ReferredCouponController {
   @Get(':id')
   @ApiOperation({ summary: `Find ${entity} using id` })
   @ApiQueryGetById()
-  @ResponseGetOne(ReferredCoupon)
+  @ResponseGetOne(ReferredCoupons)
   async findById(
     @Res() res: Response,
     @Owner() owner: OwnerDto,
@@ -249,7 +249,7 @@ export class ReferredCouponController {
   @Delete(':id')
   @ApiOperation({ summary: `Delete ${entity} using id` })
   @ApiQueryDelete()
-  @ResponseDeleted(ReferredCoupon)
+  @ResponseDeleted(ReferredCoupons)
   async delete(
     @Res() res: Response,
     @Owner() owner: OwnerDto,

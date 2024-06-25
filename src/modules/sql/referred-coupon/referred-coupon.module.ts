@@ -1,12 +1,13 @@
 import { SqlModule } from '@core/sql';
 import { Module } from '@nestjs/common';
+import { ReferredCoupons } from './entities/referred-coupon.entity';
 import { ReferredCouponController } from './referred-coupon.controller';
 import { ReferredCouponService } from './referred-coupon.service';
-import { ReferredCoupon } from './entities/referred-coupon.entity';
 
 @Module({
-  imports: [SqlModule.register(ReferredCoupon)],
+  imports: [SqlModule.register(ReferredCoupons)],
   controllers: [ReferredCouponController],
   providers: [ReferredCouponService],
+  exports: [ReferredCouponService],
 })
 export class ReferredCouponModule {}

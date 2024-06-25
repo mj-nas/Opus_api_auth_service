@@ -4,6 +4,8 @@ import { Injectable } from '@nestjs/common';
 import { createCanvas } from 'canvas';
 import * as QRCode from 'qrcode';
 import { Job, JobResponse } from 'src/core/core.job';
+import { ReferredCouponService } from '../referred-coupon/referred-coupon.service';
+import { ReferredProductsService } from '../referred-products/referred-products.service';
 import { Referral } from './entities/referral.entity';
 
 @Injectable()
@@ -14,7 +16,11 @@ export class ReferralService extends ModelService<Referral> {
    */
   searchFields: string[] = ['name'];
 
-  constructor(db: SqlService<Referral>) {
+  constructor(
+    db: SqlService<Referral>,
+    private referredProductService: ReferredProductsService,
+    private referredCouponService: ReferredCouponService,
+  ) {
     super(db);
   }
 
@@ -98,5 +104,41 @@ export class ReferralService extends ModelService<Referral> {
     } catch (error) {
       return { error };
     }
+  }
+
+  async createReferrals(job: Job): Promise<JobResponse> {
+    const { referred_coupons, referred_products, ...referral_body } =
+      job.payload;
+    console.log(referral_body);
+    const { error, data } = await this.create({
+      owner: job.owner,
+      action: 'create',
+      body: referral_body,
+    });
+    if (error) {
+      return { error };
+    }
+
+    // add referral_data id to each objects in referred coupons array
+    if (data.id) {
+      referred_coupons.map((e) => (e.referral_id = data.id));
+      referred_products.map((e) => (e.referral_id = data.id));
+
+      const referredCoupons =
+        await this.referredCouponService.$db.createBulkRecords({
+          owner: job.owner,
+          options: {},
+          records: referred_coupons,
+        });
+
+      const referredProducts =
+        await this.referredProductService.$db.createBulkRecords({
+          owner: job.owner,
+          options: {},
+          records: referred_products,
+        });
+    }
+
+    return { data };
   }
 }

@@ -1,25 +1,29 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
-import { Column, Index, Table } from 'sequelize-typescript';
+import { IsNumber } from 'class-validator';
+import { Column, ForeignKey, Index, Table } from 'sequelize-typescript';
+import { Products } from '../../products/entities/products.entity';
+import { Referral } from '../../referral/entities/referral.entity';
 
 @Table
 export class ReferredProducts extends SqlModel {
+  @ForeignKey(() => Referral)
   @Column
   @Index
   @ApiProperty({
-    description: 'ReferredProducts name',
-    example: 'ReferredProducts',
+    description: 'Referral Id',
+    example: 1,
   })
-  @IsString()
-  name: string;
+  @IsNumber()
+  referral_id: number;
 
+  @ForeignKey(() => Products)
   @Column
   @Index
   @ApiProperty({
-    description: 'ReferredProducts title',
-    example: 'Title',
+    description: 'Product Id',
+    example: 1,
   })
-  @IsString()
-  title: string;
+  @IsNumber()
+  product_id: number;
 }
