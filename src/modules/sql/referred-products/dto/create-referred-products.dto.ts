@@ -20,14 +20,14 @@ export class CreateReferredProductsDto {
   @ApiProperty({
     format: 'string',
     description: 'product_image',
-    example: '',
+    example: '/img/product1.jpg',
   })
   product_image: string;
 
   @ApiProperty({
     format: 'string',
     description: 'slug',
-    example: '',
+    example: 'slug',
   })
   @IsString()
   slug: string;
