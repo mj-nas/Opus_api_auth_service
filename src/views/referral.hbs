@@ -546,7 +546,7 @@
                                 <td>
                                     <h2
                                         style="font-size: 35px;margin-top: 25px;color: #000; margin-left: 10px;font-weight: bold;margin-bottom: 340px;">
-                                        Hey {{username}}!</h2>
+                                        Hey Amigo!</h2>
                                 </td>
                             </tr>
                         </table>
@@ -566,7 +566,7 @@
                                                 width="100%">
                                                 <tr>
                                                     <td style="text-align: center;">
-                                                        <img src="images/qr.png" alt="">
+                                                        <img src={{qr_link}} alt="">
                                                     </td>
                                                 </tr>
                                             </table>
@@ -598,7 +598,7 @@
                                                             the unique referral link to explore and share it with
                                                             friends</span>
                                                     </div>
-                                                    <a href="#"
+                                                    <a href={{referral_link}}
                                                         style="color: #239983;font-size: 14px;background: #fff;border: 2px solid #E2F2ED;padding: 10px 30px;text-align: center;">Click
                                                         here to explore</a>
                                                 </tr>
@@ -623,65 +623,18 @@
                             <tr>
                                 <table style="width: 100%;">
                                     <tr>
+                                        {{#each products}}
                                         <td
                                             style="background-color: #AA674F;padding: 10px;font-size: 17px;color: #fff;font-weight: 600;">
-                                            <span style="font-size: 17px;color: #fff;">Organic Hemp
-                                                Cones</span>
+                                            <span style="font-size: 17px;color: #fff;">{{name}}</span>
                                             <div style="text-align: center;margin-top: 20px;">
-                                                <img src="images/p-1.png" alt="">
+                                                <img src={{product_image}} alt="">
                                             </div>
-                                            <a href="#"
+                                            <a href={{url}}
                                                 style="background: #000;font-size: 12px;color: #fff;padding: 10px 20px;border-radius: 22px; margin-top: 5px;text-align: center;display: flex;align-items: center;justify-content: center;">Shop
                                                 Now</a>
                                         </td>
-                                        <td
-                                            style="background-color: #E8AE9A;padding: 10px;font-size: 17px;color: #fff;font-weight: 600;">
-                                            <span style="font-size: 17px;color: #fff;">Organic Hemp
-                                                Cones</span>
-                                            <div style="text-align: center;margin-top: 20px;">
-                                                <img src="images/p-1.png" alt="">
-                                            </div>
-                                            <a href="#"
-                                                style="background: #000;font-size: 12px;color: #fff;padding: 10px 20px;border-radius: 22px; margin-top: 5px;text-align: center;display: flex;align-items: center;justify-content: center;">Shop
-                                                Now</a>
-
-                                        </td>
-                                        <td
-                                            style="background-color: #FFE4DB;padding: 10px;font-size: 17px;color: #fff;font-weight: 600;">
-                                            <span style="font-size: 17px;color: #000;">Organic Hemp
-                                                Cones</span>
-                                            <div style="text-align: center;margin-top: 20px;">
-                                                <img src="images/p-1.png" alt="">
-                                            </div>
-                                            <a href="#"
-                                                style="background: #000;font-size: 12px;color: #fff;padding: 10px 20px;border-radius: 22px; margin-top: 5px;text-align: center;display: flex;align-items: center;justify-content: center;">Shop
-                                                Now</a>
-
-                                        </td>
-                                        <td
-                                            style="background-color: #FFFEDB;padding: 10px;font-size: 17px;color: #fff;font-weight: 600;">
-                                            <span style="font-size: 17px;color: #000;">Organic Hemp
-                                                Cones</span>
-                                            <div style="text-align: center;margin-top: 20px;">
-                                                <img src="images/p-1.png" alt="">
-                                            </div>
-                                            <a href="#"
-                                                style="background: #000;font-size: 12px;color: #fff;padding: 10px 20px;border-radius: 22px; margin-top: 5px;text-align: center;display: flex;align-items: center;justify-content: center;">Shop
-                                                Now</a>
-
-                                        </td>
-                                        <td
-                                            style="background-color: #C4946B;padding: 10px;font-size: 17px;color: #fff;font-weight: 600;">
-                                            <span style="font-size: 17px;color: #fff;">Organic Hemp
-                                                Cones</span>
-                                            <div style="text-align: center;margin-top: 20px;">
-                                                <img src="images/p-1.png" alt="">
-                                            </div>
-                                            <a href="#"
-                                                style="background: #000;font-size: 12px;color: #fff;padding: 10px 20px;border-radius: 22px; margin-top: 5px;text-align: center;display: flex;align-items: center;justify-content: center;">Shop
-                                                Now</a>
-
-                                        </td>
+                                        {{/each}}
                                     </tr>
                                 </table>
                             </tr>
@@ -703,20 +656,15 @@
                                     style="width: 100%;background-color: #27CFAF;color: #fff;padding:20px;">
                                     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                                         <tr>
+                                           {{#each coupons}}
                                             <td valign="middle" width="50%"
                                                 style="background: #000000;text-align: center;padding: 15px;cursor: pointer;border: 4px solid #27ceae;">
                                                 <h6 style="font-size: 25px;color: #fff; margin: 0px;line-height: 24px;">
-                                                    OPUS100</h6>
+                                                    {{code}}</h6>
                                                 <span style="font-size: 12px;color: #fff;line-height: 20px;">USE THIS
                                                     COUPON TO AVAIL THIS OFFER</span>
                                             </td>
-                                            <td valign="middle" width="50%"
-                                                style="background: #000000;text-align: center;padding: 15px;cursor: pointer;border: 4px solid #27ceae;">
-                                                <h6 style="font-size: 25px;color: #fff; margin: 0px;line-height: 24px;">
-                                                    OPUS100</h6>
-                                                <span style="font-size: 12px;color: #fff;line-height: 20px;">USE THIS
-                                                    COUPON TO AVAIL THIS OFFER</span>
-                                            </td>
+                                            {{/each}}
                                         </tr>
                                     </table>
                                 </td>

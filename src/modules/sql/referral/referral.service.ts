@@ -1,6 +1,7 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { ModelService, SqlService } from '@core/sql';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { createCanvas } from 'canvas';
 import { readFileSync } from 'fs';
 import { handlebars } from 'hbs';
@@ -27,6 +28,7 @@ export class ReferralService extends ModelService<Referral> {
     private referredProductService: ReferredProductsService,
     private referredCouponService: ReferredCouponService,
     private msClient: MsClientService,
+    private config: ConfigService,
   ) {
     super(db);
   }
@@ -76,14 +78,12 @@ export class ReferralService extends ModelService<Referral> {
 
   async createReferrals(job: Job): Promise<JobResponse> {
     const { referred_coupons, referred_products, email } = job.payload;
-    // console.log(referral_body);
     const { error, data } = await this.create({
       owner: job.owner,
       action: 'create',
       body: { email, dispenser_id: job.owner.id },
     });
-
-    console.log('data', data.toJSON());
+    console.log(referred_coupons, referred_products);
 
     if (error) {
       return { error };
@@ -137,9 +137,15 @@ export class ReferralService extends ModelService<Referral> {
       this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
     }
     const _email_template = this.emailTemplate({
+      banner_img: this.config.get('cdnLocalURL') + 'assets/banner.png',
+      footer_img: this.config.get('cdnLocalURL') + 'assets/ft_img.png',
       referral_link: data.referral_link,
       qr_link: data.qr_code,
       coupons: referred_coupons,
+      products: referred_products.map((e: any) => ({
+        ...e,
+        url: `${process.env.WEBSITE_URL}/products/${e.slug}`,
+      })),
     });
 
     await this.msClient.executeJob(
@@ -147,7 +153,7 @@ export class ReferralService extends ModelService<Referral> {
       new Job({
         action: 'sendMail',
         payload: {
-          to: data.email,
+          to: email,
           subject: "You've been referred",
           html: _email_template,
         },
