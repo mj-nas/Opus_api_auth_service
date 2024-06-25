@@ -28,6 +28,11 @@ export interface AuthResponse {
   user?: User;
 }
 
+export enum DispenserConnectionType {
+  Referral = 'Referral',
+  Connect = 'Connect',
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -490,6 +495,37 @@ export class AuthService {
       );
 
       return { error: false, data };
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  async connectingToDispenser({
+    dispenser_id,
+    user_id,
+    type,
+  }: {
+    dispenser_id: number;
+    user_id: number;
+    uid: string;
+    type: DispenserConnectionType;
+  }) {
+    try {
+      const { error, data } = await this.userService.findById({
+        action: 'connectingToDispenser',
+        id: +user_id,
+      });
+      if (!!error) {
+        throw error;
+      }
+      if (!data.dispenser_id) {
+        if (type === DispenserConnectionType.Connect) {
+          data.setDataValue('dispenser_id', dispenser_id);
+          await data.save();
+        } else if (type === DispenserConnectionType.Referral) {
+        }
+      }
+      return { data };
     } catch (error) {
       return { error };
     }

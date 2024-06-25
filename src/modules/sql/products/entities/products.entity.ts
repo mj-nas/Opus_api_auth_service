@@ -25,7 +25,7 @@ import { Wishlist } from '../../wishlist/entities/wishlist.entity';
 @Table
 export class Products extends SqlModel {
   @Index
-  @Column({ unique: true })
+  @Column
   @ApiProperty({
     description: 'Slug',
     example: 'product-slug',
