@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsEmail, IsString } from 'class-validator';
+import { IsArray, IsEmail, IsOptional, IsString } from 'class-validator';
 import { CreateReferredCouponDto } from '../../referred-coupon/dto/create-referred-coupon.dto';
 import { CreateReferredProductsDto } from '../../referred-products/dto/create-referred-products.dto';
 
@@ -24,6 +24,7 @@ export class CreateReferralAllDto {
       },
     ],
   })
+  @IsOptional()
   @IsArray()
   referred_products: CreateReferredProductsDto[];
 
@@ -37,6 +38,7 @@ export class CreateReferralAllDto {
       },
     ],
   })
+  @IsOptional()
   @IsArray()
   referred_coupons: CreateReferredCouponDto[];
 }

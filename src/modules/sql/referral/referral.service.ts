@@ -94,37 +94,45 @@ export class ReferralService extends ModelService<Referral> {
     data.setDataValue('qr_code', qrCodeKey);
     await data.save();
 
-    const coupon_data = referred_coupons.map((e) => {
-      return {
-        referral_id: data.id,
-        coupon_id: e.id,
-      };
-    });
-    const product_data = referred_products.map((e) => {
-      return {
-        referral_id: data.id,
-        product_id: e.id,
-      };
-    });
-
-    const referredCoupons =
-      await this.referredCouponService.$db.createBulkRecords({
-        owner: job.owner,
-        options: {},
-        records: coupon_data,
+    if (referred_coupons) {
+      const coupon_data = referred_coupons.map((e) => {
+        return {
+          referral_id: data.id,
+          coupon_id: e.id,
+        };
       });
+      const referredCoupons =
+        await this.referredCouponService.$db.createBulkRecords({
+          owner: job.owner,
+          options: {},
+          records: coupon_data,
+        });
 
-    const referredProducts =
-      await this.referredProductService.$db.createBulkRecords({
-        owner: job.owner,
-        options: {},
-        records: product_data,
+      if (referredCoupons.error) {
+        return {
+          error: referredCoupons.error,
+        };
+      }
+    }
+    if (referred_products) {
+      const product_data = referred_products.map((e) => {
+        return {
+          referral_id: data.id,
+          product_id: e.id,
+        };
       });
+      const referredProducts =
+        await this.referredProductService.$db.createBulkRecords({
+          owner: job.owner,
+          options: {},
+          records: product_data,
+        });
 
-    if (referredCoupons.error || referredProducts.error) {
-      return {
-        error: referredCoupons.error || referredProducts.error,
-      };
+      if (referredProducts.error) {
+        return {
+          error: referredProducts.error,
+        };
+      }
     }
 
     try {
@@ -141,11 +149,13 @@ export class ReferralService extends ModelService<Referral> {
       footer_img: this.config.get('cdnLocalURL') + 'assets/ft_img.png',
       referral_link: data.referral_link,
       qr_link: data.qr_code,
-      coupons: referred_coupons,
-      products: referred_products.map((e: any) => ({
-        ...e,
-        url: `${process.env.WEBSITE_URL}/products/${e.slug}`,
-      })),
+      coupons: referred_coupons ? referred_coupons : [],
+      products: referred_products
+        ? referred_products.map((e: any) => ({
+            ...e,
+            url: `${process.env.WEBSITE_URL}/products/${e.slug}`,
+          }))
+        : [],
     });
 
     await this.msClient.executeJob(
