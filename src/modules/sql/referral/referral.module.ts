@@ -1,5 +1,6 @@
 import { SqlModule } from '@core/sql';
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { MsClientModule } from 'src/core/modules/ms-client/ms-client.module';
 import { ReferredCouponModule } from '../referred-coupon/referred-coupon.module';
 import { ReferredProductsModule } from '../referred-products/referred-products.module';
@@ -13,6 +14,7 @@ import { ReferralService } from './referral.service';
     ReferredCouponModule,
     ReferredProductsModule,
     MsClientModule,
+    ConfigModule,
   ],
   controllers: [ReferralController],
   providers: [ReferralService],
