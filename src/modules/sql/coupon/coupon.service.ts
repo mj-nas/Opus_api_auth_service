@@ -1,4 +1,4 @@
-import { ModelService, SqlService } from '@core/sql';
+import { ModelService, SqlJob, SqlService } from '@core/sql';
 import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
@@ -17,6 +17,19 @@ export class CouponService extends ModelService<Coupon> {
 
   constructor(db: SqlService<Coupon>) {
     super(db);
+  }
+
+  /**
+   * doBeforeFindAll
+   * @function function will execute before findAll function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeFindAll(job: SqlJob<Coupon>): Promise<void> {
+    await super.doBeforeFindAll(job);
+    if (job.action === 'findAllMe') {
+      job.options.where = { ...job.options.where, user_id: job.owner.id };
+    }
   }
 
   async createXls(job: Job): Promise<JobResponse> {

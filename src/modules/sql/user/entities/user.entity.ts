@@ -6,6 +6,7 @@ import {
   IsDecimal,
   IsEmail,
   IsEnum,
+  IsNumber,
   IsNumberString,
   IsOptional,
   IsString,
@@ -21,6 +22,7 @@ import {
   Column,
   DataType,
   DefaultScope,
+  ForeignKey,
   Index,
   Table,
 } from 'sequelize-typescript';
@@ -342,12 +344,12 @@ export class User extends SqlModel {
   @ApiProperty({
     description: 'Referral Link',
     example:
-      'https://staging.opuscompounds.com/referral/cd7c8da0-cfe0-11ee-94e2-c1e32bf24f34',
+      'https://staging.opuscompounds.com/connect/cd7c8da0-cfe0-11ee-94e2-c1e32bf24f34',
     readOnly: true,
   })
   get referral_link(): string {
     return this.getDataValue('uid')
-      ? `${process.env.WEBSITE_URL}/referral/${this.getDataValue('uid')}`
+      ? `${process.env.WEBSITE_URL}/connect/${this.getDataValue('uid')}`
       : null;
   }
 
@@ -370,6 +372,18 @@ export class User extends SqlModel {
       typeof v === 'string' ? v.replace(config().cdnURL, '') : null,
     );
   }
+
+  @ForeignKey(() => User)
+  @Column
+  @Index
+  @ApiProperty({
+    description: 'Dispenser Id',
+    example: 1,
+    readOnly: true,
+  })
+  @IsOptional()
+  @IsNumber()
+  dispenser_id: number;
 
   @BeforeSave
   static setName(instance: User) {
