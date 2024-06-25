@@ -8,5 +8,6 @@ import { CartItem } from './entities/cart-item.entity';
   imports: [SqlModule.register(CartItem)],
   controllers: [CartItemController],
   providers: [CartItemService],
+  exports: [CartItemService],
 })
 export class CartItemModule {}
