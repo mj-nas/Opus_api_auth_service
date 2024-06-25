@@ -20,6 +20,7 @@ export class CreateReferralAllDto {
         id: 1,
         name: 'product1',
         product_image: '',
+        slug: '',
       },
     ],
   })
