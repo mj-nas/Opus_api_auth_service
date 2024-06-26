@@ -38,6 +38,7 @@ import {
   Result,
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
+import { Public } from 'src/core/decorators/public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { CreateReferralAllDto } from './dto/create-referral-all.dto';
 import { UpdateReferralDto } from './dto/update-referral.dto';
@@ -180,6 +181,7 @@ export class ReferralController {
    * Find one entity document
    */
   @Get('find')
+  @Public()
   @ApiOperation({ summary: `Find one ${entity}` })
   @ApiQueryGetOne()
   @ResponseGetOne(Referral)

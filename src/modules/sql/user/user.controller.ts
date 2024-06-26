@@ -584,6 +584,7 @@ export class UserController {
    * Find one User
    */
   @Get('find')
+  @Public()
   @ApiOperation({ summary: 'Find a user' })
   @ApiQueryGetOne()
   @ResponseGetOne(User)
