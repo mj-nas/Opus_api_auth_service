@@ -44,6 +44,7 @@ import {
   Result,
 } from 'src/core/core.responses';
 import { pluralizeString } from 'src/core/core.utils';
+import { Public } from 'src/core/decorators/public.decorator';
 import { OwnerIncludeAttribute } from 'src/core/decorators/sql/owner-attributes.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
@@ -433,6 +434,39 @@ export class UserController {
       await this.userService.findAll({
         owner,
         action: 'findAllDispenserApplicant',
+        payload: { ...query },
+      });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { users: data, offset, limit, count },
+      message: 'Ok',
+    });
+  }
+
+  /**
+   * Return all customer list
+   */
+  @Public()
+  @Get('find-a-rep')
+  @ApiOperation({ summary: 'Get all dispensers' })
+  @ApiQueryGetAll()
+  @ResponseGetAll(User)
+  async findARep(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data, offset, limit, count } =
+      await this.userService.findAll({
+        owner,
+        action: 'findARep',
         payload: { ...query },
       });
 

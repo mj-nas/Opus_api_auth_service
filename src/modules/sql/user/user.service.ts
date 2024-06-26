@@ -15,7 +15,7 @@ import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import * as moment from 'moment-timezone';
 import * as QRCode from 'qrcode';
-import { Op } from 'sequelize';
+import { Op, literal } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
 import { compareHash, generateHash } from 'src/core/core.utils';
@@ -289,6 +289,40 @@ export class UserService extends ModelService<User> {
         ...job.options.where,
         role: Role.Dispenser,
       };
+    } else if (job.action === 'findARep') {
+      job.options.where = {
+        ...job.options.where,
+        role: Role.Dispenser,
+        status: Status.Approve,
+        active: true,
+        geotag: true,
+      };
+      job.options.order = [['name', 'asc']];
+      const attributes = job.options.attributes
+        ? { ...job.options.attributes, include: [] }
+        : { include: [] };
+
+      if (job.options.where.latitude && job.options.where.longitude) {
+        attributes.include.push([
+          literal(
+            `ROUND((${
+              config().distanceUnitCalculationNumber
+            } * acos(cos(radians(${
+              job.options.where.latitude
+            })) * cos(radians(latitude)) * cos(radians(${
+              job.options.where.longitude
+            }) - radians(longitude)) + sin(radians(${
+              job.options.where.latitude
+            })) * sin(radians(latitude)))), 1)`,
+          ),
+          'distance',
+        ]);
+        job.options.order.unshift(['distance', 'asc']);
+        delete job.options.where.latitude;
+        delete job.options.where.longitude;
+      }
+
+      job.options.attributes = attributes;
     }
   }
 
