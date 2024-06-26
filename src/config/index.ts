@@ -112,4 +112,16 @@ export default () => ({
   cache: <CacheManagerOptions>{
     ttl: 60,
   },
+  /**
+   * @property {number} defaultDistanceRadius
+   * Default distance radius
+   * @default 100
+   */
+  defaultDistanceRadius: 100,
+  /**
+   * @property {number} defaultDistanceRadius
+   * Default distance calculation number (3959 for miles / 6371 kms)
+   * @default 100
+   */
+  distanceUnitCalculationNumber: 3959,
 });

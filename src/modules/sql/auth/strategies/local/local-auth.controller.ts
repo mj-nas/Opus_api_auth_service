@@ -80,6 +80,10 @@ export class LocalAuthController {
       const emailVerifyOtp = await this.authService.emailVerifyOtp(
         OtpSessionType.Login,
         u,
+        {
+          ...auth.info,
+          ip,
+        },
       );
       if (!!emailVerifyOtp.error) {
         return ErrorResponse(res, {

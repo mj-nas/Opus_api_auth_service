@@ -450,6 +450,39 @@ export class UserController {
   }
 
   /**
+   * Return all customer list
+   */
+  @Public()
+  @Get('find-a-rep')
+  @ApiOperation({ summary: 'Get all dispensers' })
+  @ApiQueryGetAll()
+  @ResponseGetAll(User)
+  async findARep(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data, offset, limit, count } =
+      await this.userService.findAll({
+        owner,
+        action: 'findARep',
+        payload: { ...query },
+      });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { users: data, offset, limit, count },
+      message: 'Ok',
+    });
+  }
+
+  /**
    * Return all entity documents list
    */
   @Get('customer-export-xls')

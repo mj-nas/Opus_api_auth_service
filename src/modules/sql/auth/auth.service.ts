@@ -13,7 +13,10 @@ import { LoginLog } from 'src/modules/mongo/login-log/entities/login-log.entity'
 import { LoginLogService } from 'src/modules/mongo/login-log/login-log.service';
 import { OtpSessionType } from 'src/modules/mongo/otp-session/entities/otp-session.entity';
 import { OtpSessionService } from 'src/modules/mongo/otp-session/otp-session.service';
+import { CartItemService } from '../cart-item/cart-item.service';
+import { CartService } from '../cart/cart.service';
 import { NotificationService } from '../notification/notification.service';
+import { ReferralService } from '../referral/referral.service';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -38,6 +41,9 @@ export class AuthService {
   constructor(
     private sessionService: SessionService,
     private userService: UserService,
+    private referralService: ReferralService,
+    private cartService: CartService,
+    private cartItemService: CartItemService,
     private loginLogService: LoginLogService,
     private otpSessionService: OtpSessionService,
     private _cache: CachingService,
@@ -391,13 +397,18 @@ export class AuthService {
     return { error: false };
   }
 
-  async emailVerifyOtp(type: OtpSessionType, user: User): Promise<JobResponse> {
+  async emailVerifyOtp(
+    type: OtpSessionType,
+    user: User,
+    payload?: any,
+  ): Promise<JobResponse> {
     const { error, data } = await this.otpSessionService.create({
       body: {
         user_id: user.id,
         otp: otp(4),
         type: type,
         expire_at: new Date(Date.now() + 15 * 60 * 1000),
+        payload,
       },
     });
     await this.notificationService.send({
@@ -504,6 +515,7 @@ export class AuthService {
     dispenser_id,
     user_id,
     type,
+    uid,
   }: {
     dispenser_id: number;
     user_id: number;
@@ -519,10 +531,61 @@ export class AuthService {
         throw error;
       }
       if (!data.dispenser_id) {
-        if (type === DispenserConnectionType.Connect) {
-          data.setDataValue('dispenser_id', dispenser_id);
-          await data.save();
-        } else if (type === DispenserConnectionType.Referral) {
+        // connect to Dispenser
+        data.setDataValue('dispenser_id', dispenser_id);
+        await data.save();
+
+        // if the connection type is Referral
+        if (type === DispenserConnectionType.Referral) {
+          const referral = await this.referralService.findOne({
+            payload: {
+              where: { uid },
+              populate: ['products'],
+            },
+          });
+          if (!!referral.error) {
+            throw referral.error;
+          }
+
+          if (referral.data.products.length) {
+            const cart = await this.cartService.$db.findOrCreate({
+              owner: { id: user_id },
+              options: {
+                where: { user_id },
+                include: [{ association: 'items' }],
+              },
+              body: {
+                user_id,
+              },
+            });
+            if (!!cart.error) {
+              throw cart.error;
+            }
+
+            for await (const referred_product of referral.data.products) {
+              const index = cart.data.items.findIndex(
+                (item) => item.product_id === referred_product.product_id,
+              );
+              if (index >= 0) {
+                await this.cartItemService.$db.updateRecord({
+                  owner: { id: user_id },
+                  id: +cart.data.items[index].id,
+                  body: {
+                    quantity: cart.data.items[index].quantity + 1,
+                  },
+                });
+              } else {
+                await this.cartItemService.$db.createRecord({
+                  owner: { id: user_id },
+                  body: {
+                    cart_id: !cart.data.id,
+                    product_id: referred_product.product_id,
+                    quantity: 1,
+                  },
+                });
+              }
+            }
+          }
         }
       }
       return { data };

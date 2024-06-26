@@ -18,5 +18,6 @@ import { ReferralService } from './referral.service';
   ],
   controllers: [ReferralController],
   providers: [ReferralService],
+  exports: [ReferralService],
 })
 export class ReferralModule {}

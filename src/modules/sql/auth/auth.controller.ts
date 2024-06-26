@@ -14,6 +14,7 @@ import {
   Forbidden,
   Result,
 } from 'src/core/core.responses';
+import { GetIP } from 'src/core/decorators/ip.decorator';
 import { Public } from 'src/core/decorators/public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
@@ -354,6 +355,7 @@ export class AuthController {
     @Req() req: Request,
     @Res() res: Response,
     @Body() body: SignupDto,
+    @GetIP() ip: string,
   ) {
     const signup = await this.authService.signup(body);
     if (!!signup.error) {
@@ -366,6 +368,10 @@ export class AuthController {
     const emailVerifyOtp = await this.authService.emailVerifyOtp(
       OtpSessionType.EmailVerify,
       signup.data,
+      {
+        ...body.info,
+        ip,
+      },
     );
     if (!!emailVerifyOtp.error) {
       return ErrorResponse(res, {
@@ -475,6 +481,21 @@ export class AuthController {
     }
 
     if (verifyOtp.data.type === 'Login') {
+      // connecting to dispenser
+      if (verifyOtp.data.payload && verifyOtp.data.payload?.type) {
+        const connectingToDispenser =
+          await this.authService.connectingToDispenser({
+            ...verifyOtp.data.payload,
+            user_id: verifyOtp.data.user_id,
+          });
+        if (!!connectingToDispenser.error) {
+          return ErrorResponse(res, {
+            error: connectingToDispenser.error,
+            message: `${connectingToDispenser.error.message || connectingToDispenser.error}`,
+          });
+        }
+      }
+
       const { error, data } = await this.authService.createUserSession(
         verifyOtp.data.user_id,
         false,
