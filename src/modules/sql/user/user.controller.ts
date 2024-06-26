@@ -44,6 +44,7 @@ import {
   Result,
 } from 'src/core/core.responses';
 import { pluralizeString } from 'src/core/core.utils';
+import { Public } from 'src/core/decorators/public.decorator';
 import { OwnerIncludeAttribute } from 'src/core/decorators/sql/owner-attributes.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
@@ -550,6 +551,7 @@ export class UserController {
    * Find one User
    */
   @Get('find')
+  @Public()
   @ApiOperation({ summary: 'Find a user' })
   @ApiQueryGetOne()
   @ResponseGetOne(User)
