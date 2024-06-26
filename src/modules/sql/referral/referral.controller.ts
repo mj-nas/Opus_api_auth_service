@@ -39,8 +39,6 @@ import {
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
-import { Roles } from 'src/core/decorators/sql/roles.decorator';
-import { Role } from '../user/role.enum';
 import { CreateReferralAllDto } from './dto/create-referral-all.dto';
 import { UpdateReferralDto } from './dto/update-referral.dto';
 import { Referral } from './entities/referral.entity';
@@ -60,7 +58,7 @@ export class ReferralController {
    * Create a new entity document
    */
   @Post()
-  @Roles(Role.Dispenser)
+  // @Roles(Role.Dispenser)
   @ApiOperation({ summary: `Create new ${entity}` })
   @ResponseCreated(Referral)
   async create(
