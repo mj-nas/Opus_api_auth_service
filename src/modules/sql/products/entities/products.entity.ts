@@ -172,6 +172,7 @@ export class Products extends SqlModel {
     example: '30.02',
     readOnly: true,
   })
+  @IsOptional()
   @IsNumber()
   average_rating: number;
 
@@ -181,6 +182,7 @@ export class Products extends SqlModel {
     example: '30',
     readOnly: true,
   })
+  @IsOptional()
   @IsNumber()
   total_reviews: number;
 
