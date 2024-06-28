@@ -16,6 +16,7 @@ import {
 } from 'sequelize-typescript';
 import { getUTCDateNow, zeroPad } from 'src/core/core.utils';
 import { Cart } from '../../cart/entities/cart.entity';
+import { Coupon } from '../../coupon/entities/coupon.entity';
 import { OrderAddress } from '../../order-address/entities/order-address.entity';
 import { OrderItem } from '../../order-item/entities/order-item.entity';
 import { OrderPayment } from '../../order-payment/entities/order-payment.entity';
@@ -162,6 +163,26 @@ export class Order extends SqlModel {
   })
   @IsEnum(OrderStatus)
   status: OrderStatus;
+
+  @ForeignKey(() => Coupon)
+  @Column
+  @Index
+  @ApiProperty({
+    description: 'Coupon ID',
+    example: 1,
+  })
+  @IsOptional()
+  @IsNumber()
+  coupon_id?: number;
+
+  @Column(DataTypes.FLOAT({ precision: 11, scale: 2 }))
+  @ApiProperty({
+    description: 'Coupon Discount Amount',
+    example: 32.04,
+  })
+  @ValidateIf((object) => !!object.coupon_id)
+  @IsNumber()
+  coupon_discount: number;
 
   @Include({
     attributes: [
