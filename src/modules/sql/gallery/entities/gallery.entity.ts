@@ -1,7 +1,8 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import {
+  BeforeCreate,
   BeforeUpdate,
   Column,
   DataType,
@@ -10,7 +11,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import config from 'src/config';
-import { ProductCategory } from '../../product-category/entities/product-category.entity';
+import { GalleryCategory } from '../../gallery-category/entities/gallery-category.entity';
 import { GalleryType } from '../gallery-type.enum';
 
 @Table
@@ -27,7 +28,7 @@ export class Gallery extends SqlModel {
   @IsEnum(GalleryType)
   type: GalleryType;
 
-  @ForeignKey(() => ProductCategory)
+  @ForeignKey(() => GalleryCategory)
   @Column
   @ApiProperty({
     description: 'Category',
@@ -66,6 +67,15 @@ export class Gallery extends SqlModel {
 
   @Column
   @ApiProperty({
+    description: 'sort',
+    example: '6',
+  })
+  @IsNumber()
+  @IsOptional()
+  sort: number;
+
+  @Column
+  @ApiProperty({
     description: 'product image',
     example: 'file_url.png',
   })
@@ -95,5 +105,12 @@ export class Gallery extends SqlModel {
     if (instance.file_url) {
       instance.file_url = instance.file_url.replace(config().cdnURL, '');
     }
+  }
+
+  @BeforeCreate
+  static async setSortMaxValue(instance: Gallery) {
+    const maxSort = await Gallery.max('sort');
+    const sort = maxSort as number;
+    instance.sort = sort + 1;
   }
 }
