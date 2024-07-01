@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, Query, Res } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiExtraModels,
@@ -13,18 +13,14 @@ import {
   ApiQueryGetOne,
   ResponseGetAll,
   ResponseGetOne,
+  ResponseUpdated,
 } from 'src/core/core.decorators';
 import { NotFoundError } from 'src/core/core.errors';
-import {
-  Created,
-  ErrorResponse,
-  NotFound,
-  Result,
-} from 'src/core/core.responses';
+import { ErrorResponse, NotFound, Result } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
-import { Public } from 'src/core/decorators/public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { CommissionService } from './commission.service';
+import { UpdateCommissionDto } from './dto/update-commission.dto';
 import { Commission } from './entities/commission.entity';
 
 const entity = snakeCase(Commission.name);
@@ -40,20 +36,54 @@ export class CommissionController {
   /**
    * Reorder cron
    */
-  @Public()
-  @Post('commission-calculator')
-  @ApiOperation({ summary: `Commission calculator` })
-  async commissionCalculator(@Res() res: Response) {
-    const { error, data } =
-      await this.commissionService.commissionCalculatorCron();
+  // @Public()
+  // @Post('commission-calculator')
+  // @ApiOperation({ summary: `Commission calculator` })
+  // async commissionCalculator(@Res() res: Response) {
+  //   const { error, data } =
+  //     await this.commissionService.commissionCalculatorCron();
+
+  //   if (error) {
+  //     return ErrorResponse(res, {
+  //       error,
+  //       message: `${error.message || error}`,
+  //     });
+  //   }
+  //   return Created(res, { data: { [entity]: data }, message: 'Created' });
+  // }
+
+  /**
+   * Update an entity document by using id
+   */
+  @Put(':id')
+  @ApiOperation({ summary: `Update ${entity} using id` })
+  @ResponseUpdated(Commission)
+  async update(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Param('id') id: number,
+    @Body() updateCommissionDto: UpdateCommissionDto,
+  ) {
+    const { error, data } = await this.commissionService.update({
+      owner,
+      action: 'update',
+      id: +id,
+      body: updateCommissionDto,
+    });
 
     if (error) {
+      if (error instanceof NotFoundError) {
+        return NotFound(res, {
+          error,
+          message: `Record not found`,
+        });
+      }
       return ErrorResponse(res, {
         error,
         message: `${error.message || error}`,
       });
     }
-    return Created(res, { data: { [entity]: data }, message: 'Created' });
+    return Result(res, { data: { [entity]: data }, message: 'Updated' });
   }
 
   /**
