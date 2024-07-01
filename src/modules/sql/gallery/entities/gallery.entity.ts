@@ -1,9 +1,11 @@
+import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import {
   BeforeCreate,
   BeforeUpdate,
+  BelongsTo,
   Column,
   DataType,
   ForeignKey,
@@ -92,6 +94,13 @@ export class Gallery extends SqlModel {
       typeof v === 'string' ? v.replace(config().cdnURL, '') : null,
     );
   }
+
+  @Include({
+    attributes: ['id', 'name', 'sort', 'status'],
+    required: false,
+  })
+  @BelongsTo(() => GalleryCategory)
+  category: GalleryCategory;
 
   @BeforeUpdate
   static async formatThumb(instance: Gallery) {
