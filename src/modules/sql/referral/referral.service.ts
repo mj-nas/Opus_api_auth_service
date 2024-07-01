@@ -145,8 +145,9 @@ export class ReferralService extends ModelService<Referral> {
       this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
     }
     const _email_template = this.emailTemplate({
-      banner_img: this.config.get('cdnLocalURL') + 'assets/banner.png',
-      footer_img: this.config.get('cdnLocalURL') + 'assets/ft_img.png',
+      banner: this.config.get('cdnLocalURL') + 'assets/banner.png',
+      footer: this.config.get('cdnLocalURL') + 'assets/ft_img.png',
+      logo: this.config.get('cdnLocalURL') + 'assets/logo.png',
       referral_link: data.referral_link,
       qr_link: data.qr_code,
       coupons: referred_coupons ? referred_coupons : [],
