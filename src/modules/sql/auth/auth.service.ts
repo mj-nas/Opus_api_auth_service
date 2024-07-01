@@ -17,6 +17,7 @@ import { CartItemService } from '../cart-item/cart-item.service';
 import { CartService } from '../cart/cart.service';
 import { NotificationService } from '../notification/notification.service';
 import { ReferralService } from '../referral/referral.service';
+import { ConnectionVia } from '../user/connection-via.enum';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -533,6 +534,12 @@ export class AuthService {
       if (!data.dispenser_id) {
         // connect to Dispenser
         data.setDataValue('dispenser_id', dispenser_id);
+        data.setDataValue(
+          'connection_via',
+          type === DispenserConnectionType.Referral
+            ? ConnectionVia.Referral
+            : ConnectionVia.Connect,
+        );
         await data.save();
 
         // if the connection type is Referral

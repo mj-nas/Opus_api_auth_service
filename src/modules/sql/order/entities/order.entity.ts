@@ -1,7 +1,13 @@
 import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsOptional, ValidateIf } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateIf,
+} from 'class-validator';
 import sequelize, { DataTypes, Op, col } from 'sequelize';
 import {
   BeforeCreate,
@@ -177,12 +183,31 @@ export class Order extends SqlModel {
 
   @Column(DataTypes.FLOAT({ precision: 11, scale: 2 }))
   @ApiProperty({
-    description: 'Coupon Discount Amount',
+    description: 'Coupon Discount in percentage or decimal',
     example: 32.04,
   })
   @ValidateIf((object) => !!object.coupon_id)
   @IsNumber()
   coupon_discount: number;
+
+  @Column({ type: DataType.ENUM('price', 'percentage') })
+  @ApiProperty({
+    description: 'Coupon type',
+    example: 'percentage',
+    enum: ['price', 'percentage'],
+  })
+  @ValidateIf((object) => !!object.coupon_id)
+  @IsString()
+  coupon_type: string;
+
+  @Column(DataTypes.FLOAT({ precision: 11, scale: 2 }))
+  @ApiProperty({
+    description: 'Coupon Discount Amount',
+    example: 32.04,
+  })
+  @ValidateIf((object) => !!object.coupon_id)
+  @IsNumber()
+  coupon_discount_amount: number;
 
   @Include({
     attributes: [

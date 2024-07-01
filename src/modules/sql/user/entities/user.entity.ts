@@ -31,6 +31,7 @@ import {
 import config from 'src/config';
 import { generateHash, slugify, uuid } from 'src/core/core.utils';
 import { AuthProvider } from '../../auth/auth-provider.enum';
+import { ConnectionVia } from '../connection-via.enum';
 import { Role } from '../role.enum';
 import { Status } from '../status.enum';
 
@@ -377,6 +378,7 @@ export class User extends SqlModel {
 
   @ForeignKey(() => User)
   @Column
+  @Index
   @ApiProperty({
     description: 'Dispenser Id',
     example: 1,
@@ -385,6 +387,18 @@ export class User extends SqlModel {
   @IsOptional()
   @IsNumber()
   dispenser_id: number;
+
+  @Column({
+    type: DataType.ENUM(...Object.values(ConnectionVia)),
+  })
+  @ApiProperty({
+    enum: ConnectionVia,
+    description: 'ConnectionVia',
+    example: ConnectionVia.Coupon,
+  })
+  @IsOptional()
+  @IsEnum(ConnectionVia)
+  connection_via?: ConnectionVia;
 
   @Include({
     attributes: [
@@ -401,7 +415,7 @@ export class User extends SqlModel {
       'avatar',
     ],
   })
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, { constraints: false })
   dispenser: User;
 
   @BeforeSave
