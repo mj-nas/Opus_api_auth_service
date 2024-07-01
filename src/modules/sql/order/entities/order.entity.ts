@@ -215,7 +215,15 @@ export class Order extends SqlModel {
   address: OrderAddress;
 
   @Include({
-    attributes: ['id', 'order_id', 'product_id', 'quantity', 'price'],
+    attributes: [
+      'id',
+      'order_id',
+      'product_id',
+      'quantity',
+      'price',
+      'status',
+      'price_per_item',
+    ],
   })
   @HasMany(() => OrderItem)
   items: OrderItem[];
