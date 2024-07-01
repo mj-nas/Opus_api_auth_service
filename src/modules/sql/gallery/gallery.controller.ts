@@ -4,16 +4,21 @@ import {
   Delete,
   Get,
   Param,
+  ParseArrayPipe,
   Post,
   Put,
   Query,
+  Req,
   Res,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiExtraModels,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
+  getSchemaPath,
 } from '@nestjs/swagger';
 import { Response } from 'express';
 import {
@@ -39,10 +44,13 @@ import {
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
-import { GalleryService } from './gallery.service';
+import { Roles } from 'src/core/decorators/sql/roles.decorator';
+import { Role } from '../user/role.enum';
+import { BulkUpdateGallerySortDto } from './dto/bulk-update-sort-sort';
 import { CreateGalleryDto } from './dto/create-gallery.dto';
 import { UpdateGalleryDto } from './dto/update-gallery.dto';
 import { Gallery } from './entities/gallery.entity';
+import { GalleryService } from './gallery.service';
 
 const entity = snakeCase(Gallery.name);
 
@@ -112,6 +120,65 @@ export class GalleryController {
       });
     }
     return Result(res, { data: { [entity]: data }, message: 'Updated' });
+  }
+
+  /**
+   * Update an entity document by using id
+   */
+  @Post('bulk-update-sort')
+  @Roles(Role.Admin)
+  @ApiExtraModels(BulkUpdateGallerySortDto)
+  @ApiOperation({ summary: 'Update bulk sort by id' })
+  @ApiBody({
+    schema: {
+      type: 'array',
+      items: {
+        $ref: getSchemaPath(BulkUpdateGallerySortDto),
+      },
+    },
+  })
+  @ApiOkResponse({
+    description: 'Updated',
+    schema: {
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            galleries: {
+              type: 'array',
+              items: {
+                $ref: getSchemaPath(Gallery),
+              },
+            },
+          },
+        },
+        message: {
+          type: 'string',
+          example: 'Updated',
+        },
+      },
+    },
+  })
+  async bulkUpdateStatus(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Body(new ParseArrayPipe({ items: BulkUpdateGallerySortDto }))
+    bulkUpdateProductSortDto: BulkUpdateGallerySortDto[],
+  ) {
+    const { error, data } = await this.galleryService.updateBulk({
+      owner,
+      action: 'updateBulk',
+      records: bulkUpdateProductSortDto,
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { data: data, message: 'Updated' });
   }
 
   /**

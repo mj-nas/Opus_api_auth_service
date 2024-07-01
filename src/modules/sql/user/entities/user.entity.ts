@@ -1,3 +1,4 @@
+import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { IsUnique } from '@core/sql/sql.unique-validator';
 import { ApiProperty } from '@nestjs/swagger';
@@ -19,6 +20,7 @@ import {
   BeforeCreate,
   BeforeSave,
   BeforeUpdate,
+  BelongsTo,
   Column,
   DataType,
   DefaultScope,
@@ -375,7 +377,6 @@ export class User extends SqlModel {
 
   @ForeignKey(() => User)
   @Column
-  @Index
   @ApiProperty({
     description: 'Dispenser Id',
     example: 1,
@@ -384,6 +385,24 @@ export class User extends SqlModel {
   @IsOptional()
   @IsNumber()
   dispenser_id: number;
+
+  @Include({
+    attributes: [
+      'id',
+      'slug',
+      'role',
+      'uid',
+      'first_name',
+      'last_name',
+      'name',
+      'email',
+      'phone_code',
+      'phone',
+      'avatar',
+    ],
+  })
+  @BelongsTo(() => User)
+  dispenser: User;
 
   @BeforeSave
   static setName(instance: User) {

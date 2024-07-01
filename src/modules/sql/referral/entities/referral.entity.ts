@@ -1,3 +1,4 @@
+import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNumber, IsOptional, IsString } from 'class-validator';
@@ -5,6 +6,7 @@ import { DataTypes } from 'sequelize';
 import {
   BeforeCreate,
   BeforeUpdate,
+  BelongsTo,
   Column,
   ForeignKey,
   HasMany,
@@ -84,6 +86,24 @@ export class Referral extends SqlModel {
 
   @HasMany(() => ReferredCoupons)
   coupons: ReferredCoupons[];
+
+  @Include({
+    attributes: [
+      'id',
+      'slug',
+      'role',
+      'uid',
+      'first_name',
+      'last_name',
+      'name',
+      'email',
+      'phone_code',
+      'phone',
+      'avatar',
+    ],
+  })
+  @BelongsTo(() => User)
+  dispenser: User;
 
   @BeforeCreate
   static setUuid(instance: Referral) {
