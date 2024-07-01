@@ -32,11 +32,6 @@ export interface AuthResponse {
   user?: User;
 }
 
-export enum DispenserConnectionType {
-  Referral = 'Referral',
-  Connect = 'Connect',
-}
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -521,7 +516,7 @@ export class AuthService {
     dispenser_id: number;
     user_id: number;
     uid: string;
-    type: DispenserConnectionType;
+    type: ConnectionVia;
   }) {
     try {
       const { error, data } = await this.userService.findById({
@@ -536,14 +531,14 @@ export class AuthService {
         data.setDataValue('dispenser_id', dispenser_id);
         data.setDataValue(
           'connection_via',
-          type === DispenserConnectionType.Referral
+          type === ConnectionVia.Referral
             ? ConnectionVia.Referral
             : ConnectionVia.Connect,
         );
         await data.save();
 
         // if the connection type is Referral
-        if (type === DispenserConnectionType.Referral) {
+        if (type === ConnectionVia.Referral) {
           const referral = await this.referralService.findOne({
             payload: {
               where: { uid },

@@ -10,11 +10,15 @@ import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
 import { getEnumKeyByValue } from 'src/core/core.utils';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
+import { CouponOwner } from '../coupon/coupon-owner.enum';
+import { CouponService } from '../coupon/coupon.service';
 import { OrderAddressService } from '../order-address/order-address.service';
 import { OrderItemService } from '../order-item/order-item.service';
 import { OrderPaymentService } from '../order-payment/order-payment.service';
 import { OrderStatusLogService } from '../order-status-log/order-status-log.service';
+import { ConnectionVia } from '../user/connection-via.enum';
 import { Role } from '../user/role.enum';
+import { UserService } from '../user/user.service';
 import { Order } from './entities/order.entity';
 import { OrderStatus, OrderStatusLevel } from './order-status.enum';
 
@@ -41,6 +45,8 @@ export class OrderService extends ModelService<Order> {
     private _sequelize: Sequelize,
     private _stripeService: StripeService,
     private _msClient: MsClientService,
+    private _couponService: CouponService,
+    private _userService: UserService,
   ) {
     super(db);
   }
@@ -331,6 +337,37 @@ export class OrderService extends ModelService<Order> {
       if (!!payment.error) {
         await transaction.rollback();
         return { error: payment.error };
+      }
+
+      if (!!body.coupon_id) {
+        const couponData = await this._couponService.findById({
+          action: 'findById',
+          id: body.coupon_id,
+          options: { allowEmpty: true },
+        });
+        if (
+          !couponData.error &&
+          couponData.data !== null &&
+          couponData.data?.owner === CouponOwner.Dispenser &&
+          couponData.data?.user_id
+        ) {
+          const userData = await this._userService.findById({
+            action: 'connectingToDispenser',
+            id: +job.owner.id,
+          });
+          if (
+            !userData.error &&
+            userData.data !== null &&
+            !userData.data?.dispenser_id
+          ) {
+            userData.data.setDataValue(
+              'dispenser_id',
+              couponData.data?.user_id,
+            );
+            userData.data.setDataValue('connection_via', ConnectionVia.Coupon);
+            await userData.data.save();
+          }
+        }
       }
 
       await transaction.commit();
