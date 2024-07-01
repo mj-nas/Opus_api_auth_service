@@ -18,7 +18,6 @@ import { Products } from '../../products/entities/products.entity';
 
 export enum OrderItemStatus {
   Ordered = 'Ordered',
-  Delivered = 'Delivered',
   Returned = 'Returned',
 }
 
@@ -63,6 +62,14 @@ export class OrderItem extends SqlModel {
   })
   @IsNumber()
   quantity: number;
+
+  @Column(DataTypes.FLOAT({ precision: 11, scale: 2 }))
+  @ApiProperty({
+    description: 'Price',
+    example: 32.04,
+  })
+  @IsNumber()
+  price_per_item: number;
 
   @Column(DataTypes.FLOAT({ precision: 11, scale: 2 }))
   @ApiProperty({

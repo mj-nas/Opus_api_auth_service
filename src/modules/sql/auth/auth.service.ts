@@ -17,6 +17,7 @@ import { CartItemService } from '../cart-item/cart-item.service';
 import { CartService } from '../cart/cart.service';
 import { NotificationService } from '../notification/notification.service';
 import { ReferralService } from '../referral/referral.service';
+import { ConnectionVia } from '../user/connection-via.enum';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -29,11 +30,6 @@ import { TokenAuthDto } from './strategies/token/token-auth.dto';
 export interface AuthResponse {
   error?: any;
   user?: User;
-}
-
-export enum DispenserConnectionType {
-  Referral = 'Referral',
-  Connect = 'Connect',
 }
 
 @Injectable()
@@ -520,7 +516,7 @@ export class AuthService {
     dispenser_id: number;
     user_id: number;
     uid: string;
-    type: DispenserConnectionType;
+    type: ConnectionVia;
   }) {
     try {
       const { error, data } = await this.userService.findById({
@@ -533,10 +529,16 @@ export class AuthService {
       if (!data.dispenser_id) {
         // connect to Dispenser
         data.setDataValue('dispenser_id', dispenser_id);
+        data.setDataValue(
+          'connection_via',
+          type === ConnectionVia.Referral
+            ? ConnectionVia.Referral
+            : ConnectionVia.Connect,
+        );
         await data.save();
 
         // if the connection type is Referral
-        if (type === DispenserConnectionType.Referral) {
+        if (type === ConnectionVia.Referral) {
           const referral = await this.referralService.findOne({
             payload: {
               where: { uid },
