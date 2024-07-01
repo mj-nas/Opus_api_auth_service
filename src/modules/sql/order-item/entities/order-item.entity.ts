@@ -70,6 +70,14 @@ export class OrderItem extends SqlModel {
     example: 32.04,
   })
   @IsNumber()
+  price_per_item: number;
+
+  @Column(DataTypes.FLOAT({ precision: 11, scale: 2 }))
+  @ApiProperty({
+    description: 'Price',
+    example: 32.04,
+  })
+  @IsNumber()
   price: number;
 
   @BelongsTo(() => Order)

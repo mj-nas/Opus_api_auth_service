@@ -23,7 +23,7 @@ const entity = snakeCase(OrderItem.name);
 @ApiExtraModels(OrderItem)
 @Controller(entity)
 export class OrderItemController {
-  constructor(private readonly OrderItemService: OrderItemService) {}
+  constructor(private readonly orderItemService: OrderItemService) {}
 
   /**
    * Update an OrderItem using id
@@ -38,7 +38,7 @@ export class OrderItemController {
     @Param('id') id: number,
     @Body() updateOrderItemDto: UpdateOrderItemDto,
   ) {
-    const { error, data } = await this.OrderItemService.update({
+    const { error, data } = await this.orderItemService.update({
       owner,
       action: 'update',
       id: +id,
