@@ -1,11 +1,12 @@
 import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber } from 'class-validator';
+import { IsEnum, IsNumber } from 'class-validator';
 import { DataTypes } from 'sequelize';
 import {
   BelongsTo,
   Column,
+  DataType,
   ForeignKey,
   HasOne,
   Index,
@@ -14,6 +15,12 @@ import {
 import { Order } from '../../order/entities/order.entity';
 import { ProductReview } from '../../product-review/entities/product-review.entity';
 import { Products } from '../../products/entities/products.entity';
+
+export enum OrderItemStatus {
+  Ordered = 'Ordered',
+  Delivered = 'Delivered',
+  Returned = 'Returned',
+}
 
 @Table
 export class OrderItem extends SqlModel {
@@ -36,6 +43,18 @@ export class OrderItem extends SqlModel {
   })
   @IsNumber()
   product_id: number;
+
+  @Column({
+    type: DataType.ENUM(...Object.values(OrderItemStatus)),
+    defaultValue: OrderItemStatus.Ordered,
+  })
+  @ApiProperty({
+    enum: OrderItemStatus,
+    description: 'OrderStatus',
+    example: OrderItemStatus.Ordered,
+  })
+  @IsEnum(OrderItemStatus)
+  status: OrderItemStatus;
 
   @Column
   @ApiProperty({
