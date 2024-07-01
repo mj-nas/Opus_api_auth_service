@@ -92,6 +92,32 @@
             border-radius: 50px;
             text-decoration: none;
         }
+
+        td.two-columns {
+            counter-reset: product-item;
+            /* Reset counter for each .two-columns element */
+        }
+
+        .product_item {
+            counter-increment: product-item;
+            /* Increment counter for each .product_item element */
+        }
+
+        .product_item:nth-child(1) {
+            background-color: #AA674F;
+        }
+
+        .product_item:nth-child(2) {
+            background-color: #E8AE9A;
+        }
+
+        .product_item:nth-child(3) {
+            background-color: #CFAFA4;
+        }
+
+        .product_item:nth-child(4) {
+            background-color: #C4946B;
+        }
     </style>
 
 </head>
@@ -185,7 +211,8 @@
                     <tr>
                         <td class="two-columns" style=" text-align: center;vertical-align: top;">
                             {{#each products}}
-                            <table class="column-small" width="100%" style="background-color: #AA674F;">
+                            <table class="column-small product_item" style="background-color:{{productbgcolor}}" width="
+                                100%">
                                 <tr>
                                     <td style="text-align: center;">
                                         <p style="color: #fff;font-size: 14px;min-height: 32px; padding: 0px 5px;">
