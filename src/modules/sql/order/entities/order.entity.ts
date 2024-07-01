@@ -321,6 +321,13 @@ export class Order extends SqlModel {
   @BelongsTo(() => Order)
   previous_order: Order;
 
+  @Include({
+    attributes: ['id', 'name', 'code', 'discount', 'coupon_type'],
+    required: false,
+  })
+  @BelongsTo(() => Coupon, { constraints: false })
+  coupon: Coupon;
+
   @BeforeCreate
   static async setSlug(instance: Order) {
     const o = await Order.findOne({

@@ -8,9 +8,6 @@ import { AppGateway } from './app.gateway';
 import { AppService } from './app.service';
 import { CoreModule } from './core/core.module';
 import { CommonModule } from './modules/common.module';
-import { ReferralModule } from './modules/sql/referral/referral.module';
-import { ReferredProductsModule } from './modules/sql/referred-products/referred-products.module';
-import { ReferredCouponModule } from './modules/sql/referred-coupon/referred-coupon.module';
 
 @Module({
   imports: [
@@ -20,9 +17,6 @@ import { ReferredCouponModule } from './modules/sql/referred-coupon/referred-cou
     EmailModule,
     StripeModule,
     CommonModule.register(),
-    ReferralModule,
-    ReferredProductsModule,
-    ReferredCouponModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],

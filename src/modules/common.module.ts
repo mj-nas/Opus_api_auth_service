@@ -18,6 +18,7 @@ import { JwtAuthGuard } from './sql/auth/strategies/jwt/jwt-auth.guard';
 import { LocalAuthModule } from './sql/auth/strategies/local/local-auth.module';
 import { CartItemModule } from './sql/cart-item/cart-item.module';
 import { CartModule } from './sql/cart/cart.module';
+import { CommissionModule } from './sql/commission/commission.module';
 import { ContactUsModule } from './sql/contact-us/contact-us.module';
 import { CountryModule } from './sql/country/country.module';
 import { CouponModule } from './sql/coupon/coupon.module';
@@ -38,6 +39,9 @@ import { ProductReviewModule } from './sql/product-review/product-review.module'
 import { ProductSpecificationsModule } from './sql/product-specifications/product-specifications.module';
 import { ProductsModule } from './sql/products/products.module';
 import { RecentlyViewedModule } from './sql/recently-viewed/recently-viewed.module';
+import { ReferralModule } from './sql/referral/referral.module';
+import { ReferredCouponModule } from './sql/referred-coupon/referred-coupon.module';
+import { ReferredProductsModule } from './sql/referred-products/referred-products.module';
 import { SettingModule } from './sql/setting/setting.module';
 import { StateModule } from './sql/state/state.module';
 import { TemplateModule } from './sql/template/template.module';
@@ -88,6 +92,10 @@ export class CommonModule {
       ProductReviewModule,
       GalleryCategoryModule,
       GalleryModule,
+      ReferralModule,
+      ReferredProductsModule,
+      ReferredCouponModule,
+      CommissionModule,
     ];
 
     // common providers

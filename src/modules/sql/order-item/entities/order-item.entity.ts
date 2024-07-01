@@ -18,7 +18,6 @@ import { Products } from '../../products/entities/products.entity';
 
 export enum OrderItemStatus {
   Ordered = 'Ordered',
-  Delivered = 'Delivered',
   Returned = 'Returned',
 }
 
