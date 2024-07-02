@@ -200,7 +200,6 @@ export class CommissionService extends ModelService<Commission> {
         payload: {
           ...payload,
           offset: 0,
-          populate: ['user'],
           limit: -1,
         },
       });
@@ -212,6 +211,7 @@ export class CommissionService extends ModelService<Commission> {
       worksheet.addRow([
         'Sl. No',
         'Order ID',
+        'Dispenser Name',
         'Order By',
         'Date',
         'Order Amount',
@@ -225,10 +225,10 @@ export class CommissionService extends ModelService<Commission> {
         commissions.map(async (x, index) => {
           worksheet.addRow([
             index + 1,
-            x?.order_id,
+            x?.order?.uid,
             x?.user?.name,
+            x?.order?.user?.name,
             moment(x.created_at).tz(timezone).format('MMM dd yyyy'),
-            x.created_at,
             x?.order_amount,
             x?.commission,
             x?.status,
@@ -239,6 +239,7 @@ export class CommissionService extends ModelService<Commission> {
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Order ID', key: 'order_id', width: 25 },
+        { header: 'Dispenser Name', key: 'order_by', width: 25 },
         { header: 'Order By', key: 'order_by', width: 25 },
         { header: 'Date', key: 'date', width: 25 },
         { header: 'Order Amount', key: 'order_amount', width: 25 },
