@@ -309,6 +309,8 @@ export class Order extends SqlModel {
       'phone_code',
       'phone',
       'avatar',
+      'dispenser_id',
+      'connection_via',
     ],
   })
   @BelongsTo(() => User)

@@ -1,3 +1,4 @@
+import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNumber } from 'class-validator';
@@ -14,6 +15,7 @@ import {
 } from 'sequelize-typescript';
 import { getUTCDateNow, zeroPad } from 'src/core/core.utils';
 import { Order } from '../../order/entities/order.entity';
+import { User } from '../../user/entities/user.entity';
 import { CommissionStatus } from '../commission-status.enum';
 
 @Table
@@ -25,6 +27,17 @@ export class Commission extends SqlModel {
     readOnly: true,
   })
   uid: string;
+
+  @ForeignKey(() => User)
+  @Column
+  @Index
+  @ApiProperty({
+    description: 'User Id',
+    example: 1,
+    readOnly: true,
+  })
+  @IsNumber()
+  user_id: number;
 
   @ForeignKey(() => Order)
   @Column
@@ -88,6 +101,26 @@ export class Commission extends SqlModel {
   })
   @IsEnum(CommissionStatus)
   status: CommissionStatus;
+
+  @Include({
+    attributes: [
+      'id',
+      'slug',
+      'role',
+      'uid',
+      'first_name',
+      'last_name',
+      'name',
+      'email',
+      'phone_code',
+      'phone',
+      'avatar',
+      'dispenser_id',
+      'connection_via',
+    ],
+  })
+  @BelongsTo(() => User)
+  user: User;
 
   @BelongsTo(() => Order)
   order: Order;
