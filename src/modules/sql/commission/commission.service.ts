@@ -103,12 +103,11 @@ export class CommissionService extends ModelService<Commission> {
           },
         }),
       ]);
-
       return {
         data: {
-          ...total_earnings.toJSON(),
-          ...total_paid.toJSON(),
-          ...total_balance.toJSON(),
+          total_earnings: total_earnings.dataValues?.total_earnings || 0,
+          total_paid: total_paid.dataValues?.total_paid || 0,
+          total_balance: total_balance.dataValues?.total_balance || 0,
         },
       };
     } catch (error) {
