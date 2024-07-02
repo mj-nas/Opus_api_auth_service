@@ -154,41 +154,6 @@ export class CommissionController {
   }
 
   /**
-   * Get an entity document by using id
-   */
-  @Get(':id')
-  @ApiOperation({ summary: `Find ${entity} using id` })
-  @ApiQueryGetById()
-  @ResponseGetOne(Commission)
-  async findById(
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Param('id') id: number,
-    @Query() query: any,
-  ) {
-    const { error, data } = await this.commissionService.findById({
-      owner,
-      action: 'findById',
-      id: +id,
-      payload: { ...query },
-    });
-
-    if (error) {
-      if (error instanceof NotFoundError) {
-        return NotFound(res, {
-          error,
-          message: `Record not found`,
-        });
-      }
-      return ErrorResponse(res, {
-        error,
-        message: `${error.message || error}`,
-      });
-    }
-    return Result(res, { data: { [entity]: data }, message: 'Ok' });
-  }
-
-  /**
    * Return all entity documents list
    */
   @Get('commision-export-xls')
@@ -235,5 +200,40 @@ export class CommissionController {
       data: { ...data },
       message: 'Ok',
     });
+  }
+
+  /**
+   * Get an entity document by using id
+   */
+  @Get(':id')
+  @ApiOperation({ summary: `Find ${entity} using id` })
+  @ApiQueryGetById()
+  @ResponseGetOne(Commission)
+  async findById(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Param('id') id: number,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.commissionService.findById({
+      owner,
+      action: 'findById',
+      id: +id,
+      payload: { ...query },
+    });
+
+    if (error) {
+      if (error instanceof NotFoundError) {
+        return NotFound(res, {
+          error,
+          message: `Record not found`,
+        });
+      }
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { data: { [entity]: data }, message: 'Ok' });
   }
 }

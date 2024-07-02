@@ -114,7 +114,6 @@ export class CommissionService extends ModelService<Commission> {
           limit: -1,
         },
       });
-
       if (error) throw error;
 
       const workbook = new ExcelJS.Workbook();
