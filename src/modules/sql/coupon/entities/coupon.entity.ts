@@ -8,9 +8,11 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   Index,
   Table,
 } from 'sequelize-typescript';
+import { CouponUsed } from '../../coupon-used/entities/coupon-used.entity';
 import { User } from '../../user/entities/user.entity';
 import { CouponOwner } from '../coupon-owner.enum';
 
@@ -121,4 +123,10 @@ export class Coupon extends SqlModel {
   })
   @BelongsTo(() => User)
   user: User;
+
+  @Include({
+    attributes: ['user_id', 'coupon_id'],
+  })
+  @HasMany(() => CouponUsed)
+  coupon_used_me: CouponUsed;
 }

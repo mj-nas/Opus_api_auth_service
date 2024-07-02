@@ -21,6 +21,7 @@ import { CartModule } from './sql/cart/cart.module';
 import { CommissionModule } from './sql/commission/commission.module';
 import { ContactUsModule } from './sql/contact-us/contact-us.module';
 import { CountryModule } from './sql/country/country.module';
+import { CouponUsedModule } from './sql/coupon-used/coupon-used.module';
 import { CouponModule } from './sql/coupon/coupon.module';
 import { GalleryCategoryModule } from './sql/gallery-category/gallery-category.module';
 import { GalleryModule } from './sql/gallery/gallery.module';
@@ -96,6 +97,7 @@ export class CommonModule {
       ReferredProductsModule,
       ReferredCouponModule,
       CommissionModule,
+      CouponUsedModule,
     ];
 
     // common providers

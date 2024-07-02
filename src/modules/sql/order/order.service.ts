@@ -10,6 +10,7 @@ import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
 import { getEnumKeyByValue } from 'src/core/core.utils';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
+import { CouponUsedService } from '../coupon-used/coupon-used.service';
 import { CouponOwner } from '../coupon/coupon-owner.enum';
 import { CouponService } from '../coupon/coupon.service';
 import { OrderAddressService } from '../order-address/order-address.service';
@@ -47,6 +48,7 @@ export class OrderService extends ModelService<Order> {
     private _msClient: MsClientService,
     private _couponService: CouponService,
     private _userService: UserService,
+    private _couponUsedService: CouponUsedService,
   ) {
     super(db);
   }
@@ -340,6 +342,10 @@ export class OrderService extends ModelService<Order> {
       }
 
       if (!!body.coupon_id) {
+        await this._couponUsedService.create({
+          owner: job.owner,
+          body: { user_id: job.owner.id, coupon_id: body.coupon_id },
+        });
         const couponData = await this._couponService.findById({
           action: 'findById',
           id: body.coupon_id,

@@ -261,6 +261,39 @@ export class CouponController {
   }
 
   /**
+   * Find one entity document
+   */
+  @Get('check')
+  @ApiOperation({ summary: `Check ${entity}` })
+  @ApiQueryGetOne()
+  @ResponseGetOne(Coupon)
+  async checkCoupon(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.couponService.findOne({
+      owner,
+      action: 'checkCoupon',
+      payload: { ...query },
+    });
+
+    if (error) {
+      if (error instanceof NotFoundError) {
+        return NotFound(res, {
+          error,
+          message: `Record not found`,
+        });
+      }
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { data: { [entity]: data }, message: 'Ok' });
+  }
+
+  /**
    * Delete an entity document by using id
    */
   @Delete(':id')
