@@ -68,6 +68,7 @@ export class CommissionService extends ModelService<Commission> {
             ],
             limit: undefined,
             offset: undefined,
+            include: undefined,
           },
         }),
         await this.$db.findOneRecord({
@@ -84,6 +85,7 @@ export class CommissionService extends ModelService<Commission> {
             ],
             limit: undefined,
             offset: undefined,
+            include: undefined,
           },
         }),
         await this.$db.findOneRecord({
@@ -100,14 +102,15 @@ export class CommissionService extends ModelService<Commission> {
             ],
             limit: undefined,
             offset: undefined,
+            include: undefined,
           },
         }),
       ]);
       return {
         data: {
-          total_earnings: total_earnings.dataValues?.total_earnings || 0,
-          total_paid: total_paid.dataValues?.total_paid || 0,
-          total_balance: total_balance.dataValues?.total_balance || 0,
+          total_earnings: total_earnings?.dataValues?.total_earnings || 0,
+          total_paid: total_paid?.dataValues?.total_paid || 0,
+          total_balance: total_balance?.dataValues?.total_balance || 0,
         },
       };
     } catch (error) {
