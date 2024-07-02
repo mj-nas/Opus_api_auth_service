@@ -5,7 +5,10 @@ import * as moment from 'moment-timezone';
 
 @Injectable()
 export class SessionService {
-  constructor(private jwt: JwtService, private config: ConfigService) {}
+  constructor(
+    private jwt: JwtService,
+    private config: ConfigService,
+  ) {}
 
   async createToken(payload: any) {
     try {

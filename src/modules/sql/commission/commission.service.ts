@@ -3,7 +3,7 @@ import { ReadPayload } from '@core/sql/sql.decorator';
 import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
-import moment from 'moment-timezone';
+import * as moment from 'moment-timezone';
 import { Op, col, fn, literal } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
