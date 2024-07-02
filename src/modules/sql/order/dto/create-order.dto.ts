@@ -10,7 +10,6 @@ export class CreateOrderDto extends PickType(Order, [
   'shipping_price',
   'tax',
   'total',
-  'sub_total',
   'is_repeating_order',
   'repeating_days',
   'coupon_id',

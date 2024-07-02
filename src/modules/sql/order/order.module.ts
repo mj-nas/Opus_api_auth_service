@@ -2,6 +2,7 @@ import { SqlModule } from '@core/sql';
 import { StripeModule } from '@core/stripe';
 import { Module } from '@nestjs/common';
 import { MsClientModule } from 'src/core/modules/ms-client/ms-client.module';
+import { CouponUsedModule } from '../coupon-used/coupon-used.module';
 import { CouponModule } from '../coupon/coupon.module';
 import { OrderAddressModule } from '../order-address/order-address.module';
 import { OrderItemModule } from '../order-item/order-item.module';
@@ -23,6 +24,7 @@ import { OrderService } from './order.service';
     MsClientModule,
     UserModule,
     CouponModule,
+    CouponUsedModule,
   ],
   controllers: [OrderController],
   providers: [OrderService],

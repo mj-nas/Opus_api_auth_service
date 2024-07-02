@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import * as moment from 'moment-timezone';
+import { IncludeOptions } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
 import { Coupon } from './entities/coupon.entity';
@@ -30,6 +31,35 @@ export class CouponService extends ModelService<Coupon> {
     if (job.action === 'findAllMe') {
       job.options.where = { ...job.options.where, user_id: job.owner.id };
     }
+  }
+
+  /**
+   * doBeforeRead
+   * @function function will execute before findAll, getCount, findById and findOne function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeRead(job: SqlJob<Coupon>): Promise<void> {
+    await super.doBeforeRead(job);
+    const include = job.options.include
+      ? (job.options.include as IncludeOptions[])
+      : [];
+    const coupon_used_me = include.findIndex(
+      (x) => x.association === 'coupon_used_me',
+    );
+    if (coupon_used_me > -1) {
+      if (!!job.owner?.id) {
+        include[coupon_used_me].where = {
+          ...include[coupon_used_me].where,
+          user_id: job.owner.id,
+        };
+        include[coupon_used_me].required = false;
+      } else {
+        include.splice(coupon_used_me, 1);
+      }
+    }
+
+    job.options.include = include;
   }
 
   async createXls(job: Job): Promise<JobResponse> {

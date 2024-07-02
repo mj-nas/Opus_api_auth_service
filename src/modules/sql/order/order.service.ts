@@ -10,9 +10,11 @@ import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
 import { getEnumKeyByValue } from 'src/core/core.utils';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
+import { CouponUsedService } from '../coupon-used/coupon-used.service';
 import { CouponOwner } from '../coupon/coupon-owner.enum';
 import { CouponService } from '../coupon/coupon.service';
 import { OrderAddressService } from '../order-address/order-address.service';
+import { OrderItemStatus } from '../order-item/entities/order-item.entity';
 import { OrderItemService } from '../order-item/order-item.service';
 import { OrderPaymentService } from '../order-payment/order-payment.service';
 import { OrderStatusLogService } from '../order-status-log/order-status-log.service';
@@ -47,6 +49,7 @@ export class OrderService extends ModelService<Order> {
     private _msClient: MsClientService,
     private _couponService: CouponService,
     private _userService: UserService,
+    private _couponUsedService: CouponUsedService,
   ) {
     super(db);
   }
@@ -340,6 +343,10 @@ export class OrderService extends ModelService<Order> {
       }
 
       if (!!body.coupon_id) {
+        await this._couponUsedService.create({
+          owner: job.owner,
+          body: { user_id: job.owner.id, coupon_id: body.coupon_id },
+        });
         const couponData = await this._couponService.findById({
           action: 'findById',
           id: body.coupon_id,
@@ -421,16 +428,20 @@ export class OrderService extends ModelService<Order> {
       const orders = data;
       for await (const o of orders) {
         const orderJson = o.toJSON();
+        const items = orderJson.items;
+        const sub_total = items.reduce((sum, item) => sum + item.price, 0);
+        const total = sub_total + (o.shipping_price || 0) + (o.tax || 0);
+
         const transaction = await this._sequelize.transaction();
         // Create a new order
         const order = await this.create({
           action: 'create',
           body: {
             cart_id: o.cart_id,
-            sub_total: o.sub_total,
+            sub_total,
             shipping_price: o.shipping_price,
             tax: o.tax,
-            total: o.total,
+            total,
             is_a_reorder: 'Y',
             is_repeating_order: 'Y',
             repeating_days: o.repeating_days,
@@ -468,7 +479,6 @@ export class OrderService extends ModelService<Order> {
         }
 
         // Loop through the products
-        const items = orderJson.items;
         for await (const item of items) {
           delete item.id;
           // Create a order product
@@ -476,6 +486,7 @@ export class OrderService extends ModelService<Order> {
             action: 'create',
             body: {
               ...item,
+              status: OrderItemStatus.Ordered,
               order_id: order.data.id,
             },
             options: {
