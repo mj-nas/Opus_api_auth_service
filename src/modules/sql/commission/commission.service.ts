@@ -239,7 +239,7 @@ export class CommissionService extends ModelService<Commission> {
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Order ID', key: 'order_id', width: 25 },
-        { header: 'Dispenser Name', key: 'order_by', width: 25 },
+        { header: 'Dispenser Name', key: 'dispenser_name', width: 25 },
         { header: 'Order By', key: 'order_by', width: 25 },
         { header: 'Date', key: 'date', width: 25 },
         { header: 'Order Amount', key: 'order_amount', width: 25 },
