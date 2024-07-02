@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Put, Query, Res } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiExtraModels,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
@@ -19,6 +20,8 @@ import { NotFoundError } from 'src/core/core.errors';
 import { ErrorResponse, NotFound, Result } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
+import { Roles } from 'src/core/decorators/sql/roles.decorator';
+import { Role } from '../user/role.enum';
 import { CommissionService } from './commission.service';
 import { UpdateCommissionDto } from './dto/update-commission.dto';
 import { Commission } from './entities/commission.entity';
@@ -252,5 +255,54 @@ export class CommissionController {
       });
     }
     return Result(res, { data: { [entity]: data }, message: 'Ok' });
+  }
+
+  /**
+   * Return all entity documents list
+   */
+  @Get('commision-export-xls')
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: `Create ${pluralizeString('Commision')} xls` })
+  @ApiQueryGetAll()
+  @ApiOkResponse({
+    description: 'xls file created',
+    schema: {
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+            },
+          },
+        },
+        message: {
+          type: 'string',
+          example: 'xls file created',
+        },
+      },
+    },
+  })
+  async exportXls(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.commissionService.createCommissionXls({
+      owner,
+      action: 'createXls',
+      payload: { ...query },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { ...data },
+      message: 'Ok',
+    });
   }
 }
