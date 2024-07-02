@@ -78,6 +78,7 @@ export class ReferralService extends ModelService<Referral> {
 
   async createReferrals(job: Job): Promise<JobResponse> {
     const { referred_coupons, referred_products, email } = job.payload;
+    const colours = ['#aa674f', '#E8AE9A', '#CFAFA4', '#F7F0B3'];
     const { error, data } = await this.create({
       owner: job.owner,
       action: 'create',
@@ -145,15 +146,17 @@ export class ReferralService extends ModelService<Referral> {
       this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
     }
     const _email_template = this.emailTemplate({
-      banner_img: this.config.get('cdnLocalURL') + 'assets/banner.png',
-      footer_img: this.config.get('cdnLocalURL') + 'assets/ft_img.png',
+      banner: this.config.get('cdnLocalURL') + 'assets/banner.png',
+      footer: this.config.get('cdnLocalURL') + 'assets/ft_img.png',
+      logo: this.config.get('cdnLocalURL') + 'assets/logo.png',
       referral_link: data.referral_link,
       qr_link: data.qr_code,
       coupons: referred_coupons ? referred_coupons : [],
       products: referred_products
-        ? referred_products.map((e: any) => ({
+        ? referred_products.map((e: any, index: number) => ({
             ...e,
             url: `${process.env.WEBSITE_URL}/products/${e.slug}`,
+            productbgcolor: colours[index],
           }))
         : [],
     });

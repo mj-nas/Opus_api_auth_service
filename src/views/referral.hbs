@@ -10,685 +10,279 @@
     <title></title> <!-- The title tag shows in email notifications, like Android 4.4. -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
         rel="stylesheet">
+
     <style>
-        html,
         body {
-            margin: 0 auto !important;
-            padding: 0 !important;
-            height: 100% !important;
-            width: 100% !important;
-            background: #f1f1f1;
-            font-family: "Playfair Display", serif;
-            font-optical-sizing: auto;
-            font-style: normal;
+            margin: 0;
+            background-color: #cccccc;
         }
 
-        /* What it does: Stops email clients resizing small text. */
-        * {
-            -ms-text-size-adjust: 100%;
-            -webkit-text-size-adjust: 100%;
-        }
-
-        /* What it does: Centers email on Android 4.4 */
-        div[style*="margin: 16px 0"] {
-            margin: 0 !important;
-        }
-
-        /* What it does: Stops Outlook from adding extra spacing to tables. */
-        table,
-        td {
-            mso-table-lspace: 0pt !important;
-            mso-table-rspace: 0pt !important;
-        }
-
-        /* What it does: Fixes webkit padding issue. */
         table {
-            border-spacing: 0 !important;
-            border-collapse: collapse !important;
-            table-layout: fixed !important;
-            margin: 0 auto !important;
+            border-spacing: 0;
         }
 
-        /* What it does: Uses a better rendering method when resizing images in IE. */
+        td {
+            padding: 0;
+        }
+
         img {
-            -ms-interpolation-mode: bicubic;
+            border: 0;
         }
 
-        /* What it does: Prevents Windows 10 Mail from underlining links despite inline CSS. Styles for underlined links should be inline. */
-        a {
+        tbody {
+            width: 100%;
+            display: table;
+        }
+
+        .main {
+            background-color: #fff;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 600px;
+            border-spacing: 0;
+            font-family: sans-serif;
+            color: #171a1b;
+        }
+
+        .two-columns {
+            text-align: center;
+            font-size: 0;
+        }
+
+        .two-columns .column {
+            width: 100%;
+            max-width: 200px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .two-columns .column-small {
+            width: 100%;
+            max-width: 142px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .column-half {
+            width: 100%;
+            max-width: 280px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .two-columns .column-one {
+            width: 100%;
+            max-width: 400px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .two-columns .column p {
+            font-size: 13px;
+            color: #CED6E5;
+            text-align: left;
+            line-height: 20px;
+        }
+
+        .button {
+            font-size: 12px;
+            color: #fff;
+            background: #000000;
+            padding: 8px 20px;
+            border-radius: 50px;
             text-decoration: none;
         }
 
-        /* What it does: A work-around for email clients meddling in triggered links. */
-        *[x-apple-data-detectors],
-        /* iOS */
-        .unstyle-auto-detected-links *,
-        .aBn {
-            border-bottom: 0 !important;
-            cursor: default !important;
-            color: inherit !important;
-            text-decoration: none !important;
-            font-size: inherit !important;
-            font-family: inherit !important;
-            font-weight: inherit !important;
-            line-height: inherit !important;
+        td.two-columns {
+            counter-reset: product-item;
+            /* Reset counter for each .two-columns element */
         }
 
-        /* What it does: Prevents Gmail from displaying a download button on large, non-linked images. */
-        .a6S {
-            display: none !important;
-            opacity: 0.01 !important;
+        .product_item {
+            counter-increment: product-item;
+            /* Increment counter for each .product_item element */
         }
 
-        /* What it does: Prevents Gmail from changing the text color in conversation threads. */
-        .im {
-            color: inherit !important;
+        .product_item:nth-child(1) {
+            background-color: #AA674F;
         }
 
-        /* If the above doesn't work, add a .g-img class to any image in question. */
-        img.g-img+div {
-            display: none !important;
+        .product_item:nth-child(2) {
+            background-color: #E8AE9A;
         }
 
-
-
-        /* iPhone 4, 4S, 5, 5S, 5C, and 5SE */
-        @media only screen and (min-device-width: 320px) and (max-device-width: 374px) {
-            u~div .email-container {
-                min-width: 320px !important;
-            }
+        .product_item:nth-child(3) {
+            background-color: #CFAFA4;
         }
 
-        /* iPhone 6, 6S, 7, 8, and X */
-        @media only screen and (min-device-width: 375px) and (max-device-width: 413px) {
-            u~div .email-container {
-                min-width: 375px !important;
-            }
-        }
-
-        /* iPhone 6+, 7+, and 8+ */
-        @media only screen and (min-device-width: 414px) {
-            u~div .email-container {
-                min-width: 414px !important;
-            }
+        .product_item:nth-child(4) {
+            background-color: #C4946B;
         }
     </style>
-
-    <!-- CSS Reset : END -->
-
-    <!-- Progressive Enhancements : BEGIN -->
-    <style>
-        .primary {
-            background: #1A3977;
-        }
-
-        .bg_white {
-            background: #ffffff;
-        }
-
-        .bg_light {
-            background: #fafafa;
-        }
-
-        .bg_black {
-            background: #000000;
-        }
-
-        .bg_dark {
-            background: rgba(0, 0, 0, .8);
-        }
-
-        .email-section {
-            padding: 2.5em;
-        }
-
-        /*BUTTON*/
-        .btn {
-            padding: 7px 20px;
-            display: inline-block;
-        }
-
-        .btn.btn-primary {
-            border-radius: 30px;
-            background: #1A3977;
-            color: #ffffff;
-        }
-
-        .btn.btn-white {
-            border-radius: 30px;
-            background: #ffffff;
-            color: #000000;
-        }
-
-        .btn.btn-white-outline {
-            border-radius: 30px;
-            background: transparent;
-            border: 1px solid #fff;
-            color: #fff;
-        }
-
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-            font-family: 'Open Sans', sans-serif;
-            color: #000000;
-            margin-top: 0;
-            font-weight: normal;
-        }
-
-        body {
-            font-family: 'Open Sans', sans-serif;
-            font-weight: 400;
-            font-size: 15px;
-            line-height: 1.8;
-            color: rgba(0, 0, 0, .4);
-        }
-
-        a {
-            color: #52c8ff;
-        }
-
-        table {}
-
-        /*LOGO*/
-
-        .logo h1 {
-            margin: 0;
-            height: 60px;
-        }
-
-        .logo h1 a {
-            color: #000000;
-            font-size: 20px;
-            font-weight: 600;
-            font-family: 'Open Sans', sans-serif;
-        }
-
-        .navigation {
-            padding: 0;
-        }
-
-        .navigation li {
-            list-style: none;
-            display: inline-block;
-            ;
-            margin-left: 5px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .navigation li a {
-            color: rgba(0, 0, 0, .4);
-        }
-
-        /*HERO*/
-        .hero {
-            position: relative;
-            z-index: 0;
-        }
-
-        .hero .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            content: '';
-            width: 100%;
-
-            z-index: -1;
-            opacity: .8;
-
-        }
-
-        .hero .icon {}
-
-        .hero .icon a {
-            display: block;
-            width: 60px;
-            margin: 0 auto;
-        }
-
-        .hero .text {
-            color: rgba(255, 255, 255, .8);
-        }
-
-        .hero .text h2 {
-            color: #ffffff;
-            font-size: 30px;
-            margin-bottom: 0;
-            font-weight: 400;
-        }
-
-
-        /*HEADING SECTION*/
-        .heading-section {}
-
-        .heading-section h2 {
-            color: #000000;
-            font-size: 22px;
-            margin-top: 0;
-            line-height: 1.4;
-            font-weight: 400;
-            /*text-transform: uppercase;*/
-        }
-
-        .heading-section .subheading {
-            margin-bottom: 20px !important;
-            display: inline-block;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: rgba(0, 0, 0, .4);
-            position: relative;
-        }
-
-        .heading-section .subheading::after {
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: -10px;
-            content: '';
-            width: 100%;
-            height: 2px;
-            background: #52c8ff;
-            margin: 0 auto;
-        }
-
-        .heading-section-white {
-            color: rgba(255, 255, 255, .8);
-        }
-
-
-        .heading-section-white h2 {
-            color: #ffffff;
-        }
-
-        .heading-section-white .subheading {
-            margin-bottom: 0;
-            display: inline-block;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: rgba(255, 255, 255, .4);
-        }
-
-
-        .icon {
-            text-align: center;
-        }
-
-        .icon img {}
-
-
-        /*SERVICES*/
-        .services {
-            background: rgba(0, 0, 0, .03);
-        }
-
-        .text-services {
-            padding: 10px 10px 0;
-            text-align: center;
-        }
-
-        .text-services h3 {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .services-list {
-            padding: 0;
-            margin: 0 0 20px 0;
-            width: 100%;
-            float: left;
-        }
-
-        .services-list img {
-            float: left;
-        }
-
-        .services-list .text {
-            width: calc(100% - 60px);
-            float: right;
-        }
-
-        .services-list h3 {
-            margin-top: 0;
-            margin-bottom: 0;
-        }
-
-        .services-list p {
-            margin: 0;
-        }
-
-        /*BLOG*/
-        .text-services .meta {
-            text-transform: none;
-            font-size: 14px;
-            margin-top: 0;
-        }
-
-        /*TESTIMONY*/
-        .text-testimony .name {
-            margin: 0;
-        }
-
-        .text-testimony .position {
-            color: rgba(0, 0, 0, .3);
-
-        }
-
-
-        /*VIDEO*/
-        .img {
-            width: 100%;
-            height: auto;
-            position: relative;
-        }
-
-        .img .icon {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            margin-top: -25px;
-        }
-
-        .img .icon a {
-            display: block;
-            width: 60px;
-            position: absolute;
-            top: 0;
-            left: 50%;
-            margin-left: -25px;
-        }
-
-
-
-        /*COUNTER*/
-        .counter {
-            width: 100%;
-            position: relative;
-            z-index: 0;
-        }
-
-        .counter-text {
-            text-align: center;
-        }
-
-        .counter-text .num {
-            display: block;
-            color: #ffffff;
-            font-size: 34px;
-            font-weight: 400;
-        }
-
-        .counter-text .name {
-            display: block;
-            color: rgba(255, 255, 255, .9);
-            font-size: 13px;
-        }
-
-
-
-        .counter-text1 {
-            text-align: left;
-        }
-
-        .counter-text1 .num {
-            display: block;
-            color: hwb(0 16% 84%);
-            font-size: 27px;
-            font-weight: 400;
-            line-height: 33px;
-
-        }
-
-        .counter-text1 .name {
-            display: block;
-            color: hwb(0 24% 76%);
-            font-size: 11px;
-            text-transform: uppercase;
-
-        }
-
-        /*PROGRESS*/
-        .progress {
-            display: block;
-            margin-bottom: 20px;
-        }
-
-        .progress h3 {
-            font-size: 13px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-        }
-
-        .progressbar {
-            padding: 0px;
-            background: rgba(0, 0, 0, .1);
-        }
-
-        .progressbar>div {
-            background: #52c8ff;
-            /* Adjust with JavaScript */
-            height: 6px;
-        }
-
-        /*FOOTER*/
-
-        .footer {
-            color: rgba(255, 255, 255, .5);
-
-        }
-
-        .footer .heading {
-            color: #ffffff;
-            font-size: 20px;
-        }
-
-        .footer ul {
-            margin: 0;
-            padding: 0;
-        }
-
-        .footer ul li {
-            list-style: none;
-            margin-bottom: 10px;
-        }
-
-        .footer ul li a {
-            color: rgba(255, 255, 255, 1);
-        }
-
-
-        @media screen and (max-width: 500px) {
-
-            .icon {
-                text-align: left;
-            }
-
-            .text-services {
-                padding-left: 0;
-                padding-right: 20px;
-                text-align: left;
-            }
-
-        }
-    </style>
-
 
 </head>
 
-<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #222222;">
-    <center style="width: 100%; background-color: #f1f1f1;">
-        <div
-            style="display: none; font-size: 1px;max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all; font-family: sans-serif;">
-            &zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
-        </div>
-        <div style="max-width: 850px; margin: 0 auto;" class="email-container">
-            <!-- BEGIN BODY -->
-            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: auto;">
-
-                <tr>
-                    <td valign="middle" class="hero bg_white"
-                        style="background-image: url({{banner_img}}); background-size: cover; height: 443px;">
-                        <div class="overlay"></div>
-                        <table>
-                            <tr>
-                                <td></td>
-                                <td>
-                                    <h2
-                                        style="font-size: 35px;margin-top: 25px;color: #000; margin-left: 10px;font-weight: bold;margin-bottom: 340px;">
-                                        Hey Amigo!</h2>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td class="bg_white">
-
-                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                            <tr>
-                                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
-                                    style="background-color: #DCFFF8;">
-                                    <tr style="display: flex;align-items: center;">
-                                        <td valign="top" width="40%" style="padding: 20px 0px;">
-                                            <table role="presentation" cellspacing="0" cellpadding="10" border="0"
-                                                width="100%">
-                                                <tr>
-                                                    <td style="text-align: center;">
-                                                        <img src={{qr_link}} alt="">
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </td>
-
-                                        <td valign="top" width="60%" style="padding: 15px 0px;text-align: center;">
-                                            <table role="presentation" cellspacing="0" cellpadding="10" border="0"
-                                                width="100%">
-                                                <tr style="text-align: center;">
-                                                    <h3
-                                                        style="font-size: 28px;color: #231F20; text-align: center;margin-bottom: 5px;">
-                                                        How to use Your Referral Benefits?</h3>
-                                                    <div
-                                                        style="margin-bottom: 15px; text-align: center;line-height: 30px;">
-                                                        <h3
-                                                            style="font-size: 22px;color: #231F20;text-align: center;font-weight: 600;margin-bottom: 5px;">
-                                                            Scan QR Code</h3>
-                                                        <span
-                                                            style="font-size: 16px;color: #231F20;text-align: center;">Use
-                                                            the QR code to shop our products instantly.</span>
-                                                        <p
-                                                            style="font-size: 16px;color: #231F20;text-align: center;margin:0px">
-                                                            Or</p>
-                                                        <h3
-                                                            style="font-size: 22px;color: #231F20;text-align: center;font-weight: 600;margin-bottom: 5px;">
-                                                            Send a Referral Link</h3>
-                                                        <span
-                                                            style="font-size: 16px;color: #231F20;text-align: center;">Click
-                                                            the unique referral link to explore and share it with
-                                                            friends</span>
-                                                    </div>
-                                                    <a href={{referral_link}}
-                                                        style="color: #239983;font-size: 14px;background: #fff;border: 2px solid #E2F2ED;padding: 10px 30px;text-align: center;">Click
-                                                        here to explore</a>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </tr>
-                            {{#if products.length}}
-                            <tr>
-                                <td style="background: #fff;padding: 30px 0px 0px 0px;">
-                                    <div class="heading-section" style="text-align: center; padding: 0 30px;">
-                                        <h2
-                                            style="font-size: 30px;color: #252525;margin-bottom: 0px;line-height: 10px;">
-                                            <b>Our Bestsellers</b>
-                                        </h2>
-                                        <p style="color: #231F20;font-size: 16px;">Check out some of our top products
-                                            that you and your friends will love:</p>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <table style="width: 100%;">
+<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #F2F2F2;">
+    <center class="wrapper">
+        <table class="main" width="100%">
+            <tr>
+                <td>
+                    <table width="100%">
+                        <tr>
+                            <td class="two-columns"
+                                style="background-color: #27CFAF;  text-align: center;vertical-align: top;">
+                                <table width="100%" class="column" align="top">
                                     <tr>
-                                        {{#each products}}
-                                        <td
-                                            style="background-color: #AA674F;padding: 10px;font-size: 17px;color: #fff;font-weight: 600;">
-                                            <span style="font-size: 17px;color: #fff;">{{name}}</span>
-                                            <div style="text-align: center;margin-top: 20px;">
-                                                <img src={{product_image}} alt="">
-                                            </div>
-                                            <a href={{url}}
-                                                style="background: #000;font-size: 12px;color: #fff;padding: 10px 20px;border-radius: 22px; margin-top: 5px;text-align: center;display: flex;align-items: center;justify-content: center;">Shop
-                                                Now</a>
+                                        <td style="vertical-align: top;">
+                                        <td style="text-align: center;"><a href="#"><img
+                                                    style="max-width: 130px;padding: 40px 0px;" src={{logo}} alt=""></a>
                                         </td>
-                                        {{/each}}
-                                    </tr>
-                                </table>
-                            </tr>
-                            {{/if}}
-                        </table>
-                        {{#if coupons.length}}
-                        <table>
-                            <tr>
-                                <td style="background: #fff;padding: 30px 0px 0px 0px;">
-                                    <div class="heading-section" style="text-align: center; padding: 0 30px;">
-                                        <h2
-                                            style="font-size: 30px;color: #252525;margin-bottom: 0px;line-height: 10px;">
-                                            <b>Exclusive Coupon Code</b>
-                                        </h2>
-                                        <p style="color: #231F20;font-size: 16px;">Use these codes to get a discount on
-                                            your next purchase. Share them with your friends</p>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="bg_light email-section"
-                                    style="width: 100%;background-color: #27CFAF;color: #fff;padding:20px;">
-                                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-                                        <tr>
-                                            {{#each coupons}}
-                                            <td valign="middle" width="50%"
-                                                style="background: #000000;text-align: center;padding: 15px;cursor: pointer;border: 4px solid #27ceae;">
-                                                <h6 style="font-size: 25px;color: #fff; margin: 0px;line-height: 24px;">
-                                                    {{code}}</h6>
-                                                <span style="font-size: 12px;color: #fff;line-height: 20px;">USE THIS
-                                                    COUPON TO AVAIL THIS OFFER</span>
-                                            </td>
-                                            {{/each}}
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
-                        </table>
-                        {{/if}}
-                    </td>
-                </tr>
+                            </td>
+                        </tr>
+                    </table>
+                    <table class="column-one" width="100%">
+                        <tr>
+                            <td style=""><img style="width: 100%;height: 300px;object-fit: cover;" src={{banner}}
+                                    alt=""></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        </td>
+        </tr>
+        <!-- section end-->
+        <tr>
+            <td>
+                <table width="100%">
+                    <tr>
+                        <td class="two-columns"
+                            style="background-color: #DCFFF8;  text-align: center;vertical-align: top;padding: 10px 0px;">
+                            <table width="100%" class="column" align="top">
+                                <tr>
+                                    <td style="vertical-align: top;">
+                                    <td style="text-align: center;"><a href="#"><img
+                                                style="max-width: 160px;padding: 20px 0px;" src={{qr_link}} alt=""></a>
+                                    </td>
+                        </td>
+                    </tr>
+                </table>
+                <table class="column-one" width="100%">
+                    <tr>
+                        <td style="text-align: center;">
+                            <h1 style="color: #231F20;font-size: 22px;margin-top: 0px;">How to use Your Referral
+                                Benefits?</h1>
+                            <h2 style="color: #231F20;font-size: 16px;font-weight: 600;margin: 2px;">Scan QR Code</h2>
+                            <p style="color: #231F20;font-size: 12px;margin: 2px;">Use the QR code to shop our products
+                                instantly.</p>
+                            <span style="color: #231F20;font-size: 12px;margin: 2px;">Or</span>
+                            <h2 style="color: #231F20;font-size: 16px;font-weight: 600;margin: 2px;">Send a Referral
+                                Link</h2>
+                            <p style="color: #231F20;font-size: 12px;margin: 2px;">Click the unique referral link to
+                                explore and share it with friends</p>
+                            <a href={{referral_link}}
+                                style="color: #239983;font-size: 14px;text-decoration: none;background: #fff;border: 2px solid #E2F2ED;padding: 4px 20px;line-height: 32px;">Click
+                                here to explore</a>
 
-            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        </table>
+        </td>
+        </tr>
+        <!-- section end-->
+        <tr>
+            <td style="background: #fff;padding: 10px 0px 10px 0px;">
+                <div class="heading-section" style="text-align: center; padding: 0 30px;">
+                    <h2 style="font-size: 26px;color: #252525;margin-bottom: 0px;line-height: 10px;">
+                        <b>Our Bestsellers</b>
+                    </h2>
+                    <p style="color: #231F20;font-size: 14px;">Check out some of our top products that you and your
+                        friends will love:</p>
+                </div>
+            </td>
+        </tr>
 
-            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: auto;">
-                <tr>
-                <tr>
-                    <img src="{{footer_img}}" style="width: 100%;" alt="">
-                </tr>
-                </tr>
-            </table>
-        </div>
+        <tr>
+            <td>
+                <table width="100%">
+                    <tr>
+                        <td class="two-columns" style=" text-align: center;vertical-align: top;">
+                            {{#each products}}
+                            <table class="column-small product_item" style="background-color:{{productbgcolor}}" width="
+                                100%">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <p style="color: #fff;font-size: 14px;min-height: 32px; padding: 0px 5px;">
+                                            {{product_name}}</p>
+                                        <img style="max-width: 100px;" src={{product_image}} alt="">
+                                        <div style="padding: 10px 0px;margin-bottom: 10px;">
+                                            <a href={{url}} class="button">Shop Now</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                            {{/each}}
+                        </td>
+
+
+
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="background: #fff;padding: 10px 0px 10px 0px;">
+                <div class="heading-section" style="text-align: center; padding: 0 30px;">
+                    <h2 style="font-size: 26px;color: #252525;margin-bottom: 0px;line-height: 10px;">
+                        <b>Exclusive Coupon Code</b>
+                    </h2>
+                    <p style="color: #231F20;font-size: 14px;">Use these codes to get a discount on
+                        your next purchase. Share them with your friends</p>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table width="100%">
+                    <tr>
+                        <td class="two-columns"
+                            style="background-color: #27ceae;  text-align: center;vertical-align: top;padding: 20px;">
+
+                            {{#each coupons}}
+                            <table width="100%" class="column-half" align="top">
+                                <tr>
+                                    <td
+                                        style="background: #000000;text-align: center;padding: 15px;cursor: pointer;border: 4px solid #27ceae;">
+                                        <h6 style="font-size: 25px;color: #fff; margin: 0px;line-height: 24px;">
+                                            {{code}}</h6>
+                                        <span style="font-size: 12px;color: #fff;line-height: 20px;">USE THIS
+                                            COUPON TO AVAIL THIS OFFER</span>
+                                    </td>
+                                </tr>
+                            </table>
+                            {{/each}}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td>
+                <table width="100%">
+                    <img width="100%" src={{footer}} />
+                </table>
+            </td>
+        </tr>
+
+        </table>
     </center>
+
 </body>
 
 </html>
