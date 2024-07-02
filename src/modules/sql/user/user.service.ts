@@ -323,6 +323,12 @@ export class UserService extends ModelService<User> {
       }
 
       job.options.attributes = attributes;
+    } else if (job.action === 'findAllMyReferrals') {
+      job.options.where = {
+        ...job.options.where,
+        role: Role.Customer,
+        dispenser_id: job.owner.id,
+      };
     }
   }
 

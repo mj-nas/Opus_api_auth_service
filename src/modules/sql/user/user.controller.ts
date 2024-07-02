@@ -389,7 +389,7 @@ export class UserController {
    * Return all customer list
    */
   @Get('dispenser')
-  @ApiOperation({ summary: 'Get all dispnesers' })
+  @ApiOperation({ summary: 'Get all dispensers' })
   @ApiQueryGetAll()
   @ResponseGetAll(User)
   async findAllDispenser(
@@ -421,7 +421,7 @@ export class UserController {
    * Return all customer list
    */
   @Get('applicant')
-  @ApiOperation({ summary: 'Get all customers' })
+  @ApiOperation({ summary: 'Get all applicants' })
   @ApiQueryGetAll()
   @ResponseGetAll(User)
   async findAllDispenserApplicant(
@@ -434,6 +434,38 @@ export class UserController {
       await this.userService.findAll({
         owner,
         action: 'findAllDispenserApplicant',
+        payload: { ...query },
+      });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { users: data, offset, limit, count },
+      message: 'Ok',
+    });
+  }
+
+  /**
+   * Return all customer list
+   */
+  @Get('my-referrals')
+  @ApiOperation({ summary: 'Get all my referrals' })
+  @ApiQueryGetAll()
+  @ResponseGetAll(User)
+  async findAllMyReferrals(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data, offset, limit, count } =
+      await this.userService.findAll({
+        owner,
+        action: 'findAllMyReferrals',
         payload: { ...query },
       });
 
