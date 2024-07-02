@@ -1,10 +1,12 @@
-import { ModelService, SqlService } from '@core/sql';
+import { ModelService, SqlJob, SqlService, WrapSqlJob } from '@core/sql';
+import { ReadPayload } from '@core/sql/sql.decorator';
 import { Injectable } from '@nestjs/common';
-import { Op, literal } from 'sequelize';
+import { Op, col, fn, literal } from 'sequelize';
 import { JobResponse } from 'src/core/core.job';
 import { OrderItemStatus } from '../order-item/entities/order-item.entity';
 import { OrderStatus } from '../order/order-status.enum';
 import { OrderService } from '../order/order.service';
+import { CommissionStatus } from './commission-status.enum';
 import { Commission } from './entities/commission.entity';
 
 @Injectable()
@@ -20,6 +22,94 @@ export class CommissionService extends ModelService<Commission> {
     private _orderService: OrderService,
   ) {
     super(db);
+  }
+
+  /**
+   * doBeforeFindAll
+   * @function function will execute before findAll function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeFindAll(job: SqlJob<Commission>): Promise<void> {
+    await super.doBeforeFindAll(job);
+    if (job.action === 'findAllMe') {
+      job.options.where = { ...job.options.where, user_id: job.owner.id };
+    }
+  }
+
+  @WrapSqlJob
+  @ReadPayload
+  async getAllCounts(job: SqlJob<Commission>): Promise<JobResponse> {
+    try {
+      if (job.action === 'findAllMe') {
+        job.options.where = { ...job.options.where, user_id: job.owner.id };
+      }
+
+      const [
+        { data: total_earnings },
+        { data: total_paid },
+        { data: total_balance },
+      ] = await Promise.all([
+        await this.$db.findOneRecord({
+          options: {
+            ...job.options,
+            where: {
+              ...job.options.where,
+              status: {
+                [Op.in]: [CommissionStatus.Paid, CommissionStatus.Pending],
+              },
+            },
+            attributes: [
+              [fn('ROUND', fn('SUM', col('commission')), 1), 'total_earnings'],
+            ],
+            limit: undefined,
+            offset: undefined,
+          },
+        }),
+        await this.$db.findOneRecord({
+          options: {
+            ...job.options,
+            where: {
+              ...job.options.where,
+              status: {
+                [Op.in]: [CommissionStatus.Paid],
+              },
+            },
+            attributes: [
+              [fn('ROUND', fn('SUM', col('commission')), 1), 'total_paid'],
+            ],
+            limit: undefined,
+            offset: undefined,
+          },
+        }),
+        await this.$db.findOneRecord({
+          options: {
+            ...job.options,
+            where: {
+              ...job.options.where,
+              status: {
+                [Op.in]: [CommissionStatus.Pending],
+              },
+            },
+            attributes: [
+              [fn('ROUND', fn('SUM', col('commission')), 1), 'total_balance'],
+            ],
+            limit: undefined,
+            offset: undefined,
+          },
+        }),
+      ]);
+
+      return {
+        data: {
+          ...total_earnings.toJSON(),
+          ...total_paid.toJSON(),
+          ...total_balance.toJSON(),
+        },
+      };
+    } catch (error) {
+      return { error };
+    }
   }
 
   async calculateCouponAmount({

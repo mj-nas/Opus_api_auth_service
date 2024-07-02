@@ -111,8 +111,77 @@ export class CommissionController {
         message: `${error.message || error}`,
       });
     }
+
+    const { error: countError, data: countData } =
+      await this.commissionService.getAllCounts({
+        owner,
+        action: 'findAll',
+        payload: { ...query },
+      });
+    if (countError) {
+      return ErrorResponse(res, {
+        error: countError,
+        message: `${countError.message || countError}`,
+      });
+    }
     return Result(res, {
-      data: { [pluralizeString(entity)]: data, offset, limit, count },
+      data: {
+        [pluralizeString(entity)]: data,
+        quick_stats: countData,
+        offset,
+        limit,
+        count,
+      },
+      message: 'Ok',
+    });
+  }
+
+  /**
+   * Return all entity documents list
+   */
+  @Get('me')
+  @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
+  @ApiQueryGetAll()
+  @ResponseGetAll(Commission)
+  async findAllMe(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data, offset, limit, count } =
+      await this.commissionService.findAll({
+        owner,
+        action: 'findAllMe',
+        payload: { ...query },
+      });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+
+    const { error: countError, data: countData } =
+      await this.commissionService.getAllCounts({
+        owner,
+        action: 'findAllMe',
+        payload: { ...query },
+      });
+    if (countError) {
+      return ErrorResponse(res, {
+        error: countError,
+        message: `${countError.message || countError}`,
+      });
+    }
+    return Result(res, {
+      data: {
+        [pluralizeString(entity)]: data,
+        quick_stats: countData,
+        offset,
+        limit,
+        count,
+      },
       message: 'Ok',
     });
   }
