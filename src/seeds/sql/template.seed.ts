@@ -191,10 +191,12 @@ export default <Seed<Template>>{
       name: 'dispenser_application_approve',
       title: 'Approved as a Dispenser',
       send_email: true,
-      email_subject: 'Application Approved',
+      email_subject: 'Welcome to OPUS Cannaboids!',
       email_body: `<p>Hi ##TO_NAME##,</p>
 <br />
 <p>Congratulations and welcome to the team! Your application to become a Dispenser has been approved. Here are your details to access the Dispenser portal:</p>
+<br />
+<p>Click here to login - ##LOGIN_LINK##</p>
 <br />
 <p>Username: ##USERNAME##</p>
 <p>Password: ##PASSWORD##</p>

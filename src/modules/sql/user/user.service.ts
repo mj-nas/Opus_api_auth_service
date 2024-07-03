@@ -228,6 +228,7 @@ export class UserService extends ModelService<User> {
                 STATUS: status,
                 USERNAME: email,
                 PASSWORD: password,
+                LOGIN_LINK: process.env.WEBSITE_URL + '/auth/signin',
               },
               skipUserConfig: true,
               user_id: id,
