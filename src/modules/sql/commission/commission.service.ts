@@ -10,6 +10,7 @@ import { Job, JobResponse } from 'src/core/core.job';
 import { OrderItemStatus } from '../order-item/entities/order-item.entity';
 import { OrderStatus } from '../order/order-status.enum';
 import { OrderService } from '../order/order.service';
+import { SettingService } from '../setting/setting.service';
 import { CommissionStatus } from './commission-status.enum';
 import { Commission } from './entities/commission.entity';
 
@@ -24,6 +25,7 @@ export class CommissionService extends ModelService<Commission> {
   constructor(
     db: SqlService<Commission>,
     private _orderService: OrderService,
+    private _settingService: SettingService,
   ) {
     super(db);
   }
@@ -159,6 +161,16 @@ export class CommissionService extends ModelService<Commission> {
         return { error };
       }
 
+      const { data: internalFeeData } = await this._settingService.findOne({
+        action: 'findOne',
+        payload: { where: { name: 'minus_price' } },
+      });
+
+      const { data: commissionData } = await this._settingService.findOne({
+        action: 'findOne',
+        payload: { where: { name: 'commission' } },
+      });
+
       const orders = data;
       for await (const order of orders) {
         if (!!order.user?.dispenser_id) {
@@ -170,8 +182,8 @@ export class CommissionService extends ModelService<Commission> {
             order_id: order.id,
             user_id: order.user.dispenser_id,
             order_amount: sub_total,
-            internal_fee: 10,
-            commission_percentage: 20,
+            internal_fee: internalFeeData.value || 0,
+            commission_percentage: commissionData.value || 0,
           };
           if (!!order.coupon_id) {
             body = {
