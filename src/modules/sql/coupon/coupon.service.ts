@@ -7,6 +7,7 @@ import { IncludeOptions } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
+import { CouponUsedService } from '../coupon-used/coupon-used.service';
 import { Coupon } from './entities/coupon.entity';
 
 @Injectable()
@@ -20,6 +21,7 @@ export class CouponService extends ModelService<Coupon> {
   constructor(
     db: SqlService<Coupon>,
     private msClient: MsClientService,
+    private couponUsedService: CouponUsedService,
   ) {
     super(db);
   }
@@ -34,6 +36,27 @@ export class CouponService extends ModelService<Coupon> {
     await super.doBeforeFindAll(job);
     if (job.action === 'findAllMe') {
       job.options.where = { ...job.options.where, user_id: job.owner.id };
+    }
+  }
+
+  /**
+   * doBeforeDelete
+   * @function function will execute before delete function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeDelete(job: SqlJob<Coupon>): Promise<void> {
+    await super.doBeforeDelete(job);
+    /**check if the coupon is used by user */
+    const usedCoupon = (
+      await this.couponUsedService.findOne({
+        options: { where: { coupon_id: job.id } },
+      })
+    )?.data;
+    if (usedCoupon) {
+      throw new Error('Cannot delete coupon because it has been used.');
+    } else {
+      console.log('coupon is not used');
     }
   }
 
@@ -175,6 +198,24 @@ export class CouponService extends ModelService<Coupon> {
       };
     } catch (error) {
       return { error };
+    }
+  }
+
+  async verifyCoupon(job: Job): Promise<JobResponse> {
+    const { owner, payload } = job;
+    console.log('payload', payload);
+    const { error, data } = await this.findOne({
+      owner,
+      action: 'findOne',
+      payload,
+    });
+    const current_date = new Date();
+    const valid_to = new Date(data.valid_to);
+    if (error) return { error };
+    if (valid_to >= current_date) {
+      return { data };
+    } else {
+      return { error: 'invalid code', message: 'Coupon is expired' };
     }
   }
 }

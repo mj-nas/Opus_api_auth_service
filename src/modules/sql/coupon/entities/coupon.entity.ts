@@ -91,7 +91,7 @@ export class Coupon extends SqlModel {
     type: Date,
   })
   @IsString()
-  valid_from: string;
+  valid_from: Date;
 
   @Column
   @ApiProperty({
@@ -100,7 +100,7 @@ export class Coupon extends SqlModel {
     type: Date,
   })
   @IsString()
-  valid_to: string;
+  valid_to: Date;
 
   @Column({ type: DataType.ENUM('price', 'percentage') })
   @ApiProperty({
