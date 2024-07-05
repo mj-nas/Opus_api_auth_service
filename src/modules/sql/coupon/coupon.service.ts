@@ -146,7 +146,7 @@ export class CouponService extends ModelService<Coupon> {
         'Start Date',
         'End Date',
         'Price/Percentage',
-        'Use Per Person',
+        'Redemption limit per person',
         'Status',
       ]);
 
@@ -176,7 +176,11 @@ export class CouponService extends ModelService<Coupon> {
         { header: 'Start Date', key: 'valid_from', width: 25 },
         { header: 'End Date', key: 'valid_to', width: 50 },
         { header: 'Price/Percentage', key: 'percentage', width: 25 },
-        { header: 'Use Per Person', key: 'discount_usage', width: 25 },
+        {
+          header: 'Redemption limit per person',
+          key: 'discount_usage',
+          width: 25,
+        },
         { header: 'Status', key: 'active', width: 25 },
       ];
 
