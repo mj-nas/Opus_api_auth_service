@@ -237,5 +237,25 @@ export default <Seed<Template>>{
       send_sms: false,
       sms_body: '',
     },
+    {
+      name: 'coupon_added_dispenser',
+      title: 'Dispenser Coupon Added',
+      send_email: true,
+      email_subject: 'Your Exclusive Coupon Codes from OPUS Cannaboids!',
+      email_body: `<p>Dear ##TO_NAME##,</p>
+<br />
+<p>We're excited to offer you exclusive coupon codes to share with others:</p>
+<br />
+<p><b>Coupon Code:</b></p>
+<br />
+<p>##COUPON_CODE##</p>
+<br />
+<p>Feel free to share these codes with friends and family who might enjoy our products! Explore our latest offers and products on our website.</p>
+<br />
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
   ],
 };

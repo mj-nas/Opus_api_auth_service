@@ -1,4 +1,4 @@
-import { ModelService, SqlJob, SqlService } from '@core/sql';
+import { ModelService, SqlCreateResponse, SqlJob, SqlService } from '@core/sql';
 import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
@@ -6,6 +6,7 @@ import * as moment from 'moment-timezone';
 import { IncludeOptions } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
+import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { Coupon } from './entities/coupon.entity';
 
 @Injectable()
@@ -16,7 +17,10 @@ export class CouponService extends ModelService<Coupon> {
    */
   searchFields: string[] = ['name', 'code'];
 
-  constructor(db: SqlService<Coupon>) {
+  constructor(
+    db: SqlService<Coupon>,
+    private msClient: MsClientService,
+  ) {
     super(db);
   }
 
@@ -60,6 +64,37 @@ export class CouponService extends ModelService<Coupon> {
     }
 
     job.options.include = include;
+  }
+
+  /**
+   * doAfterCreate
+   * @function function will execute after create function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @param {object} response - mandatory - a object representing the job response information
+   * @return {void}
+   */
+  protected async doAfterCreate(
+    job: SqlJob<Coupon>,
+    response: SqlCreateResponse<Coupon>,
+  ): Promise<void> {
+    await super.doAfterCreate(job, response);
+
+    if (job.action === 'create' && response.data.owner == 'Dispenser') {
+      await this.msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_id: response.data.user_id,
+            template: 'coupon_added_dispenser',
+            skipUserConfig: true,
+            variables: {
+              COUPON_CODE: response.data.code,
+            },
+          },
+        }),
+      );
+    }
   }
 
   async createXls(job: Job): Promise<JobResponse> {
