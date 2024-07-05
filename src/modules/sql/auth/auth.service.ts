@@ -286,7 +286,11 @@ export class AuthService {
       !!data.verified ||
       moment(data.expire_at).diff(moment(), 'seconds') <= 0
     ) {
-      return { error: 'Code expired', errorCode: 403 };
+      return {
+        error:
+          'Session expired. Please go back to the previous page and restart the process',
+        errorCode: 403,
+      };
     }
     if (data.retry_limit <= 0) {
       return { error: 'Maximum number of retries exceeded', errorCode: 403 };
@@ -320,7 +324,11 @@ export class AuthService {
       !!data.verified ||
       moment(data.expire_at).diff(moment(), 'seconds') <= 0
     ) {
-      return { error: 'Code expired', errorCode: 403 };
+      return {
+        error:
+          'Session expired. Please go back to the previous page and restart the process',
+        errorCode: 403,
+      };
     }
     if (data.resend_limit <= 0) {
       return { error: 'Maximum number of retries exceeded' };
