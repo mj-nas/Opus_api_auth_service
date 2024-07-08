@@ -159,6 +159,8 @@ export class Commission extends SqlModel {
       } else {
         instance.commission = 0;
       }
+    } else {
+      instance.commission = 0;
     }
   }
 }

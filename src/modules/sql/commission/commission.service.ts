@@ -178,24 +178,26 @@ export class CommissionService extends ModelService<Commission> {
             (item) => item.status === OrderItemStatus.Ordered,
           );
           const sub_total = items.reduce((sum, item) => sum + item.price, 0);
-          let body: any = {
-            order_id: order.id,
-            user_id: order.user.dispenser_id,
-            order_amount: sub_total,
-            internal_fee: internalFeeData.value || 0,
-            commission_percentage: commissionData.value || 0,
-          };
-          if (!!order.coupon_id) {
-            body = {
-              ...body,
-              coupon_discount_amount: await this.calculateCouponAmount({
-                coupon_type: order.coupon_type,
-                sub_total,
-                coupon_discount: order.coupon_discount,
-              }),
+          if (sub_total > 0) {
+            let body: any = {
+              order_id: order.id,
+              user_id: order.user.dispenser_id,
+              order_amount: sub_total,
+              internal_fee: internalFeeData.value || 0,
+              commission_percentage: commissionData.value || 0,
             };
+            if (!!order.coupon_id) {
+              body = {
+                ...body,
+                coupon_discount_amount: await this.calculateCouponAmount({
+                  coupon_type: order.coupon_type,
+                  sub_total,
+                  coupon_discount: order.coupon_discount,
+                }),
+              };
+            }
+            await this.create({ body });
           }
-          await this.create({ body });
         }
       }
       return { data: orders };
