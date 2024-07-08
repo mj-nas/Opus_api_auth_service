@@ -129,9 +129,6 @@ export class CommissionService extends ModelService<Commission> {
     coupon_type: string;
     coupon_discount: number;
   }) {
-    if (sub_total <= 0) {
-      return Math.floor(0 * 100) / 100;
-    }
     if (coupon_type === 'percentage') {
       return Math.floor((coupon_discount / 100) * sub_total * 100) / 100;
     } else {

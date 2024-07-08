@@ -12,7 +12,7 @@ export class CommissionCron {
   ) {}
 
   // Commission Calculator
-  @Cron('03 10 * * *')
+  @Cron('10 10 * * *')
   async commissionCalculatorCron() {
     console.log('commissionCalculatorCron');
     if (this.configService.get('appId') != 'crons') {

@@ -153,9 +153,11 @@ export class Commission extends SqlModel {
     const commission_percentage = instance.commission_percentage || 0;
     if (order_amount > 0 && commission_percentage > 0) {
       const total = order_amount - coupon_discount_amount - internal_fee;
-      if (total > 0) {
+      if (total >= 0) {
         instance.commission =
           Math.floor(total * (commission_percentage / 100) * 100) / 100;
+      } else {
+        instance.commission = 0;
       }
     }
   }
