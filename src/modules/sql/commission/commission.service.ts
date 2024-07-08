@@ -200,6 +200,7 @@ export class CommissionService extends ModelService<Commission> {
       }
       return { data: orders };
     } catch (error) {
+      console.log(error);
       return { error };
     }
   }
