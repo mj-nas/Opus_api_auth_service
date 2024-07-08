@@ -272,7 +272,7 @@ export class CouponController {
     @Owner() owner: OwnerDto,
     @Query() query: any,
   ) {
-    const { error, data } = await this.couponService.findOne({
+    const { error, message, data } = await this.couponService.verifyCoupon({
       owner,
       action: 'checkCoupon',
       payload: { ...query },
@@ -287,7 +287,7 @@ export class CouponController {
       }
       return ErrorResponse(res, {
         error,
-        message: `${error.message || error}`,
+        message: `${error.message || message || error}`,
       });
     }
     return Result(res, { data: { [entity]: data }, message: 'Ok' });

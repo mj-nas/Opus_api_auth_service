@@ -1,4 +1,4 @@
-import { ModelService, SqlJob, SqlService } from '@core/sql';
+import { ModelService, SqlCreateResponse, SqlJob, SqlService } from '@core/sql';
 import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
@@ -6,6 +6,8 @@ import * as moment from 'moment-timezone';
 import { IncludeOptions } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
+import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
+import { CouponUsedService } from '../coupon-used/coupon-used.service';
 import { Coupon } from './entities/coupon.entity';
 
 @Injectable()
@@ -16,7 +18,11 @@ export class CouponService extends ModelService<Coupon> {
    */
   searchFields: string[] = ['name', 'code'];
 
-  constructor(db: SqlService<Coupon>) {
+  constructor(
+    db: SqlService<Coupon>,
+    private msClient: MsClientService,
+    private couponUsedService: CouponUsedService,
+  ) {
     super(db);
   }
 
@@ -30,6 +36,27 @@ export class CouponService extends ModelService<Coupon> {
     await super.doBeforeFindAll(job);
     if (job.action === 'findAllMe') {
       job.options.where = { ...job.options.where, user_id: job.owner.id };
+    }
+  }
+
+  /**
+   * doBeforeDelete
+   * @function function will execute before delete function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeDelete(job: SqlJob<Coupon>): Promise<void> {
+    await super.doBeforeDelete(job);
+    /**check if the coupon is used by user */
+    const usedCoupon = (
+      await this.couponUsedService.findOne({
+        options: { where: { coupon_id: job.id } },
+      })
+    )?.data;
+    if (usedCoupon) {
+      throw new Error('Cannot delete coupon because it has been used.');
+    } else {
+      console.log('coupon is not used');
     }
   }
 
@@ -62,6 +89,37 @@ export class CouponService extends ModelService<Coupon> {
     job.options.include = include;
   }
 
+  /**
+   * doAfterCreate
+   * @function function will execute after create function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @param {object} response - mandatory - a object representing the job response information
+   * @return {void}
+   */
+  protected async doAfterCreate(
+    job: SqlJob<Coupon>,
+    response: SqlCreateResponse<Coupon>,
+  ): Promise<void> {
+    await super.doAfterCreate(job, response);
+
+    if (job.action === 'create' && response.data.owner == 'Dispenser') {
+      await this.msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_id: response.data.user_id,
+            template: 'coupon_added_dispenser',
+            skipUserConfig: true,
+            variables: {
+              COUPON_CODE: response.data.code,
+            },
+          },
+        }),
+      );
+    }
+  }
+
   async createXls(job: Job): Promise<JobResponse> {
     try {
       const { owner, payload } = job;
@@ -88,7 +146,7 @@ export class CouponService extends ModelService<Coupon> {
         'Start Date',
         'End Date',
         'Price/Percentage',
-        'Use Per Person',
+        'Redemption limit per person',
         'Status',
       ]);
 
@@ -118,7 +176,11 @@ export class CouponService extends ModelService<Coupon> {
         { header: 'Start Date', key: 'valid_from', width: 25 },
         { header: 'End Date', key: 'valid_to', width: 50 },
         { header: 'Price/Percentage', key: 'percentage', width: 25 },
-        { header: 'Use Per Person', key: 'discount_usage', width: 25 },
+        {
+          header: 'Redemption limit per person',
+          key: 'discount_usage',
+          width: 25,
+        },
         { header: 'Status', key: 'active', width: 25 },
       ];
 
@@ -140,6 +202,24 @@ export class CouponService extends ModelService<Coupon> {
       };
     } catch (error) {
       return { error };
+    }
+  }
+
+  async verifyCoupon(job: Job): Promise<JobResponse> {
+    const { owner, payload } = job;
+    console.log('payload', payload);
+    const { error, data } = await this.findOne({
+      owner,
+      action: 'findOne',
+      payload,
+    });
+    const current_date = new Date();
+    const valid_to = new Date(data.valid_to);
+    if (error) return { error };
+    if (valid_to >= current_date) {
+      return { data };
+    } else {
+      return { error: 'invalid code', message: 'Coupon is expired' };
     }
   }
 }

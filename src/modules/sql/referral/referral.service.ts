@@ -84,7 +84,6 @@ export class ReferralService extends ModelService<Referral> {
       action: 'create',
       body: { email, dispenser_id: job.owner.id },
     });
-    console.log(referred_coupons, referred_products);
 
     if (error) {
       return { error };
@@ -95,7 +94,7 @@ export class ReferralService extends ModelService<Referral> {
     data.setDataValue('qr_code', qrCodeKey);
     await data.save();
 
-    if (referred_coupons) {
+    if (referred_coupons && referred_coupons.length > 0) {
       const coupon_data = referred_coupons.map((e) => {
         return {
           referral_id: data.id,
@@ -115,7 +114,7 @@ export class ReferralService extends ModelService<Referral> {
         };
       }
     }
-    if (referred_products) {
+    if (referred_products && referred_products.length > 0) {
       const product_data = referred_products.map((e) => {
         return {
           referral_id: data.id,

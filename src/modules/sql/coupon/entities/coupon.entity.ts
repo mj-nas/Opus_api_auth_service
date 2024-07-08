@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNumber, IsString, ValidateIf } from 'class-validator';
 
 import { Include } from '@core/sql/sql.decorator';
+import { IsUnique } from '@core/sql/sql.unique-validator';
 import {
   BelongsTo,
   Column,
@@ -36,6 +37,10 @@ export class Coupon extends SqlModel {
     type: String,
   })
   @IsString()
+  @IsUnique('Coupon', {
+    message:
+      'The Coupon code already exists. Please try with a different code.',
+  })
   code: string;
 
   @Column({
@@ -86,7 +91,7 @@ export class Coupon extends SqlModel {
     type: Date,
   })
   @IsString()
-  valid_from: string;
+  valid_from: Date;
 
   @Column
   @ApiProperty({
@@ -95,7 +100,7 @@ export class Coupon extends SqlModel {
     type: Date,
   })
   @IsString()
-  valid_to: string;
+  valid_to: Date;
 
   @Column({ type: DataType.ENUM('price', 'percentage') })
   @ApiProperty({
