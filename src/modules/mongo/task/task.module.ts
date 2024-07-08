@@ -7,6 +7,7 @@ import { OrderModule } from 'src/modules/sql/order/order.module';
 import { MongoModule } from '../../../../libs/mongo/src';
 import { HistoryModule } from './../history/history.module';
 import { TrashModule } from './../trash/trash.module';
+import { CommissionCron } from './crons/commission.cron';
 import { HistoryCron } from './crons/history.cron';
 import { OrderCron } from './crons/order.cron';
 import { TrashCron } from './crons/trash.cron';
@@ -23,7 +24,7 @@ import { TaskService } from './task.service';
     ConfigModule,
     MongoModule.register({ name: Task.name, schema: TaskSchema }),
   ],
-  providers: [TaskService, HistoryCron, TrashCron, OrderCron],
+  providers: [TaskService, HistoryCron, TrashCron, OrderCron, CommissionCron],
 })
 export class TaskModule implements OnApplicationBootstrap {
   constructor(private taskService: TaskService) {}

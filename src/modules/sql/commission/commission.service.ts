@@ -132,7 +132,7 @@ export class CommissionService extends ModelService<Commission> {
     if (coupon_type === 'percentage') {
       return Math.floor((coupon_discount / 100) * sub_total * 100) / 100;
     } else {
-      return Math.floor((sub_total - coupon_discount) * 100) / 100;
+      return Math.floor(coupon_discount * 100) / 100;
     }
   }
 
@@ -145,13 +145,13 @@ export class CommissionService extends ModelService<Commission> {
           where: {
             status: OrderStatus.Delivered,
             '$current_status.created_at$': literal(
-              `DATE_FORMAT(DATE_ADD( current_status.created_at, INTERVAL 4 DAY ),'%Y-%m-%d') = DATE_FORMAT(CURDATE( ),'%Y-%m-%d')`,
+              `DATE_FORMAT(DATE_ADD( current_status.created_at, INTERVAL 15 DAY ),'%Y-%m-%d') = DATE_FORMAT(CURDATE( ),'%Y-%m-%d')`,
             ),
             '$user.dispenser_id$': { [Op.ne]: null },
           },
           include: [
             { association: 'current_status' },
-            { association: 'items' },
+            { association: 'items', separate: true },
             { association: 'coupon' },
             { association: 'user' },
           ],
@@ -178,28 +178,31 @@ export class CommissionService extends ModelService<Commission> {
             (item) => item.status === OrderItemStatus.Ordered,
           );
           const sub_total = items.reduce((sum, item) => sum + item.price, 0);
-          let body: any = {
-            order_id: order.id,
-            user_id: order.user.dispenser_id,
-            order_amount: sub_total,
-            internal_fee: internalFeeData.value || 0,
-            commission_percentage: commissionData.value || 0,
-          };
-          if (!!order.coupon_id) {
-            body = {
-              ...body,
-              coupon_discount_amount: await this.calculateCouponAmount({
-                coupon_type: order.coupon_type,
-                sub_total,
-                coupon_discount: order.coupon_discount,
-              }),
+          if (sub_total > 0) {
+            let body: any = {
+              order_id: order.id,
+              user_id: order.user.dispenser_id,
+              order_amount: sub_total,
+              internal_fee: internalFeeData.value || 0,
+              commission_percentage: commissionData.value || 0,
             };
+            if (!!order.coupon_id) {
+              body = {
+                ...body,
+                coupon_discount_amount: await this.calculateCouponAmount({
+                  coupon_type: order.coupon_type,
+                  sub_total,
+                  coupon_discount: order.coupon_discount,
+                }),
+              };
+            }
+            await this.create({ body });
           }
-          await this.create({ body });
         }
       }
       return { data: orders };
     } catch (error) {
+      console.log(error);
       return { error };
     }
   }

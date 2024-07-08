@@ -75,13 +75,12 @@ export default <Seed<Template>>{
       name: 'change_password_by_admin',
       title: 'Change Password By Admin',
       send_email: true,
-      email_subject: 'Account Status Update : OPUS',
+      email_subject: 'Your Password Has Been Changed',
       email_body: `Dear ##TO_NAME##,
-<br><br>Your account password has been updated by our team. Below are your new login details:
-<br><br>Username: ##USERNAME##
-<br>New Password: ##PASSWORD##
-<br>Please log in and change your password at your earliest convenience for your security.
-<br><br>If you have any questions or concerns, please do not hesitate to contact our office.
+<br><br>Your password has been successfully changed by the admin.
+<br><br>Your new password is: ##PASSWORD##
+<br>Please log in and change it to something secure and memorable at your earliest convenience. If you have any concerns, contact our support team immediately.
+<br><br>Thank you for being a valued member of Team OPUS.
 <br><br>Best regards,
 <br>Team OPUS`,
       send_sms: false,
