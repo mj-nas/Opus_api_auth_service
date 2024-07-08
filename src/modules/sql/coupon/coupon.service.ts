@@ -34,12 +34,13 @@ export class CouponService extends ModelService<Coupon> {
    */
   protected async doBeforeFindAll(job: SqlJob<Coupon>): Promise<void> {
     await super.doBeforeFindAll(job);
+    const date = new Date().toISOString().split('T')[0];
     if (job.action === 'findAllMe') {
       job.options.where = {
         ...job.options.where,
         user_id: job.owner.id,
         active: true,
-        valid_to: { [Op.gte]: Date.now() },
+        valid_to: { [Op.gte]: date },
       };
     }
   }
@@ -218,10 +219,10 @@ export class CouponService extends ModelService<Coupon> {
       action: 'findOne',
       payload,
     });
-    const current_date = new Date();
-    const valid_to = new Date(data.valid_to);
+    const current_date = new Date().toISOString().split('T')[0];
+    const valid_till = new Date(data.valid_to).toISOString().split('T')[0];
     if (error) return { error };
-    if (valid_to >= current_date) {
+    if (valid_till >= current_date) {
       return { data };
     } else {
       return { error: 'invalid code', message: 'Coupon is expired' };
