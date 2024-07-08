@@ -136,8 +136,10 @@ export class CouponService extends ModelService<Coupon> {
           ...payload,
           offset: 0,
           limit: -1,
+          populate: ['user', 'coupon_used'],
         },
       });
+      console.log('data', data);
 
       if (error) throw error;
 
@@ -146,13 +148,15 @@ export class CouponService extends ModelService<Coupon> {
 
       worksheet.addRow([
         'Sl. No',
-        'Name',
+        'Coupon Name',
         'Code',
+        'Dispenser',
         'Start Date',
         'End Date',
         'Price/Percentage',
         'Redemption limit per person',
-        'Status',
+        'Redemption Status',
+        'Activation Status',
       ]);
 
       const coupons: Coupon[] = JSON.parse(JSON.stringify(data));
@@ -163,12 +167,14 @@ export class CouponService extends ModelService<Coupon> {
             index + 1,
             x?.name,
             x?.code,
+            x?.user?.name,
             moment(x.valid_from).format('MM/DD/YYYY'),
             moment(x.valid_to).format('MM/DD/YYYY'),
             x?.coupon_type === 'percentage'
               ? `${x.discount}%`
               : `$${x.discount}`,
             x?.discount_usage,
+            x?.coupon_used.length ? 'Redeemed' : 'Not Redeemed',
             x.active ? 'Active' : 'Inactive',
           ]);
         }),
@@ -176,8 +182,9 @@ export class CouponService extends ModelService<Coupon> {
 
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
-        { header: 'Name', key: 'product_name', width: 25 },
+        { header: 'Coupon Name', key: 'name', width: 25 },
         { header: 'Code', key: 'code', width: 25 },
+        { header: 'Dispenser', key: 'user', width: 25 },
         { header: 'Start Date', key: 'valid_from', width: 25 },
         { header: 'End Date', key: 'valid_to', width: 50 },
         { header: 'Price/Percentage', key: 'percentage', width: 25 },
@@ -186,6 +193,8 @@ export class CouponService extends ModelService<Coupon> {
           key: 'discount_usage',
           width: 25,
         },
+        { header: 'Redemption Status', key: 'coupon_used', width: 25 },
+        { header: 'Activation Status', key: 'active', width: 25 },
         { header: 'Status', key: 'active', width: 25 },
       ];
 

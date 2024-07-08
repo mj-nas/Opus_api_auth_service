@@ -133,11 +133,11 @@ export class Coupon extends SqlModel {
     attributes: ['user_id', 'coupon_id'],
   })
   @HasMany(() => CouponUsed)
-  coupon_used_me: CouponUsed;
+  coupon_used_me: CouponUsed[];
 
   @Include({
     attributes: ['user_id', 'coupon_id'],
   })
   @HasMany(() => CouponUsed)
-  coupon_used: CouponUsed;
+  coupon_used: CouponUsed[];
 }
