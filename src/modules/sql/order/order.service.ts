@@ -152,6 +152,7 @@ export class OrderService extends ModelService<Order> {
     job: SqlJob<Order>,
     response: SqlUpdateResponse<Order>,
   ): Promise<void> {
+    await super.doAfterUpdate(job, response);
     if (
       job.action === 'order.status.update' ||
       job.action === 'cancelOrder' ||
@@ -843,6 +844,33 @@ export class OrderService extends ModelService<Order> {
           isData: !!orders.length,
         },
       };
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  async reCheckStatus(job: Job): Promise<JobResponse> {
+    try {
+      const { order_id } = job.payload;
+      const { error, data } = await this.findById({
+        action: 'findById',
+        id: +order_id,
+        payload: { populate: ['items'] },
+      });
+      if (!error && data !== null) {
+        const items = data.items;
+        const orderedItems = items.filter(
+          (item) => item.status === OrderItemStatus.Ordered,
+        );
+        if (orderedItems.length === 0) {
+          await this._msClient.executeJob('order.status.update', {
+            payload: {
+              order_id,
+              status: OrderStatus.Cancelled,
+            },
+          });
+        }
+      }
     } catch (error) {
       return { error };
     }
