@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import * as moment from 'moment-timezone';
-import { IncludeOptions } from 'sequelize';
+import { IncludeOptions, Op } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
@@ -35,7 +35,12 @@ export class CouponService extends ModelService<Coupon> {
   protected async doBeforeFindAll(job: SqlJob<Coupon>): Promise<void> {
     await super.doBeforeFindAll(job);
     if (job.action === 'findAllMe') {
-      job.options.where = { ...job.options.where, user_id: job.owner.id };
+      job.options.where = {
+        ...job.options.where,
+        user_id: job.owner.id,
+        active: true,
+        valid_to: { [Op.gte]: Date.now() },
+      };
     }
   }
 
