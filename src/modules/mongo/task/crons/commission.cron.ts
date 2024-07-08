@@ -12,8 +12,9 @@ export class CommissionCron {
   ) {}
 
   // Commission Calculator
-  @Cron('42 08 * * *')
+  @Cron('45 08 * * *')
   async reorderCron() {
+    console.log('start cron');
     if (this.configService.get('appId') != 'crons') {
       return;
     }
