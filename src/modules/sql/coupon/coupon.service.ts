@@ -175,7 +175,7 @@ export class CouponService extends ModelService<Coupon> {
               ? `${x.discount}%`
               : `$${x.discount}`,
             x?.discount_usage,
-            x?.coupon_used.length ? 'Redeemed' : 'Not Redeemed',
+            x?.coupon_used.length > 0 ? 'Redeemed' : 'Not Redeemed',
             x.active ? 'Active' : 'Inactive',
           ]);
         }),
@@ -196,7 +196,6 @@ export class CouponService extends ModelService<Coupon> {
         },
         { header: 'Redemption Status', key: 'coupon_used', width: 25 },
         { header: 'Activation Status', key: 'active', width: 25 },
-        { header: 'Status', key: 'active', width: 25 },
       ];
 
       const file_dir = config().cdnPath + '/coupon-excel';
