@@ -151,7 +151,7 @@ export class CommissionService extends ModelService<Commission> {
           },
           include: [
             { association: 'current_status' },
-            { association: 'items' },
+            { association: 'items', separate: true },
             { association: 'coupon' },
             { association: 'user' },
           ],
