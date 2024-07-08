@@ -75,6 +75,21 @@ export class OrderController {
   }
 
   /**
+   * Queue listener for order status update
+   */
+  @MsEventListener('order-item.status.update')
+  async orderItemStatusUpdateListener(job: Job): Promise<void> {
+    const { order_id } = job.payload;
+    const response = await this.orderService.reCheckStatus({
+      action: 'order-item.status.update',
+      payload: {
+        order_id,
+      },
+    });
+    await this._msClient.jobDone(job, response);
+  }
+
+  /**
    * Create a new entity document
    */
   @Post()
