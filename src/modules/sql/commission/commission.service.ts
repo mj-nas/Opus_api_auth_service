@@ -167,7 +167,7 @@ export class CommissionService extends ModelService<Commission> {
           where: {
             status: OrderStatus.Delivered,
             '$current_status.created_at$': literal(
-              `DATE_FORMAT(DATE_ADD( current_status.created_at, INTERVAL 15 DAY ),'%Y-%m-%d') = DATE_FORMAT(CURDATE( ),'%Y-%m-%d')`,
+              `DATE_FORMAT(DATE_ADD( current_status.created_at, INTERVAL 1 DAY ),'%Y-%m-%d') = DATE_FORMAT(CURDATE( ),'%Y-%m-%d')`,
             ),
             '$user.dispenser_id$': { [Op.ne]: null },
           },
