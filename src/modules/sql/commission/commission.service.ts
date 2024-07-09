@@ -67,7 +67,7 @@ export class CommissionService extends ModelService<Commission> {
               },
             },
             attributes: [
-              [fn('ROUND', fn('SUM', col('commission')), 1), 'total_earnings'],
+              [fn('ROUND', fn('SUM', col('commission')), 2), 'total_earnings'],
             ],
             limit: undefined,
             offset: undefined,
@@ -91,7 +91,7 @@ export class CommissionService extends ModelService<Commission> {
               },
             },
             attributes: [
-              [fn('ROUND', fn('SUM', col('commission')), 1), 'total_paid'],
+              [fn('ROUND', fn('SUM', col('commission')), 2), 'total_paid'],
             ],
             limit: undefined,
             offset: undefined,
@@ -115,7 +115,7 @@ export class CommissionService extends ModelService<Commission> {
               },
             },
             attributes: [
-              [fn('ROUND', fn('SUM', col('commission')), 1), 'total_balance'],
+              [fn('ROUND', fn('SUM', col('commission')), 2), 'total_balance'],
             ],
             limit: undefined,
             offset: undefined,
