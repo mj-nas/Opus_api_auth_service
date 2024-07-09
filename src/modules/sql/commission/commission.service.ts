@@ -75,7 +75,7 @@ export class CommissionService extends ModelService<Commission> {
               {
                 association: 'order',
                 attributes: ['uid'],
-                include: [{ association: 'user', attributes: [] }],
+                include: [{ association: 'user' }],
               },
               { association: 'user', attributes: ['name'] },
             ],
@@ -99,7 +99,7 @@ export class CommissionService extends ModelService<Commission> {
               {
                 association: 'order',
                 attributes: ['uid'],
-                include: [{ association: 'user', attributes: [] }],
+                include: [{ association: 'user' }],
               },
               { association: 'user', attributes: ['name'] },
             ],
@@ -123,7 +123,7 @@ export class CommissionService extends ModelService<Commission> {
               {
                 association: 'order',
                 attributes: ['uid'],
-                include: [{ association: 'user', attributes: [] }],
+                include: [{ association: 'user' }],
               },
               { association: 'user', attributes: ['name'] },
             ],
