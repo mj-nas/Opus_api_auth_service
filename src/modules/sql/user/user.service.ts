@@ -735,6 +735,7 @@ export class UserService extends ModelService<User> {
             country: user.COUNTRY,
             zip_code: user.ZIP_CODE,
             password,
+            status: Status.Approve,
           };
           const { errors } = await trimAndValidateCustom(
             CreateDispenserDto,
