@@ -227,16 +227,13 @@ export class CouponService extends ModelService<Coupon> {
       owner,
       options: {
         where: { code: payload.where.code, active: true },
-        include: ['user'],
+        include: ['user', 'coupon_used_me'],
       },
     });
     if (error) return { error };
     const current_date = new Date().toISOString().split('T')[0];
     const valid_till = new Date(data.valid_to).toISOString().split('T')[0];
     const valid_from = new Date(data.valid_from).toISOString().split('T')[0];
-    console.log('valid_from', valid_from);
-    console.log('current_date', current_date);
-    console.log('valid_till', valid_till);
 
     if (valid_from <= current_date) {
       if (valid_till >= current_date) {
