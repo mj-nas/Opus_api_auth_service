@@ -38,6 +38,7 @@ export class CommissionService extends ModelService<Commission> {
    */
   protected async doBeforeFindAll(job: SqlJob<Commission>): Promise<void> {
     await super.doBeforeFindAll(job);
+    // find all my commissions
     if (job.action === 'findAllMe') {
       job.options.where = { ...job.options.where, user_id: job.owner.id };
     }
@@ -66,11 +67,18 @@ export class CommissionService extends ModelService<Commission> {
               },
             },
             attributes: [
-              [fn('ROUND', fn('SUM', col('commission')), 1), 'total_earnings'],
+              [fn('ROUND', fn('SUM', col('commission')), 2), 'total_earnings'],
             ],
             limit: undefined,
             offset: undefined,
-            include: undefined,
+            include: [
+              {
+                association: 'order',
+                attributes: ['uid'],
+                include: [{ association: 'user', attributes: [] }],
+              },
+              { association: 'user', attributes: ['name'] },
+            ],
           },
         }),
         await this.$db.findOneRecord({
@@ -83,11 +91,18 @@ export class CommissionService extends ModelService<Commission> {
               },
             },
             attributes: [
-              [fn('ROUND', fn('SUM', col('commission')), 1), 'total_paid'],
+              [fn('ROUND', fn('SUM', col('commission')), 2), 'total_paid'],
             ],
             limit: undefined,
             offset: undefined,
-            include: undefined,
+            include: [
+              {
+                association: 'order',
+                attributes: ['uid'],
+                include: [{ association: 'user', attributes: [] }],
+              },
+              { association: 'user', attributes: ['name'] },
+            ],
           },
         }),
         await this.$db.findOneRecord({
@@ -100,11 +115,18 @@ export class CommissionService extends ModelService<Commission> {
               },
             },
             attributes: [
-              [fn('ROUND', fn('SUM', col('commission')), 1), 'total_balance'],
+              [fn('ROUND', fn('SUM', col('commission')), 2), 'total_balance'],
             ],
             limit: undefined,
             offset: undefined,
-            include: undefined,
+            include: [
+              {
+                association: 'order',
+                attributes: ['uid'],
+                include: [{ association: 'user', attributes: [] }],
+              },
+              { association: 'user', attributes: ['name'] },
+            ],
           },
         }),
       ]);
@@ -145,7 +167,7 @@ export class CommissionService extends ModelService<Commission> {
           where: {
             status: OrderStatus.Delivered,
             '$current_status.created_at$': literal(
-              `DATE_FORMAT(DATE_ADD( current_status.created_at, INTERVAL 15 DAY ),'%Y-%m-%d') = DATE_FORMAT(CURDATE( ),'%Y-%m-%d')`,
+              `DATE_FORMAT(DATE_ADD( current_status.created_at, INTERVAL 1 DAY ),'%Y-%m-%d') = DATE_FORMAT(CURDATE( ),'%Y-%m-%d')`,
             ),
             '$user.dispenser_id$': { [Op.ne]: null },
           },
@@ -202,7 +224,6 @@ export class CommissionService extends ModelService<Commission> {
       }
       return { data: orders };
     } catch (error) {
-      console.log(error);
       return { error };
     }
   }
