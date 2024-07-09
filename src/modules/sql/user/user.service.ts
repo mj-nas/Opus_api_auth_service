@@ -376,11 +376,12 @@ export class UserService extends ModelService<User> {
 
     if (job.action == 'createDispenser') {
       const password = generateRandomPassword(10);
+      const passwordHash = await generateHash(password);
       await this.$db.updateRecord({
         action: 'findById',
         id: id,
         body: {
-          password,
+          password: passwordHash,
         },
       });
 
