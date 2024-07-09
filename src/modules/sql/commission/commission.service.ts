@@ -266,9 +266,9 @@ export class CommissionService extends ModelService<Commission> {
             x?.order?.uid,
             x?.user?.name,
             x?.order?.user?.name,
-            moment(x.created_at).tz(timezone).format('MMM dd yyyy'),
-            x?.order_amount,
-            x?.commission,
+            moment(x.created_at).tz(timezone).format('MMM DD YYYY'),
+            `$${x.order_amount}`,
+            `$${x?.commission}`,
             x?.status,
           ]);
         }),
