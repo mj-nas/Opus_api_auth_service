@@ -41,6 +41,7 @@ export class CouponService extends ModelService<Coupon> {
         user_id: job.owner.id,
         active: true,
         valid_to: { [Op.gte]: date },
+        valid_from: { [Op.lte]: date },
       };
     }
   }
@@ -222,18 +223,32 @@ export class CouponService extends ModelService<Coupon> {
   async verifyCoupon(job: Job): Promise<JobResponse> {
     const { owner, payload } = job;
     console.log('payload', payload);
-    const { error, data } = await this.findOne({
+    const { error, data } = await this.$db.findOneRecord({
       owner,
-      action: 'findOne',
-      payload,
+      options: {
+        where: { code: payload.where.code, active: true },
+        include: ['user'],
+      },
     });
+    if (error) return { error };
     const current_date = new Date().toISOString().split('T')[0];
     const valid_till = new Date(data.valid_to).toISOString().split('T')[0];
-    if (error) return { error };
-    if (valid_till >= current_date) {
-      return { data };
+    const valid_from = new Date(data.valid_from).toISOString().split('T')[0];
+    console.log('valid_from', valid_from);
+    console.log('current_date', current_date);
+    console.log('valid_till', valid_till);
+
+    if (valid_from <= current_date) {
+      if (valid_till >= current_date) {
+        return { data };
+      } else {
+        return {
+          error: 'invalid code',
+          message: 'Coupon is expired',
+        };
+      }
     } else {
-      return { error: 'invalid code', message: 'Coupon is expired' };
+      return { error: 'invalid code', message: 'Coupon is not available yet' };
     }
   }
 }
