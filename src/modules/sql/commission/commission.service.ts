@@ -38,6 +38,7 @@ export class CommissionService extends ModelService<Commission> {
    */
   protected async doBeforeFindAll(job: SqlJob<Commission>): Promise<void> {
     await super.doBeforeFindAll(job);
+    // find all my commissions
     if (job.action === 'findAllMe') {
       job.options.where = { ...job.options.where, user_id: job.owner.id };
     }
@@ -70,7 +71,14 @@ export class CommissionService extends ModelService<Commission> {
             ],
             limit: undefined,
             offset: undefined,
-            include: undefined,
+            include: [
+              {
+                association: 'order',
+                attributes: ['uid'],
+                include: [{ association: 'user', attributes: [] }],
+              },
+              { association: 'user', attributes: ['name'] },
+            ],
           },
         }),
         await this.$db.findOneRecord({
@@ -87,7 +95,14 @@ export class CommissionService extends ModelService<Commission> {
             ],
             limit: undefined,
             offset: undefined,
-            include: undefined,
+            include: [
+              {
+                association: 'order',
+                attributes: ['uid'],
+                include: [{ association: 'user', attributes: [] }],
+              },
+              { association: 'user', attributes: ['name'] },
+            ],
           },
         }),
         await this.$db.findOneRecord({
@@ -104,7 +119,14 @@ export class CommissionService extends ModelService<Commission> {
             ],
             limit: undefined,
             offset: undefined,
-            include: undefined,
+            include: [
+              {
+                association: 'order',
+                attributes: ['uid'],
+                include: [{ association: 'user', attributes: [] }],
+              },
+              { association: 'user', attributes: ['name'] },
+            ],
           },
         }),
       ]);
@@ -202,7 +224,6 @@ export class CommissionService extends ModelService<Commission> {
       }
       return { data: orders };
     } catch (error) {
-      console.log(error);
       return { error };
     }
   }
