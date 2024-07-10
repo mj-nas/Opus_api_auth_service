@@ -20,7 +20,7 @@ export class CommissionService extends ModelService<Commission> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['$order.uid$', '$user.name$'];
+  searchFields: string[] = ['$order.uid$', '$order.user.name$', '$user.name$'];
 
   constructor(
     db: SqlService<Commission>,
