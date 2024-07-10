@@ -78,7 +78,7 @@ export class ReferralService extends ModelService<Referral> {
 
   async createReferrals(job: Job): Promise<JobResponse> {
     const { referred_coupons, referred_products, email } = job.payload;
-    const colours = ['#aa674f', '#E8AE9A', '#CFAFA4', '#F7F0B3'];
+    const colours = ['#aa674f', '#E8AE9A', '#CFAFA4', '#F7F0B3', '#F7D08A'];
     const { error, data } = await this.create({
       owner: job.owner,
       action: 'create',
@@ -155,7 +155,7 @@ export class ReferralService extends ModelService<Referral> {
         ? referred_products.map((e: any, index: number) => ({
             ...e,
             url: `${process.env.WEBSITE_URL}/products/${e.slug}`,
-            productbgcolor: colours[index],
+            productbgcolor: colours[index % colours.length],
           }))
         : [],
     });

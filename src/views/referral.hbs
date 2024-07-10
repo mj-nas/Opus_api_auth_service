@@ -193,6 +193,8 @@
         </td>
         </tr>
         <!-- section end-->
+
+        {{#if products}}
         <tr>
             <td style="background: #fff;padding: 10px 0px 10px 0px;">
                 <div class="heading-section" style="text-align: center; padding: 0 30px;">
@@ -217,7 +219,8 @@
                                     <td style="text-align: center;">
                                         <p style="color: #fff;font-size: 14px;min-height: 32px; padding: 0px 5px;">
                                             {{product_name}}</p>
-                                        <img style="max-width: 100px;" src={{product_image}} alt="">
+                                        <img style="max-width: 100px; max-height: 100px; height:100px; object-fit:cover;"
+                                            src={{product_image}} alt="">
                                         <div style="padding: 10px 0px;margin-bottom: 10px;">
                                             <a href={{url}} class="button">Shop Now</a>
                                         </div>
@@ -233,7 +236,9 @@
                 </table>
             </td>
         </tr>
+        {{/if}}
 
+        {{#if coupons}}
         <tr>
             <td style="background: #fff;padding: 10px 0px 10px 0px;">
                 <div class="heading-section" style="text-align: center; padding: 0 30px;">
@@ -249,10 +254,10 @@
             <td>
                 <table width="100%">
                     <tr>
+                        {{#each coupons}}
                         <td class="two-columns"
                             style="background-color: #27ceae;  text-align: center;vertical-align: top;padding: 20px;">
 
-                            {{#each coupons}}
                             <table width="100%" class="column-half" align="top">
                                 <tr>
                                     <td
@@ -264,12 +269,14 @@
                                     </td>
                                 </tr>
                             </table>
-                            {{/each}}
                         </td>
+                        {{/each}}
                     </tr>
                 </table>
             </td>
         </tr>
+        {{/if}}
+
 
 
         <tr>
