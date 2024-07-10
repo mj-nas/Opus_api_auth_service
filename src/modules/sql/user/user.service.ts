@@ -740,7 +740,7 @@ export class UserService extends ModelService<User> {
           const { errors } = await trimAndValidateCustom(
             CreateDispenserDto,
             body,
-            ['password', 'role'],
+            ['password', 'role', 'status'],
           );
           if (!!errors) {
             import_status.failed.push({
