@@ -526,6 +526,13 @@ export class AuthService {
     uid: string;
     type: ConnectionVia;
   }) {
+    console.log({
+      dispenser_id,
+      user_id,
+      type,
+      uid,
+      isType: type === ConnectionVia.Referral,
+    });
     try {
       const { error, data } = await this.userService.findById({
         action: 'connectingToDispenser',
@@ -600,6 +607,7 @@ export class AuthService {
       }
       return { data };
     } catch (error) {
+      console.error(error);
       return { error };
     }
   }

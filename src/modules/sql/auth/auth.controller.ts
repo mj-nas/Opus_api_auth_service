@@ -365,6 +365,25 @@ export class AuthController {
       });
     }
 
+    console.log({ body });
+    if (body.info && body.info?.type) {
+      const connectingToDispenser =
+        await this.authService.connectingToDispenser({
+          ...body.info,
+          user_id: signup?.data?.id,
+        });
+      if (!!connectingToDispenser.error) {
+        return ErrorResponse(res, {
+          error: connectingToDispenser.error,
+          message: `${connectingToDispenser.error.message || connectingToDispenser.error}`,
+        });
+      }
+
+      if (connectingToDispenser.data.dispenser_id) {
+        signup.data.dispenser_id = connectingToDispenser.data.dispenser_id;
+      }
+    }
+
     const emailVerifyOtp = await this.authService.emailVerifyOtp(
       OtpSessionType.EmailVerify,
       signup.data,
