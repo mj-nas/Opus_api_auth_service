@@ -560,6 +560,7 @@ export class AuthService {
               populate: ['products'],
             },
           });
+          console.log(referral?.data);
           if (!!referral.error) {
             throw referral.error;
           }
@@ -575,14 +576,17 @@ export class AuthService {
                 user_id,
               },
             });
+            console.log(cart);
             if (!!cart.error) {
               throw cart.error;
             }
-
+            console.log(referral.data.products);
             for await (const referred_product of referral.data.products) {
+              console.log(referred_product);
               const index = cart.data.items.findIndex(
                 (item) => item.product_id === referred_product.product_id,
               );
+              console.log(index);
               if (index >= 0) {
                 await this.cartItemService.$db.updateRecord({
                   owner: { id: user_id },
@@ -595,7 +599,7 @@ export class AuthService {
                 await this.cartItemService.$db.createRecord({
                   owner: { id: user_id },
                   body: {
-                    cart_id: !cart.data.id,
+                    cart_id: cart.data.id,
                     product_id: referred_product.product_id,
                     quantity: 1,
                   },
