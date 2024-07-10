@@ -1,11 +1,12 @@
 import { SqlModule } from '@core/sql';
 import { Module } from '@nestjs/common';
+import { GalleryModule } from '../gallery/gallery.module';
+import { GalleryCategory } from './entities/gallery-category.entity';
 import { GalleryCategoryController } from './gallery-category.controller';
 import { GalleryCategoryService } from './gallery-category.service';
-import { GalleryCategory } from './entities/gallery-category.entity';
 
 @Module({
-  imports: [SqlModule.register(GalleryCategory)],
+  imports: [SqlModule.register(GalleryCategory), GalleryModule],
   controllers: [GalleryCategoryController],
   providers: [GalleryCategoryService],
 })
