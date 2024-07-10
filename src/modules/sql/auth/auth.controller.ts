@@ -365,6 +365,7 @@ export class AuthController {
       });
     }
 
+    console.log({ body });
     if (body.info && body.info?.type) {
       const connectingToDispenser =
         await this.authService.connectingToDispenser({

@@ -600,6 +600,7 @@ export class AuthService {
       }
       return { data };
     } catch (error) {
+      console.error(error);
       return { error };
     }
   }
