@@ -599,7 +599,7 @@ export class AuthService {
                 await this.cartItemService.$db.createRecord({
                   owner: { id: user_id },
                   body: {
-                    cart_id: !cart.data.id,
+                    cart_id: cart.data.id,
                     product_id: referred_product.product_id,
                     quantity: 1,
                   },
