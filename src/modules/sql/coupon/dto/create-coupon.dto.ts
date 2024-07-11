@@ -11,4 +11,5 @@ export class CreateCouponDto extends PickType(Coupon, [
   'valid_from',
   'valid_to',
   'coupon_type',
+  'description',
 ] as const) {}
