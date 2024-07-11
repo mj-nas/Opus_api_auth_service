@@ -141,7 +141,6 @@ export class CouponService extends ModelService<Coupon> {
           populate: ['user', 'coupon_used'],
         },
       });
-      console.log('data', data);
 
       if (error) throw error;
 
@@ -206,6 +205,95 @@ export class CouponService extends ModelService<Coupon> {
         fs.mkdirSync(file_dir);
       }
       const filename = `Coupons.xlsx`;
+      const full_path = `${file_dir}/${filename}`;
+      await workbook.xlsx.writeFile(full_path);
+      return {
+        data: {
+          url: `${file_baseurl}/${filename}`,
+          filename,
+          isData: !!coupons.length,
+        },
+      };
+    } catch (error) {
+      return { error };
+    }
+  }
+  async exportGeneralXls(job: Job): Promise<JobResponse> {
+    try {
+      const { owner, payload } = job;
+      delete payload.timezone;
+      const { error, data } = await this.findAll({
+        owner,
+        action: 'findAll',
+        payload: {
+          ...payload,
+          offset: 0,
+          limit: -1,
+          populate: ['user', 'coupon_used'],
+        },
+      });
+
+      if (error) throw error;
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('GeneralCoupons');
+
+      worksheet.addRow([
+        'Sl. No',
+        'Name',
+        'Code',
+        'Start Date',
+        'End Date',
+        'Price/Percentage',
+        'Use Per Person',
+        'Description',
+        'Status',
+      ]);
+
+      const coupons: Coupon[] = JSON.parse(JSON.stringify(data));
+
+      await Promise.all(
+        coupons.map(async (x, index) => {
+          worksheet.addRow([
+            index + 1,
+            x?.name,
+            x?.code,
+            x?.user?.name,
+            moment(x.valid_from).format('MM/DD/YYYY'),
+            moment(x.valid_to).format('MM/DD/YYYY'),
+            x?.coupon_type === 'percentage'
+              ? `${x.discount}%`
+              : `$${x.discount}`,
+            x?.discount_usage,
+            x?.description,
+            x.active ? 'Active' : 'Inactive',
+          ]);
+        }),
+      );
+
+      worksheet.columns = [
+        { header: 'Sl. No', key: 'sl_no', width: 25 },
+        { header: 'Name', key: 'name', width: 25 },
+        { header: 'Code', key: 'code', width: 25 },
+        { header: 'Start Date', key: 'valid_from', width: 25 },
+        { header: 'End Date', key: 'valid_to', width: 50 },
+        { header: 'Price/Percentage', key: 'percentage', width: 25 },
+        {
+          header: 'Use Per Person',
+          key: 'discount_usage',
+          width: 25,
+        },
+        { header: 'Description', key: 'description', width: 25 },
+        { header: 'Status', key: 'active', width: 25 },
+      ];
+
+      const file_dir = config().cdnPath + '/general-coupon-excel';
+      const file_baseurl = config().cdnLocalURL + 'general-coupon-excel';
+
+      if (!fs.existsSync(file_dir)) {
+        fs.mkdirSync(file_dir);
+      }
+      const filename = `GeneralCoupons.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {
