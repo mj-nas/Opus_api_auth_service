@@ -312,6 +312,7 @@ export class Order extends SqlModel {
       'dispenser_id',
       'connection_via',
     ],
+    paranoid: false,
   })
   @BelongsTo(() => User)
   user: User;
