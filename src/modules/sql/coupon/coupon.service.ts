@@ -258,7 +258,6 @@ export class CouponService extends ModelService<Coupon> {
             index + 1,
             x?.name,
             x?.code,
-            x?.user?.name,
             moment(x.valid_from).format('MM/DD/YYYY'),
             moment(x.valid_to).format('MM/DD/YYYY'),
             x?.coupon_type === 'percentage'
