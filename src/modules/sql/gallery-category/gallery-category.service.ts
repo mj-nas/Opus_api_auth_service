@@ -35,7 +35,7 @@ export class GalleryCategoryService extends ModelService<GalleryCategory> {
       )?.data;
       if (products?.length)
         throw new Error(
-          'Cannot delete category because there are galleries in this category.',
+          'Cannot delete this category since there are media files in this category.',
         );
     } catch (error) {
       throw error;
