@@ -1,6 +1,12 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsString, ValidateIf } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateIf,
+} from 'class-validator';
 
 import { Include } from '@core/sql/sql.decorator';
 import { IsUnique } from '@core/sql/sql.unique-validator';
@@ -28,6 +34,17 @@ export class Coupon extends SqlModel {
   })
   @IsString()
   name: string;
+
+  @Column
+  @Index
+  @ApiProperty({
+    description: 'Coupon description',
+    example: 'Coupon details',
+    type: String,
+  })
+  @IsString()
+  @IsOptional()
+  description: string;
 
   @Column({ unique: true })
   @Index
