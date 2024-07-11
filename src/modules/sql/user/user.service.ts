@@ -289,7 +289,7 @@ export class UserService extends ModelService<User> {
         },
         ...job.options.where,
         role: Role.Dispenser,
-        created_by: { [Op.ne]: null },
+        created_by: { [Op.eq]: null },
       };
     } else if (job.action === 'findARep') {
       job.options.where = {
