@@ -754,6 +754,7 @@ export class UserService extends ModelService<User> {
           }
           const { error, data } = await this.create({
             action: 'import',
+            owner: job.owner,
             body,
           });
           if (!!error) {
