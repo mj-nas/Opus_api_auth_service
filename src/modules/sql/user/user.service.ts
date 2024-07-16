@@ -289,6 +289,7 @@ export class UserService extends ModelService<User> {
         },
         ...job.options.where,
         role: Role.Dispenser,
+        created_by: { [Op.eq]: null },
       };
     } else if (job.action === 'findARep') {
       job.options.where = {
@@ -754,6 +755,7 @@ export class UserService extends ModelService<User> {
           }
           const { error, data } = await this.create({
             action: 'import',
+            owner: job.owner,
             body,
           });
           if (!!error) {

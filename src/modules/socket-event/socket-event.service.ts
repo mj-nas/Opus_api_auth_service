@@ -11,7 +11,7 @@ export class SocketEventService {
     this.redisPropagatorService.propagateEvent({
       userId: `${job.payload.user_id}`,
       event: SocketEvent.Logout,
-      data: { reason: 'account_blocked' },
+      data: { message: 'Account is blocked by admin, signing out!' },
     });
     return { error: false };
   }
@@ -20,7 +20,7 @@ export class SocketEventService {
     this.redisPropagatorService.propagateEvent({
       userId: `${job.payload.user_id}`,
       event: SocketEvent.Logout,
-      data: { reason: 'account_deleted' },
+      data: { message: 'Your account is Deleted. Please contact Admin.' },
     });
     return { error: false };
   }
