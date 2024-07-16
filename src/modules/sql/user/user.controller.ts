@@ -49,6 +49,7 @@ import { OwnerIncludeAttribute } from 'src/core/decorators/sql/owner-attributes.
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
 import { Role } from '../user/role.enum';
+import { ChangeDispenserDto } from './dto/change-dispenser.dto';
 import { ChangePasswordByAdminDto } from './dto/change-password-by-admin.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateDispenserDto } from './dto/create-dispenser.dto';
@@ -229,6 +230,34 @@ export class UserController {
     const { error, data } = await this.userService.createQRCode({
       payload: {
         user_id: 1,
+      },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Created(res, { data, message: 'Created' });
+  }
+
+  @Post('change-dispenser')
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: `Update user dispenser` })
+  async UpdateDispenser(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Body() changeDispenserDto: ChangeDispenserDto,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.userService.update({
+      owner,
+      action: 'updateDispenser',
+      id: changeDispenserDto.user_id,
+      body: {
+        dispenser_id: changeDispenserDto.dispenser_id,
       },
     });
 

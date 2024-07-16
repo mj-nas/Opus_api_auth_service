@@ -78,7 +78,7 @@ export class ReferralService extends ModelService<Referral> {
 
   async createReferrals(job: Job): Promise<JobResponse> {
     const { referred_coupons, referred_products, email } = job.payload;
-    const colours = ['#aa674f', '#E8AE9A', '#CFAFA4', '#F7F0B3', '#F7D08A'];
+    const colours = ['#AA674F', '#E8AE9A', '#CFAFA4', '#FFFEDB', '#C4946B'];
     const { error, data } = await this.create({
       owner: job.owner,
       action: 'create',
