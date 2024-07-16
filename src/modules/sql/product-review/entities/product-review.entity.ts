@@ -1,6 +1,12 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 import {
   BelongsTo,
   Column,
@@ -13,6 +19,7 @@ import { OrderItem } from '../../order-item/entities/order-item.entity';
 import { Order } from '../../order/entities/order.entity';
 import { Products } from '../../products/entities/products.entity';
 import { User } from '../../user/entities/user.entity';
+import { ReviewStatus } from '../product-review-status.enum';
 
 @Table
 export class ProductReview extends SqlModel {
@@ -53,6 +60,18 @@ export class ProductReview extends SqlModel {
   })
   @IsNumber()
   rating: number;
+
+  @Column({
+    type: DataType.ENUM(...Object.values(ReviewStatus)),
+    defaultValue: ReviewStatus.Approve,
+  })
+  @ApiProperty({
+    enum: ReviewStatus,
+    description: 'Status',
+    example: ReviewStatus.Approve,
+  })
+  @IsEnum(ReviewStatus)
+  status: ReviewStatus;
 
   @Column({
     type: DataType.STRING(2000),
