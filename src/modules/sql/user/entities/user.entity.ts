@@ -331,6 +331,16 @@ export class User extends SqlModel {
   @IsEnum({ Y: 'Y', N: 'N' })
   email_verified?: string;
 
+  @Column({ type: DataType.ENUM('Y', 'N'), defaultValue: 'N' })
+  @ApiProperty({
+    enum: { Y: 'Y', N: 'N' },
+    description: 'Y | N',
+    example: 'Y',
+  })
+  @IsOptional()
+  @IsEnum({ Y: 'Y', N: 'N' })
+  learning_completed?: string;
+
   @Column({
     type: DataType.ENUM(...Object.values(Status)),
     defaultValue: Status.Pending,

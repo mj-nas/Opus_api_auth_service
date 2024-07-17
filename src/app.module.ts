@@ -8,6 +8,11 @@ import { AppGateway } from './app.gateway';
 import { AppService } from './app.service';
 import { CoreModule } from './core/core.module';
 import { CommonModule } from './modules/common.module';
+import { LearningModuleModule } from './modules/sql/learning-module/learning-module.module';
+import { LearningQuestionSetModule } from './modules/sql/learning-question-set/learning-question-set.module';
+import { LearningQuestionsModule } from './modules/sql/learning-questions/learning-questions.module';
+import { LearningQuestionOptionsModule } from './modules/sql/learning-question-options/learning-question-options.module';
+import { LearningVideoModule } from './modules/sql/learning-video/learning-video.module';
 
 @Module({
   imports: [
@@ -17,6 +22,11 @@ import { CommonModule } from './modules/common.module';
     EmailModule,
     StripeModule,
     CommonModule.register(),
+    LearningModuleModule,
+    LearningQuestionSetModule,
+    LearningQuestionsModule,
+    LearningQuestionOptionsModule,
+    LearningVideoModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],
