@@ -175,19 +175,19 @@ export class AuthService {
       ) {
         return { error: 'Invalid token' };
       }
-      const refreshToken = randomBytes(40).toString('hex');
+      // const refreshToken = randomBytes(40).toString('hex');
       const { token, tokenExpiry } = await this.sessionService.createToken({
         sessionId: session._id,
         userId: session.user_id,
       });
-      await this.loginLogService.update({
+      /* await this.loginLogService.update({
         id: session.id,
         body: {
           token: refreshToken,
         },
-      });
+      }); */
 
-      const authExp = new Date(decoded.exp * 1000);
+      /* const authExp = new Date(decoded.exp * 1000);
       authExp.setHours(23, 59, 59, 999);
       const expireAt = authExp.getTime() - new Date().getTime();
 
@@ -195,10 +195,15 @@ export class AuthService {
         sessionId: session.id,
         token: tokens.token,
         expireAt,
-      });
+      }); */
+
       return {
         error: false,
-        data: { token, refresh_token: refreshToken, token_expiry: tokenExpiry },
+        data: {
+          token,
+          refresh_token: tokens.refresh_token,
+          token_expiry: tokenExpiry,
+        },
       };
     } catch (error) {
       return { error };
