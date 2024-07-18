@@ -58,10 +58,6 @@ export class ReferralService extends ModelService<Referral> {
     const Key = `qr-code/${uid}/${fileName}`;
     const client = new S3Client({
       region: process.env.AWS_REGION,
-      credentials: {
-        accessKeyId: 'AKIASV7MRPIUBKQKGVTH',
-        secretAccessKey: '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',
-      },
     });
     const command = new PutObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME,
