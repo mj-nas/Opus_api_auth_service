@@ -1,7 +1,6 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
-import { DataTypes } from 'sequelize';
 import { Column, Index, Table } from 'sequelize-typescript';
 import config from 'src/config';
 
@@ -35,16 +34,22 @@ export class LearningVideo extends SqlModel {
   @IsString()
   title: string;
 
-  @Column(DataTypes.VIRTUAL)
+  @Column
   @ApiProperty({
-    description: 'Video Link',
-    example:
-      'https://staging.opuscompounds.com/connect/cd7c8da0-cfe0-11ee-94e2-c1e32bf24f34',
-    readOnly: true,
+    description: 'Video',
+    example: 'video.mp4',
   })
-  get video_link(): string {
-    return this.getDataValue('title')
-      ? config().cdnURL + this.getDataValue('title')
+  @IsString()
+  get video(): string {
+    return this.getDataValue('video')
+      ? config().cdnURL + this.getDataValue('video')
       : null;
+  }
+
+  set video(v: string) {
+    this.setDataValue(
+      'video',
+      typeof v === 'string' ? v.replace(config().cdnURL, '') : null,
+    );
   }
 }
