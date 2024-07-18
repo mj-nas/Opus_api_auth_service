@@ -8,7 +8,7 @@ export class LearningQuestionSetService extends ModelService<LearningQuestionSet
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['name'];
+  searchFields: string[] = ['title'];
 
   constructor(db: SqlService<LearningQuestionSet>) {
     super(db);

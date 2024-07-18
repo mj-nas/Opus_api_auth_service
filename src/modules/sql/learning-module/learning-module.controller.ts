@@ -39,10 +39,11 @@ import {
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
-import { LearningModuleService } from './learning-module.service';
+import { LearningQuestionSetService } from '../learning-question-set/learning-question-set.service';
 import { CreateLearningModuleDto } from './dto/create-learning-module.dto';
 import { UpdateLearningModuleDto } from './dto/update-learning-module.dto';
 import { LearningModule } from './entities/learning-module.entity';
+import { LearningModuleService } from './learning-module.service';
 
 const entity = snakeCase(LearningModule.name);
 
@@ -52,7 +53,10 @@ const entity = snakeCase(LearningModule.name);
 @ApiExtraModels(LearningModule)
 @Controller(entity)
 export class LearningModuleController {
-  constructor(private readonly learningModuleService: LearningModuleService) {}
+  constructor(
+    private readonly learningModuleService: LearningModuleService,
+    private readonly learningQuestionSetService: LearningQuestionSetService,
+  ) {}
 
   /**
    * Create a new entity document
@@ -65,6 +69,22 @@ export class LearningModuleController {
     @Owner() owner: OwnerDto,
     @Body() createLearningModuleDto: CreateLearningModuleDto,
   ) {
+    const questionSet = await this.learningQuestionSetService.findById({
+      owner,
+      action: 'findById',
+      options: {
+        include: ['question_set'],
+      },
+      id: +createLearningModuleDto.question_set_id,
+    });
+    console.log('questionSet', questionSet);
+
+    if (questionSet.data.questions.length === 0) {
+      return NotFound(res, {
+        error: new NotFoundError('Question set not found'),
+        message: `Question set not found`,
+      });
+    }
     const { error, data } = await this.learningModuleService.create({
       owner,
       action: 'create',

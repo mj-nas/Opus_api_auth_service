@@ -1,7 +1,8 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 import {
+  BeforeCreate,
   BelongsTo,
   Column,
   ForeignKey,
@@ -39,6 +40,22 @@ export class LearningModule extends SqlModel {
     example: 1,
   })
   video_id: number;
+
+  @Column
+  @ApiProperty({
+    description: 'sort',
+    example: '1',
+  })
+  @IsNumber()
+  @IsOptional()
+  sort: number;
+
+  @BeforeCreate
+  static async setSortMaxValue(instance: LearningModule) {
+    const maxSort = await LearningModule.max('sort');
+    const sort = maxSort as number;
+    instance.sort = sort + 1;
+  }
 
   @BelongsTo(() => LearningQuestionSet)
   question_set: LearningQuestionSet;
