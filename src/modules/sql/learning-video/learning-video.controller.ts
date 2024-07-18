@@ -45,6 +45,7 @@ import {
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
+import { LearningModuleService } from '../learning-module/learning-module.service';
 import { Role } from '../user/role.enum';
 import { BulkUpdateSortDto } from './dto/bulk-update-sort.dto';
 import { CreateLearningVideoDto } from './dto/create-learning-video.dto';
@@ -60,7 +61,10 @@ const entity = snakeCase(LearningVideo.name);
 @ApiExtraModels(LearningVideo)
 @Controller(entity)
 export class LearningVideoController {
-  constructor(private readonly learningVideoService: LearningVideoService) {}
+  constructor(
+    private readonly learningVideoService: LearningVideoService,
+    private readonly learningModuleService: LearningModuleService,
+  ) {}
 
   /**
    * Create a new entity document
@@ -156,6 +160,23 @@ export class LearningVideoController {
     @Param('id') id: number,
     @Body() updateLearningVideoDto: UpdateLearningVideoDto,
   ) {
+    if (updateLearningVideoDto.active == false) {
+      const modules = await this.learningModuleService.$db.findOneRecord({
+        options: {
+          where: {
+            video_id: +id,
+          },
+        },
+      });
+      if (modules.data) {
+        return ErrorResponse(res, {
+          error:
+            'Cannot deactivate this Video as it is currently used in an exam.',
+          message: `Cannot deactivate this Video as it is currently used in an exam`,
+        });
+      }
+    }
+
     const { error, data } = await this.learningVideoService.update({
       owner,
       action: 'update',

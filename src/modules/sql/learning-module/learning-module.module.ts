@@ -9,5 +9,6 @@ import { LearningModuleService } from './learning-module.service';
   imports: [SqlModule.register(LearningModule), LearningQuestionSetModule],
   controllers: [LearningModuleController],
   providers: [LearningModuleService],
+  exports: [LearningModuleService],
 })
 export class LearningModuleModule {}

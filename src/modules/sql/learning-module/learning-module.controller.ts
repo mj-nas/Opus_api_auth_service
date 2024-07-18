@@ -4,16 +4,21 @@ import {
   Delete,
   Get,
   Param,
+  ParseArrayPipe,
   Post,
   Put,
   Query,
+  Req,
   Res,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiExtraModels,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
+  getSchemaPath,
 } from '@nestjs/swagger';
 import { Response } from 'express';
 import {
@@ -39,7 +44,10 @@ import {
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
+import { Roles } from 'src/core/decorators/sql/roles.decorator';
 import { LearningQuestionSetService } from '../learning-question-set/learning-question-set.service';
+import { Role } from '../user/role.enum';
+import { BulkUpdateSortDto } from './dto/bulk-update-sort.dto';
 import { CreateLearningModuleDto } from './dto/create-learning-module.dto';
 import { UpdateLearningModuleDto } from './dto/update-learning-module.dto';
 import { LearningModule } from './entities/learning-module.entity';
@@ -98,6 +106,62 @@ export class LearningModuleController {
       });
     }
     return Created(res, { data: { [entity]: data }, message: 'Created' });
+  }
+
+  @Post('bulk-update-sort')
+  @Roles(Role.Admin)
+  @ApiExtraModels(BulkUpdateSortDto)
+  @ApiOperation({ summary: 'Update bulk sort by id' })
+  @ApiBody({
+    schema: {
+      type: 'array',
+      items: {
+        $ref: getSchemaPath(BulkUpdateSortDto),
+      },
+    },
+  })
+  @ApiOkResponse({
+    description: 'Updated',
+    schema: {
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            settings: {
+              type: 'array',
+              items: {
+                $ref: getSchemaPath(LearningModule),
+              },
+            },
+          },
+        },
+        message: {
+          type: 'string',
+          example: 'Updated',
+        },
+      },
+    },
+  })
+  async bulkUpdateStatus(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Body(new ParseArrayPipe({ items: BulkUpdateSortDto }))
+    bulkUpdateSortDto: BulkUpdateSortDto[],
+  ) {
+    const { error, data } = await this.learningModuleService.updateBulk({
+      owner,
+      action: 'updateBulk',
+      records: bulkUpdateSortDto,
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { data: data, message: 'Updated' });
   }
 
   /**

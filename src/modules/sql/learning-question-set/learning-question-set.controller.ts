@@ -39,10 +39,11 @@ import {
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
-import { LearningQuestionSetService } from './learning-question-set.service';
+import { LearningModuleService } from '../learning-module/learning-module.service';
 import { CreateLearningQuestionSetDto } from './dto/create-learning-question-set.dto';
 import { UpdateLearningQuestionSetDto } from './dto/update-learning-question-set.dto';
 import { LearningQuestionSet } from './entities/learning-question-set.entity';
+import { LearningQuestionSetService } from './learning-question-set.service';
 
 const entity = snakeCase(LearningQuestionSet.name);
 
@@ -52,7 +53,10 @@ const entity = snakeCase(LearningQuestionSet.name);
 @ApiExtraModels(LearningQuestionSet)
 @Controller(entity)
 export class LearningQuestionSetController {
-  constructor(private readonly learningQuestionSetService: LearningQuestionSetService) {}
+  constructor(
+    private readonly learningQuestionSetService: LearningQuestionSetService,
+    private readonly learningModuleService: LearningModuleService,
+  ) {}
 
   /**
    * Create a new entity document
@@ -92,6 +96,22 @@ export class LearningQuestionSetController {
     @Param('id') id: number,
     @Body() updateLearningQuestionSetDto: UpdateLearningQuestionSetDto,
   ) {
+    if (updateLearningQuestionSetDto.active == false) {
+      const modules = await this.learningModuleService.$db.findOneRecord({
+        options: {
+          where: {
+            question_set_id: +id,
+          },
+        },
+      });
+      if (modules.data) {
+        return ErrorResponse(res, {
+          error:
+            'Cannot deactivate this question set as it is currently used in an exam.',
+          message: `Cannot deactivate this question set as it is currently used in an exam.`,
+        });
+      }
+    }
     const { error, data } = await this.learningQuestionSetService.update({
       owner,
       action: 'update',
