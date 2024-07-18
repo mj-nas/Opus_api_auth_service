@@ -13,7 +13,7 @@ export class LearningVideoService extends ModelService<LearningVideo> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['name'];
+  searchFields: string[] = ['title'];
 
   constructor(db: SqlService<LearningVideo>) {
     super(db);
