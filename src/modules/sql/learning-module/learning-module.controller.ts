@@ -69,22 +69,22 @@ export class LearningModuleController {
     @Owner() owner: OwnerDto,
     @Body() createLearningModuleDto: CreateLearningModuleDto,
   ) {
-    const questionSet = await this.learningQuestionSetService.findById({
-      owner,
-      action: 'findById',
-      options: {
-        include: ['question_set'],
-      },
-      id: +createLearningModuleDto.question_set_id,
-    });
-    console.log('questionSet', questionSet);
+    // const questionSet = await this.learningQuestionSetService.findById({
+    //   owner,
+    //   action: 'findById',
+    //   options: {
+    //     include: ['question_set'],
+    //   },
+    //   id: +createLearningModuleDto.question_set_id,
+    // });
+    // console.log('questionSet', questionSet);
 
-    if (questionSet.data.questions.length === 0) {
-      return NotFound(res, {
-        error: new NotFoundError('Question set not found'),
-        message: `Question set not found`,
-      });
-    }
+    // if (questionSet.data.questions.length === 0) {
+    //   return NotFound(res, {
+    //     error: new NotFoundError('Question set not found'),
+    //     message: `Question set not found`,
+    //   });
+    // }
     const { error, data } = await this.learningModuleService.create({
       owner,
       action: 'create',
