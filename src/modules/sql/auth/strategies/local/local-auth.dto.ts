@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, MinLength, IsEmail, IsOptional } from 'class-validator';
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class LocalAuthDto {
   @ApiProperty({
     description: 'Username',
-    example: 'admin@admin.com',
+    example: 'opus@mailinator.com',
   })
   @IsString()
   @IsEmail()

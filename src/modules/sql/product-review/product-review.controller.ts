@@ -160,7 +160,7 @@ export class ProductReviewController {
   ) {
     const { error, data, offset, limit, count } =
       await this.productReviewService.findAll({
-        action: 'findAll',
+        action: 'findAllReviews',
         payload: { ...query, where: { ...query.where, product_id } },
       });
 

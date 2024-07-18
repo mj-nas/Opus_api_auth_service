@@ -51,6 +51,25 @@ export class UserService extends ModelService<User> {
   }
 
   /**
+   * doBeforeUpdate
+   * @function function will execute before update function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeUpdate(job: SqlJob<User>): Promise<void> {
+    await super.doBeforeUpdate(job);
+    if (job.action === 'updateDispenser') {
+      const user = await this.$db.findRecordById({ id: job.id });
+      if (user.error) {
+        throw new Error(user.error);
+      }
+      if (user.data.dispenser_id == job.body.dispenser_id) {
+        throw new Error('dispenser already exists');
+      }
+    }
+  }
+
+  /**
    * change user password
    * @param job
    * @returns Promise<JobResponse>
@@ -158,6 +177,19 @@ export class UserService extends ModelService<User> {
     response: SqlUpdateResponse<User>,
   ): Promise<void> {
     await super.doAfterUpdate(job, response);
+    if (job.action === 'updateDispenser') {
+      const { dispenser_id, connection_via, id } = response.data;
+      const previous_dispenser_id = response.previousData.dispenser_id;
+      await this.msClient.executeJob('user.dispenser.change', {
+        owner: job.owner,
+        payload: {
+          user_id: id,
+          previous_dispenser_id,
+          dispenser_id,
+          connection_via,
+        },
+      });
+    }
     const { active, id, status, email } = response.data;
     const { active: previousActive, status: previousStatus } =
       response.previousData;

@@ -47,6 +47,7 @@ import { SettingModule } from './sql/setting/setting.module';
 import { StateModule } from './sql/state/state.module';
 import { TemplateModule } from './sql/template/template.module';
 import { TestimonialsModule } from './sql/testimonials/testimonials.module';
+import { UserDispenserModule } from './sql/user-dispenser/user-dispenser.module';
 import { UserModule } from './sql/user/user.module';
 import { WishlistModule } from './sql/wishlist/wishlist.module';
 
@@ -98,6 +99,7 @@ export class CommonModule {
       ReferredCouponModule,
       CommissionModule,
       CouponUsedModule,
+      UserDispenserModule,
     ];
 
     // common providers
