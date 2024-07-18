@@ -1,13 +1,13 @@
 import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 import { DataTypes } from 'sequelize';
 import {
+  BelongsTo,
   Column,
   ForeignKey,
   HasMany,
-  HasOne,
   Index,
   Table,
 } from 'sequelize-typescript';
@@ -23,19 +23,10 @@ export class LearningQuestions extends SqlModel {
     description: 'Question set id',
     example: 1,
   })
+  @IsNumber()
   question_set_id: number;
 
-  @ForeignKey(() => LearningQuestionOptions)
-  @Column
-  @Index
-  @ApiProperty({
-    description: 'Correct option id',
-    example: 1,
-  })
-  correct_option_id: number;
-
   @Column(DataTypes.TEXT({ length: 'long' }))
-  @Index
   @ApiProperty({
     description: 'LearningQuestions title',
     example: 'question',
@@ -43,14 +34,17 @@ export class LearningQuestions extends SqlModel {
   @IsString()
   question: string;
 
-  @Include({
-    attributes: ['id', 'option'],
-  })
-  @HasOne(() => LearningQuestionOptions)
-  correct_option: LearningQuestionOptions;
+  // @Include({
+  //   attributes: ['id', 'option'],
+  // })
+  // @HasOne(() => LearningQuestionOptions)
+  // correct_option: LearningQuestionOptions;
+
+  @BelongsTo(() => LearningQuestionSet)
+  question_set: LearningQuestionSet;
 
   @Include({
-    attributes: ['id', 'option'],
+    attributes: ['id', 'option', 'is_correct'],
   })
   @HasMany(() => LearningQuestionOptions)
   options: LearningQuestionOptions[];

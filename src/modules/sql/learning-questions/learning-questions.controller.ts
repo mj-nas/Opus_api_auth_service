@@ -39,10 +39,10 @@ import {
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
-import { LearningQuestionsService } from './learning-questions.service';
-import { CreateLearningQuestionsDto } from './dto/create-learning-questions.dto';
-import { UpdateLearningQuestionsDto } from './dto/update-learning-questions.dto';
+import { LearningQuestionOptionsService } from '../learning-question-options/learning-question-options.service';
+import { CreateLearningQuestionsOptionsDto } from './dto/create-learning-questions-options.dto';
 import { LearningQuestions } from './entities/learning-questions.entity';
+import { LearningQuestionsService } from './learning-questions.service';
 
 const entity = snakeCase(LearningQuestions.name);
 
@@ -52,7 +52,36 @@ const entity = snakeCase(LearningQuestions.name);
 @ApiExtraModels(LearningQuestions)
 @Controller(entity)
 export class LearningQuestionsController {
-  constructor(private readonly learningQuestionsService: LearningQuestionsService) {}
+  constructor(
+    private readonly learningQuestionsService: LearningQuestionsService,
+    private optionsService: LearningQuestionOptionsService,
+  ) {}
+
+  // /**
+  //  * Create a new entity document
+  //  */
+  // @Post()
+  // @ApiOperation({ summary: `Create new ${entity}` })
+  // @ResponseCreated(LearningQuestions)
+  // async create(
+  //   @Res() res: Response,
+  //   @Owner() owner: OwnerDto,
+  //   @Body() createLearningQuestionsDto: CreateLearningQuestionsDto,
+  // ) {
+  //   const { error, data } = await this.learningQuestionsService.create({
+  //     owner,
+  //     action: 'create',
+  //     body: createLearningQuestionsDto,
+  //   });
+
+  //   if (error) {
+  //     return ErrorResponse(res, {
+  //       error,
+  //       message: `${error.message || error}`,
+  //     });
+  //   }
+  //   return Created(res, { data: { [entity]: data }, message: 'Created' });
+  // }
 
   /**
    * Create a new entity document
@@ -60,15 +89,17 @@ export class LearningQuestionsController {
   @Post()
   @ApiOperation({ summary: `Create new ${entity}` })
   @ResponseCreated(LearningQuestions)
-  async create(
+  async createWithOptions(
     @Res() res: Response,
     @Owner() owner: OwnerDto,
-    @Body() createLearningQuestionsDto: CreateLearningQuestionsDto,
+    @Body()
+    createLearningQuestionsOptionsDto: CreateLearningQuestionsOptionsDto,
   ) {
+    const { options, ...question } = createLearningQuestionsOptionsDto;
     const { error, data } = await this.learningQuestionsService.create({
       owner,
       action: 'create',
-      body: createLearningQuestionsDto,
+      body: question,
     });
 
     if (error) {
@@ -77,26 +108,87 @@ export class LearningQuestionsController {
         message: `${error.message || error}`,
       });
     }
-    return Created(res, { data: { [entity]: data }, message: 'Created' });
+    console.log(createLearningQuestionsOptionsDto);
+    console.log(options);
+    console.log(question);
+
+    const { data: option, error: options_error } =
+      await this.optionsService.$db.createBulkRecords({
+        owner,
+        action: 'createBulkRecords',
+        records: options.map((option) => ({
+          ...option,
+          question_id: data.id,
+        })),
+      });
+
+    if (options_error) {
+      return ErrorResponse(res, {
+        error: options_error,
+        message: `${options_error.message || options_error}`,
+      });
+    }
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Created(res, {
+      data: { [entity]: { ...data.dataValues, option } },
+      message: 'Created',
+    });
   }
 
   /**
    * Update an entity document by using id
    */
+  // @Put(':id')
+  // @ApiOperation({ summary: `Update ${entity} using id` })
+  // @ResponseUpdated(LearningQuestions)
+  // async update(
+  //   @Res() res: Response,
+  //   @Owner() owner: OwnerDto,
+  //   @Param('id') id: number,
+  //   @Body() updateLearningQuestionsDto: UpdateLearningQuestionsDto,
+  // ) {
+  //   const { error, data } = await this.learningQuestionsService.update({
+  //     owner,
+  //     action: 'update',
+  //     id: +id,
+  //     body: updateLearningQuestionsDto,
+  //   });
+
+  //   if (error) {
+  //     if (error instanceof NotFoundError) {
+  //       return NotFound(res, {
+  //         error,
+  //         message: `Record not found`,
+  //       });
+  //     }
+  //     return ErrorResponse(res, {
+  //       error,
+  //       message: `${error.message || error}`,
+  //     });
+  //   }
+  //   return Result(res, { data: { [entity]: data }, message: 'Updated' });
+  // }
   @Put(':id')
-  @ApiOperation({ summary: `Update ${entity} using id` })
-  @ResponseUpdated(LearningQuestions)
-  async update(
+  @ApiOperation({ summary: `Update ${entity} and options using id` })
+  @ResponseUpdated(CreateLearningQuestionsOptionsDto)
+  async updateWithOptions(
     @Res() res: Response,
     @Owner() owner: OwnerDto,
     @Param('id') id: number,
-    @Body() updateLearningQuestionsDto: UpdateLearningQuestionsDto,
+    @Body() body: CreateLearningQuestionsOptionsDto,
   ) {
+    const { options, ...question } = body;
     const { error, data } = await this.learningQuestionsService.update({
       owner,
       action: 'update',
       id: +id,
-      body: updateLearningQuestionsDto,
+      body: question,
     });
 
     if (error) {
@@ -111,7 +203,45 @@ export class LearningQuestionsController {
         message: `${error.message || error}`,
       });
     }
-    return Result(res, { data: { [entity]: data }, message: 'Updated' });
+
+    //deletes all options with the question_id
+    const { error: delete_options_error } =
+      await this.optionsService.$db.deleteBulkRecords({
+        owner,
+        action: 'deleteRecords',
+        options: {
+          where: { question_id: data.id },
+          paranoid: false,
+        },
+      });
+    if (delete_options_error) {
+      return ErrorResponse(res, {
+        error: delete_options_error,
+        message: `${delete_options_error.message || delete_options_error}`,
+      });
+    }
+
+    // creates another set of options with the question_id
+    const { data: option, error: options_error } =
+      await this.optionsService.$db.createBulkRecords({
+        owner,
+        action: 'createBulkRecords',
+        records: options.map((option) => ({
+          ...option,
+          question_id: data.id,
+        })),
+      });
+
+    if (options_error) {
+      return ErrorResponse(res, {
+        error: options_error,
+        message: `${options_error.message || options_error}`,
+      });
+    }
+    return Result(res, {
+      data: { [entity]: { ...data.dataValues, option } },
+      message: 'Updated',
+    });
   }
 
   /**

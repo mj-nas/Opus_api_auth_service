@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  Post,
   Put,
   Query,
   Res,
@@ -20,29 +19,20 @@ import {
   ApiErrorResponses,
   ApiQueryCountAll,
   ApiQueryDelete,
-  ApiQueryGetAll,
   ApiQueryGetById,
   ApiQueryGetOne,
   ResponseCountAll,
-  ResponseCreated,
   ResponseDeleted,
-  ResponseGetAll,
   ResponseGetOne,
   ResponseUpdated,
 } from 'src/core/core.decorators';
 import { NotFoundError } from 'src/core/core.errors';
-import {
-  Created,
-  ErrorResponse,
-  NotFound,
-  Result,
-} from 'src/core/core.responses';
+import { ErrorResponse, NotFound, Result } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
-import { LearningQuestionOptionsService } from './learning-question-options.service';
-import { CreateLearningQuestionOptionsDto } from './dto/create-learning-question-options.dto';
 import { UpdateLearningQuestionOptionsDto } from './dto/update-learning-question-options.dto';
 import { LearningQuestionOptions } from './entities/learning-question-options.entity';
+import { LearningQuestionOptionsService } from './learning-question-options.service';
 
 const entity = snakeCase(LearningQuestionOptions.name);
 
@@ -52,33 +42,35 @@ const entity = snakeCase(LearningQuestionOptions.name);
 @ApiExtraModels(LearningQuestionOptions)
 @Controller(entity)
 export class LearningQuestionOptionsController {
-  constructor(private readonly learningQuestionOptionsService: LearningQuestionOptionsService) {}
+  constructor(
+    private readonly learningQuestionOptionsService: LearningQuestionOptionsService,
+  ) {}
 
   /**
    * Create a new entity document
    */
-  @Post()
-  @ApiOperation({ summary: `Create new ${entity}` })
-  @ResponseCreated(LearningQuestionOptions)
-  async create(
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Body() createLearningQuestionOptionsDto: CreateLearningQuestionOptionsDto,
-  ) {
-    const { error, data } = await this.learningQuestionOptionsService.create({
-      owner,
-      action: 'create',
-      body: createLearningQuestionOptionsDto,
-    });
+  // @Post()
+  // @ApiOperation({ summary: `Create new ${entity}` })
+  // @ResponseCreated(LearningQuestionOptions)
+  // async create(
+  //   @Res() res: Response,
+  //   @Owner() owner: OwnerDto,
+  //   @Body() createLearningQuestionOptionsDto: CreateLearningQuestionOptionsDto,
+  // ) {
+  //   const { error, data } = await this.learningQuestionOptionsService.create({
+  //     owner,
+  //     action: 'create',
+  //     body: createLearningQuestionOptionsDto,
+  //   });
 
-    if (error) {
-      return ErrorResponse(res, {
-        error,
-        message: `${error.message || error}`,
-      });
-    }
-    return Created(res, { data: { [entity]: data }, message: 'Created' });
-  }
+  //   if (error) {
+  //     return ErrorResponse(res, {
+  //       error,
+  //       message: `${error.message || error}`,
+  //     });
+  //   }
+  //   return Created(res, { data: { [entity]: data }, message: 'Created' });
+  // }
 
   /**
    * Update an entity document by using id
@@ -117,33 +109,33 @@ export class LearningQuestionOptionsController {
   /**
    * Return all entity documents list
    */
-  @Get()
-  @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
-  @ApiQueryGetAll()
-  @ResponseGetAll(LearningQuestionOptions)
-  async findAll(
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Query() query: any,
-  ) {
-    const { error, data, offset, limit, count } =
-      await this.learningQuestionOptionsService.findAll({
-        owner,
-        action: 'findAll',
-        payload: { ...query },
-      });
+  // @Get()
+  // @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
+  // @ApiQueryGetAll()
+  // @ResponseGetAll(LearningQuestionOptions)
+  // async findAll(
+  //   @Res() res: Response,
+  //   @Owner() owner: OwnerDto,
+  //   @Query() query: any,
+  // ) {
+  //   const { error, data, offset, limit, count } =
+  //     await this.learningQuestionOptionsService.findAll({
+  //       owner,
+  //       action: 'findAll',
+  //       payload: { ...query },
+  //     });
 
-    if (error) {
-      return ErrorResponse(res, {
-        error,
-        message: `${error.message || error}`,
-      });
-    }
-    return Result(res, {
-      data: { [pluralizeString(entity)]: data, offset, limit, count },
-      message: 'Ok',
-    });
-  }
+  //   if (error) {
+  //     return ErrorResponse(res, {
+  //       error,
+  //       message: `${error.message || error}`,
+  //     });
+  //   }
+  //   return Result(res, {
+  //     data: { [pluralizeString(entity)]: data, offset, limit, count },
+  //     message: 'Ok',
+  //   });
+  // }
 
   /**
    * Return count of entity documents
@@ -157,11 +149,13 @@ export class LearningQuestionOptionsController {
     @Owner() owner: OwnerDto,
     @Query() query: any,
   ) {
-    const { error, count } = await this.learningQuestionOptionsService.getCount({
-      owner,
-      action: 'getCount',
-      payload: { ...query },
-    });
+    const { error, count } = await this.learningQuestionOptionsService.getCount(
+      {
+        owner,
+        action: 'getCount',
+        payload: { ...query },
+      },
+    );
 
     if (!!error) {
       return ErrorResponse(res, {

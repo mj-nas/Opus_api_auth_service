@@ -1,7 +1,13 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
-import { Column, ForeignKey, HasOne, Index, Table } from 'sequelize-typescript';
+import {
+  BelongsTo,
+  Column,
+  ForeignKey,
+  Index,
+  Table,
+} from 'sequelize-typescript';
 import { LearningQuestionSet } from '../../learning-question-set/entities/learning-question-set.entity';
 import { LearningVideo } from '../../learning-video/entities/learning-video.entity';
 
@@ -34,9 +40,9 @@ export class LearningModule extends SqlModel {
   })
   video_id: number;
 
-  @HasOne(() => LearningQuestionSet)
-  question_sets: LearningQuestionSet;
+  @BelongsTo(() => LearningQuestionSet)
+  question_set: LearningQuestionSet;
 
-  @HasOne(() => LearningVideo)
+  @BelongsTo(() => LearningVideo)
   video: LearningVideo;
 }

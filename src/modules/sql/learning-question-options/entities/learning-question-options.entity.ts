@@ -1,6 +1,6 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 import { DataTypes } from 'sequelize';
 import { Column, ForeignKey, Index, Table } from 'sequelize-typescript';
 import { LearningQuestions } from '../../learning-questions/entities/learning-questions.entity';
@@ -14,14 +14,24 @@ export class LearningQuestionOptions extends SqlModel {
     description: 'Question id',
     example: 1,
   })
+  @IsNumber()
   question_id: number;
 
   @Column(DataTypes.TEXT({ length: 'medium' }))
-  @Index
   @ApiProperty({
     description: 'Option',
     example: 'answer',
   })
   @IsString()
   option: string;
+
+  @Column({ defaultValue: false })
+  @Index
+  @ApiProperty({
+    description: 'Is correct option',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  is_correct: boolean;
 }
