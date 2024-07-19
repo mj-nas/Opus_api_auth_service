@@ -101,6 +101,7 @@ export class LearningQuestionSetController {
         options: {
           where: {
             question_set_id: +id,
+            active: true,
           },
         },
       });

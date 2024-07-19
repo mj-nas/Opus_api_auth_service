@@ -165,6 +165,7 @@ export class LearningVideoController {
         options: {
           where: {
             video_id: +id,
+            active: true,
           },
         },
       });
