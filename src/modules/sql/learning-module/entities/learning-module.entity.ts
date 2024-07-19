@@ -1,3 +1,4 @@
+import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
@@ -60,6 +61,18 @@ export class LearningModule extends SqlModel {
   @BelongsTo(() => LearningQuestionSet)
   question_set: LearningQuestionSet;
 
+  @Include({
+    where: { active: true },
+  })
+  @BelongsTo(() => LearningQuestionSet)
+  web_question_set: LearningQuestionSet;
+
   @BelongsTo(() => LearningVideo)
   video: LearningVideo;
+
+  @Include({
+    where: { active: true },
+  })
+  @BelongsTo(() => LearningVideo)
+  web_video: LearningVideo;
 }

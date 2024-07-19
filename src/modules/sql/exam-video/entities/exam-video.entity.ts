@@ -1,17 +1,11 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
-import {
-  BeforeCreate,
-  BeforeUpdate,
-  Column,
-  Index,
-  Table,
-} from 'sequelize-typescript';
+import { IsString } from 'class-validator';
+import { BeforeUpdate, Column, Index, Table } from 'sequelize-typescript';
 import config from 'src/config';
 
 @Table
-export class LearningVideo extends SqlModel {
+export class ExamVideo extends SqlModel {
   @Column
   @ApiProperty({
     description: 'Thumbnail',
@@ -59,31 +53,15 @@ export class LearningVideo extends SqlModel {
     );
   }
 
-  @Column
-  @ApiProperty({
-    description: 'sort',
-    example: '1',
-  })
-  @IsNumber()
-  @IsOptional()
-  sort: number;
-
-  @BeforeCreate
-  static async setSortMaxValue(instance: LearningVideo) {
-    const maxSort = await LearningVideo.max('sort');
-    const sort = maxSort as number;
-    instance.sort = sort + 1;
-  }
-
   @BeforeUpdate
-  static async formatThumb(instance: LearningVideo) {
+  static async formatThumb(instance: ExamVideo) {
     if (instance.thumbnail) {
       instance.thumbnail = instance.thumbnail.replace(config().cdnURL, '');
     }
   }
 
   @BeforeUpdate
-  static async formatVideo(instance: LearningVideo) {
+  static async formatVideo(instance: ExamVideo) {
     if (instance.video) {
       instance.video = instance.video.replace(config().cdnURL, '');
     }

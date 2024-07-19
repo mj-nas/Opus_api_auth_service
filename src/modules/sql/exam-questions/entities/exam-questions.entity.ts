@@ -11,12 +11,12 @@ import {
   Index,
   Table,
 } from 'sequelize-typescript';
-import { LearningQuestionOptions } from '../../learning-question-options/entities/learning-question-options.entity';
-import { LearningQuestionSet } from '../../learning-question-set/entities/learning-question-set.entity';
+import { ExamQuestionOptions } from '../../exam-question-options/entities/exam-question-options.entity';
+import { ExamQuestionSet } from '../../exam-question-set/entities/exam-question-set.entity';
 
 @Table
-export class LearningQuestions extends SqlModel {
-  @ForeignKey(() => LearningQuestionSet)
+export class ExamQuestions extends SqlModel {
+  @ForeignKey(() => ExamQuestionSet)
   @Column
   @Index
   @ApiProperty({
@@ -34,18 +34,12 @@ export class LearningQuestions extends SqlModel {
   @IsString()
   question: string;
 
-  @BelongsTo(() => LearningQuestionSet)
-  question_set: LearningQuestionSet;
+  @BelongsTo(() => ExamQuestionSet)
+  question_set: ExamQuestionSet;
 
   @Include({
     attributes: ['id', 'option', 'is_correct'],
   })
-  @HasMany(() => LearningQuestionOptions)
-  options: LearningQuestionOptions[];
-
-  @Include({
-    where: { active: true },
-  })
-  @HasMany(() => LearningQuestionOptions)
-  web_options: LearningQuestionOptions[];
+  @HasMany(() => ExamQuestionOptions)
+  options: ExamQuestionOptions[];
 }

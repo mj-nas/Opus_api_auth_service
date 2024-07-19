@@ -13,6 +13,12 @@ import { LearningQuestionSetModule } from './modules/sql/learning-question-set/l
 import { LearningQuestionsModule } from './modules/sql/learning-questions/learning-questions.module';
 import { LearningQuestionOptionsModule } from './modules/sql/learning-question-options/learning-question-options.module';
 import { LearningVideoModule } from './modules/sql/learning-video/learning-video.module';
+import { UserExamsModule } from './modules/sql/user-exams/user-exams.module';
+import { ExamModuleModule } from './modules/sql/exam-module/exam-module.module';
+import { ExamVideoModule } from './modules/sql/exam-video/exam-video.module';
+import { ExamQuestionSetModule } from './modules/sql/exam-question-set/exam-question-set.module';
+import { ExamQuestionsModule } from './modules/sql/exam-questions/exam-questions.module';
+import { ExamQuestionOptionsModule } from './modules/sql/exam-question-options/exam-question-options.module';
 
 @Module({
   imports: [
@@ -27,6 +33,12 @@ import { LearningVideoModule } from './modules/sql/learning-video/learning-video
     LearningQuestionsModule,
     LearningQuestionOptionsModule,
     LearningVideoModule,
+    UserExamsModule,
+    ExamModuleModule,
+    ExamVideoModule,
+    ExamQuestionSetModule,
+    ExamQuestionsModule,
+    ExamQuestionOptionsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],
