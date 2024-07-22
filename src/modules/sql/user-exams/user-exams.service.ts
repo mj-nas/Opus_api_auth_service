@@ -47,26 +47,104 @@ export class UserExamsService extends ModelService<UserExams> {
           'web_video',
           'web_question_set',
           'web_question_set.web_questions',
+          'web_question_set.web_questions.web_options',
         ],
       },
     });
-    console.log('modules*********************************');
-    console.log(modules);
 
-    const videos = modules.data.map((module) => module.web_video.dataValues);
-    console.log('videos*********************************');
-    console.log(videos);
-    const questionSets = modules.data.map(
-      (module) => module.web_question_set.dataValues,
-    );
-    console.log('questionSets*********************************');
-    console.log(questionSets);
+    modules.data.map(async (module, index) => {
+      console.log('module*********************************', index);
+      // console.log(module.dataValues);
+      const video = module.web_video.dataValues;
+      const questions = module.web_question_set.web_questions.map(
+        (e) => e.dataValues,
+      );
+      console.log('questions*********************************', index);
+      console.log(questions);
+      // CREATE EXAM VIDEO
+      const exam_video = await this.examVideoService.create({
+        owner: job.owner,
+        action: 'create',
+        body: {
+          title: video.title,
+          video: video.video,
+          thumbnail: video.thumbnail,
+        },
+      });
+      // CREATE EXAM QUESTION SET
+      const exam_question_set = await this.examQuestionSetService.create({
+        owner: job.owner,
+        action: 'create',
+        body: {
+          title: module.web_question_set.title,
+        },
+      });
 
-    const questions = questionSets.map((module) => {
-      return module.web_questions.dataValues;
+      // CREATE EXAM MODULE
+      const exam_module = await this.examModuleService.create({
+        owner: job.owner,
+        action: 'create',
+        body: {
+          exam_id: response.data.id,
+          title: module.title,
+          question_set_id: exam_question_set.data.id,
+          video_id: exam_video.data.id,
+        },
+      });
+      // CREATE EXAM QUESTIONS
+      questions.map(async (question) => {
+        const exam_questions = await this.examQuestionsService.create({
+          owner: job.owner,
+          action: 'create',
+          body: {
+            question: question.question,
+            question_set_id: exam_question_set.data.id,
+          },
+        });
+        // CREATE EXAM QUESTION OPTIONS
+        await this.examQuestionOptionsService.$db.createBulkRecords({
+          owner: job.owner,
+          action: 'create',
+          records: question.web_options.map((option) => {
+            return {
+              question_id: exam_questions.data.id,
+              option: option.option,
+              is_correct: option.is_correct,
+            };
+          }),
+        });
+        // question.web_options.map(async (option) => {
+        //   await this.examQuestionOptionsService.create({
+        //     owner: job.owner,
+        //     action: 'create',
+        //     body: {
+        //       question_id: exam_questions.data.id,
+        //       option: option.option,
+        //       is_correct: option.is_correct,
+        //     },
+        //   });
+        // });
+      });
     });
-    console.log('questions*********************************');
-    console.log(questions);
+
+    // const videos = modules.data.map((module) => module.web_video.dataValues);
+    // console.log('videos*********************************');
+    // console.log(videos);
+    // const questionSets = modules.data.map(
+    //   (module) => module.web_question_set.dataValues,
+    // );
+    // console.log('questionSets*********************************');
+    // console.log(questionSets);
+
+    // const questions = questionSets.map((module) => {
+    //   return module.web_questions.dataValues;
+    // });
+    // console.log('questions*********************************');
+    // console.log(questions);
+
+    // const options = questions.map((question) => {
+    //   return question.web_options.dataValues;
+    // });
 
     // create exam_question_set
     // const createdQuestionSets =
