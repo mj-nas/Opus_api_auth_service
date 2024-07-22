@@ -31,6 +31,7 @@ export class LearningModule extends SqlModel {
     description: 'Question set id',
     example: 1,
   })
+  @IsNumber()
   question_set_id: number;
 
   @ForeignKey(() => LearningVideo)
@@ -40,6 +41,7 @@ export class LearningModule extends SqlModel {
     description: 'Video id',
     example: 1,
   })
+  @IsNumber()
   video_id: number;
 
   @Column

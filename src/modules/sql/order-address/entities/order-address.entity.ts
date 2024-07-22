@@ -2,8 +2,10 @@ import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
+  IsEnum,
   IsNumber,
   IsNumberString,
+  IsOptional,
   IsString,
   MaxLength,
 } from 'class-validator';
@@ -215,6 +217,16 @@ export class OrderAddress extends SqlModel {
   @IsString()
   @MaxLength(6)
   shipping_zip_code?: string;
+
+  @Column({ type: DataType.ENUM('Y', 'N'), defaultValue: 'N' })
+  @ApiProperty({
+    enum: { Y: 'Y', N: 'N' },
+    description: 'Y | N',
+    example: 'Y',
+  })
+  @IsOptional()
+  @IsEnum({ Y: 'Y', N: 'N' })
+  is_primary?: string;
 
   @BeforeSave
   static setName(instance: OrderAddress) {

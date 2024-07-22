@@ -1,6 +1,13 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNumberString, IsString, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNumberString,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 import {
   BeforeSave,
   BelongsTo,
@@ -110,6 +117,16 @@ export class Address extends SqlModel {
   @IsNumberString()
   @MaxLength(6)
   zip_code?: string;
+
+  @Column({ type: DataType.ENUM('Y', 'N'), defaultValue: 'N' })
+  @ApiProperty({
+    enum: { Y: 'Y', N: 'N' },
+    description: 'Y | N',
+    example: 'Y',
+  })
+  @IsOptional()
+  @IsEnum({ Y: 'Y', N: 'N' })
+  is_primary?: string;
 
   @BelongsTo(() => User)
   user: User;

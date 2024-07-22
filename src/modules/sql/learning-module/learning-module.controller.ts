@@ -99,6 +99,8 @@ export class LearningModuleController {
       body: createLearningModuleDto,
     });
 
+    console.log(createLearningModuleDto);
+
     if (error) {
       return ErrorResponse(res, {
         error,

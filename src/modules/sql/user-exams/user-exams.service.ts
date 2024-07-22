@@ -41,9 +41,13 @@ export class UserExamsService extends ModelService<UserExams> {
   ): Promise<void> {
     await super.doAfterCreate(job, response);
     const modules = await this.learningModuleService.findAll({
-      options: {
+      payload: {
         where: { active: true },
-        include: ['web_video', 'web_question_set', 'web_questions'],
+        populate: [
+          'web_video',
+          'web_question_set',
+          'web_question_set.web_questions',
+        ],
       },
     });
     console.log('modules*********************************');
@@ -58,8 +62,8 @@ export class UserExamsService extends ModelService<UserExams> {
     console.log('questionSets*********************************');
     console.log(questionSets);
 
-    const questions = modules.data.map((module) => {
-      return module.web_question_set.dataValues.web_questions.dataValues;
+    const questions = questionSets.map((module) => {
+      return module.web_questions.dataValues;
     });
     console.log('questions*********************************');
     console.log(questions);

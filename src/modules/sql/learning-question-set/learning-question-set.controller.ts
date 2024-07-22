@@ -277,6 +277,22 @@ export class LearningQuestionSetController {
     @Param('id') id: number,
     @Query() query: any,
   ) {
+    const modules = await this.learningModuleService.$db.findOneRecord({
+      options: {
+        where: {
+          question_set_id: +id,
+          active: true,
+        },
+      },
+    });
+    if (modules.data) {
+      return ErrorResponse(res, {
+        error:
+          'Cannot delete this question set as it is currently used in an exam.',
+        message: `Cannot delete this question set as it is currently used in an exam.`,
+      });
+    }
+
     const { error, data } = await this.learningQuestionSetService.delete({
       owner,
       action: 'delete',

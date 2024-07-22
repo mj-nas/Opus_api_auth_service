@@ -342,6 +342,21 @@ export class LearningVideoController {
     @Param('id') id: number,
     @Query() query: any,
   ) {
+    const modules = await this.learningModuleService.$db.findOneRecord({
+      options: {
+        where: {
+          video_id: +id,
+          active: true,
+        },
+      },
+    });
+    if (modules.data) {
+      return ErrorResponse(res, {
+        error: 'Cannot delete this Video as it is currently used in an exam.',
+        message: `Cannot delete this Video as it is currently used in an exam`,
+      });
+    }
+
     const { error, data } = await this.learningVideoService.delete({
       owner,
       action: 'delete',

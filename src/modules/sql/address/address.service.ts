@@ -1,4 +1,4 @@
-import { ModelService, SqlJob, SqlService } from '@core/sql';
+import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
 import { Injectable } from '@nestjs/common';
 import { Address } from './entities/address.entity';
 
@@ -37,6 +37,31 @@ export class AddressService extends ModelService<Address> {
     await super.doBeforeFindAll(job);
     if (job.action === 'findAllMe') {
       job.options.where = { ...job.options.where, user_id: job.owner.id };
+    }
+  }
+
+  /**
+   * doAfterUpdate
+   * @function function will execute after update function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @param {object} response - mandatory - a object representing the job response information
+   * @return {void}
+   */
+  protected async doAfterUpdate(
+    job: SqlJob<Address>,
+    response: SqlUpdateResponse<Address>,
+  ): Promise<void> {
+    await super.doAfterUpdate(job, response);
+
+    if (job.body.is_primary === 'Y') {
+      const { error, data } = await this.$db.updateBulkRecords({
+        owner: job.owner,
+        action: 'update',
+        options: {
+          where: { id: { $ne: job.id }, user_id: response.data.user_id },
+        },
+        body: { is_primary: 'N' },
+      });
     }
   }
 }

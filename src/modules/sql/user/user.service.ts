@@ -402,6 +402,7 @@ export class UserService extends ModelService<User> {
         city,
         state,
         zip_code,
+        is_primary: 'Y',
       },
     });
 
