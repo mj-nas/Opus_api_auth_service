@@ -63,10 +63,6 @@ export class AddressService extends ModelService<Address> {
         },
         body: { is_primary: 'N' },
       });
-
-      console.log('data', data);
-
-      console.log('error', error);
     }
   }
 }

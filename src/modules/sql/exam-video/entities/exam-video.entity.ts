@@ -1,8 +1,15 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
-import { BeforeUpdate, Column, Index, Table } from 'sequelize-typescript';
+import {
+  BeforeCreate,
+  BeforeUpdate,
+  Column,
+  Index,
+  Table,
+} from 'sequelize-typescript';
 import config from 'src/config';
+import { uuid } from 'src/core/core.utils';
 
 @Table
 export class ExamVideo extends SqlModel {
@@ -33,6 +40,19 @@ export class ExamVideo extends SqlModel {
   })
   @IsString()
   title: string;
+
+  @Column({ unique: 'uid' })
+  @ApiProperty({
+    description: 'Unique ID',
+    example: 'a926d382-6741-4d95-86cf-1f5c421cf654',
+    readOnly: true,
+  })
+  uid: string;
+
+  @BeforeCreate
+  static setUuid(instance: ExamVideo) {
+    instance.uid = uuid();
+  }
 
   @Column
   @ApiProperty({

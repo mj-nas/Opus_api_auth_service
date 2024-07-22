@@ -4,6 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
 import { DataTypes } from 'sequelize';
 import {
+  BeforeCreate,
   BelongsTo,
   Column,
   ForeignKey,
@@ -11,6 +12,7 @@ import {
   Index,
   Table,
 } from 'sequelize-typescript';
+import { uuid } from 'src/core/core.utils';
 import { LearningQuestionOptions } from '../../learning-question-options/entities/learning-question-options.entity';
 import { LearningQuestionSet } from '../../learning-question-set/entities/learning-question-set.entity';
 
@@ -33,6 +35,19 @@ export class LearningQuestions extends SqlModel {
   })
   @IsString()
   question: string;
+
+  @Column({ unique: 'uid' })
+  @ApiProperty({
+    description: 'Unique ID',
+    example: 'a926d382-6741-4d95-86cf-1f5c421cf654',
+    readOnly: true,
+  })
+  uid: string;
+
+  @BeforeCreate
+  static setUuid(instance: LearningQuestions) {
+    instance.uid = uuid();
+  }
 
   @BelongsTo(() => LearningQuestionSet)
   question_set: LearningQuestionSet;

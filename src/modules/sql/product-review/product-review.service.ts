@@ -10,7 +10,13 @@ export class ProductReviewService extends ModelService<ProductReview> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['name'];
+  searchFields: string[] = ['review', '$user.name$', '$product.product_name$'];
+
+  /**
+   * searchPopulate
+   * @property array of associations to include for search
+   */
+  searchPopulate: string[] = ['user', 'product'];
 
   constructor(
     db: SqlService<ProductReview>,

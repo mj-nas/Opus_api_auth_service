@@ -2,12 +2,14 @@ import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsString } from 'class-validator';
 import {
+  BeforeCreate,
   BelongsTo,
   Column,
   ForeignKey,
   Index,
   Table,
 } from 'sequelize-typescript';
+import { uuid } from 'src/core/core.utils';
 import { ExamQuestionSet } from '../../exam-question-set/entities/exam-question-set.entity';
 import { ExamVideo } from '../../exam-video/entities/exam-video.entity';
 import { UserExams } from '../../user-exams/entities/user-exams.entity';
@@ -65,6 +67,19 @@ export class ExamModule extends SqlModel {
   })
   @IsBoolean()
   module_complete: boolean;
+
+  @Column({ unique: 'uid' })
+  @ApiProperty({
+    description: 'Unique ID',
+    example: 'a926d382-6741-4d95-86cf-1f5c421cf654',
+    readOnly: true,
+  })
+  uid: string;
+
+  @BeforeCreate
+  static setUuid(instance: ExamModule) {
+    instance.uid = uuid();
+  }
 
   @BelongsTo(() => ExamQuestionSet)
   question_set: ExamQuestionSet;

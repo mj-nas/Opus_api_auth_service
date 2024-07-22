@@ -2,7 +2,14 @@ import { SqlModel } from '@core/sql/sql.model';
 import { IsUnique } from '@core/sql/sql.unique-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsNumber } from 'class-validator';
-import { Column, ForeignKey, Index, Table } from 'sequelize-typescript';
+import {
+  BeforeCreate,
+  Column,
+  ForeignKey,
+  Index,
+  Table,
+} from 'sequelize-typescript';
+import { uuid } from 'src/core/core.utils';
 import { User } from '../../user/entities/user.entity';
 
 @Table
@@ -27,4 +34,17 @@ export class UserExams extends SqlModel {
   })
   @IsBoolean()
   is_complete: boolean;
+
+  @Column({ unique: 'uid' })
+  @ApiProperty({
+    description: 'Unique ID',
+    example: 'a926d382-6741-4d95-86cf-1f5c421cf654',
+    readOnly: true,
+  })
+  uid: string;
+
+  @BeforeCreate
+  static setUuid(instance: UserExams) {
+    instance.uid = uuid();
+  }
 }

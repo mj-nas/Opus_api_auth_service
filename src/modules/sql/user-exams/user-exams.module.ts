@@ -1,5 +1,5 @@
 import { SqlModule } from '@core/sql';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ExamModuleModule } from '../exam-module/exam-module.module';
 import { ExamQuestionOptionsModule } from '../exam-question-options/exam-question-options.module';
 import { ExamQuestionSetModule } from '../exam-question-set/exam-question-set.module';
@@ -14,7 +14,7 @@ import { UserExamsService } from './user-exams.service';
   imports: [
     SqlModule.register(UserExams),
     LearningModuleModule,
-    ExamModuleModule,
+    forwardRef(() => ExamModuleModule),
     ExamVideoModule,
     ExamQuestionSetModule,
     ExamQuestionsModule,
@@ -22,5 +22,6 @@ import { UserExamsService } from './user-exams.service';
   ],
   controllers: [UserExamsController],
   providers: [UserExamsService],
+  exports: [UserExamsService],
 })
 export class UserExamsModule {}
