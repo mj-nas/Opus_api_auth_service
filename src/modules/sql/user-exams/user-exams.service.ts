@@ -53,7 +53,6 @@ export class UserExamsService extends ModelService<UserExams> {
     });
 
     modules.data.map(async (module, index) => {
-      console.log('module*********************************', index);
       // console.log(module.dataValues);
       const video = module.web_video.dataValues;
       const questions = module.web_question_set.web_questions.map(
@@ -126,60 +125,5 @@ export class UserExamsService extends ModelService<UserExams> {
         // });
       });
     });
-
-    // const videos = modules.data.map((module) => module.web_video.dataValues);
-    // console.log('videos*********************************');
-    // console.log(videos);
-    // const questionSets = modules.data.map(
-    //   (module) => module.web_question_set.dataValues,
-    // );
-    // console.log('questionSets*********************************');
-    // console.log(questionSets);
-
-    // const questions = questionSets.map((module) => {
-    //   return module.web_questions.dataValues;
-    // });
-    // console.log('questions*********************************');
-    // console.log(questions);
-
-    // const options = questions.map((question) => {
-    //   return question.web_options.dataValues;
-    // });
-
-    // create exam_question_set
-    // const createdQuestionSets =
-    //   await this.examQuestionSetService.$db.createBulkRecords({
-    //     records: questionSets.map((questionSet) => {
-    //       return {
-    //         title: questionSet.title,
-    //       };
-    //     }),
-    //     owner: job.owner,
-    //   });
-
-    // // create exam_video
-    // const createdVideos = await this.examVideoService.$db.createBulkRecords({
-    //   records: videos.map((video) => {
-    //     return {
-    //       title: video.title,
-    //       video: video.video,
-    //       thumbnail: video.thumbnail,
-    //     };
-    //   }),
-    //   owner: job.owner,
-    // });
-
-    // //create exam modules
-    // const createdModules = await this.examModuleService.$db.createBulkRecords({
-    //   records: modules.data.map((module) => {
-    //     return {
-    //       exam_id: response.data.id,
-    //       title: module.title,
-    //       question_set_id: module.question_set_id,
-    //       video_id: module.video_id,
-    //     };
-    //   }),
-    //   owner: job.owner,
-    // });
   }
 }
