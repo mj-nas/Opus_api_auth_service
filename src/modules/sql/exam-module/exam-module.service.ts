@@ -1,5 +1,6 @@
 import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
 import { Injectable } from '@nestjs/common';
+import { UserExamsService } from '../user-exams/user-exams.service';
 import { ExamModule } from './entities/exam-module.entity';
 
 @Injectable()
@@ -12,7 +13,7 @@ export class ExamModuleService extends ModelService<ExamModule> {
 
   constructor(
     db: SqlService<ExamModule>,
-    // private userExamsService: UserExamsService,
+    private userExamsService: UserExamsService,
   ) {
     super(db);
   }
@@ -39,13 +40,13 @@ export class ExamModuleService extends ModelService<ExamModule> {
         },
       });
 
-      if (no_of_modules.data == completed_modules.data) {
-        // await this.userExamsService.update({
-        //   owner: job.owner,
-        //   action: 'update',
-        //   id: response.data.exam_id,
-        //   body: { exam_complete: true },
-        // });
+      if (no_of_modules.count == completed_modules.count) {
+        await this.userExamsService.update({
+          owner: job.owner,
+          action: 'update',
+          id: response.data.exam_id,
+          body: { exam_complete: true },
+        });
       }
     }
   }

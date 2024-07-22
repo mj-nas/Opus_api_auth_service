@@ -1,5 +1,5 @@
 import { ModelService, SqlCreateResponse, SqlJob, SqlService } from '@core/sql';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ExamModuleService } from '../exam-module/exam-module.service';
 import { ExamQuestionOptionsService } from '../exam-question-options/exam-question-options.service';
 import { ExamQuestionSetService } from '../exam-question-set/exam-question-set.service';
@@ -17,9 +17,10 @@ export class UserExamsService extends ModelService<UserExams> {
   searchFields: string[] = ['name'];
 
   constructor(
+    @Inject(forwardRef(() => ExamModuleService))
+    private examModuleService: ExamModuleService,
     db: SqlService<UserExams>,
     private learningModuleService: LearningModuleService,
-    private examModuleService: ExamModuleService,
     private examVideoService: ExamVideoService,
     private examQuestionSetService: ExamQuestionSetService,
     private examQuestionOptionsService: ExamQuestionOptionsService,
