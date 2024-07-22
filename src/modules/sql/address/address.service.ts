@@ -1,5 +1,6 @@
 import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
 import { Injectable } from '@nestjs/common';
+import { Op } from 'sequelize';
 import { Address } from './entities/address.entity';
 
 @Injectable()
@@ -58,10 +59,14 @@ export class AddressService extends ModelService<Address> {
         owner: job.owner,
         action: 'update',
         options: {
-          where: { id: { $ne: job.id }, user_id: response.data.user_id },
+          where: { id: { [Op.ne]: job.id }, user_id: response.data.user_id },
         },
         body: { is_primary: 'N' },
       });
+
+      console.log('data', data);
+
+      console.log('error', error);
     }
   }
 }
