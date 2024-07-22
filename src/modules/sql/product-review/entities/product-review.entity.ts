@@ -63,12 +63,12 @@ export class ProductReview extends SqlModel {
 
   @Column({
     type: DataType.ENUM(...Object.values(ReviewStatus)),
-    defaultValue: ReviewStatus.Approve,
+    defaultValue: ReviewStatus.Approved,
   })
   @ApiProperty({
     enum: ReviewStatus,
     description: 'Status',
-    example: ReviewStatus.Approve,
+    example: ReviewStatus.Approved,
   })
   @IsEnum(ReviewStatus)
   status: ReviewStatus;

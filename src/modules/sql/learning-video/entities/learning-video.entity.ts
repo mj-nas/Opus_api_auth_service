@@ -9,6 +9,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import config from 'src/config';
+import { uuid } from 'src/core/core.utils';
 
 @Table
 export class LearningVideo extends SqlModel {
@@ -67,6 +68,19 @@ export class LearningVideo extends SqlModel {
   @IsNumber()
   @IsOptional()
   sort: number;
+
+  @Column({ unique: 'uid' })
+  @ApiProperty({
+    description: 'Unique ID',
+    example: 'a926d382-6741-4d95-86cf-1f5c421cf654',
+    readOnly: true,
+  })
+  uid: string;
+
+  @BeforeCreate
+  static setUuid(instance: LearningVideo) {
+    instance.uid = uuid();
+  }
 
   @BeforeCreate
   static async setSortMaxValue(instance: LearningVideo) {

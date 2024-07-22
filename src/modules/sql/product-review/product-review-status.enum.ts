@@ -1,4 +1,4 @@
 export enum ReviewStatus {
-  Approve = 'Approve',
+  Approved = 'Approved',
   Offensive = 'Offensive',
 }

@@ -10,6 +10,7 @@ import {
   Index,
   Table,
 } from 'sequelize-typescript';
+import { uuid } from 'src/core/core.utils';
 import { LearningQuestionSet } from '../../learning-question-set/entities/learning-question-set.entity';
 import { LearningVideo } from '../../learning-video/entities/learning-video.entity';
 
@@ -52,6 +53,19 @@ export class LearningModule extends SqlModel {
   @IsNumber()
   @IsOptional()
   sort: number;
+
+  @Column({ unique: 'uid' })
+  @ApiProperty({
+    description: 'Unique ID',
+    example: 'a926d382-6741-4d95-86cf-1f5c421cf654',
+    readOnly: true,
+  })
+  uid: string;
+
+  @BeforeCreate
+  static setUuid(instance: LearningModule) {
+    instance.uid = uuid();
+  }
 
   @BeforeCreate
   static async setSortMaxValue(instance: LearningModule) {
