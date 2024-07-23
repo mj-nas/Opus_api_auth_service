@@ -58,6 +58,40 @@ export class CommissionController {
   /**
    * Update an entity document by using id
    */
+  @Put('update-bullk')
+  @ApiOperation({ summary: `Update ${entity} using id` })
+  @ApiQueryGetAll()
+  @ResponseUpdated(Commission)
+  async updatebulk(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+    @Body() updateCommissionDto: UpdateCommissionDto,
+  ) {
+    const { error, data } = await this.commissionService.updateBulkStatus({
+      owner,
+      action: 'updateBulk',
+      payload: { ...query },
+    });
+
+    if (error) {
+      if (error instanceof NotFoundError) {
+        return NotFound(res, {
+          error,
+          message: `Record not found`,
+        });
+      }
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { data: { [entity]: data }, message: 'Updated' });
+  }
+
+  /**
+   * Update an entity document by using id
+   */
   @Put(':id')
   @ApiOperation({ summary: `Update ${entity} using id` })
   @ResponseUpdated(Commission)

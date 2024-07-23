@@ -306,4 +306,24 @@ export class CommissionService extends ModelService<Commission> {
       return { error };
     }
   }
+
+  async updateBulkStatus(job: Job): Promise<JobResponse> {
+    try {
+      const { owner, payload } = job;
+      console.log('payload', payload);
+
+      const { error, data } = await this.$db.updateBulkRecords({
+        owner,
+        action: 'updateBulk',
+        options: {
+          where: { ...payload.where },
+        },
+        body: { status: CommissionStatus.Paid },
+      });
+      if (error) throw error;
+      return { data };
+    } catch (error) {
+      return { error };
+    }
+  }
 }

@@ -21,6 +21,6 @@ export class DashboardController {
       return Result(res, { error: 'No data found' });
     }
 
-    return Result(res, { data: dashboardCounts });
+    return Result(res, { data: { counts: dashboardCounts } });
   }
 }
