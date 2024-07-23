@@ -19,6 +19,7 @@ import { ExamVideoModule } from './modules/sql/exam-video/exam-video.module';
 import { ExamQuestionSetModule } from './modules/sql/exam-question-set/exam-question-set.module';
 import { ExamQuestionsModule } from './modules/sql/exam-questions/exam-questions.module';
 import { ExamQuestionOptionsModule } from './modules/sql/exam-question-options/exam-question-options.module';
+import { DashboardModule } from './modules/sql/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { ExamQuestionOptionsModule } from './modules/sql/exam-question-options/e
     ExamQuestionSetModule,
     ExamQuestionsModule,
     ExamQuestionOptionsModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],

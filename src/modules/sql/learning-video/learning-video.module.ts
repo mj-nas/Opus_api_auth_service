@@ -9,5 +9,6 @@ import { LearningVideoService } from './learning-video.service';
   imports: [SqlModule.register(LearningVideo), LearningModuleModule],
   controllers: [LearningVideoController],
   providers: [LearningVideoService],
+  exports: [LearningVideoService],
 })
 export class LearningVideoModule {}
