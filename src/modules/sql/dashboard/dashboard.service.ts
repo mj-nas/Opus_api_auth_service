@@ -11,6 +11,7 @@ import { LearningVideoService } from '../learning-video/learning-video.service';
 import { OrderService } from '../order/order.service';
 import { ProductCategoryService } from '../product-category/product-category.service';
 import { ProductsService } from '../products/products.service';
+import { Role } from '../user/role.enum';
 import { Status } from '../user/status.enum';
 import { UserService } from '../user/user.service';
 
@@ -46,15 +47,15 @@ export class DashboardService {
     const applicants_management = await this.userService.getCount({
       options: {
         where: {
-          role: 'dispenser',
+          role: Role.Dispenser,
           status: { [Op.in]: [Status.Pending, Status.Deny, Status.Approve] },
-          created_by: { [Op.ne]: null },
+          created_by: { [Op.eq]: null },
         },
       },
     });
     console.log('applicants_management', applicants_management);
     const dispenser_management = await this.userService.getCount({
-      options: { where: { role: 'dispenser' } },
+      options: { where: { role: Role.Dispenser, status: Status.Approve } },
     });
     console.log('dispenser_management', dispenser_management);
 
