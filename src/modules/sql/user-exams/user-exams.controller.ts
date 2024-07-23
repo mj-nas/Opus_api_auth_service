@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   Res,
 } from '@nestjs/common';
 import {
@@ -112,6 +113,41 @@ export class UserExamsController {
       });
     }
     return Result(res, { data: { [entity]: data }, message: 'Updated' });
+  }
+
+  /**
+   * Get logged in user details
+   */
+  @Get('me')
+  @ApiOperation({ summary: 'Get logged in userexam details' })
+  @ApiQueryGetById()
+  @ResponseGetOne(UserExams)
+  async findMe(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.userExamsService.findById({
+      owner,
+      action: 'findById',
+      id: owner.id,
+      payload: { ...query },
+    });
+
+    if (error) {
+      if (error instanceof NotFoundError) {
+        return NotFound(res, {
+          error,
+          message: `Record not found`,
+        });
+      }
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, { data: { user_exam: data }, message: 'Ok' });
   }
 
   /**

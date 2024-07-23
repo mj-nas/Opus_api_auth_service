@@ -72,6 +72,7 @@ export class CommissionController {
       owner,
       action: 'updateBulk',
       payload: { ...query },
+      body: updateCommissionDto,
     });
 
     if (error) {
