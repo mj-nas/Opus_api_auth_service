@@ -17,7 +17,10 @@ export class DashboardController {
   async getCounts(@Res() res: Response) {
     const dashboardCounts = await this.dashboardService.getCounts();
     console.log('dashboardCounts', dashboardCounts);
+    if (!dashboardCounts) {
+      return Result(res, { error: 'No data found' });
+    }
 
-    return Result(res, dashboardCounts);
+    return Result(res, { data: dashboardCounts });
   }
 }
