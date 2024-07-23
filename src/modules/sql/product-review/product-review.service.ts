@@ -10,7 +10,12 @@ export class ProductReviewService extends ModelService<ProductReview> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['review', '$user.name$', '$product.product_name$'];
+  searchFields: string[] = [
+    'review',
+    '$user.name$',
+    '$product.product_name$',
+    'rating',
+  ];
 
   /**
    * searchPopulate
