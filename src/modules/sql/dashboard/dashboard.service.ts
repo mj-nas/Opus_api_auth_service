@@ -110,6 +110,7 @@ export class DashboardService {
       article_management,
       e_learn_video,
       e_learn_questions,
+      e_learn_exam,
     };
   };
 }
