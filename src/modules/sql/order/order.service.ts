@@ -1,6 +1,7 @@
 import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
 import { StripeService } from '@core/stripe';
 import { Injectable } from '@nestjs/common';
+import axios from 'axios';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import * as moment from 'moment-timezone';
@@ -871,6 +872,21 @@ export class OrderService extends ModelService<Order> {
           });
         }
       }
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  async getTaxRate(job: Job): Promise<JobResponse> {
+    try {
+      const { postalCode } = job.payload;
+      const avlaraurl = `https://rest.avatax.com/api/v2/taxrates/bypostalcode?country=US&postalCode=${postalCode}`;
+      const response = await axios.get(avlaraurl, {
+        headers: {
+          Authorization: `Basic ${process.env.AVALARA_CLIENT_ID}`,
+        },
+      });
+      return { data: response.data };
     } catch (error) {
       return { error };
     }

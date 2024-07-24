@@ -27,6 +27,7 @@ import { APP_MIN_VERSION, APP_VERSION } from 'src/app.config';
 import { CDNStorage } from 'src/config';
 import { MsGuard } from 'src/core/guards/ms.quard';
 import {
+  PostalCode,
   QueryDeleteMode,
   QueryLimit,
   QueryOffset,
@@ -58,6 +59,10 @@ export const ApiQueryGetAll = () => {
     ApiQuery(QueryPopulate),
     ApiQuery(QuerySort),
   );
+};
+
+export const ApiQueryGetPostalCode = () => {
+  return applyDecorators(ApiQuery(PostalCode));
 };
 
 export const ApiQueryCountAll = () => {

@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Put, Query, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  Res,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiExtraModels,
@@ -17,12 +26,19 @@ import {
   ResponseUpdated,
 } from 'src/core/core.decorators';
 import { NotFoundError } from 'src/core/core.errors';
-import { ErrorResponse, NotFound, Result } from 'src/core/core.responses';
+import {
+  Created,
+  ErrorResponse,
+  NotFound,
+  Result,
+} from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
 import { Role } from '../user/role.enum';
+import { CommissionStatus } from './commission-status.enum';
 import { CommissionService } from './commission.service';
+import { BulkUpdateDto } from './dto/bulk-update.dto';
 import { UpdateCommissionDto } from './dto/update-commission.dto';
 import { Commission } from './entities/commission.entity';
 
@@ -55,39 +71,67 @@ export class CommissionController {
   //   return Created(res, { data: { [entity]: data }, message: 'Created' });
   // }
 
-  /**
-   * Update an entity document by using id
-   */
-  @Put('update-bullk')
-  @ApiOperation({ summary: `Update ${entity} using id` })
+  @Post('bulk-update/cancel')
+  @Roles(Role.Admin)
+  @ApiExtraModels(BulkUpdateDto)
+  @ApiOperation({ summary: `Update multiple ${entity} entity using ids` })
   @ApiQueryGetAll()
-  @ResponseUpdated(Commission)
-  async updatebulk(
+  async bulkUpdateCancel(
     @Res() res: Response,
     @Owner() owner: OwnerDto,
+    @Body() bulkUpdateDto: BulkUpdateDto,
     @Query() query: any,
-    @Body() updateCommissionDto: UpdateCommissionDto,
   ) {
-    const { error, data } = await this.commissionService.updateBulkStatus({
+    const { error, data } = await this.commissionService.$db.updateBulkRecords({
       owner,
-      action: 'updateBulk',
-      payload: { ...query },
-      body: updateCommissionDto,
+      options: {
+        where: {
+          id: bulkUpdateDto.ids,
+        },
+      },
+      body: {
+        status: CommissionStatus.Cancelled,
+      },
     });
 
     if (error) {
-      if (error instanceof NotFoundError) {
-        return NotFound(res, {
-          error,
-          message: `Record not found`,
-        });
-      }
       return ErrorResponse(res, {
         error,
         message: `${error.message || error}`,
       });
     }
-    return Result(res, { data: { [entity]: data }, message: 'Updated' });
+    return Created(res, { data: { rows: data }, message: 'Updated' });
+  }
+  @Post('bulk-update/paid')
+  @Roles(Role.Admin)
+  @ApiExtraModels(BulkUpdateDto)
+  @ApiOperation({ summary: `Update multiple ${entity} entity using ids` })
+  @ApiQueryGetAll()
+  async bulkUpdatePaid(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Body() bulkUpdateDto: BulkUpdateDto,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.commissionService.$db.updateBulkRecords({
+      owner,
+      options: {
+        where: {
+          id: bulkUpdateDto.ids,
+        },
+      },
+      body: {
+        status: CommissionStatus.Paid,
+      },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Created(res, { data: { rows: data }, message: 'Updated' });
   }
 
   /**

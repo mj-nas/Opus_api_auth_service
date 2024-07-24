@@ -20,6 +20,7 @@ import {
   ApiErrorResponses,
   ApiQueryGetAll,
   ApiQueryGetOne,
+  ApiQueryGetPostalCode,
   MsEventListener,
   ResponseGetAll,
   ResponseGetOne,
@@ -316,6 +317,38 @@ export class OrderController {
   //   }
   //   return Created(res, { data: { [entity]: data }, message: 'Created' });
   // }
+
+  /**
+   * Return all entity documents list
+   */
+  @Get('tax_rate')
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: `Get my ${pluralizeString(entity)}` })
+  @ApiQueryGetPostalCode()
+  @ResponseGetAll(Order)
+  async GetTaxRates(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.orderService.getTaxRate({
+      action: 'getTaxRate',
+      payload: { ...query },
+    });
+
+    console.log('data', data);
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { data },
+      message: 'Ok',
+    });
+  }
 
   /**
    * Return all entity documents list

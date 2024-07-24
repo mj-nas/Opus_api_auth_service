@@ -95,6 +95,20 @@ export const QuerySort: ApiQueryOptions = {
     },
   },
 };
+export const PostalCode: ApiQueryOptions = {
+  name: 'postalCode',
+  required: false,
+  schema: { format: 'json' },
+  examples: {
+    empty: {
+      summary: 'Default sort',
+    },
+    single: {
+      summary: 'Postal code for NewJersy',
+      value: '07010',
+    },
+  },
+};
 
 export const QuerySelect: ApiQueryOptions = {
   name: 'select',
