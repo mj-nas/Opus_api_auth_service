@@ -1,5 +1,6 @@
 import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
 import { StripeService } from '@core/stripe';
+import { XpsService } from '@core/xps';
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import * as ExcelJS from 'exceljs';
@@ -51,6 +52,7 @@ export class OrderService extends ModelService<Order> {
     private _couponService: CouponService,
     private _userService: UserService,
     private _couponUsedService: CouponUsedService,
+    private _xpsService: XpsService,
   ) {
     super(db);
   }
@@ -175,7 +177,11 @@ export class OrderService extends ModelService<Order> {
         response.data.status === OrderStatus.Ordered
       ) {
         //ship product
-
+        await this._xpsService.createShipment({
+          payload: {
+            order_id: response.data.uid,
+          },
+        });
         // Send order placed socket notification
         await this._msClient.executeJob('controller.socket-event', {
           action: 'orderPlaced',

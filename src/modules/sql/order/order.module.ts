@@ -1,5 +1,6 @@
 import { SqlModule } from '@core/sql';
 import { StripeModule } from '@core/stripe';
+import { XpsModule } from '@core/xps';
 import { Module } from '@nestjs/common';
 import { MsClientModule } from 'src/core/modules/ms-client/ms-client.module';
 import { CouponUsedModule } from '../coupon-used/coupon-used.module';
@@ -25,6 +26,7 @@ import { OrderService } from './order.service';
     UserModule,
     CouponModule,
     CouponUsedModule,
+    XpsModule,
   ],
   controllers: [OrderController],
   providers: [OrderService],
