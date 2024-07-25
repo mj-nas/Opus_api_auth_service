@@ -203,7 +203,7 @@ export class UserService extends ModelService<User> {
         },
       });
     }
-    const { active, id, status, email } = response.data;
+    const { active, id, status, email, role } = response.data;
     const { active: previousActive, status: previousStatus } =
       response.previousData;
 
@@ -233,6 +233,15 @@ export class UserService extends ModelService<User> {
             user_id: id,
           },
         });
+
+        if (role === Role.Dispenser) {
+          await this.$db.updateBulkRecords({
+            body: { dispenser_id: null, connection_via: null },
+            options: {
+              where: { dispenser_id: id },
+            },
+          });
+        }
       }
     }
 

@@ -36,7 +36,6 @@ export class Coupon extends SqlModel {
   name: string;
 
   @Column
-  @Index
   @ApiProperty({
     description: 'Coupon description',
     example: 'Coupon details',
@@ -46,8 +45,7 @@ export class Coupon extends SqlModel {
   @IsOptional()
   description: string;
 
-  @Column({ unique: true })
-  @Index
+  @Column
   @ApiProperty({
     description: 'Coupon code',
     example: 'US',
