@@ -310,8 +310,6 @@ export class CommissionService extends ModelService<Commission> {
   async updateBulkStatus(job: SqlJob<Commission>): Promise<JobResponse> {
     try {
       const { owner, payload, body } = job;
-      console.log('payload', payload);
-      console.log('body', body);
 
       const { error, data } = await this.$db.updateBulkRecords({
         owner,

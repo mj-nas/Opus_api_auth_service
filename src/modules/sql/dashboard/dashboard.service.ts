@@ -42,7 +42,6 @@ export class DashboardService {
     const customer_management = await this.userService.getCount({
       options: { where: { role: 'customer' } },
     });
-    console.log('customer_management', customer_management);
 
     const applicants_management = await this.userService.getCount({
       options: {
@@ -53,51 +52,40 @@ export class DashboardService {
         },
       },
     });
-    console.log('applicants_management', applicants_management);
     const dispenser_management = await this.userService.getCount({
       options: { where: { role: Role.Dispenser, status: Status.Approve } },
     });
-    console.log('dispenser_management', dispenser_management);
 
     const products = await this.productsService.$db.countAllRecords({
       options: {},
     });
-    console.log('products', products);
     const orders = await this.orderService.$db.countAllRecords({
       options: {},
     });
-    console.log('orders', orders);
     const reorders = await this.orderService.$db.countAllRecords({
       options: { where: { is_a_reorder: true } },
     });
-    console.log('reorders', reorders);
     const commission_report = await this.commissionService.$db.countAllRecords({
       options: {},
     });
-    console.log('commission_report', commission_report);
     const youtube_management = await this.youtubeService.$db.countAllRecords({
       options: {},
     });
-    console.log('youtube_management', youtube_management);
     const article_management = await this.articleService.$db.countAllRecords({
       options: {},
     });
-    console.log('article_management', article_management);
 
     const e_learn_video = await this.learningVideoService.$db.countAllRecords({
       options: {},
     });
-    console.log('e_learn_video', e_learn_video);
     const e_learn_questions =
       await this.learningQuestionSetService.$db.countAllRecords({
         options: {},
       });
-    console.log('e_learn_questions', e_learn_questions);
 
     const e_learn_exam = await this.learningModuleService.$db.countAllRecords({
       options: {},
     });
-    console.log('e_learn_module', e_learn_exam);
 
     return {
       customer_management,

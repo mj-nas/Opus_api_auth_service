@@ -108,9 +108,6 @@ export class LearningQuestionsController {
         message: `${error.message || error}`,
       });
     }
-    console.log(createLearningQuestionsOptionsDto);
-    console.log(options);
-    console.log(question);
 
     const { data: option, error: options_error } =
       await this.optionsService.$db.createBulkRecords({

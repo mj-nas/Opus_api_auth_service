@@ -62,8 +62,6 @@ export class CouponService extends ModelService<Coupon> {
     )?.data;
     if (usedCoupon) {
       throw new Error('Cannot delete coupon because it has been used.');
-    } else {
-      console.log('coupon is not used');
     }
   }
 
@@ -309,7 +307,6 @@ export class CouponService extends ModelService<Coupon> {
 
   async verifyCoupon(job: Job): Promise<JobResponse> {
     const { owner, payload } = job;
-    console.log('payload', payload);
     const { error, data } = await this.$db.findOneRecord({
       owner,
       options: {

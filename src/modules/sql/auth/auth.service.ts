@@ -531,13 +531,6 @@ export class AuthService {
     uid: string;
     type: ConnectionVia;
   }) {
-    console.log({
-      dispenser_id,
-      user_id,
-      type,
-      uid,
-      isType: type === ConnectionVia.Referral,
-    });
     try {
       const { error, data } = await this.userService.findById({
         action: 'connectingToDispenser',
@@ -547,15 +540,23 @@ export class AuthService {
         throw error;
       }
       if (!data.dispenser_id) {
-        // connect to Dispenser
-        data.setDataValue('dispenser_id', dispenser_id);
-        data.setDataValue(
-          'connection_via',
+        const connection_via =
           type === ConnectionVia.Referral
             ? ConnectionVia.Referral
-            : ConnectionVia.Connect,
-        );
+            : ConnectionVia.Connect;
+
+        // connect to Dispenser
+        data.setDataValue('dispenser_id', dispenser_id);
+        data.setDataValue('connection_via', connection_via);
         await data.save();
+        await this.msClient.executeJob('user.dispenser.change', {
+          owner: { id: user_id },
+          payload: {
+            user_id,
+            dispenser_id,
+            connection_via,
+          },
+        });
 
         // if the connection type is Referral
         if (type === ConnectionVia.Referral) {
@@ -565,7 +566,6 @@ export class AuthService {
               populate: ['products'],
             },
           });
-          console.log(referral?.data);
           if (!!referral.error) {
             throw referral.error;
           }
@@ -581,17 +581,13 @@ export class AuthService {
                 user_id,
               },
             });
-            console.log(cart);
             if (!!cart.error) {
               throw cart.error;
             }
-            console.log(referral.data.products);
             for await (const referred_product of referral.data.products) {
-              console.log(referred_product);
               const index = cart.data.items.findIndex(
                 (item) => item.product_id === referred_product.product_id,
               );
-              console.log(index);
               if (index >= 0) {
                 await this.cartItemService.$db.updateRecord({
                   owner: { id: user_id },
