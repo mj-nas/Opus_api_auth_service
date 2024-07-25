@@ -52,6 +52,18 @@ export class Order extends SqlModel {
   @IsNumber()
   user_id: number;
 
+  @ForeignKey(() => User)
+  @Column
+  @Index
+  @ApiProperty({
+    description: 'Dispenser Id',
+    example: 1,
+    readOnly: true,
+  })
+  @IsOptional()
+  @IsNumber()
+  dispenser_id: number;
+
   @ForeignKey(() => Cart)
   @Column
   @Index
@@ -314,8 +326,26 @@ export class Order extends SqlModel {
     ],
     paranoid: false,
   })
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, 'user_id')
   user: User;
+
+  @Include({
+    attributes: [
+      'id',
+      'slug',
+      'role',
+      'uid',
+      'first_name',
+      'last_name',
+      'name',
+      'email',
+      'phone_code',
+      'phone',
+      'avatar',
+    ],
+  })
+  @BelongsTo(() => User, 'dispenser_id')
+  dispenser: User;
 
   @Include({
     attributes: ['id', 'uid', 'created_at'],

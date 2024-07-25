@@ -51,6 +51,19 @@ export class UserService extends ModelService<User> {
   }
 
   /**
+   * doBeforeCount
+   * @function function will execute before getCount function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeCount(job: SqlJob<User>): Promise<void> {
+    await super.doBeforeCount(job);
+    if (job.action === 'assignedCustomersCount') {
+      job.options.where = { ...job.options.where, role: Role.Customer };
+    }
+  }
+
+  /**
    * doBeforeUpdate
    * @function function will execute before update function
    * @param {object} job - mandatory - a job object representing the job information
