@@ -230,6 +230,7 @@ export class OrderService extends ModelService<Order> {
           user_id: job.owner.id,
           is_base_order: body.is_repeating_order === 'Y' ? 'Y' : 'N',
           status: OrderStatus.PaymentPending,
+          dispenser_id: job.owner.dispenser_id || null,
         },
         options: {
           transaction,
@@ -419,7 +420,7 @@ export class OrderService extends ModelService<Order> {
           include: [
             { association: 'address' },
             { association: 'items' },
-            { association: 'user' },
+            { association: 'user', where: { active: true }, required: true },
           ],
         },
       });
@@ -452,6 +453,7 @@ export class OrderService extends ModelService<Order> {
             parent_order_id: o.parent_order_id ?? o.id,
             previous_order_id: o.id,
             status: OrderStatus.PaymentPending,
+            dispenser_id: o.dispenser_id || null,
           },
           options: {
             transaction,

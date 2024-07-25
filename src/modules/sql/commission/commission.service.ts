@@ -169,13 +169,17 @@ export class CommissionService extends ModelService<Commission> {
             '$current_status.created_at$': literal(
               `DATE_FORMAT(DATE_ADD( current_status.created_at, INTERVAL 1 DAY ),'%Y-%m-%d') = DATE_FORMAT(CURDATE( ),'%Y-%m-%d')`,
             ),
-            '$user.dispenser_id$': { [Op.ne]: null },
           },
           include: [
             { association: 'current_status' },
             { association: 'items', separate: true },
             { association: 'coupon' },
             { association: 'user' },
+            {
+              association: 'dispenser',
+              where: { active: true },
+              required: true,
+            },
           ],
         },
       });
@@ -195,31 +199,29 @@ export class CommissionService extends ModelService<Commission> {
 
       const orders = data;
       for await (const order of orders) {
-        if (!!order.user?.dispenser_id) {
+        if (!!order?.dispenser_id) {
           const items = order.items.filter(
             (item) => item.status === OrderItemStatus.Ordered,
           );
           const sub_total = items.reduce((sum, item) => sum + item.price, 0);
-          if (sub_total > 0) {
-            let body: any = {
-              order_id: order.id,
-              user_id: order.user.dispenser_id,
-              order_amount: sub_total,
-              internal_fee: internalFeeData.value || 0,
-              commission_percentage: commissionData.value || 0,
+          let body: any = {
+            order_id: order.id,
+            user_id: order.dispenser_id,
+            order_amount: sub_total,
+            internal_fee: internalFeeData.value || 0,
+            commission_percentage: commissionData.value || 0,
+          };
+          if (!!order.coupon_id) {
+            body = {
+              ...body,
+              coupon_discount_amount: await this.calculateCouponAmount({
+                coupon_type: order.coupon_type,
+                sub_total,
+                coupon_discount: order.coupon_discount,
+              }),
             };
-            if (!!order.coupon_id) {
-              body = {
-                ...body,
-                coupon_discount_amount: await this.calculateCouponAmount({
-                  coupon_type: order.coupon_type,
-                  sub_total,
-                  coupon_discount: order.coupon_discount,
-                }),
-              };
-            }
-            await this.create({ body });
           }
+          await this.create({ body });
         }
       }
       return { data: orders };

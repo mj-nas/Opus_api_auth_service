@@ -23,11 +23,13 @@ import {
 import { Request, Response } from 'express';
 import {
   ApiErrorResponses,
+  ApiQueryCountAll,
   ApiQueryDelete,
   ApiQueryGetAll,
   ApiQueryGetById,
   ApiQueryGetOne,
   FileUploads,
+  ResponseCountAll,
   ResponseCreated,
   ResponseDeleted,
   ResponseGetAll,
@@ -250,7 +252,6 @@ export class UserController {
     @Res() res: Response,
     @Owner() owner: OwnerDto,
     @Body() changeDispenserDto: ChangeDispenserDto,
-    @Query() query: any,
   ) {
     const { error, data } = await this.userService.update({
       owner,
@@ -709,6 +710,36 @@ export class UserController {
       });
     }
     return Result(res, { data: { user: data }, message: 'Ok' });
+  }
+
+  /**
+   * Return count of entity documents
+   */
+  @Get('assigned-customers-count')
+  @ApiOperation({ summary: `Get count of users` })
+  @ApiQueryCountAll()
+  @ResponseCountAll()
+  async assignedCustomersCount(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, count } = await this.userService.getCount({
+      owner,
+      action: 'assignedCustomersCount',
+      payload: { ...query },
+    });
+
+    if (!!error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { count },
+      message: 'Ok',
+    });
   }
 
   /**
