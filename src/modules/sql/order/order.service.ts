@@ -174,6 +174,8 @@ export class OrderService extends ModelService<Order> {
         response.previousData.status === OrderStatus.PaymentPending &&
         response.data.status === OrderStatus.Ordered
       ) {
+        //ship product
+
         // Send order placed socket notification
         await this._msClient.executeJob('controller.socket-event', {
           action: 'orderPlaced',
