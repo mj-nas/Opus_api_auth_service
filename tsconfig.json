@@ -29,7 +29,8 @@
       "@core/firebase": ["libs/firebase/src"],
       "@core/firebase/*": ["libs/firebase/src/*"],
       "@core/stripe": ["libs/stripe/src"],
-      "@core/stripe/*": ["libs/stripe/src/*"]
+      "@core/stripe/*": ["libs/stripe/src/*"],
+      "@core/xps/*": ["libs/xps/src/*"]
     }
   }
 }

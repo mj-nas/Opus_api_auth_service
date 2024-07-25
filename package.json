@@ -41,7 +41,8 @@
       "^@core/email(|/.*)$": "<rootDir>/libs/email/src/$1",
       "^@core/twilio(|/.*)$": "<rootDir>/libs/twilio/src/$1",
       "^@core/firebase(|/.*)$": "<rootDir>/libs/firebase/src/$1",
-      "^@core/stripe(|/.*)$": "<rootDir>/libs/stripe/src/$1"
+      "^@core/stripe(|/.*)$": "<rootDir>/libs/stripe/src/$1",
+      "^@core/xps(|/.*)$": "<rootDir>libs/xps/src/$1"
     },
     "rootDir": ".",
     "roots": [

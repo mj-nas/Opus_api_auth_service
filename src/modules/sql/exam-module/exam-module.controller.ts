@@ -39,10 +39,10 @@ import {
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
-import { ExamModuleService } from './exam-module.service';
 import { CreateExamModuleDto } from './dto/create-exam-module.dto';
 import { UpdateExamModuleDto } from './dto/update-exam-module.dto';
 import { ExamModule } from './entities/exam-module.entity';
+import { ExamModuleService } from './exam-module.service';
 
 const entity = snakeCase(ExamModule.name);
 
@@ -111,7 +111,24 @@ export class ExamModuleController {
         message: `${error.message || error}`,
       });
     }
-    return Result(res, { data: { [entity]: data }, message: 'Updated' });
+    if (updateExamModuleDto.module_complete == true) {
+      const next_module = await this.examModuleService.$db.getAllRecords({
+        options: {
+          where: { exam_id: data.exam_id, module_complete: false },
+          order: [['id', 'ASC']],
+        },
+      });
+      if (next_module.data.length > 0) {
+        return Result(res, {
+          data: { [entity]: data, next_module_id: next_module.data[0].id },
+          message: 'Updated',
+        });
+      }
+    }
+    return Result(res, {
+      data: { [entity]: data },
+      message: 'Updated',
+    });
   }
 
   /**
