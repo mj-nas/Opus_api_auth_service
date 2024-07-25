@@ -336,8 +336,6 @@ export class OrderController {
       payload: { ...query },
     });
 
-    console.log('data', data);
-
     if (error) {
       return ErrorResponse(res, {
         error,

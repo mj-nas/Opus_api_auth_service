@@ -53,14 +53,11 @@ export class UserExamsService extends ModelService<UserExams> {
       },
     });
 
-    modules.data.map(async (module, index) => {
-      // console.log(module.dataValues);
+    modules.data.map(async (module) => {
       const video = module.web_video.dataValues;
       const questions = module.web_question_set.web_questions.map(
         (e) => e.dataValues,
       );
-      console.log('questions*********************************', index);
-      console.log(questions);
       // CREATE EXAM VIDEO
       const exam_video = await this.examVideoService.create({
         owner: job.owner,
@@ -81,7 +78,7 @@ export class UserExamsService extends ModelService<UserExams> {
       });
 
       // CREATE EXAM MODULE
-      const exam_module = await this.examModuleService.create({
+      await this.examModuleService.create({
         owner: job.owner,
         action: 'create',
         body: {

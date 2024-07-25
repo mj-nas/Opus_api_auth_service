@@ -16,7 +16,6 @@ export class DashboardController {
   @ApiOperation({ summary: `Get counts for dashboard` })
   async getCounts(@Res() res: Response) {
     const dashboardCounts = await this.dashboardService.getCounts();
-    console.log('dashboardCounts', dashboardCounts);
     if (!dashboardCounts) {
       return Result(res, { error: 'No data found' });
     }
