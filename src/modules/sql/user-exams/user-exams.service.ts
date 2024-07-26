@@ -43,17 +43,32 @@ export class UserExamsService extends ModelService<UserExams> {
     await super.doAfterCreate(job, response);
     const modules = await this.learningModuleService.findAll({
       payload: {
-        options: {
-          where: { active: true },
-        },
-        populate: [
-          'web_video',
-          'web_question_set',
-          'web_question_set.web_questions',
-          'web_question_set.web_questions.web_options',
+        where: { active: true },
+        populate: ['web_video', 'web_question_set.web_questions.web_options'],
+      },
+    });
+
+    const moduless = await this.learningModuleService.$db.getAllRecords({
+      options: {
+        where: { active: true },
+        limit: -1,
+        // 'web_video', 'web_question_set.web_questions.web_options'
+        include: [
+          { association: 'web_video' },
+          {
+            association: 'web_question_set',
+            include: [
+              {
+                association: 'web_questions',
+                include: [{ association: 'web_options' }],
+              },
+            ],
+          },
         ],
       },
     });
+    console.log('moduless>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+    console.log(modules.data);
 
     modules.data.map(async (module) => {
       const video = module.web_video.dataValues;

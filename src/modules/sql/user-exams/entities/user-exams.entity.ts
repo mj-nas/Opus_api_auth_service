@@ -6,10 +6,12 @@ import {
   BeforeCreate,
   Column,
   ForeignKey,
+  HasMany,
   Index,
   Table,
 } from 'sequelize-typescript';
 import { uuid } from 'src/core/core.utils';
+import { ExamModule } from '../../exam-module/entities/exam-module.entity';
 import { User } from '../../user/entities/user.entity';
 
 @Table
@@ -65,4 +67,7 @@ export class UserExams extends SqlModel {
   static setUuid(instance: UserExams) {
     instance.uid = uuid();
   }
+
+  @HasMany(() => ExamModule)
+  exam_modules: ExamModule[];
 }

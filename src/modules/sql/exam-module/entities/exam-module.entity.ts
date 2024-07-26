@@ -86,4 +86,7 @@ export class ExamModule extends SqlModel {
 
   @BelongsTo(() => ExamVideo)
   video: ExamVideo;
+
+  @BelongsTo(() => UserExams)
+  exam: UserExams;
 }
