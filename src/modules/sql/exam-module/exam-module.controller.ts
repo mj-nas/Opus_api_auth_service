@@ -120,7 +120,7 @@ export class ExamModuleController {
       });
       if (next_module.data.length > 0) {
         return Result(res, {
-          data: { [entity]: data, next_module_id: next_module.data[0].id },
+          data: { [entity]: data, next_module_id: next_module.data[0].uid },
           message: 'Updated',
         });
       }
