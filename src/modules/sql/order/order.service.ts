@@ -2,6 +2,7 @@ import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
 import { StripeService } from '@core/stripe';
 import { XpsService } from '@core/xps';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
@@ -53,6 +54,7 @@ export class OrderService extends ModelService<Order> {
     private _userService: UserService,
     private _couponUsedService: CouponUsedService,
     private _xpsService: XpsService,
+    private _config: ConfigService,
   ) {
     super(db);
   }
@@ -176,10 +178,72 @@ export class OrderService extends ModelService<Order> {
         response.previousData.status === OrderStatus.PaymentPending &&
         response.data.status === OrderStatus.Ordered
       ) {
+        const order = await this.$db.findRecordById({
+          id: response.data.id,
+          options: { include: ['items', 'user', '$item.product$'] },
+        });
+        const { items, user } = order.data;
+        const senderObj = {
+          name: 'Albert Jones',
+          company: 'Jones Co.',
+          address1: '123 Some Street',
+          address2: '#54',
+          city: 'Holladay',
+          state: 'UT',
+          zip: '84117',
+          country: 'US',
+          phone: '8015042351',
+          email: 'albert@jones.egg',
+        };
+        const packageWeight = items.reduce(
+          (sum, item) => sum + item.product.weight_lbs,
+          0,
+        );
         //ship product
         await this._xpsService.createShipment({
           payload: {
             order_id: response.data.uid,
+            orderDate: moment(response.data.updated_at).format('YYYY-MM-DD'),
+            orderNumber: null,
+            fulfillmentStatus: 'pending',
+            shippingService: null,
+            shippingTotal: null,
+            weighUnit: 'lb',
+            dimUnit: 'in',
+            dueByDate: null,
+            orderGroup: null,
+            // contentDescription: 'Opus products',
+            sender: this._config.get('xpsSender'),
+            receiver: {
+              name: user.name,
+              address1: user.address,
+              city: user.city,
+              state: user.state,
+              zip: user.zip_code,
+              country: user.country,
+              phone: user.phone,
+              email: user.email,
+            },
+            items: items.map((item) => ({
+              productId: item.product.id,
+              sku: item?.product.slug,
+              title: item.product?.product_name,
+              price: item?.price,
+              quantity: item?.quantity,
+              weight: item.product?.weight_lbs,
+              height: item.product?.height,
+              width: item.product?.width,
+              length: item.product?.length,
+              imgUrl: item.product?.product_image,
+            })),
+            packages: items.map((item) => ({
+              weight: item.product.weight_lbs,
+              height: item.product.height,
+              width: item.product.width,
+              length: item.product.length,
+              insuranceAmount: null,
+              declaredValue: null,
+            })),
           },
         });
         // Send order placed socket notification

@@ -13,6 +13,7 @@ import { UserModule } from '../user/user.module';
 import { Order } from './entities/order.entity';
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { OrderService } from './order.service';
     CouponModule,
     CouponUsedModule,
     XpsModule,
+    ConfigModule,
   ],
   controllers: [OrderController],
   providers: [OrderService],

@@ -15,6 +15,17 @@ export class XpsService {
       const integration_id = this._config.get('xps').integration_id;
       const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/integrations/${integration_id}/orders/${payload.order_id}`;
       console.log('Creating shipment', job);
+      fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `RSIS  ${apiKey}`,
+        },
+        body: JSON.stringify(payload),
+      }).then((res) => {
+        console.log('Shipment created');
+        console.log(res);
+      });
       return { data: 'Shipment created' };
     } catch (error) {
       return { error };

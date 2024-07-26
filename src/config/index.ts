@@ -124,4 +124,22 @@ export default () => ({
    * @default 100
    */
   distanceUnitCalculationNumber: 3959,
+
+  /**
+   * @property {object} xpsSender
+   * Default distance calculation number (3959 for miles / 6371 kms)
+   * @default {}
+   */
+  xpsSender: {
+    name: 'Albert Jones',
+    company: 'Jones Co.',
+    address1: '123 Some Street',
+    address2: '#54',
+    city: 'Holladay',
+    state: 'UT',
+    zip: '84117',
+    country: 'US',
+    phone: '8015042351',
+    email: 'albert@jones.egg',
+  },
 });
