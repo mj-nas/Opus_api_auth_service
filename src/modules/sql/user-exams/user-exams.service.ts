@@ -43,7 +43,9 @@ export class UserExamsService extends ModelService<UserExams> {
     await super.doAfterCreate(job, response);
     const modules = await this.learningModuleService.findAll({
       payload: {
-        where: { active: true },
+        options: {
+          where: { active: true },
+        },
         populate: [
           'web_video',
           'web_question_set',

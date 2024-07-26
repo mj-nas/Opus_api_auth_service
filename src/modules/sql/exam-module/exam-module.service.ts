@@ -46,6 +46,11 @@ export class ExamModuleService extends ModelService<ExamModule> {
         (completed_modules.count / no_of_modules.count) * 100;
 
       if (no_of_modules.count == completed_modules.count) {
+        // genereate certificate
+        // const image = await Jimp.read('images/shapes.png'); // <http://www.example.com/path/to/lenna.jpg>
+        // // Add text
+        //  const font = await Jimp.loadFont(Jimp.FONT_SANS_16_WHITE); // bitmap fonts
+        //  image.print(font, 0, 0, 'Hello world!');
         const user_exam = await this.userExamsService.update({
           owner: job.owner,
           action: 'update',
