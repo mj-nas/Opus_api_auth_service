@@ -1,7 +1,7 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { IsUnique } from '@core/sql/sql.unique-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNumber } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 import {
   BeforeCreate,
   Column,
@@ -34,6 +34,15 @@ export class UserExams extends SqlModel {
   })
   @IsBoolean()
   is_complete: boolean;
+
+  @Column({ defaultValue: '0' })
+  @ApiProperty({
+    description: 'attempted_percentage',
+    example: 50,
+  })
+  @IsString()
+  @IsOptional()
+  attempted_percentage: string;
 
   @Column({ unique: 'uid' })
   @ApiProperty({

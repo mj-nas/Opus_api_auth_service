@@ -42,18 +42,33 @@ export class ExamModuleService extends ModelService<ExamModule> {
         },
       });
 
+      const completed_percentage =
+        (completed_modules.count / no_of_modules.count) * 100;
+
       if (no_of_modules.count == completed_modules.count) {
         const user_exam = await this.userExamsService.update({
           owner: job.owner,
           action: 'update',
           id: response.data.exam_id,
-          body: { exam_complete: true },
+          body: {
+            exam_complete: true,
+            attempted_percentage: completed_percentage,
+          },
         });
         await this.userService.update({
           owner: job.owner,
           action: 'update',
           id: user_exam.data.user_id,
           body: { learning_completed: 'Y' },
+        });
+      } else {
+        const user_exam = await this.userExamsService.update({
+          owner: job.owner,
+          action: 'update',
+          id: response.data.exam_id,
+          body: {
+            attempted_percentage: completed_percentage,
+          },
         });
       }
     }
