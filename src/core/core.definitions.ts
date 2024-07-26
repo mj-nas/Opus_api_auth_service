@@ -97,8 +97,7 @@ export const QuerySort: ApiQueryOptions = {
 };
 export const PostalCode: ApiQueryOptions = {
   name: 'postalCode',
-  required: false,
-  schema: { format: 'json' },
+  required: true,
   examples: {
     empty: {
       summary: 'Default sort',
