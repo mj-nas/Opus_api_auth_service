@@ -52,6 +52,7 @@ export class UserExams extends SqlModel {
     example: 'a926d382-6741-4d95-86cf-1f5c421cf654',
     readOnly: true,
   })
+  @IsString()
   uid: string;
 
   @Column

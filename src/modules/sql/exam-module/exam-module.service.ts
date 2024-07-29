@@ -56,7 +56,7 @@ export class ExamModuleService extends ModelService<ExamModule> {
           action: 'update',
           id: response.data.exam_id,
           body: {
-            exam_complete: true,
+            is_complete: true,
             attempted_percentage: completed_percentage,
           },
         });
