@@ -322,7 +322,6 @@ export class OrderController {
    * Return all entity documents list
    */
   @Get('tax_rate')
-  @Roles(Role.Admin)
   @ApiOperation({ summary: `Get my ${pluralizeString(entity)}` })
   @ApiQueryGetPostalCode()
   @ResponseGetAll(Order)

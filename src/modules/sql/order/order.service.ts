@@ -183,22 +183,22 @@ export class OrderService extends ModelService<Order> {
           options: { include: ['items', 'user', '$item.product$'] },
         });
         const { items, user } = order.data;
-        const senderObj = {
-          name: 'Albert Jones',
-          company: 'Jones Co.',
-          address1: '123 Some Street',
-          address2: '#54',
-          city: 'Holladay',
-          state: 'UT',
-          zip: '84117',
-          country: 'US',
-          phone: '8015042351',
-          email: 'albert@jones.egg',
-        };
-        const packageWeight = items.reduce(
-          (sum, item) => sum + item.product.weight_lbs,
-          0,
-        );
+        // const senderObj = {
+        //   name: 'Albert Jones',
+        //   company: 'Jones Co.',
+        //   address1: '123 Some Street',
+        //   address2: '#54',
+        //   city: 'Holladay',
+        //   state: 'UT',
+        //   zip: '84117',
+        //   country: 'US',
+        //   phone: '8015042351',
+        //   email: 'albert@jones.egg',
+        // };
+        // const packageWeight = items.reduce(
+        //   (sum, item) => sum + item.product.weight_lbs,
+        //   0,
+        // );
         //ship product
         await this._xpsService.createShipment({
           payload: {
