@@ -58,6 +58,8 @@ export class ExamModuleService extends ModelService<ExamModule> {
           body: {
             is_complete: true,
             attempted_percentage: completed_percentage,
+            certificate_url:
+              'https://opus-dev-s3.s3.amazonaws.com/e_learning_certificate.jpg',
           },
         });
         await this.userService.update({

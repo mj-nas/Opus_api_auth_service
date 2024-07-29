@@ -53,7 +53,13 @@ export class DashboardService {
       },
     });
     const dispenser_management = await this.userService.getCount({
-      options: { where: { role: Role.Dispenser, status: Status.Approve } },
+      options: {
+        where: {
+          role: Role.Dispenser,
+          status: Status.Approve,
+          learning_completed: 'Y',
+        },
+      },
     });
 
     const products = await this.productsService.$db.countAllRecords({

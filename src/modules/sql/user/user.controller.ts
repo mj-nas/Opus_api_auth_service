@@ -132,6 +132,7 @@ export class UserController {
         ...createDispenserDto,
         status: Status.Approve,
         role: Role.Dispenser,
+        learning_completed: 'Y',
       },
       payload: { ...query },
     });
