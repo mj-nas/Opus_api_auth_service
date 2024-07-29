@@ -128,10 +128,9 @@ export class UserExamsController {
     @Owner() owner: OwnerDto,
     @Query() query: any,
   ) {
-    const { error, data } = await this.userExamsService.findById({
+    const { error, data } = await this.userExamsService.findOne({
       owner,
-      action: 'findById',
-      id: owner.id,
+      action: 'findMe',
       payload: { ...query },
     });
 

@@ -121,4 +121,17 @@ export class UserExamsService extends ModelService<UserExams> {
       });
     });
   }
+
+  /**
+   * doBeforeFindAll
+   * @function function will execute before findAll function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeFind(job: SqlJob<UserExams>): Promise<void> {
+    await super.doBeforeFind(job);
+    if (job.action === 'findMe') {
+      job.options.where = { ...job.options.where, user_id: job.owner.id };
+    }
+  }
 }
