@@ -42,8 +42,9 @@ export class ExamModuleService extends ModelService<ExamModule> {
         },
       });
 
-      const completed_percentage =
-        (completed_modules.count / no_of_modules.count) * 100;
+      const completed_percentage = Math.round(
+        (completed_modules.count / no_of_modules.count) * 100,
+      );
 
       if (no_of_modules.count == completed_modules.count) {
         // genereate certificate
