@@ -212,7 +212,7 @@ export class OrderService extends ModelService<Order> {
         // );
         //ship product
         try {
-          await this._xpsService.createShipment({
+          const res = await this._xpsService.createShipment({
             payload: {
               order_id: response.data.uid,
               orderDate: moment(response.data.updated_at).format('YYYY-MM-DD'),
@@ -258,7 +258,12 @@ export class OrderService extends ModelService<Order> {
               })),
             },
           });
+          console.log(
+            '----------------------------------Shipment created',
+            res,
+          );
         } catch (error) {
+          console.log('Error while creating shipment', error);
           console.error(error);
         }
 
