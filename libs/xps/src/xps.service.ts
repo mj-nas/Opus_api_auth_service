@@ -28,6 +28,8 @@ export class XpsService {
       });
       return { data: 'Shipment created' };
     } catch (error) {
+      console.log('Error creating shipment', error);
+      console.error(error);
       return { error };
     }
   }
