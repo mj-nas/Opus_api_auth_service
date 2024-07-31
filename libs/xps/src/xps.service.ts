@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 import { Job } from 'src/core/core.job';
 
 @Injectable()
@@ -13,21 +14,30 @@ export class XpsService {
       const apiKey = this._config.get('xps').api_key;
       const customer_id = this._config.get('xps').customer_id;
       const integration_id = this._config.get('xps').integration_id;
-      const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/integrations/${integration_id}/orders/${payload.order_id}`;
-      fetch(url, {
-        method: 'PUT',
+      const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/integrations/${integration_id}/orders/${payload.orderId}`;
+
+      const response = await axios.put(url, payload, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `RSIS ${apiKey}`,
         },
-        body: JSON.stringify(payload),
-      }).then((res) => {
-        console.log('Shipment created');
-        console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-
-        console.error(res);
-        console.log(res);
       });
+      // fetch(url, {
+      //   method: 'PUT',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     Authorization: `RSIS ${apiKey}`,
+      //   },
+      //   body: JSON.stringify(payload),
+      // }).then((res) => {
+      //   console.log('Shipment created');
+      //   console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+      //   console.log(res);
+      // });
+
+      console.log(response.data);
+      console.log(response.data.error);
+
       return { data: 'Shipment created' };
     } catch (error) {
       console.error(error);
