@@ -23,10 +23,14 @@ export class XpsService {
         body: JSON.stringify(payload),
       }).then((res) => {
         console.log('Shipment created');
+        console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+
+        console.error(res);
         console.log(res);
       });
       return { data: 'Shipment created' };
     } catch (error) {
+      console.error(error);
       return { error };
     }
   }
