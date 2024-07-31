@@ -13,7 +13,7 @@ export class XpsService {
       const apiKey = this._config.get('xps').api_key;
       const customer_id = this._config.get('xps').customer_id;
       const integration_id = this._config.get('xps').integration_id;
-      const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/integrations/${integration_id}/orders/${payload.order_id}`;
+      const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/integrations/${integration_id}/orders/${payload.orderId}`;
       fetch(url, {
         method: 'PUT',
         headers: {
