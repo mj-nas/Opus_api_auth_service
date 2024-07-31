@@ -178,6 +178,17 @@ export class OrderService extends ModelService<Order> {
         response.previousData.status === OrderStatus.PaymentPending &&
         response.data.status === OrderStatus.Ordered
       ) {
+        // Send order placed socket notification
+        await this._msClient.executeJob('controller.socket-event', {
+          action: 'orderPlaced',
+          payload: {
+            user_id: response.data.user_id,
+            data: {
+              order_id: response.data.uid,
+            },
+          },
+        });
+
         const order = await this.$db.findRecordById({
           id: response.data.id,
           options: { include: ['items', 'user', '$item.product$'] },
@@ -244,16 +255,6 @@ export class OrderService extends ModelService<Order> {
               insuranceAmount: null,
               declaredValue: null,
             })),
-          },
-        });
-        // Send order placed socket notification
-        await this._msClient.executeJob('controller.socket-event', {
-          action: 'orderPlaced',
-          payload: {
-            user_id: response.data.user_id,
-            data: {
-              order_id: response.data.uid,
-            },
           },
         });
 
