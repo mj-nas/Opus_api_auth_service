@@ -211,7 +211,6 @@ export class OrderService extends ModelService<Order> {
         //   0,
         // );
         //ship product
-        log.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
         console.log(
           '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>shipping product',
         );
