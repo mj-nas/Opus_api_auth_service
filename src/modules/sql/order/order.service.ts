@@ -189,6 +189,21 @@ export class OrderService extends ModelService<Order> {
           },
         });
 
+        // Send order confirmation mail notification
+        await this._msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              user_id: response.data.user_id,
+              template: 'order_confirm_to_customer',
+              variables: {
+                ORDER_ID: response.data.uid,
+              },
+            },
+          }),
+        );
+
         const order = await this.$db.findRecordById({
           id: response.data.id,
           options: { include: ['items', 'user', '$item.product$'] },
@@ -269,21 +284,6 @@ export class OrderService extends ModelService<Order> {
           console.log('Error while creating shipment', error);
           console.error(error);
         }
-
-        // Send order confirmation mail notification
-        await this._msClient.executeJob(
-          'controller.notification',
-          new Job({
-            action: 'send',
-            payload: {
-              user_id: response.data.user_id,
-              template: 'order_confirm_to_customer',
-              variables: {
-                ORDER_ID: response.data.uid,
-              },
-            },
-          }),
-        );
       }
 
       if (response.previousData.status !== response.data.status) {
