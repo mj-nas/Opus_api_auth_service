@@ -1,5 +1,7 @@
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
 import { Injectable } from '@nestjs/common';
+import Jimp from 'jimp';
 import { UserExamsService } from '../user-exams/user-exams.service';
 import { UserService } from '../user/user.service';
 import { ExamModule } from './entities/exam-module.entity';
@@ -47,11 +49,7 @@ export class ExamModuleService extends ModelService<ExamModule> {
       );
 
       if (no_of_modules.count == completed_modules.count) {
-        // genereate certificate
-        // const image = await Jimp.read('images/shapes.png'); // <http://www.example.com/path/to/lenna.jpg>
-        // // Add text
-        //  const font = await Jimp.loadFont(Jimp.FONT_SANS_16_WHITE); // bitmap fonts
-        //  image.print(font, 0, 0, 'Hello world!');
+        this.createCertificateImage(job.owner.name);
         const user_exam = await this.userExamsService.update({
           owner: job.owner,
           action: 'update',
@@ -80,5 +78,42 @@ export class ExamModuleService extends ModelService<ExamModule> {
         });
       }
     }
+  }
+
+  async createCertificateImage(name: string) {
+    // genereate certificate
+    const image = await Jimp.read(
+      'https://opus-dev-s3.s3.amazonaws.com/e_learning_certificate.jpg',
+    );
+    const font = await Jimp.loadFont(Jimp.FONT_SANS_16_WHITE); // bitmap fonts
+    image.print(font, 10, 10, name);
+
+    // Res.send(await image.getBufferAsync(Jimp.MIME_JPEG));
+  }
+
+  async createCertificatePdf(data: object) {}
+
+  async uploadToS3(dataUrl: string, uid: string): Promise<string> {
+    const base64Data = Buffer.from(
+      dataUrl.replace(/^data:image\/\w+;base64,/, ''),
+      'base64',
+    );
+    const type = dataUrl.split(';')[0].split('/')[1];
+    const fileName = `${Date.now()}.${type}`;
+    const Key = `qr-code/${uid}/${fileName}`;
+    const client = new S3Client({
+      region: process.env.AWS_REGION,
+    });
+    const command = new PutObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key,
+      Body: base64Data,
+      ContentEncoding: 'base64',
+      ContentType: `image/${type}`,
+    });
+
+    await client.send(command);
+
+    return Key;
   }
 }
