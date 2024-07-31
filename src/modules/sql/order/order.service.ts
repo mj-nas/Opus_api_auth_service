@@ -211,6 +211,10 @@ export class OrderService extends ModelService<Order> {
         //   0,
         // );
         //ship product
+        log.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+        console.log(
+          '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>shipping product',
+        );
         try {
           const res = await this._xpsService.createShipment({
             payload: {
