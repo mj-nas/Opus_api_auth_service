@@ -206,8 +206,21 @@ export class OrderService extends ModelService<Order> {
 
         const order = await this.$db.findRecordById({
           id: response.data.id,
-          options: { include: ['items', 'user', '$item.product$'] },
+          options: {
+            include: [
+              {
+                association: 'items',
+                include: [
+                  {
+                    association: 'product',
+                  },
+                ],
+              },
+              { association: 'user' },
+            ],
+          },
         });
+
         const { items, user } = order.data;
         // const senderObj = {
         //   name: 'Albert Jones',
@@ -226,19 +239,16 @@ export class OrderService extends ModelService<Order> {
         //   0,
         // );
         //ship product
-        console.log(
-          '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>shipping product',
-        );
         try {
           const res = await this._xpsService.createShipment({
             payload: {
-              order_id: response.data.uid,
+              orderId: response.data.uid,
               orderDate: moment(response.data.updated_at).format('YYYY-MM-DD'),
               orderNumber: null,
               fulfillmentStatus: 'pending',
               shippingService: null,
               shippingTotal: null,
-              weighUnit: 'lb',
+              weightUnit: 'lb',
               dimUnit: 'in',
               dueByDate: null,
               orderGroup: null,
@@ -247,39 +257,37 @@ export class OrderService extends ModelService<Order> {
               receiver: {
                 name: user.name,
                 address1: user.address,
+                company: '',
+                address2: '',
                 city: user.city,
                 state: user.state,
                 zip: user.zip_code,
-                country: user.country,
+                country: 'US',
                 phone: user.phone,
                 email: user.email,
               },
               items: items.map((item) => ({
-                productId: item.product.id,
+                productId: item.product.id.toString(),
                 sku: item?.product.slug,
                 title: item.product?.product_name,
-                price: item?.price,
+                price: item?.price.toString(),
                 quantity: item?.quantity,
-                weight: item.product?.weight_lbs,
-                height: item.product?.height,
-                width: item.product?.width,
-                length: item.product?.length,
+                weight: item.product?.weight_lbs.toString(),
                 imgUrl: item.product?.product_image,
+                htsNumber: null,
+                countryOfOrigin: null,
+                lineId: null,
               })),
               packages: items.map((item) => ({
-                weight: item.product.weight_lbs,
-                height: item.product.height,
-                width: item.product.width,
-                length: item.product.length,
+                weight: item.product.weight_lbs.toString(),
+                height: item.product.height.toString(),
+                width: item.product.width.toString(),
+                length: item.product.length.toString(),
                 insuranceAmount: null,
                 declaredValue: null,
               })),
             },
           });
-          console.log(
-            '----------------------------------Shipment created',
-            res,
-          );
         } catch (error) {
           console.log('Error while creating shipment', error);
           console.error(error);
