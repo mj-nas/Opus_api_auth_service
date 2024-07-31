@@ -211,52 +211,56 @@ export class OrderService extends ModelService<Order> {
         //   0,
         // );
         //ship product
-        await this._xpsService.createShipment({
-          payload: {
-            order_id: response.data.uid,
-            orderDate: moment(response.data.updated_at).format('YYYY-MM-DD'),
-            orderNumber: null,
-            fulfillmentStatus: 'pending',
-            shippingService: null,
-            shippingTotal: null,
-            weighUnit: 'lb',
-            dimUnit: 'in',
-            dueByDate: null,
-            orderGroup: null,
-            // contentDescription: 'Opus products',
-            sender: this._config.get('xpsSender'),
-            receiver: {
-              name: user.name,
-              address1: user.address,
-              city: user.city,
-              state: user.state,
-              zip: user.zip_code,
-              country: user.country,
-              phone: user.phone,
-              email: user.email,
+        try {
+          await this._xpsService.createShipment({
+            payload: {
+              order_id: response.data.uid,
+              orderDate: moment(response.data.updated_at).format('YYYY-MM-DD'),
+              orderNumber: null,
+              fulfillmentStatus: 'pending',
+              shippingService: null,
+              shippingTotal: null,
+              weighUnit: 'lb',
+              dimUnit: 'in',
+              dueByDate: null,
+              orderGroup: null,
+              // contentDescription: 'Opus products',
+              sender: this._config.get('xpsSender'),
+              receiver: {
+                name: user.name,
+                address1: user.address,
+                city: user.city,
+                state: user.state,
+                zip: user.zip_code,
+                country: user.country,
+                phone: user.phone,
+                email: user.email,
+              },
+              items: items.map((item) => ({
+                productId: item.product.id,
+                sku: item?.product.slug,
+                title: item.product?.product_name,
+                price: item?.price,
+                quantity: item?.quantity,
+                weight: item.product?.weight_lbs,
+                height: item.product?.height,
+                width: item.product?.width,
+                length: item.product?.length,
+                imgUrl: item.product?.product_image,
+              })),
+              packages: items.map((item) => ({
+                weight: item.product.weight_lbs,
+                height: item.product.height,
+                width: item.product.width,
+                length: item.product.length,
+                insuranceAmount: null,
+                declaredValue: null,
+              })),
             },
-            items: items.map((item) => ({
-              productId: item.product.id,
-              sku: item?.product.slug,
-              title: item.product?.product_name,
-              price: item?.price,
-              quantity: item?.quantity,
-              weight: item.product?.weight_lbs,
-              height: item.product?.height,
-              width: item.product?.width,
-              length: item.product?.length,
-              imgUrl: item.product?.product_image,
-            })),
-            packages: items.map((item) => ({
-              weight: item.product.weight_lbs,
-              height: item.product.height,
-              width: item.product.width,
-              length: item.product.length,
-              insuranceAmount: null,
-              declaredValue: null,
-            })),
-          },
-        });
+          });
+        } catch (error) {
+          console.error(error);
+        }
 
         // Send order confirmation mail notification
         await this._msClient.executeJob(
