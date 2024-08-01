@@ -144,7 +144,8 @@ export class ExamModuleController {
     @Query() query: any,
   ) {
     const certificate = await this.examModuleService.createCertificateImage(
-      owner.name,
+      owner,
+      owner.uid,
     );
     const { error, data, offset, limit, count } =
       await this.examModuleService.findAll({

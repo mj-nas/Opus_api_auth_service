@@ -3,6 +3,7 @@ import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
 import { Injectable } from '@nestjs/common';
 import Jimp from 'jimp';
 import { Op } from 'sequelize';
+import { zeroPad } from 'src/core/core.utils';
 import { UserExamsService } from '../user-exams/user-exams.service';
 import { UserService } from '../user/user.service';
 import { ExamModule } from './entities/exam-module.entity';
@@ -50,7 +51,6 @@ export class ExamModuleService extends ModelService<ExamModule> {
       );
 
       if (no_of_modules.count == completed_modules.count) {
-        // this.createCertificateImage(job.owner.name);
         const no_of_certs = await this.userExamsService.$db.getAllRecords({
           options: {
             where: { cert_id: { [Op.ne]: null } },
@@ -61,24 +61,11 @@ export class ExamModuleService extends ModelService<ExamModule> {
         if (no_of_certs.data.length > 0) {
           const cert_id = no_of_certs.data[0].cert_id.split('-')[1];
           unique_id = `OPUS-${parseInt(cert_id) + 1}`;
-          const user_exam = await this.userExamsService.update({
-            owner: job.owner,
-            action: 'update',
-            id: response.data.exam_id,
-            body: {
-              is_complete: true,
-              attempted_percentage: completed_percentage,
-              certificate_url: `https://opus-dev-s3.s3.amazonaws.com/certificates/${unique_id}.jpg`,
-            },
-          });
-          await this.userService.update({
-            owner: job.owner,
-            action: 'update',
-            id: user_exam.data.user_id,
-            body: { learning_completed: 'Y' },
-          });
+        } else {
+          unique_id = `OPUS-${zeroPad('1', 5)}`;
         }
-        unique_id = `OPUS-`;
+
+        await this.createCertificateImage(job.owner, unique_id);
         const user_exam = await this.userExamsService.update({
           owner: job.owner,
           action: 'update',
@@ -88,6 +75,7 @@ export class ExamModuleService extends ModelService<ExamModule> {
             attempted_percentage: completed_percentage,
             certificate_url:
               'https://opus-dev-s3.s3.amazonaws.com/e_learning_certificate.jpg',
+            cert_id: unique_id,
           },
         });
         await this.userService.update({
@@ -109,43 +97,38 @@ export class ExamModuleService extends ModelService<ExamModule> {
     }
   }
 
-  async createCertificateImage(name: string) {
+  async createCertificateImage(user: any, name: string) {
     // genereate certificate
     const image = await Jimp.read(
       'https://opus-dev-s3.s3.amazonaws.com/e_learning_certificate.jpg',
     );
     const type = image.getExtension();
     const font = await Jimp.loadFont(Jimp.FONT_SANS_16_WHITE); // bitmap fonts
-    image.print(font, 10, 10, name);
-    console.log('image', image.getExtension());
-    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-    console.log('type', type);
+    image.print(font, 10, 10, user.name);
+    const buffer = await image.getBufferAsync(Jimp.MIME_JPEG);
+    const Key = `certificate/${name}.${type}`;
+    await this.uploadToS3(buffer, Key, type);
 
-    return image.getBase64Async(Jimp.MIME_JPEG);
+    return Key;
   }
 
   async createCertificatePdf(data: object) {}
 
-  async uploadToS3(dataUrl: string, uid: string): Promise<string> {
-    const base64Data = Buffer.from(
-      dataUrl.replace(/^data:image\/\w+;base64,/, ''),
-      'base64',
-    );
-    const type = dataUrl.split(';')[0].split('/')[1];
-    const fileName = `${Date.now()}.${type}`;
-    const Key = `qr-code/${uid}/${fileName}`;
+  async uploadToS3(buffer: any, Key: string, type: string): Promise<string> {
     const client = new S3Client({
       region: process.env.AWS_REGION,
     });
     const command = new PutObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME,
       Key,
-      Body: base64Data,
+      Body: buffer,
       ContentEncoding: 'base64',
       ContentType: `image/${type}`,
     });
 
-    await client.send(command);
+    let response = await client.send(command);
+    console.log('s3 response>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+    console.log(response);
 
     return Key;
   }
