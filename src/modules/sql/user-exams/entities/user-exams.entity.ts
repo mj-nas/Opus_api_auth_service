@@ -55,6 +55,15 @@ export class UserExams extends SqlModel {
   @IsString()
   uid: string;
 
+  @Column({ unique: 'uid' })
+  @ApiProperty({
+    description: 'Unique ID',
+    example: 'MUHA-',
+    readOnly: true,
+  })
+  @IsString()
+  cert_id: string;
+
   @Column
   @ApiProperty({
     description: 'Certificate URL',
