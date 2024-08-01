@@ -42,9 +42,9 @@ export class UserExams extends SqlModel {
     description: 'attempted_percentage',
     example: 50,
   })
-  @IsString()
+  @IsNumber()
   @IsOptional()
-  attempted_percentage: string;
+  attempted_percentage: number;
 
   @Column({ unique: 'uid' })
   @ApiProperty({

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class LocalAuthDto {
   @ApiProperty({
@@ -15,7 +15,6 @@ export class LocalAuthDto {
     example: 'Admin@123',
   })
   @IsString()
-  @MinLength(6)
   password: string;
 
   @ApiProperty({
