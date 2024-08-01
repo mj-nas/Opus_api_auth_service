@@ -178,74 +178,6 @@ export class OrderService extends ModelService<Order> {
         response.previousData.status === OrderStatus.PaymentPending &&
         response.data.status === OrderStatus.Ordered
       ) {
-        const order = await this.$db.findRecordById({
-          id: response.data.id,
-          options: { include: ['items', 'user', '$item.product$'] },
-        });
-        const { items, user } = order.data;
-        // const senderObj = {
-        //   name: 'Albert Jones',
-        //   company: 'Jones Co.',
-        //   address1: '123 Some Street',
-        //   address2: '#54',
-        //   city: 'Holladay',
-        //   state: 'UT',
-        //   zip: '84117',
-        //   country: 'US',
-        //   phone: '8015042351',
-        //   email: 'albert@jones.egg',
-        // };
-        // const packageWeight = items.reduce(
-        //   (sum, item) => sum + item.product.weight_lbs,
-        //   0,
-        // );
-        //ship product
-        await this._xpsService.createShipment({
-          payload: {
-            order_id: response.data.uid,
-            orderDate: moment(response.data.updated_at).format('YYYY-MM-DD'),
-            orderNumber: null,
-            fulfillmentStatus: 'pending',
-            shippingService: null,
-            shippingTotal: null,
-            weighUnit: 'lb',
-            dimUnit: 'in',
-            dueByDate: null,
-            orderGroup: null,
-            // contentDescription: 'Opus products',
-            sender: this._config.get('xpsSender'),
-            receiver: {
-              name: user.name,
-              address1: user.address,
-              city: user.city,
-              state: user.state,
-              zip: user.zip_code,
-              country: user.country,
-              phone: user.phone,
-              email: user.email,
-            },
-            items: items.map((item) => ({
-              productId: item.product.id,
-              sku: item?.product.slug,
-              title: item.product?.product_name,
-              price: item?.price,
-              quantity: item?.quantity,
-              weight: item.product?.weight_lbs,
-              height: item.product?.height,
-              width: item.product?.width,
-              length: item.product?.length,
-              imgUrl: item.product?.product_image,
-            })),
-            packages: items.map((item) => ({
-              weight: item.product.weight_lbs,
-              height: item.product.height,
-              width: item.product.width,
-              length: item.product.length,
-              insuranceAmount: null,
-              declaredValue: null,
-            })),
-          },
-        });
         // Send order placed socket notification
         await this._msClient.executeJob('controller.socket-event', {
           action: 'orderPlaced',
@@ -271,6 +203,95 @@ export class OrderService extends ModelService<Order> {
             },
           }),
         );
+
+        const order = await this.$db.findRecordById({
+          id: response.data.id,
+          options: {
+            include: [
+              {
+                association: 'items',
+                include: [
+                  {
+                    association: 'product',
+                  },
+                ],
+              },
+              { association: 'user' },
+            ],
+          },
+        });
+
+        const { items, user } = order.data;
+        // const senderObj = {
+        //   name: 'Albert Jones',
+        //   company: 'Jones Co.',
+        //   address1: '123 Some Street',
+        //   address2: '#54',
+        //   city: 'Holladay',
+        //   state: 'UT',
+        //   zip: '84117',
+        //   country: 'US',
+        //   phone: '8015042351',
+        //   email: 'albert@jones.egg',
+        // };
+        // const packageWeight = items.reduce(
+        //   (sum, item) => sum + item.product.weight_lbs,
+        //   0,
+        // );
+        //ship product
+        try {
+          const res = await this._xpsService.createShipment({
+            payload: {
+              orderId: response.data.uid,
+              orderDate: moment(response.data.updated_at).format('YYYY-MM-DD'),
+              orderNumber: null,
+              fulfillmentStatus: 'pending',
+              shippingService: null,
+              shippingTotal: null,
+              weightUnit: 'lb',
+              dimUnit: 'in',
+              dueByDate: null,
+              orderGroup: null,
+              // contentDescription: 'Opus products',
+              sender: this._config.get('xpsSender'),
+              receiver: {
+                name: user.name,
+                address1: user.address,
+                company: '',
+                address2: '',
+                city: user.city,
+                state: user.state,
+                zip: user.zip_code,
+                country: 'US',
+                phone: user.phone,
+                email: user.email,
+              },
+              items: items.map((item) => ({
+                productId: item.product.id.toString(),
+                sku: item?.product.slug,
+                title: item.product?.product_name,
+                price: item?.price.toString(),
+                quantity: item?.quantity,
+                weight: item.product?.weight_lbs.toString(),
+                imgUrl: item.product?.product_image,
+                htsNumber: null,
+                countryOfOrigin: null,
+                lineId: null,
+              })),
+              packages: items.map((item) => ({
+                weight: item.product.weight_lbs.toString(),
+                height: item.product.height.toString(),
+                width: item.product.width.toString(),
+                length: item.product.length.toString(),
+                insuranceAmount: null,
+                declaredValue: null,
+              })),
+            },
+          });
+        } catch (error) {
+          console.log('Error while creating shipment', error);
+          console.error(error);
+        }
       }
 
       if (response.previousData.status !== response.data.status) {

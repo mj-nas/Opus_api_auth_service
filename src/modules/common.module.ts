@@ -1,3 +1,4 @@
+import { XpsModule } from '@core/xps';
 import { DynamicModule, Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { QueryGuard } from 'src/core/guards/query.guard';
@@ -100,6 +101,7 @@ export class CommonModule {
       CommissionModule,
       CouponUsedModule,
       UserDispenserModule,
+      XpsModule,
     ];
 
     // common providers
