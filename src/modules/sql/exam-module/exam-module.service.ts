@@ -1,7 +1,9 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import Jimp from 'jimp';
+import jsPDF from 'jspdf';
 import { Op } from 'sequelize';
 import { zeroPad } from 'src/core/core.utils';
 import { UserExamsService } from '../user-exams/user-exams.service';
@@ -20,6 +22,7 @@ export class ExamModuleService extends ModelService<ExamModule> {
     db: SqlService<ExamModule>,
     private userExamsService: UserExamsService,
     private userService: UserService,
+    private config: ConfigService,
   ) {
     super(db);
   }
@@ -103,21 +106,54 @@ export class ExamModuleService extends ModelService<ExamModule> {
       'https://opus-dev-s3.s3.amazonaws.com/e_learning_certificate.jpg',
     );
     const type = image.getExtension();
-    const font = await Jimp.loadFont(Jimp.FONT_SANS_16_WHITE); // bitmap fonts
-    image.print(font, 10, 10, user.name);
+    const font = await Jimp.loadFont(Jimp.FONT_SANS_14_BLACK); // bitmap fonts
+
+    const font2 = await Jimp.loadFont(Jimp.FONT_SANS_8_BLACK); // bitmap fonts
+
+    const measureTextWidth = Jimp.measureText(font, user.name);
+    const measureTextHeight = Jimp.measureTextHeight(
+      font,
+      user.name,
+      measureTextWidth,
+    );
+    console.log(
+      'measureTextWidth>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',
+      measureTextWidth,
+    );
+    console.log(
+      'measureTextHeight>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',
+      measureTextHeight,
+    );
+    const localurl = this.config.get('cdnLocalURL') + '/assets/Unnamed-2.fnt';
+    const font3 = await Jimp.loadFont(localurl); // bitmap fonts
+    console.log('localurl>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', localurl);
+
+    const content = `This is to certify that ${user.name} has successfully completed the course ${name}`;
+    image.print(font3, 70, 110, user.name);
+    image.print(font2, 70, 180, content);
+    image.print(font2, 70, 190, content);
+    image.print(font2, 70, 200, content);
     const buffer = await image.getBufferAsync(Jimp.MIME_JPEG);
     const Key = `certificate/${name}.${type}`;
-    await this.uploadToS3(buffer, Key, type);
+    console.log('Key>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+    image.writeAsync(Key);
+    // await this.uploadToS3(buffer, Key, type);
 
     return Key;
   }
 
-  async createCertificatePdf(data: object) {}
+  async createCertificatePdf(data: object) {
+    const doc = new jsPDF();
+
+    doc.text('Hello world!', 10, 10);
+    doc.save('a4.pdf');
+  }
 
   async uploadToS3(buffer: any, Key: string, type: string): Promise<string> {
     const client = new S3Client({
       region: process.env.AWS_REGION,
     });
+    console.log('client>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     const command = new PutObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME,
       Key,
@@ -126,9 +162,11 @@ export class ExamModuleService extends ModelService<ExamModule> {
       ContentType: `image/${type}`,
     });
 
-    let response = await client.send(command);
+    console.log('command>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+
+    await client.send(command);
     console.log('s3 response>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-    console.log(response);
+    // console.log(response);
 
     return Key;
   }
