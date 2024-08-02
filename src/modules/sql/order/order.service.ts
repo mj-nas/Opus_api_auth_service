@@ -252,7 +252,7 @@ export class OrderService extends ModelService<Order> {
               dimUnit: 'in',
               dueByDate: null,
               orderGroup: null,
-              // contentDescription: 'Opus products',
+              contentDescription: `Order #${response.data.uid} from ${user.name}`,
               sender: this._config.get('xpsSender'),
               receiver: {
                 name: user.name,
@@ -275,7 +275,7 @@ export class OrderService extends ModelService<Order> {
                 weight: item.product?.weight_lbs.toString(),
                 imgUrl: item.product?.product_image,
                 htsNumber: null,
-                countryOfOrigin: null,
+                countryOfOrigin: 'US',
                 lineId: null,
               })),
               packages: items.map((item) => ({

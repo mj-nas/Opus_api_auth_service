@@ -136,6 +136,13 @@ export class ReferralService extends ModelService<Referral> {
         join(__dirname, '../src', 'views/referral.hbs'),
         'utf8',
       );
+      handlebars.registerHelper('checkLength', function (array) {
+        if (array.length > 1) {
+          return 'This product was recommended by your personal Opus Dispenser';
+        } else {
+          return 'These products were recommended by your personal Opus Dispenser';
+        }
+      });
       this.emailTemplate = handlebars.compile(template);
     } catch (error) {
       this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
