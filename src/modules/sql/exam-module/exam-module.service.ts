@@ -127,15 +127,14 @@ export class ExamModuleService extends ModelService<ExamModule> {
       const content = `This is to certify that ${user.name} has successfully completed the course ${name}`;
       const date = new Date();
       const current_date = moment(date).format('DD-MMM-YYYY');
-      image.composite(sign, 1300, 1850);
+      image.composite(sign, 1350, 1850);
       image.print(headFont, 580, 950, user.name);
       image.print(contentFont, 580, 1400, content, 1900);
       const font2 = await Jimp.loadFont(Jimp.FONT_SANS_64_BLACK); // bitmap fonts
       image.print(font2, 630, 2030, current_date, 1900);
       const buffer = await image.getBufferAsync(Jimp.MIME_JPEG);
       const Key = `certificate/${name}.${type}`;
-      console.log('Key>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-      image.writeAsync(Key);
+      // image.writeAsync(Key);
       await this.uploadToS3(buffer, Key, type);
       return Key;
     } catch (error) {
@@ -181,10 +180,8 @@ export class ExamModuleService extends ModelService<ExamModule> {
       doc.setTextColor(59, 58, 57);
       doc.text(user.name, 70, 135);
       const key = `certificate/${name}.pdf`;
-      // await this.uploadToS3(doc.output('arraybuffer'), key, 'pdf');
-      doc.save(key + '.pdf');
-      console.log('image_file>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-
+      await this.uploadToS3(doc.output('arraybuffer'), key, 'pdf');
+      // doc.save(key + '.pdf');
       return key;
     } catch (error) {
       return error;
@@ -199,7 +196,6 @@ export class ExamModuleService extends ModelService<ExamModule> {
         secretAccessKey: 'fB7voCEcYEbVDESF4TnJRb8PArCKuc31/++PgSOG',
       },
     });
-    console.log('client>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     const command = new PutObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME,
       Key,
@@ -207,13 +203,7 @@ export class ExamModuleService extends ModelService<ExamModule> {
       ContentEncoding: 'base64',
       ContentType: `image/${type}`,
     });
-
-    console.log('command>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-
     await client.send(command);
-    console.log('s3 response>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-    // console.log(response);
-
     return Key;
   }
 }
