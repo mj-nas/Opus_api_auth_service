@@ -191,10 +191,11 @@ export class ExamModuleService extends ModelService<ExamModule> {
   async uploadToS3(buffer: any, Key: string, type: string): Promise<string> {
     const client = new S3Client({
       region: process.env.AWS_REGION,
-      credentials: {
-        accessKeyId: 'AKIASV7MRPIUBKQKGVTH',
-        secretAccessKey: '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',
-      },
+      //only for local
+      // credentials: {
+      //   accessKeyId: 'AKIASV7MRPIUBKQKGVTH',
+      //   secretAccessKey: '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',
+      // },
     });
     const command = new PutObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME,
