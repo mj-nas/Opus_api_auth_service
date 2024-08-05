@@ -103,7 +103,9 @@ export class ProductsService extends ModelService<Products> {
     response: SqlUpdateResponse<Products>,
   ): Promise<void> {
     await super.doAfterUpdate(job, response);
-    if (response.data.active == false) {
+    const { status } = response.data;
+    const { status: previousStatus } = response.previousData;
+    if (status !== previousStatus && status === 'N') {
       await this.cartItemService.$db.deleteBulkRecords({
         options: {
           where: { product_id: response.data.id },
