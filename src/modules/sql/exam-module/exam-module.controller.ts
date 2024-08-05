@@ -143,11 +143,20 @@ export class ExamModuleController {
     @Owner() owner: OwnerDto,
     @Query() query: any,
   ) {
-    // const certificate = await this.examModuleService.createCertificateImage(
-    //   owner,
-    //   owner.uid,
-    // );
-    const pdf = await this.examModuleService.createCertificatePdf(owner);
+    const certificate = await this.examModuleService.createCertificateImage(
+      owner,
+      owner.uid,
+    );
+    console.log('certificate>>>>>>>>>>>>>>>>>>>>>>>>>');
+    console.log(certificate);
+
+    const pdf = await this.examModuleService.createCertificatePdf(
+      owner,
+      owner.uid,
+    );
+    console.log('pdf>>>>>>>>>>>>>>>>>>>>>>>>>');
+    console.log(pdf);
+
     const { error, data, offset, limit, count } =
       await this.examModuleService.findAll({
         owner,

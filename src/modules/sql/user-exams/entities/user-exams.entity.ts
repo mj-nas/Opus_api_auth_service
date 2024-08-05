@@ -73,6 +73,15 @@ export class UserExams extends SqlModel {
   @IsOptional()
   certificate_url: string;
 
+  @Column
+  @ApiProperty({
+    description: 'Certificate URL',
+    example: 'https://www.example.com/certificate.jpg',
+  })
+  @IsString()
+  @IsOptional()
+  certificate_img_url: string;
+
   @BeforeCreate
   static setUuid(instance: UserExams) {
     instance.uid = uuid();

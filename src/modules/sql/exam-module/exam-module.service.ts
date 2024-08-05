@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Jimp from 'jimp';
 import jsPDF from 'jspdf';
+import * as moment from 'moment-timezone';
 import { Op } from 'sequelize';
 import { zeroPad } from 'src/core/core.utils';
 import { UserExamsService } from '../user-exams/user-exams.service';
@@ -68,23 +69,28 @@ export class ExamModuleService extends ModelService<ExamModule> {
           unique_id = `OPUS-${zeroPad('1', 5)}`;
         }
 
-        await this.createCertificateImage(job.owner, unique_id);
-        const user_exam = await this.userExamsService.update({
+        const cert_img = await this.createCertificateImage(
+          job.owner,
+          unique_id,
+        );
+        const cert_doc = await this.createCertificatePdf(job.owner, unique_id);
+
+        await this.userExamsService.update({
           owner: job.owner,
           action: 'update',
           id: response.data.exam_id,
           body: {
             is_complete: true,
             attempted_percentage: completed_percentage,
-            certificate_url:
-              'https://opus-dev-s3.s3.amazonaws.com/e_learning_certificate.jpg',
+            certificate_url: cert_doc,
+            certificate_img_url: cert_img,
             cert_id: unique_id,
           },
         });
         await this.userService.update({
           owner: job.owner,
           action: 'update',
-          id: user_exam.data.user_id,
+          id: job.owner.id,
           body: { learning_completed: 'Y' },
         });
       } else {
@@ -101,57 +107,97 @@ export class ExamModuleService extends ModelService<ExamModule> {
   }
 
   async createCertificateImage(user: any, name: string) {
-    // genereate certificate
-    const image = await Jimp.read(
-      'https://opus-dev-s3.s3.amazonaws.com/e_learning_certificate.jpg',
-    );
-    const type = image.getExtension();
-    const font = await Jimp.loadFont(Jimp.FONT_SANS_14_BLACK); // bitmap fonts
+    try {
+      // genereate certificate
+      const image = await Jimp.read(
+        'https://opus-dev-s3.s3.amazonaws.com/raw-certificate.jpg',
+      );
+      const sign = await Jimp.read(
+        'https://opus-dev-s3.s3.amazonaws.com/client-signature.png',
+      );
+      const type = image.getExtension();
 
-    const font2 = await Jimp.loadFont(Jimp.FONT_SANS_8_BLACK); // bitmap fonts
+      const headFont = await Jimp.loadFont(
+        this.config.get('cdnLocalURL') + '/fonts/Head.fnt',
+      ); // bitmap fonts
+      const contentFont = await Jimp.loadFont(
+        this.config.get('cdnLocalURL') + '/fonts/content.fnt',
+      ); // bitmap fonts
 
-    const measureTextWidth = Jimp.measureText(font, user.name);
-    const measureTextHeight = Jimp.measureTextHeight(
-      font,
-      user.name,
-      measureTextWidth,
-    );
-    console.log(
-      'measureTextWidth>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',
-      measureTextWidth,
-    );
-    console.log(
-      'measureTextHeight>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',
-      measureTextHeight,
-    );
-    const localurl = this.config.get('cdnLocalURL') + '/assets/Unnamed-2.fnt';
-    const font3 = await Jimp.loadFont(localurl); // bitmap fonts
-    console.log('localurl>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', localurl);
-
-    const content = `This is to certify that ${user.name} has successfully completed the course ${name}`;
-    image.print(font3, 70, 110, user.name);
-    image.print(font2, 70, 180, content);
-    image.print(font2, 70, 190, content);
-    image.print(font2, 70, 200, content);
-    const buffer = await image.getBufferAsync(Jimp.MIME_JPEG);
-    const Key = `certificate/${name}.${type}`;
-    console.log('Key>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-    image.writeAsync(Key);
-    // await this.uploadToS3(buffer, Key, type);
-
-    return Key;
+      const content = `This is to certify that ${user.name} has successfully completed the course ${name}`;
+      const date = new Date();
+      const current_date = moment(date).format('DD-MMM-YYYY');
+      image.composite(sign, 1300, 1850);
+      image.print(headFont, 580, 950, user.name);
+      image.print(contentFont, 580, 1400, content, 1900);
+      const font2 = await Jimp.loadFont(Jimp.FONT_SANS_64_BLACK); // bitmap fonts
+      image.print(font2, 630, 2030, current_date, 1900);
+      const buffer = await image.getBufferAsync(Jimp.MIME_JPEG);
+      const Key = `certificate/${name}.${type}`;
+      console.log('Key>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+      image.writeAsync(Key);
+      await this.uploadToS3(buffer, Key, type);
+      return Key;
+    } catch (error) {
+      return error;
+    }
   }
 
-  async createCertificatePdf(data: object) {
-    const doc = new jsPDF();
+  async createCertificatePdf(user: any, name: string) {
+    //create horizontal certificate
+    try {
+      const image = await Jimp.read(
+        'https://opus-dev-s3.s3.amazonaws.com/raw-certificate.jpg',
+      );
+      const img_height = image.getHeight() / 8;
+      const img_width = image.getWidth() / 8;
+      const doc = new jsPDF('l', 'pt', [img_width, img_height]);
+      const sign = await Jimp.read(
+        'https://opus-dev-s3.s3.amazonaws.com/client-signature.png',
+      );
 
-    doc.text('Hello world!', 10, 10);
-    doc.save('a4.pdf');
+      const sign_buffer = await sign.getBufferAsync(Jimp.MIME_PNG);
+      const buffer = await image.getBufferAsync(Jimp.MIME_JPEG);
+      doc.addImage(buffer, 'JPEG', 0, 0, img_width, img_height);
+      doc.addImage(sign_buffer, 'PNG', 170, 230, 70, 35);
+      const date = new Date();
+      const content = `This is to certify that ${user.name} has successfully completed the course ${user.name}`;
+      doc.setFontSize(8);
+      doc.setFont(
+        `${this.config.get('cdnLocalURL')}fonts/PlayfairDisplay-Medium.ttf`,
+        'normal',
+      );
+      doc.text(content, 70, 180, { maxWidth: 240 });
+      const current_date = moment(date).format('DD-MMM-YYYY');
+      doc.setFontSize(6);
+      doc.text(current_date, 85, 260);
+
+      doc.setFontSize(14);
+      doc.setFont(
+        `${this.config.get('cdnLocalURL')}fonts/Jost-Light.ttf`,
+        'normal',
+        700,
+      );
+      doc.setTextColor(59, 58, 57);
+      doc.text(user.name, 70, 135);
+      const key = `certificate/${name}.pdf`;
+      // await this.uploadToS3(doc.output('arraybuffer'), key, 'pdf');
+      doc.save(key + '.pdf');
+      console.log('image_file>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+
+      return key;
+    } catch (error) {
+      return error;
+    }
   }
 
   async uploadToS3(buffer: any, Key: string, type: string): Promise<string> {
     const client = new S3Client({
       region: process.env.AWS_REGION,
+      credentials: {
+        accessKeyId: 'AKIASV7MRPIUBKQKGVTH',
+        secretAccessKey: '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',
+      },
     });
     console.log('client>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     const command = new PutObjectCommand({
