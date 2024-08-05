@@ -138,9 +138,9 @@ export class ReferralService extends ModelService<Referral> {
       );
       handlebars.registerHelper('checkLength', function (array) {
         if (array.length > 1) {
-          return 'This product was recommended by your personal Opus Dispenser';
-        } else {
           return 'These products were recommended by your personal Opus Dispenser';
+        } else {
+          return 'This product was recommended by your personal Opus Dispenser';
         }
       });
       this.emailTemplate = handlebars.compile(template);

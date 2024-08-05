@@ -165,7 +165,9 @@ export class CommissionService extends ModelService<Commission> {
         options: {
           limit: -1,
           where: {
-            status: OrderStatus.Delivered,
+            status: {
+              [Op.in]: [OrderStatus.Delivered, OrderStatus.Cancelled],
+            },
             '$current_status.created_at$': literal(
               `DATE_FORMAT(DATE_ADD( current_status.created_at, INTERVAL 1 DAY ),'%Y-%m-%d') = DATE_FORMAT(CURDATE( ),'%Y-%m-%d')`,
             ),
@@ -198,6 +200,8 @@ export class CommissionService extends ModelService<Commission> {
       });
 
       const orders = data;
+      console.log(orders);
+      console.log(orders.length);
       for await (const order of orders) {
         if (!!order?.dispenser_id) {
           const items = order.items.filter(
@@ -207,9 +211,14 @@ export class CommissionService extends ModelService<Commission> {
           let body: any = {
             order_id: order.id,
             user_id: order.dispenser_id,
-            order_amount: sub_total,
+            order_amount:
+              order.status === OrderStatus.Cancelled ? 0 : sub_total,
             internal_fee: internalFeeData.value || 0,
             commission_percentage: commissionData.value || 0,
+            status:
+              order.status === OrderStatus.Cancelled
+                ? CommissionStatus.Cancelled
+                : CommissionStatus.Pending,
           };
           if (!!order.coupon_id) {
             body = {
