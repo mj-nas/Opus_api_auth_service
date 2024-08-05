@@ -44,17 +44,17 @@ export class UserExamsService extends ModelService<UserExams> {
     const modules = await this.learningModuleService.findAll({
       payload: {
         where: { active: true },
+        sort: [['sort', 'asc']],
         populate: ['web_video', 'web_question_set.web_questions.web_options'],
       },
     });
-    console.log('moduless>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-    console.log(modules.data.length);
 
-    modules.data.map(async (module) => {
-      const video = module.web_video.dataValues;
-      const questions = module.web_question_set.web_questions.map(
+    for (let index = 0; index < modules.data.length; index++) {
+      const video = modules.data[index].web_video.dataValues;
+      const questions = modules.data[index].web_question_set.web_questions.map(
         (e) => e.dataValues,
       );
+
       // CREATE EXAM VIDEO
       const exam_video = await this.examVideoService.create({
         owner: job.owner,
@@ -65,26 +65,28 @@ export class UserExamsService extends ModelService<UserExams> {
           thumbnail: video.thumbnail,
         },
       });
+
       // CREATE EXAM QUESTION SET
       const exam_question_set = await this.examQuestionSetService.create({
         owner: job.owner,
         action: 'create',
         body: {
-          title: module.web_question_set.title,
+          title: modules.data[index].web_question_set.title,
         },
       });
 
       // CREATE EXAM MODULE
-      await this.examModuleService.create({
+      const responsed = await this.examModuleService.create({
         owner: job.owner,
         action: 'create',
         body: {
           exam_id: response.data.id,
-          title: module.title,
+          title: modules.data[index].title,
           question_set_id: exam_question_set.data.id,
           video_id: exam_video.data.id,
         },
       });
+
       // CREATE EXAM QUESTIONS
       questions.map(async (question) => {
         const exam_questions = await this.examQuestionsService.create({
@@ -119,7 +121,7 @@ export class UserExamsService extends ModelService<UserExams> {
         //   });
         // });
       });
-    });
+    }
   }
 
   /**

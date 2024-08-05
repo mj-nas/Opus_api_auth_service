@@ -1,6 +1,6 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsString } from 'class-validator';
 import {
   BeforeCreate,
   BelongsTo,
@@ -32,6 +32,7 @@ export class ExamModule extends SqlModel {
     description: 'User exam id',
     example: 1,
   })
+  @IsNumber()
   exam_id: number;
 
   @ForeignKey(() => ExamQuestionSet)
