@@ -1,4 +1,10 @@
-import { ModelService, SqlJob, SqlService } from '@core/sql';
+import {
+  ModelService,
+  SqlDeleteResponse,
+  SqlJob,
+  SqlService,
+  SqlUpdateResponse,
+} from '@core/sql';
 import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
@@ -6,6 +12,7 @@ import * as moment from 'moment-timezone';
 import sequelize, { IncludeOptions } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
+import { CartItemService } from '../cart-item/cart-item.service';
 import { ProductReviewService } from '../product-review/product-review.service';
 import { Products } from './entities/products.entity';
 
@@ -20,6 +27,7 @@ export class ProductsService extends ModelService<Products> {
   constructor(
     db: SqlService<Products>,
     private _productReviewService: ProductReviewService,
+    private cartItemService: CartItemService,
   ) {
     super(db);
   }
@@ -60,6 +68,48 @@ export class ProductsService extends ModelService<Products> {
     }
 
     job.options.include = include;
+  }
+
+  /**
+   * doAfterDelete
+   * @function function will execute after delete function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @param {object} response - mandatory - a object representing the job response information
+   * @return {void}
+   */
+  protected async doAfterDelete(
+    job: SqlJob<Products>,
+    response: SqlDeleteResponse<Products>,
+  ): Promise<void> {
+    await super.doAfterDelete(job, response);
+
+    // Delete cart items
+    await this.cartItemService.$db.deleteBulkRecords({
+      options: {
+        where: { product_id: response.data.id },
+      },
+    });
+  }
+
+  /**
+   * doAfterUpdate
+   * @function function will execute after update function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @param {object} response - mandatory - a object representing the job response information
+   * @return {void}
+   */
+  protected async doAfterUpdate(
+    job: SqlJob<Products>,
+    response: SqlUpdateResponse<Products>,
+  ): Promise<void> {
+    await super.doAfterUpdate(job, response);
+    if (response.data.active == false) {
+      await this.cartItemService.$db.deleteBulkRecords({
+        options: {
+          where: { product_id: response.data.id },
+        },
+      });
+    }
   }
 
   async createXls(job: Job): Promise<JobResponse> {
