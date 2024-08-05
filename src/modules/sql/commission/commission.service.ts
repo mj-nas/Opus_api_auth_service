@@ -200,6 +200,8 @@ export class CommissionService extends ModelService<Commission> {
       });
 
       const orders = data;
+      console.log(orders);
+      console.log(orders.length);
       for await (const order of orders) {
         if (!!order?.dispenser_id) {
           const items = order.items.filter(
