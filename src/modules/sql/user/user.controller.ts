@@ -526,6 +526,7 @@ export class UserController {
     @Owner() owner: OwnerDto,
     @Query() query: any,
   ) {
+    this.userService.searchFields = ['name'];
     const { error, data, offset, limit, count } =
       await this.userService.findAll({
         owner,

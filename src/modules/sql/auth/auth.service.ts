@@ -19,6 +19,8 @@ import { NotificationService } from '../notification/notification.service';
 import { ReferralService } from '../referral/referral.service';
 import { ConnectionVia } from '../user/connection-via.enum';
 import { User } from '../user/entities/user.entity';
+import { Role } from '../user/role.enum';
+import { Status } from '../user/status.enum';
 import { UserService } from '../user/user.service';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SendOtpDto } from './dto/send-otp.dto';
@@ -246,6 +248,12 @@ export class AuthService {
     if (!!error) {
       return { error };
     } else if (!!data) {
+      if (
+        data.getDataValue('role') === Role.Dispenser &&
+        data.getDataValue('status') !== Status.Approve
+      ) {
+        return { error: 'Account not approved' };
+      }
       if (!data.getDataValue('active')) {
         return {
           error:

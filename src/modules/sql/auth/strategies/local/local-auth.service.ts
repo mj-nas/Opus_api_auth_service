@@ -26,6 +26,9 @@ export class LocalAuthService {
     if (!!error) {
       return { error };
     } else if (!!data) {
+      if (data.getDataValue('password') == null) {
+        return { error: 'Invalid credentials' };
+      }
       if (!(await compareHash(`${password}`, data.getDataValue('password')))) {
         return { error: 'Invalid credentials' };
       }
