@@ -69,11 +69,17 @@ export class ExamModuleService extends ModelService<ExamModule> {
           unique_id = `OPUS-${zeroPad('1', 5)}`;
         }
 
+        const content = `This is to certiify that ${job.owner.name} has successfully completed the e-Learning Course`;
         const cert_img = await this.createCertificateImage(
           job.owner,
           unique_id,
+          content,
         );
-        const cert_doc = await this.createCertificatePdf(job.owner, unique_id);
+        const cert_doc = await this.createCertificatePdf(
+          job.owner,
+          unique_id,
+          content,
+        );
 
         await this.userExamsService.update({
           owner: job.owner,
@@ -106,7 +112,7 @@ export class ExamModuleService extends ModelService<ExamModule> {
     }
   }
 
-  async createCertificateImage(user: any, name: string) {
+  async createCertificateImage(user: any, name: string, content: string) {
     try {
       // genereate certificate
       const image = await Jimp.read(
@@ -124,7 +130,6 @@ export class ExamModuleService extends ModelService<ExamModule> {
         this.config.get('cdnLocalURL') + '/fonts/content.fnt',
       ); // bitmap fonts
 
-      const content = `This is to certify that ${user.name} has successfully completed the course ${name}`;
       const date = new Date();
       const current_date = moment(date).format('DD-MMM-YYYY');
       image.composite(sign, 1350, 1850);
@@ -142,7 +147,7 @@ export class ExamModuleService extends ModelService<ExamModule> {
     }
   }
 
-  async createCertificatePdf(user: any, name: string) {
+  async createCertificatePdf(user: any, name: string, content: string) {
     //create horizontal certificate
     try {
       const image = await Jimp.read(
@@ -160,7 +165,6 @@ export class ExamModuleService extends ModelService<ExamModule> {
       doc.addImage(buffer, 'JPEG', 0, 0, img_width, img_height);
       doc.addImage(sign_buffer, 'PNG', 170, 230, 70, 35);
       const date = new Date();
-      const content = `This is to certify that ${user.name} has successfully completed the course ${user.name}`;
       doc.setFontSize(8);
       doc.setFont(
         `${this.config.get('cdnLocalURL')}fonts/PlayfairDisplay-Medium.ttf`,
