@@ -202,6 +202,46 @@ export class UserService extends ModelService<User> {
           connection_via,
         },
       });
+      // send maiil to dispenser
+      await this.msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_id: dispenser_id,
+            template: 'customer_added_dispenser',
+            skipUserConfig: true,
+            variables: {
+              CUSTOMER_NAME: response.data.name,
+              CUSTOMER_CONTACT_INFO: response.data.email,
+            },
+          },
+        }),
+      );
+      const { error, data: userData } = await this.findById({
+        action: 'findById',
+        id,
+        payload: { populate: ['dispenser'] },
+      });
+      if (error) {
+        throw new Error(error);
+      }
+      // send maiil to customer
+      await this.msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_id: id,
+            template: 'dispenser_added_customer',
+            skipUserConfig: true,
+            variables: {
+              DISPENSER_NAME: userData.dispenser.name,
+              DISPENSER_CONTACT_INFO: userData.dispenser.email,
+            },
+          },
+        }),
+      );
     }
     const { active, id, status, email, role } = response.data;
     const { active: previousActive, status: previousStatus } =

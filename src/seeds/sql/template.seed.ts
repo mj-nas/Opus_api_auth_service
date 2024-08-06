@@ -256,5 +256,67 @@ export default <Seed<Template>>{
       send_sms: false,
       sms_body: '',
     },
+    {
+      name: 'dispenser_added_customer',
+      title: 'Dispenser Added Customer',
+      send_email: true,
+      email_subject: 'New Dispenser Association: OPUS',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+<br />
+<p>We are pleased to inform you that your account has been associated with a new dispenser.</p>
+<br />
+<p><b>Dispenser Details:</b></p>
+<br />
+<p>Name: ##DISPENSER_NAME##</p>
+<p>Contact Information: ##DISPENSER_CONTACT_INFO##</p>
+<p>If you have any questions or need further assistance, please feel free to contact us.</p>
+<br />
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'customer_added_dispenser',
+      title: 'Customer Added Dispenser',
+      send_email: true,
+      email_subject: 'New Customer Association: OPUS',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+<br />
+<p>We are pleased to inform you that a new customer has been associated with your account.</p>
+<br />
+<p><b>Customer Details:</b></p>
+<br />
+<p>Name: ##CUSTOMER_NAME##</p>
+<p>Contact Information: ##CUSTOMER_CONTACT_INFO##</p>
+<p>If you have any questions or need further assistance, please feel free to contact us.</p>
+<br />
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'e_learning_completed',
+      title: 'E Learning Course Completed',
+      send_email: true,
+      email_subject: 'Congratulations!  You have Completed the Course!',
+      email_body: `<p>Dear ##TO_NAME##,</p>
+<br />
+<p>We're happy to announce that you've successfully completed the course! </p>
+<br />
+<p>Your perseverance and dedication have led you to this achievement, and we're excited to celebrate with you!</p>
+<br />
+<p>You can now download your well-deserved certificate from the account section.</p>
+<br />
+<p>As you continue your journey, remember that learning is a lifelong adventure, and we're here to support you every step of the way.</p>
+<br />
+<p>Thank you for choosing Team OPUS. Let's toast to your success! </p>
+<br />
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
   ],
 };
