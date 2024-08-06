@@ -240,7 +240,7 @@ export class OrderService extends ModelService<Order> {
         // );
         //ship product
         try {
-          const res = await this._xpsService.createShipment({
+          await this._xpsService.createShipment({
             payload: {
               orderId: response.data.uid,
               orderDate: moment(response.data.updated_at).format('YYYY-MM-DD'),
@@ -706,8 +706,8 @@ export class OrderService extends ModelService<Order> {
           },
           include: [
             { association: 'address' },
-            { association: 'items' },
-            { association: 'user' },
+            { association: 'items', where: { active: true } },
+            { association: 'user', where: { active: true }, required: true },
           ],
         },
       });
@@ -717,6 +717,9 @@ export class OrderService extends ModelService<Order> {
 
       const orders = data;
       for await (const o of orders) {
+        const orderJson = o.toJSON();
+        const items = orderJson.items;
+        if (!items.length) continue;
         // New order alert to admin
         await this._msClient.executeJob(
           'controller.notification',
