@@ -88,8 +88,8 @@ export class ExamModuleService extends ModelService<ExamModule> {
           body: {
             is_complete: true,
             attempted_percentage: completed_percentage,
-            certificate_url: cert_doc,
-            certificate_img_url: cert_img,
+            certificate: cert_doc,
+            certificate_img: cert_img,
             cert_id: unique_id,
           },
         });
