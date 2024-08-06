@@ -331,6 +331,7 @@ export class UserService extends ModelService<User> {
       job.options.where = {
         ...job.options.where,
         role: Role.Dispenser,
+        learning_completed: 'Y',
         status: Status.Approve,
       };
       if (job.options.where.deleted_at) {
@@ -350,6 +351,7 @@ export class UserService extends ModelService<User> {
         ...job.options.where,
         role: Role.Dispenser,
         status: Status.Approve,
+        learning_completed: 'Y',
         active: true,
         geotag: true,
       };
