@@ -512,7 +512,7 @@ export class OrderService extends ModelService<Order> {
           },
           include: [
             { association: 'address' },
-            { association: 'items' },
+            { association: 'items', where: { active: true } },
             { association: 'user', where: { active: true }, required: true },
           ],
         },
@@ -525,6 +525,7 @@ export class OrderService extends ModelService<Order> {
       for await (const o of orders) {
         const orderJson = o.toJSON();
         const items = orderJson.items;
+        if (!items.length) continue;
         const sub_total = items.reduce((sum, item) => sum + item.price, 0);
         const total = sub_total + (o.shipping_price || 0) + (o.tax || 0);
 
