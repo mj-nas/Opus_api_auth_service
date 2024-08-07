@@ -94,7 +94,7 @@ export class ExamModuleService extends ModelService<ExamModule> {
             certificate: cert_doc,
             certificate_img: cert_img,
             cert_id: unique_id,
-            completed_date: new Date(),
+            completed_date: Date.now(),
           },
         });
         await this.userService.update({
