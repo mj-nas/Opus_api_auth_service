@@ -90,7 +90,7 @@ export class UserExams extends SqlModel {
   })
   @IsString()
   @IsOptional()
-  completed_date: string;
+  completed_date: Date;
 
   @Column(DataTypes.VIRTUAL)
   @ApiProperty({
