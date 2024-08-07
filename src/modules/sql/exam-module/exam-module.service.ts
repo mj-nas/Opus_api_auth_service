@@ -6,7 +6,9 @@ import Jimp from 'jimp';
 import jsPDF from 'jspdf';
 import * as moment from 'moment-timezone';
 import { Op } from 'sequelize';
+import { Job } from 'src/core/core.job';
 import { zeroPad } from 'src/core/core.utils';
+import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { UserExamsService } from '../user-exams/user-exams.service';
 import { UserService } from '../user/user.service';
 import { ExamModule } from './entities/exam-module.entity';
@@ -24,6 +26,7 @@ export class ExamModuleService extends ModelService<ExamModule> {
     private userExamsService: UserExamsService,
     private userService: UserService,
     private config: ConfigService,
+    private msClient: MsClientService,
   ) {
     super(db);
   }
@@ -99,8 +102,20 @@ export class ExamModuleService extends ModelService<ExamModule> {
           id: job.owner.id,
           body: { learning_completed: 'Y' },
         });
+
+        await this.msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              user_id: job.owner.id,
+              template: 'e_learning_completed',
+              skipUserConfig: true,
+            },
+          }),
+        );
       } else {
-        const user_exam = await this.userExamsService.update({
+        await this.userExamsService.update({
           owner: job.owner,
           action: 'update',
           id: response.data.exam_id,
