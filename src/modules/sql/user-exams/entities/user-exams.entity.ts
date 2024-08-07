@@ -83,6 +83,15 @@ export class UserExams extends SqlModel {
   @IsOptional()
   certificate_img: string;
 
+  @Column
+  @ApiProperty({
+    description: 'Completed Date',
+    example: '2022-02-02',
+  })
+  @IsString()
+  @IsOptional()
+  completed_date: string;
+
   @Column(DataTypes.VIRTUAL)
   @ApiProperty({
     description: 'Certificate Pdf URl',
