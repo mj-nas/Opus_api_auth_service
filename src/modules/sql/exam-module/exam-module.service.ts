@@ -72,7 +72,7 @@ export class ExamModuleService extends ModelService<ExamModule> {
           unique_id = `OPUS-${zeroPad('1', 5)}`;
         }
 
-        const content = `This is to certiify that ${job.owner.name} has successfully completed the e-Learning Course`;
+        const content = `This is to certify that ${job.owner.name} has successfully completed the e-Learning Course`;
         const cert_img = await this.createCertificateImage(
           job.owner,
           unique_id,
