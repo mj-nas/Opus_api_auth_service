@@ -7,7 +7,7 @@ import axios from 'axios';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import * as moment from 'moment-timezone';
-import { col, literal } from 'sequelize';
+import { literal } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
@@ -507,7 +507,7 @@ export class OrderService extends ModelService<Order> {
             is_repeating_order: 'Y',
             is_base_order: 'Y',
             created_at: literal(
-              `DATE_FORMAT(DATE_ADD( ${col('Order.created_at')}, INTERVAL repeating_days DAY ),'%Y-%M-%d') = DATE_FORMAT(CURDATE( ),'%Y-%M-%d')`,
+              `DATE_FORMAT(DATE_ADD(Order.created_at, INTERVAL repeating_days DAY ),'%Y-%M-%d') = DATE_FORMAT(CURDATE( ),'%Y-%M-%d')`,
             ),
           },
           include: [
