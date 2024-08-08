@@ -570,7 +570,8 @@ export class OrderService extends ModelService<Order> {
 
         const tax = (totalTax * sub_total).toFixed(2);
 
-        const total = sub_total + (shipping_price || 0) + (tax || 0);
+        const total =
+          sub_total + (shipping_price || 0) + (tax ? Number(tax) : 0);
 
         console.log({ totalTax, tax, total, shipping_price });
         const transaction = await this._sequelize.transaction();
