@@ -13,7 +13,7 @@ export class OrderCron {
 
   // Reorder order
   // @Cron(CronExpression.EVERY_DAY_AT_6AM)
-  @Cron('46 14 * * *')
+  @Cron('52 14 * * *')
   async reorderCron() {
     // if (this.configService.get('appId') != 'crons') {
     //   return;
