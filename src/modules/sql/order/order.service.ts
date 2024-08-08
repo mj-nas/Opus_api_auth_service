@@ -512,7 +512,7 @@ export class OrderService extends ModelService<Order> {
           },
           include: [
             { association: 'address' },
-            { association: 'items', where: { active: true } },
+            { association: 'items', where: { active: true }, separate: true },
             { association: 'user', where: { active: true }, required: true },
           ],
         },
