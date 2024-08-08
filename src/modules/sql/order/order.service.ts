@@ -520,7 +520,7 @@ export class OrderService extends ModelService<Order> {
               include: [
                 {
                   association: 'product',
-                  where: { active: true },
+                  where: { active: true, statue: 'Y' },
                   required: true,
                 },
               ],
@@ -572,6 +572,7 @@ export class OrderService extends ModelService<Order> {
 
         const total = sub_total + (shipping_price || 0) + (tax || 0);
 
+        console.log({ totalTax, tax, total, shipping_price });
         const transaction = await this._sequelize.transaction();
         // Create a new order
         const order = await this.create({
