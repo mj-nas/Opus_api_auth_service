@@ -2,6 +2,7 @@ import { SqlModel } from '@core/sql/sql.model';
 import { IsUnique } from '@core/sql/sql.unique-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+import { DataTypes } from 'sequelize';
 import {
   BeforeCreate,
   Column,
@@ -55,6 +56,15 @@ export class UserExams extends SqlModel {
   @IsString()
   uid: string;
 
+  @Column({ unique: 'uid' })
+  @ApiProperty({
+    description: 'Unique ID',
+    example: 'MUHA-',
+    readOnly: true,
+  })
+  @IsString()
+  cert_id: string;
+
   @Column
   @ApiProperty({
     description: 'Certificate URL',
@@ -62,7 +72,50 @@ export class UserExams extends SqlModel {
   })
   @IsString()
   @IsOptional()
-  certificate_url: string;
+  certificate: string;
+
+  @Column
+  @ApiProperty({
+    description: 'Certificate URL',
+    example: 'https://www.example.com/certificate.jpg',
+  })
+  @IsString()
+  @IsOptional()
+  certificate_img: string;
+
+  @Column
+  @ApiProperty({
+    description: 'Completed Date',
+    example: '2022-02-02',
+  })
+  @IsString()
+  @IsOptional()
+  completed_date: Date;
+
+  @Column(DataTypes.VIRTUAL)
+  @ApiProperty({
+    description: 'Certificate Pdf URl',
+    example:
+      'https://staging.opuscompounds.com/certificate/cd7c8da0-cfe0-11ee-94e2-c1e32bf24f34.pdf',
+    readOnly: true,
+  })
+  get certificate_url(): string {
+    return this.getDataValue('certificate')
+      ? `${process.env.CDN_URL}${this.getDataValue('certificate')}`
+      : null;
+  }
+  @Column(DataTypes.VIRTUAL)
+  @ApiProperty({
+    description: 'Certificate Image URl',
+    example:
+      'https://staging.opuscompounds.com/certificate/cd7c8da0-cfe0-11ee-94e2-c1e32bf24f34.jpg',
+    readOnly: true,
+  })
+  get certificate_img_url(): string {
+    return this.getDataValue('certificate_img')
+      ? `${process.env.CDN_URL}${this.getDataValue('certificate_img')}`
+      : null;
+  }
 
   @BeforeCreate
   static setUuid(instance: UserExams) {
