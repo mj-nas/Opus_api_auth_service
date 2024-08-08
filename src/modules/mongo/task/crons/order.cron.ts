@@ -13,11 +13,11 @@ export class OrderCron {
 
   // Reorder order
   // @Cron(CronExpression.EVERY_DAY_AT_6AM)
-  @Cron('55 07 * * *')
+  @Cron('05 18 * * *')
   async reorderCron() {
-    if (this.configService.get('appId') != 'crons') {
-      return;
-    }
+    // if (this.configService.get('appId') != 'crons') {
+    //   return;
+    // }
     this.logger.log('Reorder order cron started...');
     const { error } = await this._orderService.reorderCron();
     if (error) {

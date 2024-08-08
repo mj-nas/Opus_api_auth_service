@@ -21,6 +21,7 @@ import { OrderItemStatus } from '../order-item/entities/order-item.entity';
 import { OrderItemService } from '../order-item/order-item.service';
 import { OrderPaymentService } from '../order-payment/order-payment.service';
 import { OrderStatusLogService } from '../order-status-log/order-status-log.service';
+import { SettingService } from '../setting/setting.service';
 import { ConnectionVia } from '../user/connection-via.enum';
 import { Role } from '../user/role.enum';
 import { UserService } from '../user/user.service';
@@ -55,6 +56,7 @@ export class OrderService extends ModelService<Order> {
     private _couponUsedService: CouponUsedService,
     private _xpsService: XpsService,
     private _config: ConfigService,
+    private _settingService: SettingService,
   ) {
     super(db);
   }
@@ -512,7 +514,17 @@ export class OrderService extends ModelService<Order> {
           },
           include: [
             { association: 'address' },
-            { association: 'items', where: { active: true }, separate: true },
+            {
+              association: 'items',
+              separate: true,
+              include: [
+                {
+                  association: 'product',
+                  where: { active: true },
+                  required: true,
+                },
+              ],
+            },
             { association: 'user', where: { active: true }, required: true },
           ],
         },
@@ -522,12 +534,43 @@ export class OrderService extends ModelService<Order> {
       }
 
       const orders = data;
+
+      const { data: shippingLimitData } = await this._settingService.findOne({
+        action: 'findOne',
+        payload: { where: { name: 'shipping_limit' } },
+      });
+
+      const { data: shippingPriceData } = await this._settingService.findOne({
+        action: 'findOne',
+        payload: { where: { name: 'shipping_price' } },
+      });
+
       for await (const o of orders) {
         const orderJson = o.toJSON();
         const items = orderJson.items;
+        const addressJson = orderJson.address;
         if (!items.length) continue;
-        const sub_total = items.reduce((sum, item) => sum + item.price, 0);
-        const total = sub_total + (o.shipping_price || 0) + (o.tax || 0);
+        const sub_total = items.reduce((sum, item) => {
+          const price =
+            o.user?.role === Role.Dispenser
+              ? item?.quantity * item?.product?.wholesale_price
+              : item?.quantity * item?.product?.product_price;
+          return sum + price;
+        }, 0);
+        const shipping_price =
+          sub_total < Number(shippingLimitData?.value)
+            ? Number(shippingPriceData?.value)
+            : 0;
+
+        const { data: taxData } = await this.getTaxRate({
+          payload: { postalCode: addressJson?.shipping_zip_code },
+        });
+        const totalTax =
+          o.user?.role === Role.Dispenser ? 0 : Number(taxData?.totalRate || 0);
+
+        const tax = (totalTax * sub_total).toFixed(2);
+
+        const total = sub_total + (shipping_price || 0) + (tax || 0);
 
         const transaction = await this._sequelize.transaction();
         // Create a new order
@@ -536,8 +579,8 @@ export class OrderService extends ModelService<Order> {
           body: {
             cart_id: o.cart_id,
             sub_total,
-            shipping_price: o.shipping_price,
-            tax: o.tax,
+            shipping_price: shipping_price || 0,
+            tax: tax,
             total,
             is_a_reorder: 'Y',
             is_repeating_order: 'Y',
@@ -559,7 +602,6 @@ export class OrderService extends ModelService<Order> {
         }
 
         // Create a new order address
-        const addressJson = orderJson.address;
         delete addressJson.id;
         const address = await this._orderAddressService.create({
           action: 'create',
@@ -584,6 +626,14 @@ export class OrderService extends ModelService<Order> {
             action: 'create',
             body: {
               ...item,
+              price:
+                o.user?.role === Role.Dispenser
+                  ? item?.quantity * item?.product?.wholesale_price
+                  : item?.quantity * item?.product?.product_price,
+              price_per_item:
+                o.user?.role === Role.Dispenser
+                  ? item?.product?.wholesale_price
+                  : item?.product?.product_price,
               status: OrderItemStatus.Ordered,
               order_id: order.data.id,
             },
@@ -701,12 +751,12 @@ export class OrderService extends ModelService<Order> {
             is_repeating_order: 'Y',
             is_base_order: 'Y',
             created_at: literal(
-              `DATE_FORMAT(DATE_ADD( Order.created_at, INTERVAL repeating_days - 2 DAY ),'%Y-%M-%d') = DATE_FORMAT(CURDATE( ),'%Y-%M-%d')`,
+              `DATE_FORMAT(DATE_ADD(Order.created_at, INTERVAL repeating_days DAY ),'%Y-%M-%d') = DATE_FORMAT(CURDATE( ),'%Y-%M-%d')`,
             ),
           },
           include: [
             { association: 'address' },
-            { association: 'items', where: { active: true } },
+            { association: 'items', where: { active: true }, separate: true },
             { association: 'user', where: { active: true }, required: true },
           ],
         },
