@@ -558,7 +558,8 @@ export class OrderService extends ModelService<Order> {
           return sum + price;
         }, 0);
         const shipping_price =
-          sub_total < Number(shippingLimitData?.value)
+          sub_total < Number(shippingLimitData?.value) &&
+          o.user?.role !== Role.Dispenser
             ? Number(shippingPriceData?.value)
             : 0;
 
