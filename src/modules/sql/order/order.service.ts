@@ -520,7 +520,7 @@ export class OrderService extends ModelService<Order> {
               include: [
                 {
                   association: 'product',
-                  where: { active: true, statue: 'Y' },
+                  where: { active: true, status: 'Y' },
                   required: true,
                 },
               ],
