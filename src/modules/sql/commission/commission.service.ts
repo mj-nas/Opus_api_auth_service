@@ -169,7 +169,7 @@ export class CommissionService extends ModelService<Commission> {
               [Op.in]: [OrderStatus.Delivered, OrderStatus.Cancelled],
             },
             '$current_status.created_at$': literal(
-              `DATE_FORMAT(DATE_ADD( current_status.created_at, INTERVAL 1 DAY ),'%Y-%m-%d') = DATE_FORMAT(CURDATE( ),'%Y-%m-%d')`,
+              `DATE_FORMAT(DATE_ADD( current_status.created_at, INTERVAL 15 DAY ),'%Y-%m-%d') = DATE_FORMAT(CURDATE( ),'%Y-%m-%d')`,
             ),
           },
           include: [
