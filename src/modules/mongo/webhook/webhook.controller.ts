@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { ApiExtraModels, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ApiErrorResponses, ResponseCreated } from 'src/core/core.decorators';
@@ -64,12 +73,14 @@ export class WebhookController {
   async orderStatus(
     @Res() res: Response,
     @Req() req: Request,
+    @Param() id: string,
+    @Query() query: any,
     @Body() body: any,
   ) {
     const { error } = await this.webhookService.create({
       action: 'xps.order.update',
       body: {
-        payload: body,
+        payload: body ? body : query,
       },
     });
 

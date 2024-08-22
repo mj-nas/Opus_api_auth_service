@@ -53,6 +53,14 @@ export class WebhookService extends ModelService<Webhook> {
             status: PaymentStatus.Completed,
           },
         });
+        // case 'xps.order.update':
+        //   const order_id = response.data.payload.order_id;
+        //   await this._msClient.executeJob('order.status.update', {
+        //     payload: {
+        //       order_id: response.data.payload.order_id,
+        //       status: OrderStatus.Shipped,
+        //     },
+        //   });
         break;
       default:
         break;
