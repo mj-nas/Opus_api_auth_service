@@ -52,7 +52,7 @@ export class WebhookController {
     @Req() req: Request,
     @Body() body: any,
   ) {
-    return Created(res, { message: 'Created' });
+    return Created(res, { orders: [], message: 'Created' });
   }
 
   /**
