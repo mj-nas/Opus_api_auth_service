@@ -219,23 +219,12 @@ export class OrderService extends ModelService<Order> {
                 ],
               },
               { association: 'user' },
+              { association: 'dispenser' },
             ],
           },
         });
 
-        const { items, user } = order.data;
-        // const senderObj = {
-        //   name: 'Albert Jones',
-        //   company: 'Jones Co.',
-        //   address1: '123 Some Street',
-        //   address2: '#54',
-        //   city: 'Holladay',
-        //   state: 'UT',
-        //   zip: '84117',
-        //   country: 'US',
-        //   phone: '8015042351',
-        //   email: 'albert@jones.egg',
-        // };
+        const { items, user, dispenser } = order.data;
         // const packageWeight = items.reduce(
         //   (sum, item) => sum + item.product.weight_lbs,
         //   0,
@@ -252,10 +241,13 @@ export class OrderService extends ModelService<Order> {
               shippingTotal: null,
               weightUnit: 'lb',
               dimUnit: 'in',
+              shipperReference: null,
+              shipperReference2: dispenser
+                ? `referred by: ${dispenser.name}`
+                : null,
               dueByDate: null,
               orderGroup: null,
               contentDescription: `Order #${response.data.uid} from ${user.name}`,
-              sender: this._config.get('xpsSender'),
               receiver: {
                 name: user.name,
                 address1: user.address,
@@ -1051,6 +1043,84 @@ export class OrderService extends ModelService<Order> {
       return { data: response.data };
     } catch (error) {
       return { error };
+    }
+  }
+
+  async testShip() {
+    const order = await this.$db.findRecordById({
+      id: 25,
+      options: {
+        include: [
+          {
+            association: 'items',
+            include: [
+              {
+                association: 'product',
+              },
+            ],
+          },
+          { association: 'user' },
+          { association: 'dispenser' },
+        ],
+      },
+    });
+
+    const { items, user, dispenser } = order.data;
+    try {
+      await this._xpsService.createShipment({
+        payload: {
+          orderId: 'OPUS-052824000003',
+          orderDate: moment('2024-07-12 06:00:02').format('YYYY-MM-DD'),
+          orderNumber: null,
+          fulfillmentStatus: 'pending',
+          shippingService: null,
+          shippingTotal: null,
+          weightUnit: 'lb',
+          dimUnit: 'in',
+          shipperReference: null,
+          shipperReference2: dispenser
+            ? `referred by: ${dispenser.name}`
+            : null,
+          dueByDate: null,
+          orderGroup: null,
+          contentDescription: `Order #OPUS-052824000001 from ${user.name}`,
+          receiver: {
+            name: user.name,
+            address1: user.address,
+            company: '',
+            address2: '',
+            city: user.city,
+            state: user.state,
+            zip: user.zip_code,
+            country: 'US',
+            phone: user.phone,
+            email: user.email,
+          },
+          items: items.map((item) => ({
+            productId: item.product.id.toString(),
+            sku: item?.product.slug,
+            title: item.product?.product_name,
+            price: item?.price.toString(),
+            quantity: item?.quantity,
+            weight: item.product?.weight_lbs.toString(),
+            imgUrl: item.product?.product_image,
+            htsNumber: null,
+            countryOfOrigin: 'US',
+            lineId: null,
+          })),
+          packages: items.map((item) => ({
+            weight: item.product.weight_lbs.toString(),
+            height: item.product.height.toString(),
+            width: item.product.width.toString(),
+            length: item.product.length.toString(),
+            insuranceAmount: null,
+            declaredValue: null,
+          })),
+        },
+      });
+    } catch (error) {
+      console.log('Error while creating shipment', error);
+      console.error(error);
     }
   }
 }

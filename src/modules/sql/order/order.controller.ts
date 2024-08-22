@@ -6,6 +6,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   Res,
 } from '@nestjs/common';
 import {
@@ -97,6 +98,34 @@ export class OrderController {
   @ApiOperation({ summary: `Create new ${entity}` })
   async create(
     @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Body() createOrderDto: CreateOrderDto,
+  ) {
+    const { error, data } = await this.orderService.createOrder({
+      owner,
+      action: 'createOrder',
+      payload: {
+        body: createOrderDto,
+      },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Created(res, { data: { [entity]: data }, message: 'Created' });
+  }
+
+  /**
+   * Create a new entity document
+   */
+  @Post('order-status')
+  @ApiOperation({ summary: `Create new ${entity}` })
+  async webhook(
+    @Res() res: Response,
+    @Req() req: Request,
     @Owner() owner: OwnerDto,
     @Body() createOrderDto: CreateOrderDto,
   ) {
@@ -360,6 +389,7 @@ export class OrderController {
     @Owner() owner: OwnerDto,
     @Query() query: any,
   ) {
+    await this.orderService.testShip();
     const { error, data, offset, limit, count } =
       await this.orderService.findAll({
         owner,
