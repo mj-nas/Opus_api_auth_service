@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import { ApiExtraModels, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ApiErrorResponses, ResponseCreated } from 'src/core/core.decorators';
@@ -27,6 +27,47 @@ export class WebhookController {
   async create(@Res() res: Response, @Body() body: any) {
     const { error } = await this.webhookService.create({
       action: 'checkout.session.completed',
+      body: {
+        payload: body,
+      },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Created(res, { message: 'Created' });
+  }
+
+  /**
+   * Create a new entity document
+   */
+  @Get('xps/order-sample')
+  @ApiOperation({ summary: `Create new ${entity}` })
+  @ResponseCreated(Webhook)
+  async sampleWebhook(
+    @Res() res: Response,
+    @Req() req: Request,
+    @Body() body: any,
+  ) {
+    return Created(res, { message: 'Created' });
+  }
+
+  /**
+   * Create a new entity document
+   */
+  @Post('xps/order-update')
+  @ApiOperation({ summary: `Create new ${entity}` })
+  @ResponseCreated(Webhook)
+  async orderStatus(
+    @Res() res: Response,
+    @Req() req: Request,
+    @Body() body: any,
+  ) {
+    const { error } = await this.webhookService.create({
+      action: 'xps.order.update',
       body: {
         payload: body,
       },
