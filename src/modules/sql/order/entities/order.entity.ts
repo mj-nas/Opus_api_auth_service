@@ -212,6 +212,22 @@ export class Order extends SqlModel {
   @IsString()
   coupon_type: string;
 
+  @Column
+  @ApiProperty({
+    description: 'Book Number for tracking',
+    example: '051621',
+  })
+  @IsString()
+  book_number: string;
+
+  @Column
+  @ApiProperty({
+    description: 'Book Number for tracking',
+    example: '051621',
+  })
+  @IsString()
+  tracking_number: string;
+
   @Column(DataTypes.FLOAT({ precision: 11, scale: 2 }))
   @ApiProperty({
     description: 'Coupon Discount Amount',

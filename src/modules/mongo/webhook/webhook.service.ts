@@ -8,6 +8,8 @@ import { StripeService } from '@core/stripe';
 import { Injectable } from '@nestjs/common';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { PaymentStatus } from 'src/modules/sql/order-payment/payment-status.enum';
+import { OrderStatus } from 'src/modules/sql/order/order-status.enum';
+import { OrderService } from 'src/modules/sql/order/order.service';
 import { Webhook } from './entities/webhook.entity';
 
 @Injectable()
@@ -16,6 +18,7 @@ export class WebhookService extends ModelService<Webhook> {
     db: MongoService<Webhook>,
     private _stripeService: StripeService,
     private _msClient: MsClientService,
+    private _orderService: OrderService,
   ) {
     super(db);
   }
@@ -53,14 +56,24 @@ export class WebhookService extends ModelService<Webhook> {
             status: PaymentStatus.Completed,
           },
         });
-        // case 'xps.order.update':
-        //   const order_id = response.data.payload.order_id;
-        //   await this._msClient.executeJob('order.status.update', {
-        //     payload: {
-        //       order_id: response.data.payload.order_id,
-        //       status: OrderStatus.Shipped,
-        //     },
-        //   });
+      case 'xps.order.update':
+        const { data, error } = await this._orderService.$db.findOneRecord({
+          options: {
+            where: {
+              uid: response.data.payload.order_id,
+            },
+            attributes: ['id'],
+          },
+        });
+        if (error) {
+          throw new Error('Order not found');
+        }
+        await this._msClient.executeJob('order.status.update', {
+          payload: {
+            order_id: data.id,
+            status: OrderStatus.Shipped,
+          },
+        });
         break;
       default:
         break;

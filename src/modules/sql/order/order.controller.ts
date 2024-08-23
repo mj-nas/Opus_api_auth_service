@@ -360,7 +360,6 @@ export class OrderController {
     @Owner() owner: OwnerDto,
     @Query() query: any,
   ) {
-    await this.orderService.testShip();
     const { error, data, offset, limit, count } =
       await this.orderService.findAll({
         owner,

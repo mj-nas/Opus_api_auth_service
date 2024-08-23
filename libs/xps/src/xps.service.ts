@@ -71,8 +71,9 @@ export class XpsService {
 
       // console.log(response.data);
       // console.log(response.data.error);
+      console.log(response.data);
 
-      return { data: 'Shipment created' };
+      return { data: response.data };
     } catch (error) {
       console.error(error);
       return { error };

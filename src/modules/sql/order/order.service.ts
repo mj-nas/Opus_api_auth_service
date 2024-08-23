@@ -225,10 +225,16 @@ export class OrderService extends ModelService<Order> {
         });
 
         const { items, user, dispenser } = order.data;
-        // const packageWeight = items.reduce(
-        //   (sum, item) => sum + item.product.weight_lbs,
-        //   0,
-        // );
+        const { order_weight, height, length, width } = order.data.items.reduce(
+          (acc, item) => {
+            acc.order_weight += item.product.weight_lbs * item.quantity;
+            acc.height += item.product.height * item.quantity;
+            acc.length += item.product.length * item.quantity;
+            acc.width += item.product.width * item.quantity;
+            return acc;
+          },
+          { order_weight: 0, height: 0, length: 0, width: 0 },
+        );
         //ship product
         try {
           await this._xpsService.createShipment({
@@ -237,11 +243,13 @@ export class OrderService extends ModelService<Order> {
               orderDate: moment(response.data.updated_at).format('YYYY-MM-DD'),
               orderNumber: null,
               fulfillmentStatus: 'pending',
-              shippingService: null,
+              shippingService:
+                order_weight < 1 ? 'usps_poly_bag' : 'usps_custom_package',
               shippingTotal: null,
               weightUnit: 'lb',
               dimUnit: 'in',
-              shipperReference: null,
+              shipperReference:
+                order_weight < 1 ? 'Poly Bag' : 'Your Packaging',
               shipperReference2: dispenser
                 ? `referred by: ${dispenser.name}`
                 : null,
@@ -272,20 +280,28 @@ export class OrderService extends ModelService<Order> {
                 countryOfOrigin: 'US',
                 lineId: null,
               })),
-              packages: items.map((item) => ({
-                weight: item.product.weight_lbs.toString(),
-                height: item.product.height.toString(),
-                width: item.product.width.toString(),
-                length: item.product.length.toString(),
-                insuranceAmount: null,
-                declaredValue: null,
-              })),
+              packages: [
+                {
+                  weight: order_weight.toString(),
+                  height: order_weight < 1 ? '0' : '4',
+                  width: order_weight < 1 ? '0' : '6',
+                  length: order_weight < 1 ? '0' : '8',
+                  insuranceAmount: null,
+                  declaredValue: null,
+                },
+              ],
             },
           });
         } catch (error) {
           console.log('Error while creating shipment', error);
           console.error(error);
         }
+      }
+
+      if (
+        response.previousData.status === OrderStatus.Ordered &&
+        response.data.status === OrderStatus.Shipped
+      ) {
       }
 
       if (response.previousData.status !== response.data.status) {
@@ -1046,6 +1062,39 @@ export class OrderService extends ModelService<Order> {
     }
   }
 
+  async orderRetrieveShipment(job: Job): Promise<JobResponse> {
+    try {
+      const { order_id } = job.payload;
+      const { error, data } = await this.findById({
+        action: 'findById',
+        id: +order_id,
+        payload: { include: ['items', 'user'] },
+      });
+      if (!!error) {
+        return { error };
+      }
+
+      const order = data;
+      const apiKey = this._config.get('xps').api_key;
+      const customer_id = this._config.get('xps').customer_id;
+      const integration_id = this._config.get('xps').integration_id;
+      const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/searchShipments`;
+      const payload = {
+        keyword: order.uid,
+      };
+      const response = await axios.post(url, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `RSIS ${apiKey}`,
+        },
+      });
+
+      return { data: response.data };
+    } catch (error) {
+      return { error };
+    }
+  }
+
   async testShip() {
     const order = await this.$db.findRecordById({
       id: 25,
@@ -1065,19 +1114,32 @@ export class OrderService extends ModelService<Order> {
       },
     });
 
+    const { order_weight, height, length, width } = order.data.items.reduce(
+      (acc, item) => {
+        acc.order_weight += item.product.weight_lbs * item.quantity;
+        acc.height += item.product.height * item.quantity;
+        acc.length += item.product.length * item.quantity;
+        acc.width += item.product.width * item.quantity;
+        return acc;
+      },
+      { order_weight: 0, height: 0, length: 0, width: 0 },
+    );
+    console.log({ order_weight, height, length, width });
+
     const { items, user, dispenser } = order.data;
     try {
       await this._xpsService.createShipment({
         payload: {
-          orderId: 'OPUS-052824000003',
+          orderId: 'OPUS-082324000014',
           orderDate: moment('2024-07-12 06:00:02').format('YYYY-MM-DD'),
           orderNumber: null,
           fulfillmentStatus: 'pending',
-          shippingService: null,
+          shippingService:
+            order_weight < 1 ? 'usps_poly_bag' : 'usps_custom_package',
           shippingTotal: null,
           weightUnit: 'lb',
           dimUnit: 'in',
-          shipperReference: null,
+          shipperReference: order_weight < 1 ? 'Poly Bag' : 'Your Packaging',
           shipperReference2: dispenser
             ? `referred by: ${dispenser.name}`
             : null,
@@ -1108,14 +1170,16 @@ export class OrderService extends ModelService<Order> {
             countryOfOrigin: 'US',
             lineId: null,
           })),
-          packages: items.map((item) => ({
-            weight: item.product.weight_lbs.toString(),
-            height: item.product.height.toString(),
-            width: item.product.width.toString(),
-            length: item.product.length.toString(),
-            insuranceAmount: null,
-            declaredValue: null,
-          })),
+          packages: [
+            {
+              weight: order_weight.toString(),
+              height: order_weight < 1 ? '1' : '4',
+              width: order_weight < 1 ? width.toString() : '6',
+              length: order_weight < 1 ? length.toString() : '8',
+              insuranceAmount: null,
+              declaredValue: null,
+            },
+          ],
         },
       });
     } catch (error) {
