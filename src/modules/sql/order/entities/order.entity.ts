@@ -218,14 +218,16 @@ export class Order extends SqlModel {
     example: '051621',
   })
   @IsString()
+  @IsOptional()
   book_number: string;
 
   @Column
   @ApiProperty({
-    description: 'Book Number for tracking',
+    description: 'tracking Number of shipment',
     example: '051621',
   })
   @IsString()
+  @IsOptional()
   tracking_number: string;
 
   @Column(DataTypes.FLOAT({ precision: 11, scale: 2 }))

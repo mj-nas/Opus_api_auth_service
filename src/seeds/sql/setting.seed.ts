@@ -126,9 +126,21 @@ export default <Seed<Setting>>{
       },
     },
     {
-      name: 'xps_sender_address_address',
+      name: 'xps_sender_address_address1',
       display_name: 'Address1',
-      value: '150 Hopper Ave',
+      value: '401 N Middletown Road',
+      group_id: 2,
+      option: {
+        type: 'text',
+        format: 'amount',
+        required: true,
+        min: 0,
+      },
+    },
+    {
+      name: 'xps_sender_address_address2',
+      display_name: 'Address2',
+      value: 'Pearl River',
       group_id: 2,
       option: {
         type: 'text',
@@ -222,9 +234,21 @@ export default <Seed<Setting>>{
       },
     },
     {
-      name: 'xps_return_address_address',
+      name: 'xps_return_address_address1',
       display_name: 'Address1',
-      value: '150 Hopper Ave',
+      value: '401 N Middletown Road',
+      group_id: 3,
+      option: {
+        type: 'text',
+        format: 'amount',
+        required: true,
+        min: 0,
+      },
+    },
+    {
+      name: 'xps_return_address_address2',
+      display_name: 'Address2',
+      value: 'Pearl River',
       group_id: 3,
       option: {
         type: 'text',
