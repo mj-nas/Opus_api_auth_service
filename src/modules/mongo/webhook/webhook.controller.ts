@@ -80,7 +80,7 @@ export class WebhookController {
     const { error } = await this.webhookService.create({
       action: 'xps.order.update',
       body: {
-        payload: body ? body : query,
+        payload: { body: body, query: query },
       },
     });
 
