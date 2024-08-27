@@ -165,11 +165,9 @@ export class CommissionService extends ModelService<Commission> {
       if (body?.mode === BulkDeleteMode.All) {
         delete payload.limit;
         delete payload.offset;
-        const { error, data } = await this.$db.updateBulkRecords({
-          owner: job.owner,
-          action: 'updateBulk',
+        const { error, data } = await this.allUpdate({
+          payload: { ...payload },
           body: body.status,
-          options: { ...payload },
         });
         if (error) return { error };
         return { data };
@@ -183,6 +181,22 @@ export class CommissionService extends ModelService<Commission> {
             id: body?.ids || [],
           },
         },
+      });
+      if (error) return { error };
+      return { data };
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  @WrapSqlJob
+  @ReadPayload
+  async allUpdate(job: SqlJob<Commission>): Promise<JobResponse> {
+    try {
+      const { options, body } = job;
+      const { error, data } = await this.$db.updateBulkRecords({
+        options: { ...options },
+        body,
       });
       if (error) return { error };
       return { data };
