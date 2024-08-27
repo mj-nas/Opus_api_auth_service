@@ -167,7 +167,7 @@ export class CommissionService extends ModelService<Commission> {
         delete payload.offset;
         const { error, data } = await this.allUpdate({
           payload,
-          body: body.status,
+          body,
         });
         if (error) return { error };
         return { data };
@@ -175,7 +175,7 @@ export class CommissionService extends ModelService<Commission> {
 
       const { error, data } = await this.$db.updateBulkRecords({
         owner: job.owner,
-        body: body.status,
+        body: { status: body.status },
         options: {
           where: {
             id: body?.ids || [],
@@ -199,7 +199,7 @@ export class CommissionService extends ModelService<Commission> {
           ...options,
           where: { ...options.where, status: CommissionStatus.Pending },
         },
-        body,
+        body: { status: body.status },
       });
       if (error) return { error };
       return { data };
