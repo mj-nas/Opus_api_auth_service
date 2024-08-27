@@ -191,21 +191,6 @@ export class CommissionService extends ModelService<Commission> {
     }
   }
 
-  @WrapSqlJob
-  @ReadPayload
-  async allUpdate(job: SqlJob<Commission>): Promise<JobResponse> {
-    try {
-      const { options } = job;
-      const { error, data } = await this.$db.deleteBulkRecords({
-        options: { ...options },
-      });
-      if (error) return { error };
-      return { data };
-    } catch (error) {
-      return { error };
-    }
-  }
-
   async commissionCalculatorCron(): Promise<JobResponse> {
     try {
       const { data, error } = await this._orderService.$db.getAllRecords({
