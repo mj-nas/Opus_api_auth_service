@@ -82,16 +82,11 @@ export class CommissionController {
     @Body() bulkUpdateDto: BulkUpdateDto,
     @Query() query: any,
   ) {
-    const { error, data } = await this.commissionService.$db.updateBulkRecords({
+    const { error, data } = await this.commissionService.bulkUpdate({
       owner,
-      options: {
-        where: {
-          id: bulkUpdateDto.ids,
-        },
-      },
-      body: {
-        status: CommissionStatus.Cancelled,
-      },
+      action: 'bulkUpdateCancel',
+      body: { ...bulkUpdateDto, status: CommissionStatus.Cancelled },
+      payload: { ...query },
     });
 
     if (error) {
@@ -113,16 +108,11 @@ export class CommissionController {
     @Body() bulkUpdateDto: BulkUpdateDto,
     @Query() query: any,
   ) {
-    const { error, data } = await this.commissionService.$db.updateBulkRecords({
+    const { error, data } = await this.commissionService.bulkUpdate({
       owner,
-      options: {
-        where: {
-          id: bulkUpdateDto.ids,
-        },
-      },
-      body: {
-        status: CommissionStatus.Paid,
-      },
+      action: 'bulkUpdatePaid',
+      body: { ...bulkUpdateDto, status: CommissionStatus.Paid },
+      payload: { ...query },
     });
 
     if (error) {

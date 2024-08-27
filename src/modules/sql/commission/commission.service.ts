@@ -7,6 +7,7 @@ import * as moment from 'moment-timezone';
 import { Op, col, fn, literal } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
+import { BulkDeleteMode } from '../contact-us/bulk-delete-mode.enum';
 import { OrderItemStatus } from '../order-item/entities/order-item.entity';
 import { OrderStatus } from '../order/order-status.enum';
 import { OrderService } from '../order/order.service';
@@ -155,6 +156,53 @@ export class CommissionService extends ModelService<Commission> {
       return Math.floor((coupon_discount / 100) * sub_total * 100) / 100;
     } else {
       return Math.floor(coupon_discount * 100) / 100;
+    }
+  }
+
+  async bulkUpdate(job: SqlJob<Commission>): Promise<JobResponse> {
+    try {
+      const { body, payload } = job;
+      if (body?.mode === BulkDeleteMode.All) {
+        delete payload.limit;
+        delete payload.offset;
+        const { error, data } = await this.$db.updateBulkRecords({
+          owner: job.owner,
+          action: 'updateBulk',
+          body: body.status,
+          options: { ...payload },
+        });
+        if (error) return { error };
+        return { data };
+      }
+
+      const { error, data } = await this.$db.updateBulkRecords({
+        owner: job.owner,
+        body: body.status,
+        options: {
+          where: {
+            id: body?.ids || [],
+          },
+        },
+      });
+      if (error) return { error };
+      return { data };
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  @WrapSqlJob
+  @ReadPayload
+  async allUpdate(job: SqlJob<Commission>): Promise<JobResponse> {
+    try {
+      const { options } = job;
+      const { error, data } = await this.$db.deleteBulkRecords({
+        options: { ...options },
+      });
+      if (error) return { error };
+      return { data };
+    } catch (error) {
+      return { error };
     }
   }
 
