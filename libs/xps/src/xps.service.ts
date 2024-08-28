@@ -6,7 +6,6 @@ import { SettingService } from 'src/modules/sql/setting/setting.service';
 
 @Injectable()
 export class XpsService {
-  // public stripe: Stripe;
   public constructor(
     private _config: ConfigService,
     private _settingService: SettingService,
@@ -42,9 +41,8 @@ export class XpsService {
       payload.sender = {
         ...senderObj,
         company: '',
-        address2: '',
       };
-      payload.returnTo = { ...returnAddressObj, address2: '' };
+      payload.returnTo = { ...returnAddressObj, company: '', };
       const apiKey = this._config.get('xps').api_key;
       const customer_id = this._config.get('xps').customer_id;
       const integration_id = this._config.get('xps').integration_id;

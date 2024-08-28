@@ -1061,7 +1061,39 @@ export class OrderService extends ModelService<Order> {
       return { error };
     }
   }
-
+async retrieveOrderNumber(uid:string): Promise<JobResponse>{
+  try {
+    const apiKey = this._config.get('xps').api_key;
+    const customer_id = this._config.get('xps').customer_id;
+    const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/searchShipments`;
+    const payload = {
+      keyword: uid,
+    };
+    const response = await axios.post(url, payload, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `RSIS ${apiKey}`,
+      },
+    });
+    if (response.data && response.data.shipments.length === 0) {
+      return { error: 'No shipment found' };
+    }
+    const order_data = await this.$db.findAndUpdateRecord({
+      body: {
+        book_number: response.data.shipments[0].book_number,
+        tracking_number: response.data.shipments[0].tracking_number,
+      },
+      options: {
+        where: {
+          uid: uid,
+        },
+      },
+    });
+    return { data: response.data.shipments[0] };
+  } catch (error) {
+    return { error };
+  }
+}
   async orderRetrieveShipmentCron(): Promise<JobResponse> {
     const { error, data } = await this.$db.getAllRecords({
       action: 'findAll',
@@ -1116,6 +1148,53 @@ export class OrderService extends ModelService<Order> {
         });
 
         return { data: response.data.shipments[0] };
+      } catch (error) {
+        return { error };
+      }
+    }
+  }
+
+  async trackOrderCron(): Promise<JobResponse> {
+    const { error, data } = await this.$db.getAllRecords({
+      action: 'findAll',
+      options: {
+        where: {
+          status: OrderStatus.Shipped,
+        },
+      },
+    });
+    if (!!error) {
+      return { error };
+    }
+    if (data.length === 0) {
+      return { data: 'No order found' };
+    }
+    for await (const order of data) {
+      try {
+        const apiKey = this._config.get('xps').api_key;
+        const customer_id = this._config.get('xps').customer_id;
+        const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/shipments/${order.book_number}/tracking-information`;
+        const response = await axios.get(url, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `RSIS ${apiKey}`,
+          },
+        });
+        if (response.data && response.data.length === 0) {
+          return { error: 'No shipment found' };
+        }
+        for await (const status of response.data){
+          if (status.eventStatus == "Delivered"){
+            await this._msClient.executeJob('order.status.update', {
+              payload: {
+                order_id: order.id,
+                status: OrderStatus.Delivered,
+              },
+            });
+          }
+        }
+
+        return { data: order };
       } catch (error) {
         return { error };
       }
