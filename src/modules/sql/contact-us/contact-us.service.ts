@@ -141,7 +141,7 @@ export class ContactUsService extends ModelService<ContactUs> {
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Contact Us');
 
-      worksheet.addRow(['Sl. No', 'Name', 'Email', 'Message', 'Created On']);
+      worksheet.addRow(['Sl. No', 'First Name', 'Last Name', 'Email', 'Message', 'Created On']);
 
       const contact_us: ContactUs[] = JSON.parse(JSON.stringify(data));
 
@@ -149,7 +149,8 @@ export class ContactUsService extends ModelService<ContactUs> {
         contact_us.map(async (x, index) => {
           worksheet.addRow([
             index + 1,
-            x?.name,
+            x?.first_name,
+            x?.last_name,
             x.email,
             x?.message,
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
@@ -159,7 +160,8 @@ export class ContactUsService extends ModelService<ContactUs> {
 
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
-        { header: 'Name', key: 'name', width: 25 },
+        { header: 'First Name', key: 'first_name', width: 25 },
+        { header: 'Last Name', key: 'last_name', width: 25 },
         { header: 'Email', key: 'email', width: 25 },
         { header: 'Message', key: 'message', width: 50 },
         { header: 'Created On', key: 'created_at', width: 25 },
