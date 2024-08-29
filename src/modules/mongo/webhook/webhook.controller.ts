@@ -33,9 +33,84 @@ export class WebhookController {
   @Post('stripe/checkout-session-completed')
   @ApiOperation({ summary: `Create new ${entity}` })
   @ResponseCreated(Webhook)
-  async create(@Res() res: Response, @Body() body: any) {
+  async checkoutSessionCompleted(@Res() res: Response, @Body() body: any) {
     const { error } = await this.webhookService.create({
       action: 'checkout.session.completed',
+      body: {
+        payload: body,
+      },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Created(res, { message: 'Created' });
+  }
+
+  /**
+   * Create a new entity document
+   */
+  @Post('stripe/checkout-session-async-payment-failed')
+  @ApiOperation({ summary: `Create new ${entity}` })
+  @ResponseCreated(Webhook)
+  async checkoutSessionAsyncPaymentFailed(
+    @Res() res: Response,
+    @Body() body: any,
+  ) {
+    const { error } = await this.webhookService.create({
+      action: 'checkout.session.async_payment_failed',
+      body: {
+        payload: body,
+      },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Created(res, { message: 'Created' });
+  }
+
+  /**
+   * Create a new entity document
+   */
+  @Post('stripe/checkout-session-async-payment-succeeded')
+  @ApiOperation({ summary: `Create new ${entity}` })
+  @ResponseCreated(Webhook)
+  async checkoutSessionAsyncPaymentSucceeded(
+    @Res() res: Response,
+    @Body() body: any,
+  ) {
+    const { error } = await this.webhookService.create({
+      action: 'checkout.session.async_payment_succeeded',
+      body: {
+        payload: body,
+      },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Created(res, { message: 'Created' });
+  }
+
+  /**
+   * Create a new entity document
+   */
+  @Post('stripe/checkout-session-expired')
+  @ApiOperation({ summary: `Create new ${entity}` })
+  @ResponseCreated(Webhook)
+  async checkoutSessionExpired(@Res() res: Response, @Body() body: any) {
+    const { error } = await this.webhookService.create({
+      action: 'checkout.session.expired',
       body: {
         payload: body,
       },

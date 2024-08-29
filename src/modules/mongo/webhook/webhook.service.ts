@@ -71,6 +71,8 @@ export class WebhookService extends ModelService<Webhook> {
           },
         });
         if (error) {
+          response.data.set('status', WebhookStatus.Errored);
+          await response.data.save();
           throw new Error('Order not found');
         }
         await this._msClient.executeJob('order.status.update', {
