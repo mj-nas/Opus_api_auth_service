@@ -57,6 +57,7 @@ export class WebhookService extends ModelService<Webhook> {
           },
         });
       case 'xps.order.update':
+        // await this._orderService.retrieveOrderNumber({uid:response.data.payload.order_id})
         const { data, error } = await this._orderService.$db.findOneRecord({
           options: {
             where: {

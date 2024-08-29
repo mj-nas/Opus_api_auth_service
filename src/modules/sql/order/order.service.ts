@@ -1061,15 +1061,15 @@ export class OrderService extends ModelService<Order> {
       return { error };
     }
   }
-async retrieveOrderNumber(uid:string): Promise<JobResponse>{
+async retrieveOrderNumber(payload:any): Promise<JobResponse>{
   try {
     const apiKey = this._config.get('xps').api_key;
     const customer_id = this._config.get('xps').customer_id;
     const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/searchShipments`;
-    const payload = {
-      keyword: uid,
+    const body = {
+      keyword: payload.uid,
     };
-    const response = await axios.post(url, payload, {
+    const response = await axios.post(url, body, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `RSIS ${apiKey}`,
@@ -1082,10 +1082,11 @@ async retrieveOrderNumber(uid:string): Promise<JobResponse>{
       body: {
         book_number: response.data.shipments[0].book_number,
         tracking_number: response.data.shipments[0].tracking_number,
+        status: OrderStatus.Shipped
       },
       options: {
         where: {
-          uid: uid,
+          uid: payload.uid,
         },
       },
     });
@@ -1170,6 +1171,7 @@ async retrieveOrderNumber(uid:string): Promise<JobResponse>{
       return { data: 'No order found' };
     }
     for await (const order of data) {
+      if(order.book_number)
       try {
         const apiKey = this._config.get('xps').api_key;
         const customer_id = this._config.get('xps').customer_id;
