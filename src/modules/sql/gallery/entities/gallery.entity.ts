@@ -1,7 +1,13 @@
 import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateIf,
+} from 'class-validator';
 import {
   BeforeCreate,
   BeforeUpdate,
@@ -53,6 +59,7 @@ export class Gallery extends SqlModel {
     description: 'product image',
     example: 'thumbnail.png',
   })
+  @ValidateIf((o) => o.type === GalleryType.Video)
   @IsString()
   get thumbnail(): string {
     return this.getDataValue('thumbnail')
