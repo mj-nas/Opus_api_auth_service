@@ -40,7 +40,7 @@ export default <Seed<Template>>{
       title: 'Welcome Email',
       send_email: true,
       email_subject: 'Welcome to OPUS Cannaboids!',
-      email_body: `Hi ##TO_NAME##,<br><br>Welcome aboard!  We're thrilled to have you join us.<br><br>Best regards,<br>Team OPUS`,
+      email_body: `Hi ##TO_NAME##,<br><br>Welcome aboard!  We're thrilled to have you join us.<br><br>Best regards,Team OPUS`,
       send_sms: false,
       sms_body: '',
     },
@@ -103,8 +103,15 @@ export default <Seed<Template>>{
       name: 'email_verification',
       title: 'Email Verification',
       send_email: true,
-      email_subject: 'Email Verification',
-      email_body: `<p>Hi ##TO_NAME##,</p><p><br></p><p>##OTP## is your code to complete the email verification.</p><p><br></p><p>Thanks</p>`,
+      email_subject: 'Your Verification Code',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+      <p><br></p>
+      <p>Your verification code is: ##OTP##</p>
+      <p><br></p>
+      <p>Please use this code as needed. Let us know if you require any further assistance.</p>
+      <p><br></p>
+      <p>Best regards,</p>
+      <p>Team OPUS</p>`,
       send_sms: false,
       sms_body: '',
     },
