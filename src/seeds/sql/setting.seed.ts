@@ -90,6 +90,18 @@ export default <Seed<Setting>>{
       },
     },
     {
+      name: 'xps_sender_company_name',
+      display_name: 'Company',
+      value: 'OPUS',
+      group_id: 2,
+      option: {
+        type: 'text',
+        format: 'amount',
+        required: true,
+        min: 0,
+      },
+    },
+    {
       name: 'xps_sender_address_zip',
       display_name: 'Zip',
       value: '07463',
@@ -190,6 +202,18 @@ export default <Seed<Setting>>{
       display_name: 'Name',
       value: 'Orders',
       group_id: 3,
+      option: {
+        type: 'text',
+        format: 'amount',
+        required: true,
+        min: 0,
+      },
+    },
+    {
+      name: 'xps_return_company_name',
+      display_name: 'Company',
+      value: 'OPUS',
+      group_id: 2,
       option: {
         type: 'text',
         format: 'amount',
