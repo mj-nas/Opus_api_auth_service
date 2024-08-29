@@ -56,11 +56,7 @@ export class WebhookController {
   @Get('xps/order-sample')
   @ApiOperation({ summary: `Create new ${entity}` })
   @ResponseCreated(Webhook)
-  async sampleWebhook(
-    @Res() res: Response,
-    @Req() req: Request,
-    @Body() body: any,
-  ) {
+  async sampleWebhook(@Res() res: Response) {
     return Created(res, { orders: [], message: 'Created' });
   }
 

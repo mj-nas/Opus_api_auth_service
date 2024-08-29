@@ -11,6 +11,7 @@ import { PaymentStatus } from 'src/modules/sql/order-payment/payment-status.enum
 import { OrderStatus } from 'src/modules/sql/order/order-status.enum';
 import { OrderService } from 'src/modules/sql/order/order.service';
 import { Webhook } from './entities/webhook.entity';
+import { WebhookStatus } from './webhook-status.enum';
 
 @Injectable()
 export class WebhookService extends ModelService<Webhook> {
@@ -56,6 +57,9 @@ export class WebhookService extends ModelService<Webhook> {
             status: PaymentStatus.Completed,
           },
         });
+        response.data.set('status', WebhookStatus.Completed);
+        await response.data.save();
+        break;
       case 'xps.order.update':
         // await this._orderService.retrieveOrderNumber({uid:response.data.payload.order_id})
         const { data, error } = await this._orderService.$db.findOneRecord({
@@ -75,6 +79,8 @@ export class WebhookService extends ModelService<Webhook> {
             status: OrderStatus.Shipped,
           },
         });
+        response.data.set('status', WebhookStatus.Completed);
+        await response.data.save();
         break;
       default:
         break;
