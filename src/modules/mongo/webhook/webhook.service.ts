@@ -60,27 +60,13 @@ export class WebhookService extends ModelService<Webhook> {
         response.data.set('status', WebhookStatus.Completed);
         await response.data.save();
         break;
-      case 'xps.order.update':
-        // await this._orderService.retrieveOrderNumber({uid:response.data.payload.order_id})
-        const { data, error } = await this._orderService.$db.findOneRecord({
-          options: {
-            where: {
-              uid: response.data.payload.order_id,
-            },
-            attributes: ['id'],
-          },
-        });
+        case 'xps.order.update':
+        const {data, error} = await this._orderService.retrieveOrderNumber({uid:response.data.payload.body.orderId})
         if (error) {
           response.data.set('status', WebhookStatus.Errored);
           await response.data.save();
-          throw new Error('Order not found');
+          throw new Error('Order Could not be Updated');
         }
-        await this._msClient.executeJob('order.status.update', {
-          payload: {
-            order_id: data.id,
-            status: OrderStatus.Shipped,
-          },
-        });
         response.data.set('status', WebhookStatus.Completed);
         await response.data.save();
         break;

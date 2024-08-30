@@ -1090,7 +1090,26 @@ async retrieveOrderNumber(payload:any): Promise<JobResponse>{
         },
       },
     });
-    return { data: response.data.shipments[0] };
+
+     // Create order-status-change-log
+    await this._msClient.executeJob('order-status-log.create', {
+      payload: {
+        order_id: order_data.data.id,
+        status: order_data.data.status,
+      },
+    });
+
+     // Send order shipped socket notification
+     await this._msClient.executeJob('controller.socket-event', {
+      action: 'orderStatusChange',
+      payload: {
+        user_id: order_data.data.user_id,
+        data: {
+          order_id: order_data.data.id,
+        },
+      },
+    });
+    return  order_data ;
   } catch (error) {
     return { error };
   }
