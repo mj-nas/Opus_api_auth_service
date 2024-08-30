@@ -1174,7 +1174,7 @@ async retrieveOrderNumber(payload:any): Promise<JobResponse>{
     }
   }
 
-  async trackOrderCron(): Promise<JobResponse> {
+  async trackShipmentCron(): Promise<JobResponse> {
     const { error, data } = await this.$db.getAllRecords({
       action: 'findAll',
       options: {
@@ -1187,7 +1187,7 @@ async retrieveOrderNumber(payload:any): Promise<JobResponse>{
       return { error };
     }
     if (data.length === 0) {
-      return { data: 'No order found' };
+      return { error: 'No order found' };
     }
     for await (const order of data) {
       if(order.book_number)

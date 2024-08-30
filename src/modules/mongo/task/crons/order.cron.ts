@@ -40,4 +40,19 @@ export class OrderCron {
     }
     this.logger.log(`Reorder notification cron completed successfully!`);
   }
+
+  // Track shipment cron 
+  @Cron(CronExpression.EVERY_10_MINUTES)
+  async trackShipmentCron(){
+  if (this.configService.get('appId') != 'crons') {
+    return;
+  }
+    this.logger.log('Shipment tracking cron started...');
+    const {error} = await this._orderService.trackShipmentCron();
+    if (error) {
+      this.logger.error(`Error - ${error.message || error}`);
+      return;
+    }
+    this.logger.log(`Shipment tracking cron completed successfully!`);
+  }
 }
