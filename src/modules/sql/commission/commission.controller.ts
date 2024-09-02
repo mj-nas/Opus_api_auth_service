@@ -184,6 +184,9 @@ export class CommissionController {
       });
     }
 
+    const any_pending =
+      data.filter((d: any) => d.status === CommissionStatus.Pending).length > 0;
+
     const { error: countError, data: countData } =
       await this.commissionService.getAllCounts({
         owner,
@@ -200,6 +203,7 @@ export class CommissionController {
       data: {
         [pluralizeString(entity)]: data,
         quick_stats: countData,
+        any_pending,
         offset,
         limit,
         count,
@@ -240,6 +244,9 @@ export class CommissionController {
         action: 'findAllMe',
         payload: { ...query },
       });
+
+    const any_pending =
+      data.filter((d: any) => d.status === CommissionStatus.Pending).length > 0;
     if (countError) {
       return ErrorResponse(res, {
         error: countError,
@@ -250,7 +257,7 @@ export class CommissionController {
       data: {
         [pluralizeString(entity)]: data,
         quick_stats: countData,
-        offset,
+        any_pending,
         limit,
         count,
       },
