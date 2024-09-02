@@ -638,7 +638,7 @@ export class UserService extends ModelService<User> {
             x.geotag ? 'Yes' : 'No',
             x.referral_link,
             x.qr_code,
-            moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
+            moment(x.created_at).tz(timezone).format('MM/DD/YYYY, hh:mm A'),
             x.created_by == 1 ? 'Admin' : 'Applicant',
             x?.active ? 'Active' : 'Inactive',
           ]);
