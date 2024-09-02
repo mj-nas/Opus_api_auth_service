@@ -184,8 +184,8 @@ export class CommissionController {
       });
     }
 
-    const any_pending =
-      data.filter((d: any) => d.status === CommissionStatus.Pending).length > 0;
+    const any_pending = await this.commissionService.getAnyPending();
+    console.log('any_pending', any_pending);
 
     const { error: countError, data: countData } =
       await this.commissionService.getAllCounts({
@@ -202,8 +202,7 @@ export class CommissionController {
     return Result(res, {
       data: {
         [pluralizeString(entity)]: data,
-        quick_stats: countData,
-        any_pending,
+        quick_stats: { ...countData, any_pending },
         offset,
         limit,
         count,
@@ -245,8 +244,6 @@ export class CommissionController {
         payload: { ...query },
       });
 
-    const any_pending =
-      data.filter((d: any) => d.status === CommissionStatus.Pending).length > 0;
     if (countError) {
       return ErrorResponse(res, {
         error: countError,
@@ -257,7 +254,6 @@ export class CommissionController {
       data: {
         [pluralizeString(entity)]: data,
         quick_stats: countData,
-        any_pending,
         limit,
         count,
       },

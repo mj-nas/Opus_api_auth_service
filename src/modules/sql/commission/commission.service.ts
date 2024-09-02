@@ -387,4 +387,16 @@ export class CommissionService extends ModelService<Commission> {
       return { error };
     }
   }
+  async getAnyPending(): Promise<boolean> {
+    const { data } = await this.$db.findOneRecord({
+      action: 'findOne',
+      options: {
+        where: {
+          status: CommissionStatus.Pending,
+        },
+      },
+    });
+    if (!data) return false;
+    return true;
+  }
 }
