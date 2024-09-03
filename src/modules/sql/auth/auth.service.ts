@@ -279,7 +279,7 @@ export class AuthService {
       action: 'send',
       payload: {
         user_id: user.id,
-        template: 'forgot_password',
+        template: 'email_verification',
         variables: {
           OTP: data.otp,
         },
@@ -354,23 +354,10 @@ export class AuthService {
       return { error };
     }
 
-    if (data.type === OtpSessionType.Forgot) {
-      await this.msClient.executeJob(
-        'controller.notification',
-        new Job({
-          action: 'send',
-          payload: {
-            user_id: data.user_id,
-            template: 'forgot_password',
-            variables: {
-              OTP: data.otp,
-            },
-          },
-        }),
-      );
-    } else if (
+    if (
       data.type === OtpSessionType.EmailVerify ||
-      data.type === OtpSessionType.Login
+      data.type === OtpSessionType.Login ||
+      data.type === OtpSessionType.Forgot
     ) {
       await this.msClient.executeJob(
         'controller.notification',
