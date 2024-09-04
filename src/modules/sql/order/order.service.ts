@@ -220,11 +220,12 @@ export class OrderService extends ModelService<Order> {
               },
               { association: 'user' },
               { association: 'dispenser' },
+              { association: 'address' },
             ],
           },
         });
 
-        const { items, user, dispenser } = order.data;
+        const { items, user, dispenser, address } = order.data;
         const { order_weight, height, length, width } = order.data.items.reduce(
           (acc, item) => {
             acc.order_weight += item.product.weight_lbs * item.quantity;
@@ -257,16 +258,16 @@ export class OrderService extends ModelService<Order> {
               orderGroup: null,
               contentDescription: `Order #${response.data.uid} from ${user.name}`,
               receiver: {
-                name: user.name,
-                address1: user.address,
+                name: `${address.shipping_first_name}+ " " +${address.shipping_last_name}`,
+                address1: address.shipping_address,
                 company: '',
                 address2: '',
-                city: user.city,
-                state: user.state,
-                zip: user.zip_code,
+                city: address.shipping_city,
+                state: address.shipping_state,
+                zip: address.shipping_zip_code,
                 country: 'US',
-                phone: user.phone,
-                email: user.email,
+                phone: address.shipping_phone,
+                email: address.shipping_email,
               },
               items: items.map((item) => ({
                 productId: item.product.id.toString(),
