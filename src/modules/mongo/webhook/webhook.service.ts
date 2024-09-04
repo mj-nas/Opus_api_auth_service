@@ -8,7 +8,6 @@ import { StripeService } from '@core/stripe';
 import { Injectable } from '@nestjs/common';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { PaymentStatus } from 'src/modules/sql/order-payment/payment-status.enum';
-import { OrderStatus } from 'src/modules/sql/order/order-status.enum';
 import { OrderService } from 'src/modules/sql/order/order.service';
 import { Webhook } from './entities/webhook.entity';
 import { WebhookStatus } from './webhook-status.enum';
@@ -60,8 +59,10 @@ export class WebhookService extends ModelService<Webhook> {
         response.data.set('status', WebhookStatus.Completed);
         await response.data.save();
         break;
-        case 'xps.order.update':
-        const {data, error} = await this._orderService.retrieveOrderNumber({uid:response.data.payload.body.orderId})
+      case 'xps.order.update':
+        const { data, error } = await this._orderService.retrieveOrderNumber({
+          uid: response.data.payload.orderId,
+        });
         if (error) {
           response.data.set('status', WebhookStatus.Errored);
           await response.data.save();
