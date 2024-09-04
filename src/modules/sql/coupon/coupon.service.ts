@@ -307,11 +307,15 @@ export class CouponService extends ModelService<Coupon> {
 
   async verifyCoupon(job: Job): Promise<JobResponse> {
     const { owner, payload } = job;
-    const { error, data } = await this.$db.findOneRecord({
+    const { error, data } = await this.findOne({
       owner,
-      options: {
-        where: { code: payload.where.code, active: true },
-        include: ['user', 'coupon_used_me'],
+      action: 'findOne',
+      payload: {
+        where: {
+          code: payload.code,
+          active: true,
+        },
+        populate: ['user', 'coupon_used_me'],
       },
     });
     if (error) return { error };
