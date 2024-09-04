@@ -7,7 +7,7 @@ import axios from 'axios';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import * as moment from 'moment-timezone';
-import { literal } from 'sequelize';
+import { literal, Op } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
@@ -258,7 +258,7 @@ export class OrderService extends ModelService<Order> {
               orderGroup: null,
               contentDescription: `Order #${response.data.uid} from ${user.name}`,
               receiver: {
-                name: `${address.shipping_first_name}+ " " +${address.shipping_last_name}`,
+                name: `${address.shipping_first_name} ${address.shipping_last_name}`,
                 address1: address.shipping_address,
                 company: '',
                 address2: '',
@@ -1081,8 +1081,8 @@ export class OrderService extends ModelService<Order> {
       }
       const order_data = await this.$db.findAndUpdateRecord({
         body: {
-          book_number: response.data.shipments[0].book_number,
-          tracking_number: response.data.shipments[0].tracking_number,
+          book_number: response.data.shipments[0].bookNumber,
+          tracking_number: response.data.shipments[0].trackingNumber,
           status: OrderStatus.Shipped,
         },
         options: {
@@ -1197,9 +1197,14 @@ export class OrderService extends ModelService<Order> {
       options: {
         where: {
           status: OrderStatus.Shipped,
+          book_number: { [Op.not]: null },
         },
       },
     });
+
+    console.log('tracking shipment cron started>>>>>>>>>>>>>>>>>>>>>>');
+    console.log(data);
+
     if (!!error) {
       return { error };
     }
@@ -1207,35 +1212,33 @@ export class OrderService extends ModelService<Order> {
       return { error: 'No order found' };
     }
     for await (const order of data) {
-      if (order.book_number) {
-        try {
-          const apiKey = this._config.get('xps').api_key;
-          const customer_id = this._config.get('xps').customer_id;
-          const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/shipments/${order.book_number}/tracking-information`;
-          const response = await axios.get(url, {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `RSIS ${apiKey}`,
-            },
-          });
-          if (response.data && response.data.length === 0) {
-            return { error: 'No shipment found' };
-          }
-          for await (const status of response.data) {
-            if (status.eventStatus == 'Delivered') {
-              await this._msClient.executeJob('order.status.update', {
-                payload: {
-                  order_id: order.id,
-                  status: OrderStatus.Delivered,
-                },
-              });
-            }
-          }
-
-          return { data: order };
-        } catch (error) {
-          return { error };
+      try {
+        const apiKey = this._config.get('xps').api_key;
+        const customer_id = this._config.get('xps').customer_id;
+        const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/shipments/${order.book_number}/tracking-information`;
+        const response = await axios.get(url, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `RSIS ${apiKey}`,
+          },
+        });
+        if (response.data && response.data.length === 0) {
+          return { error: 'No shipment found' };
         }
+        for await (const status of response.data) {
+          if (status.eventStatus == 'Delivered') {
+            await this._msClient.executeJob('order.status.update', {
+              payload: {
+                order_id: order.id,
+                status: OrderStatus.Delivered,
+              },
+            });
+          }
+        }
+
+        return { data: order };
+      } catch (error) {
+        return { error };
       }
     }
   }

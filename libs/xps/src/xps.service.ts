@@ -38,11 +38,8 @@ export class XpsService {
         acc[curr.display_name.toLowerCase()] = curr.value;
         return acc;
       }, {});
-      payload.sender = {
-        ...senderObj,
-        company: '',
-      };
-      payload.returnTo = { ...returnAddressObj, company: '', };
+      payload.sender = senderObj;
+      payload.returnTo = returnAddressObj;
       const apiKey = this._config.get('xps').api_key;
       const customer_id = this._config.get('xps').customer_id;
       const integration_id = this._config.get('xps').integration_id;
