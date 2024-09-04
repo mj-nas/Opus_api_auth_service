@@ -312,7 +312,7 @@ export class CouponService extends ModelService<Coupon> {
       action: 'findOne',
       payload: {
         where: {
-          code: payload.code,
+          ...payload.where,
           active: true,
         },
         populate: ['user', 'coupon_used_me'],
