@@ -43,6 +43,7 @@ import { CreateStateDto } from './dto/create-state.dto';
 import { UpdateStateDto } from './dto/update-state.dto';
 import { State } from './entities/state.entity';
 import { StateService } from './state.service';
+import { Public } from 'src/core/decorators/public.decorator';
 
 const entity = snakeCase(State.name);
 
@@ -118,6 +119,7 @@ export class StateController {
    * Return all entity documents list
    */
   @Get()
+  @Public()
   @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
   @ApiQueryGetAll()
   @ResponseGetAll(State)
