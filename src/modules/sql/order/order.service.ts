@@ -1131,65 +1131,6 @@ export class OrderService extends ModelService<Order> {
       return { error };
     }
   }
-  // async orderRetrieveShipmentCron(): Promise<JobResponse> {
-  //   const { error, data } = await this.$db.getAllRecords({
-  //     action: 'findAll',
-  //     options: {
-  //       where: {
-  //         status: OrderStatus.Ordered,
-  //       },
-  //     },
-  //   });
-  //   if (!!error) {
-  //     return { error };
-  //   }
-  //   if (data.length === 0) {
-  //     return { data: 'No order found' };
-  //   }
-  //   for await (const order of data) {
-  //     try {
-  //       const apiKey = this._config.get('xps').api_key;
-  //       const customer_id = this._config.get('xps').customer_id;
-  //       const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/searchShipments`;
-  //       const payload = {
-  //         keyword: order.uid,
-  //       };
-  //       const response = await axios.post(url, payload, {
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //           Authorization: `RSIS ${apiKey}`,
-  //         },
-  //       });
-  //       if (response.data && response.data.shipments.length === 0) {
-  //         return { error: 'No shipment found' };
-  //       }
-  //       const order_data = await this.$db.findAndUpdateRecord({
-  //         body: {
-  //           book_number: response.data.shipments[0].book_number,
-  //           tracking_number: response.data.shipments[0].tracking_number,
-  //           status: OrderStatus.Shipped,
-  //         },
-  //         options: {
-  //           where: {
-  //             uid: order.uid,
-  //           },
-  //         },
-  //       });
-
-  //       // Trigger the 'order-status-log.create' event for updating the order status log
-  //       await this._msClient.executeJob('order-status-log.create', {
-  //         payload: {
-  //           order_id: order_data.data.id,
-  //           status: OrderStatus.Shipped,
-  //         },
-  //       });
-
-  //       return { data: response.data.shipments[0] };
-  //     } catch (error) {
-  //       return { error };
-  //     }
-  //   }
-  // }
 
   async trackShipmentCron(): Promise<JobResponse> {
     const { error, data } = await this.$db.getAllRecords({
