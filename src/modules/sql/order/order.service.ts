@@ -1068,7 +1068,7 @@ export class OrderService extends ModelService<Order> {
       const customer_id = this._config.get('xps').customer_id;
       const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/searchShipments`;
       const body = {
-        keyword: payload.uid,
+        keyword: payload.keyword,
       };
       const response = await axios.post(url, body, {
         headers: {
