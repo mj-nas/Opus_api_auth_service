@@ -1,8 +1,9 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { IsUnique } from '@core/sql/sql.unique-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
 import { Column, DataType, Index, Table } from 'sequelize-typescript';
+import { Transporter } from '../transporter.enum';
 
 @Table
 export class Template extends SqlModel {
@@ -63,4 +64,17 @@ export class Template extends SqlModel {
   })
   @IsString()
   sms_body: string;
+
+  @Column({
+    type: DataType.ENUM(...Object.values(Transporter)),
+    defaultValue: Transporter.CustomerServices,
+  })
+  @ApiProperty({
+    enum: Transporter,
+    description: 'Transporter',
+    example: Transporter.Orders,
+  })
+  @IsOptional()
+  @IsEnum(Transporter)
+  transporter: Transporter;
 }

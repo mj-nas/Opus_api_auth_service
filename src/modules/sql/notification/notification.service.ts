@@ -52,6 +52,7 @@ export class NotificationService {
       const template = getTemplate.data,
         variables = payload.variables || {};
 
+      const transporter = template.getDataValue('transporter') || '';
       let email_subject = template.getDataValue('email_subject') || '',
         email_body = template.getDataValue('email_body') || '',
         sms_body = template.getDataValue('sms_body') || '',
@@ -147,6 +148,7 @@ export class NotificationService {
                 to: user.email,
                 subject: _email_subject,
                 html: _email_template,
+                transporterName: transporter,
               },
             }),
           );

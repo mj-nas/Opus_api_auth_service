@@ -9,11 +9,17 @@ export default <Seed<Template>>{
       name: 'forgot_password',
       title: 'Forgot Password',
       send_email: true,
-      email_subject: 'Forgot Password',
-      email_body:
-        '<p>Hi ##TO_NAME##,</p><br><p>##OTP## is your OTP for reset password.</p><br><p>Thanks</p>',
-      send_sms: true,
-      sms_body: '##OTP## is your OTP for reset password',
+      email_subject: 'Your Verification Code',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+      <p><br></p>
+      <p>Your verification code is: ##OTP##</p>
+      <p><br></p>
+      <p>Please use this code as needed. Let us know if you require any further assistance.</p>
+      <p><br></p>
+      <p>Best regards,</p>
+      <p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
     },
     {
       name: '2fa_otp',

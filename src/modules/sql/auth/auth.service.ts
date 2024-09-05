@@ -279,7 +279,7 @@ export class AuthService {
       action: 'send',
       payload: {
         user_id: user.id,
-        template: 'email_verification',
+        template: 'forgot_password',
         variables: {
           OTP: data.otp,
         },
