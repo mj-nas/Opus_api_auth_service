@@ -1267,18 +1267,22 @@ export class OrderService extends ModelService<Order> {
           response.data ==
           'Shipment is voided. Voided shipments are not tracked'
         ) {
-          await this._msClient.executeJob('order.status.update', {
-            payload: {
-              order_id: order.id,
-              status: OrderStatus.Ordered,
-            },
-          });
           //recreate shipment
-          await this.createShipments({
+          const shipment = await this.createShipments({
             payload: {
               id: order.id,
             },
           });
+          if (!!shipment.error) {
+            return { error: shipment.error };
+          } else {
+            await this._msClient.executeJob('order.status.update', {
+              payload: {
+                order_id: order.id,
+                status: OrderStatus.Ordered,
+              },
+            });
+          }
         }
         if (response.data && response.data.length === 0) {
           return { error: 'No shipment found' };
