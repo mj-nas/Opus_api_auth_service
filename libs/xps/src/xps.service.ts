@@ -51,27 +51,12 @@ export class XpsService {
           Authorization: `RSIS ${apiKey}`,
         },
       });
-      // fetch(url, {
-      //   method: 'PUT',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     Authorization: `RSIS ${apiKey}`,
-      //   },
-      //   body: JSON.stringify(payload),
-      // }).then((res) => {
-      //   console.log('Shipment created');
-      //   console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-      //   console.log(res);
-      // });
-
-      // console.log(response.data);
-      // console.log(response.data.error);
       console.log(response.data);
 
       return { data: response.data };
     } catch (error) {
-      console.error(error);
-      return { error };
+      console.error(error.data);
+      return { error.data };
     }
   }
 
