@@ -1267,10 +1267,16 @@ export class OrderService extends ModelService<Order> {
           response.data ==
           'Shipment is voided. Voided shipments are not tracked'
         ) {
+          await this._msClient.executeJob('order.status.update', {
+            payload: {
+              order_id: order.id,
+              status: OrderStatus.Ordered,
+            },
+          });
           //recreate shipment
           await this.createShipments({
             payload: {
-              id: response.data.id,
+              id: order.id,
             },
           });
         }
