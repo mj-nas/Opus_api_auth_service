@@ -1,7 +1,7 @@
 import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
 import { StripeService } from '@core/stripe';
 import { XpsService } from '@core/xps';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import * as ExcelJS from 'exceljs';
@@ -30,6 +30,8 @@ import { OrderStatus, OrderStatusLevel } from './order-status.enum';
 
 @Injectable()
 export class OrderService extends ModelService<Order> {
+  private logger: Logger = new Logger(`Cron - Order Service`);
+
   /**
    * searchFields
    * @property array of fields to include in search
@@ -1101,67 +1103,63 @@ export class OrderService extends ModelService<Order> {
       { order_weight: 0, height: 0, length: 0, width: 0 },
     );
     //ship product
-    try {
-      await this._xpsService.createShipment({
-        payload: {
-          orderId: order.data.uid,
-          orderDate: moment(order.data.updated_at).format('YYYY-MM-DD'),
-          orderNumber: null,
-          fulfillmentStatus: 'pending',
-          shippingService:
-            order_weight < 1 ? 'usps_poly_bag' : 'usps_custom_package',
-          shippingTotal: null,
-          weightUnit: 'lb',
-          dimUnit: 'in',
-          shipperReference: order_weight < 1 ? 'Poly Bag' : 'Your Packaging',
-          shipperReference2: dispenser
-            ? `referred by: ${dispenser.name}`
-            : null,
-          dueByDate: null,
-          orderGroup: null,
-          contentDescription: `Order #${order.data.uid} from ${user.name}`,
-          receiver: {
-            name: `${address.shipping_first_name} ${address.shipping_last_name}`,
-            address1: address.shipping_address,
-            company: '',
-            address2: '',
-            city: address.shipping_city,
-            state: address.shipping_state,
-            zip: address.shipping_zip_code,
-            country: 'US',
-            phone: address.shipping_phone,
-            email: address.shipping_email,
-          },
-          items: items.map((item) => ({
-            productId: item.product.id.toString(),
-            sku: item?.product.slug,
-            title: item.product?.product_name,
-            price: item?.price.toString(),
-            quantity: item?.quantity,
-            weight: item.product?.weight_lbs.toString(),
-            imgUrl: item.product?.product_image,
-            htsNumber: null,
-            countryOfOrigin: 'US',
-            lineId: null,
-          })),
-          packages: [
-            {
-              weight: order_weight.toString(),
-              height: order_weight < 1 ? '0' : '4',
-              width: order_weight < 1 ? '0' : '6',
-              length: order_weight < 1 ? '0' : '8',
-              insuranceAmount: null,
-              declaredValue: null,
-            },
-          ],
+    const shipment = await this._xpsService.createShipment({
+      payload: {
+        orderId: order.data.uid,
+        orderDate: moment(order.data.updated_at).format('YYYY-MM-DD'),
+        orderNumber: null,
+        fulfillmentStatus: 'pending',
+        shippingService:
+          order_weight < 1 ? 'usps_poly_bag' : 'usps_custom_package',
+        shippingTotal: null,
+        weightUnit: 'lb',
+        dimUnit: 'in',
+        shipperReference: order_weight < 1 ? 'Poly Bag' : 'Your Packaging',
+        shipperReference2: dispenser ? `referred by: ${dispenser.name}` : null,
+        dueByDate: null,
+        orderGroup: null,
+        contentDescription: `Order #${order.data.uid} from ${user.name}`,
+        receiver: {
+          name: `${address.shipping_first_name} ${address.shipping_last_name}`,
+          address1: address.shipping_address,
+          company: '',
+          address2: '',
+          city: address.shipping_city,
+          state: address.shipping_state,
+          zip: address.shipping_zip_code,
+          country: 'US',
+          phone: address.shipping_phone,
+          email: address.shipping_email,
         },
-      });
-      return { data: 'shipment created successfully' };
-    } catch (error) {
-      console.log('Error while creating shipment', error);
-      console.error(error);
-      return { error };
+        items: items.map((item) => ({
+          productId: item.product.id.toString(),
+          sku: item?.product.slug,
+          title: item.product?.product_name,
+          price: item?.price.toString(),
+          quantity: item?.quantity,
+          weight: item.product?.weight_lbs.toString(),
+          imgUrl: item.product?.product_image,
+          htsNumber: null,
+          countryOfOrigin: 'US',
+          lineId: null,
+        })),
+        packages: [
+          {
+            weight: order_weight.toString(),
+            height: order_weight < 1 ? '0' : '4',
+            width: order_weight < 1 ? '0' : '6',
+            length: order_weight < 1 ? '0' : '8',
+            insuranceAmount: null,
+            declaredValue: null,
+          },
+        ],
+      },
+    });
+    this.logger.log(shipment);
+    if (!!shipment.error) {
+      return { error: shipment.error };
     }
+    return { data: 'shipment created successfully' };
   }
 
   async retrieveOrderNumber(payload: any): Promise<JobResponse> {
