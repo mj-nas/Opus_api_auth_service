@@ -67,7 +67,7 @@ export class ExamModuleService extends ModelService<ExamModule> {
         let unique_id = '';
         if (no_of_certs.data.length > 0) {
           const cert_id = no_of_certs.data[0].cert_id.split('-')[1];
-          unique_id = `OPUS-${parseInt(cert_id) + 1}`;
+          unique_id = `OPUS-${zeroPad((parseInt(cert_id) + 1).toString(), 5)}`;
         } else {
           unique_id = `OPUS-${zeroPad('1', 5)}`;
         }
