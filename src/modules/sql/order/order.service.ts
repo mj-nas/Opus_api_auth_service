@@ -206,97 +206,103 @@ export class OrderService extends ModelService<Order> {
           }),
         );
 
-        const order = await this.$db.findRecordById({
-          id: response.data.id,
-          options: {
-            include: [
-              {
-                association: 'items',
-                include: [
-                  {
-                    association: 'product',
-                  },
-                ],
-              },
-              { association: 'user' },
-              { association: 'dispenser' },
-              { association: 'address' },
-            ],
+        await this.createShipments({
+          payload: {
+            id: response.data.id,
           },
         });
 
-        const { items, user, dispenser, address } = order.data;
-        const { order_weight, height, length, width } = order.data.items.reduce(
-          (acc, item) => {
-            acc.order_weight += item.product.weight_lbs * item.quantity;
-            acc.height += item.product.height * item.quantity;
-            acc.length += item.product.length * item.quantity;
-            acc.width += item.product.width * item.quantity;
-            return acc;
-          },
-          { order_weight: 0, height: 0, length: 0, width: 0 },
-        );
-        //ship product
-        try {
-          await this._xpsService.createShipment({
-            payload: {
-              orderId: response.data.uid,
-              orderDate: moment(response.data.updated_at).format('YYYY-MM-DD'),
-              orderNumber: null,
-              fulfillmentStatus: 'pending',
-              shippingService:
-                order_weight < 1 ? 'usps_poly_bag' : 'usps_custom_package',
-              shippingTotal: null,
-              weightUnit: 'lb',
-              dimUnit: 'in',
-              shipperReference:
-                order_weight < 1 ? 'Poly Bag' : 'Your Packaging',
-              shipperReference2: dispenser
-                ? `referred by: ${dispenser.name}`
-                : null,
-              dueByDate: null,
-              orderGroup: null,
-              contentDescription: `Order #${response.data.uid} from ${user.name}`,
-              receiver: {
-                name: `${address.shipping_first_name} ${address.shipping_last_name}`,
-                address1: address.shipping_address,
-                company: '',
-                address2: '',
-                city: address.shipping_city,
-                state: address.shipping_state,
-                zip: address.shipping_zip_code,
-                country: 'US',
-                phone: address.shipping_phone,
-                email: address.shipping_email,
-              },
-              items: items.map((item) => ({
-                productId: item.product.id.toString(),
-                sku: item?.product.slug,
-                title: item.product?.product_name,
-                price: item?.price.toString(),
-                quantity: item?.quantity,
-                weight: item.product?.weight_lbs.toString(),
-                imgUrl: item.product?.product_image,
-                htsNumber: null,
-                countryOfOrigin: 'US',
-                lineId: null,
-              })),
-              packages: [
-                {
-                  weight: order_weight.toString(),
-                  height: order_weight < 1 ? '0' : '4',
-                  width: order_weight < 1 ? '0' : '6',
-                  length: order_weight < 1 ? '0' : '8',
-                  insuranceAmount: null,
-                  declaredValue: null,
-                },
-              ],
-            },
-          });
-        } catch (error) {
-          console.log('Error while creating shipment', error);
-          console.error(error);
-        }
+        // const order = await this.$db.findRecordById({
+        //   id: response.data.id,
+        //   options: {
+        //     include: [
+        //       {
+        //         association: 'items',
+        //         include: [
+        //           {
+        //             association: 'product',
+        //           },
+        //         ],
+        //       },
+        //       { association: 'user' },
+        //       { association: 'dispenser' },
+        //       { association: 'address' },
+        //     ],
+        //   },
+        // });
+
+        // const { items, user, dispenser, address } = order.data;
+        // const { order_weight, height, length, width } = order.data.items.reduce(
+        //   (acc, item) => {
+        //     acc.order_weight += item.product.weight_lbs * item.quantity;
+        //     acc.height += item.product.height * item.quantity;
+        //     acc.length += item.product.length * item.quantity;
+        //     acc.width += item.product.width * item.quantity;
+        //     return acc;
+        //   },
+        //   { order_weight: 0, height: 0, length: 0, width: 0 },
+        // );
+        // //ship product
+        // try {
+        //   await this._xpsService.createShipment({
+        //     payload: {
+        //       orderId: response.data.uid,
+        //       orderDate: moment(response.data.updated_at).format('YYYY-MM-DD'),
+        //       orderNumber: null,
+        //       fulfillmentStatus: 'pending',
+        //       shippingService:
+        //         order_weight < 1 ? 'usps_poly_bag' : 'usps_custom_package',
+        //       shippingTotal: null,
+        //       weightUnit: 'lb',
+        //       dimUnit: 'in',
+        //       shipperReference:
+        //         order_weight < 1 ? 'Poly Bag' : 'Your Packaging',
+        //       shipperReference2: dispenser
+        //         ? `referred by: ${dispenser.name}`
+        //         : null,
+        //       dueByDate: null,
+        //       orderGroup: null,
+        //       contentDescription: `Order #${response.data.uid} from ${user.name}`,
+        //       receiver: {
+        //         name: `${address.shipping_first_name} ${address.shipping_last_name}`,
+        //         address1: address.shipping_address,
+        //         company: '',
+        //         address2: '',
+        //         city: address.shipping_city,
+        //         state: address.shipping_state,
+        //         zip: address.shipping_zip_code,
+        //         country: 'US',
+        //         phone: address.shipping_phone,
+        //         email: address.shipping_email,
+        //       },
+        //       items: items.map((item) => ({
+        //         productId: item.product.id.toString(),
+        //         sku: item?.product.slug,
+        //         title: item.product?.product_name,
+        //         price: item?.price.toString(),
+        //         quantity: item?.quantity,
+        //         weight: item.product?.weight_lbs.toString(),
+        //         imgUrl: item.product?.product_image,
+        //         htsNumber: null,
+        //         countryOfOrigin: 'US',
+        //         lineId: null,
+        //       })),
+        //       packages: [
+        //         {
+        //           weight: order_weight.toString(),
+        //           height: order_weight < 1 ? '0' : '4',
+        //           width: order_weight < 1 ? '0' : '6',
+        //           length: order_weight < 1 ? '0' : '8',
+        //           insuranceAmount: null,
+        //           declaredValue: null,
+        //         },
+        //       ],
+        //     },
+        //   });
+        // } catch (error) {
+        //   console.log('Error while creating shipment', error);
+        //   console.error(error);
+        // }
       }
 
       if (
@@ -1062,6 +1068,102 @@ export class OrderService extends ModelService<Order> {
       return { error };
     }
   }
+
+  async createShipments(job: Job): Promise<JobResponse> {
+    const order = await this.$db.findRecordById({
+      id: job.payload.id,
+      options: {
+        include: [
+          {
+            association: 'items',
+            include: [
+              {
+                association: 'product',
+              },
+            ],
+          },
+          { association: 'user' },
+          { association: 'dispenser' },
+          { association: 'address' },
+        ],
+      },
+    });
+
+    const { items, user, dispenser, address } = order.data;
+    const { order_weight, height, length, width } = order.data.items.reduce(
+      (acc, item) => {
+        acc.order_weight += item.product.weight_lbs * item.quantity;
+        acc.height += item.product.height * item.quantity;
+        acc.length += item.product.length * item.quantity;
+        acc.width += item.product.width * item.quantity;
+        return acc;
+      },
+      { order_weight: 0, height: 0, length: 0, width: 0 },
+    );
+    //ship product
+    try {
+      await this._xpsService.createShipment({
+        payload: {
+          orderId: order.data.uid,
+          orderDate: moment(order.data.updated_at).format('YYYY-MM-DD'),
+          orderNumber: null,
+          fulfillmentStatus: 'pending',
+          shippingService:
+            order_weight < 1 ? 'usps_poly_bag' : 'usps_custom_package',
+          shippingTotal: null,
+          weightUnit: 'lb',
+          dimUnit: 'in',
+          shipperReference: order_weight < 1 ? 'Poly Bag' : 'Your Packaging',
+          shipperReference2: dispenser
+            ? `referred by: ${dispenser.name}`
+            : null,
+          dueByDate: null,
+          orderGroup: null,
+          contentDescription: `Order #${order.data.uid} from ${user.name}`,
+          receiver: {
+            name: `${address.shipping_first_name} ${address.shipping_last_name}`,
+            address1: address.shipping_address,
+            company: '',
+            address2: '',
+            city: address.shipping_city,
+            state: address.shipping_state,
+            zip: address.shipping_zip_code,
+            country: 'US',
+            phone: address.shipping_phone,
+            email: address.shipping_email,
+          },
+          items: items.map((item) => ({
+            productId: item.product.id.toString(),
+            sku: item?.product.slug,
+            title: item.product?.product_name,
+            price: item?.price.toString(),
+            quantity: item?.quantity,
+            weight: item.product?.weight_lbs.toString(),
+            imgUrl: item.product?.product_image,
+            htsNumber: null,
+            countryOfOrigin: 'US',
+            lineId: null,
+          })),
+          packages: [
+            {
+              weight: order_weight.toString(),
+              height: order_weight < 1 ? '0' : '4',
+              width: order_weight < 1 ? '0' : '6',
+              length: order_weight < 1 ? '0' : '8',
+              insuranceAmount: null,
+              declaredValue: null,
+            },
+          ],
+        },
+      });
+      return { data: 'shipment created successfully' };
+    } catch (error) {
+      console.log('Error while creating shipment', error);
+      console.error(error);
+      return { error };
+    }
+  }
+
   async retrieveOrderNumber(payload: any): Promise<JobResponse> {
     try {
       const apiKey = this._config.get('xps').api_key;
@@ -1143,9 +1245,6 @@ export class OrderService extends ModelService<Order> {
       },
     });
 
-    console.log('tracking shipment cron started>>>>>>>>>>>>>>>>>>>>>>');
-    console.log(data);
-
     if (!!error) {
       return { error };
     }
@@ -1163,6 +1262,18 @@ export class OrderService extends ModelService<Order> {
             Authorization: `RSIS ${apiKey}`,
           },
         });
+        //manage voided shipments here
+        if (
+          response.data ==
+          'Shipment is voided. Voided shipments are not tracked'
+        ) {
+          //recreate shipment
+          await this.createShipments({
+            payload: {
+              id: response.data.id,
+            },
+          });
+        }
         if (response.data && response.data.length === 0) {
           return { error: 'No shipment found' };
         }
