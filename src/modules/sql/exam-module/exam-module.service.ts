@@ -5,9 +5,9 @@ import { ConfigService } from '@nestjs/config';
 import Jimp from 'jimp';
 import jsPDF from 'jspdf';
 import * as moment from 'moment-timezone';
-import { Op } from 'sequelize';
+import sequelize from 'sequelize';
 import { Job } from 'src/core/core.job';
-import { zeroPad } from 'src/core/core.utils';
+import { getUTCDateNow, zeroPad } from 'src/core/core.utils';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { UserExamsService } from '../user-exams/user-exams.service';
 import { UserService } from '../user/user.service';
@@ -63,21 +63,41 @@ export class ExamModuleService extends ModelService<ExamModule> {
         console.log(job.owner);
         this.logger.log(job.owner);
 
-        const no_of_certs = await this.userExamsService.$db.getAllRecords({
-          options: {
-            where: { cert_id: { [Op.ne]: null } },
-            order: [['cert_id', 'desc']],
+        let unique_id = '';
+
+        const o = await this.userExamsService.findOne({
+          payload: {
+            attributes: ['cert_id'],
+            where: sequelize.where(
+              sequelize.fn('DATE', sequelize.col('created_at')),
+              '=',
+              sequelize.fn('DATE', sequelize.fn('NOW')),
+            ),
+            paranoid: false,
+            order: [['id', 'DESC']],
           },
         });
-        let unique_id = '';
-        if (no_of_certs.data.length > 0) {
-          const cert_id = no_of_certs.data[0].cert_id.split('-')[1];
-          this.logger.log(cert_id);
-          unique_id = `OPUS-${zeroPad((parseInt(cert_id) + 1).toString(), 5)}`;
-          this.logger.log(unique_id);
+
+        if (!o?.data.cert_id) {
+          unique_id = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad('1', 6)}`;
         } else {
-          unique_id = `OPUS-${zeroPad('1', 5)}`;
+          unique_id = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad((Number(o.data.cert_id.substring(11)) + 1).toString(), 6)}`;
         }
+
+        // const no_of_certs = await this.userExamsService.$db.getAllRecords({
+        //   options: {
+        //     where: { cert_id: { [Op.ne]: null } },
+        //     order: [['cert_id', 'desc']],
+        //   },
+        // });
+        // if (no_of_certs.data.length > 0) {
+        //   const cert_id = no_of_certs.data[0].cert_id.split('-')[1];
+        //   this.logger.log(cert_id);
+        //   unique_id = `OPUS-${zeroPad((parseInt(cert_id) + 1).toString(), 5)}`;
+        //   this.logger.log(unique_id);
+        // } else {
+        //   unique_id = `OPUS-${zeroPad('1', 5)}`;
+        // }
 
         const content = `This is to certify that ${job.owner.name} has successfully completed the e-Learning Course`;
         const cert_img = await this.createCertificateImage(
