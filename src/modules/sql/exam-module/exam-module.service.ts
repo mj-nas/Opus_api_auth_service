@@ -1,6 +1,6 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Jimp from 'jimp';
 import jsPDF from 'jspdf';
@@ -15,6 +15,8 @@ import { ExamModule } from './entities/exam-module.entity';
 
 @Injectable()
 export class ExamModuleService extends ModelService<ExamModule> {
+  private logger: Logger = new Logger('OrderService');
+
   /**
    * searchFields
    * @property array of fields to include in search
@@ -58,6 +60,9 @@ export class ExamModuleService extends ModelService<ExamModule> {
       );
 
       if (no_of_modules.count == completed_modules.count) {
+        console.log(job.owner);
+        this.logger.log(job.owner);
+
         const no_of_certs = await this.userExamsService.$db.getAllRecords({
           options: {
             where: { cert_id: { [Op.ne]: null } },
