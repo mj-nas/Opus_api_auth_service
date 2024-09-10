@@ -10,8 +10,14 @@ export default <Seed<Template>>{
       title: 'Forgot Password',
       send_email: true,
       email_subject: 'Forgot Password',
-      email_body:
-        '<p>Hi ##TO_NAME##,</p><br><p>##OTP## is your OTP for reset password.</p><br><p>Thanks</p>',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+<p><br></p>
+<p>Your verification code is: ##OTP##</p>
+<p><br></p>
+<p>Please use this code as needed. Let us know if you require any further assistance.</p>
+<p><br></p>
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
       send_sms: true,
       sms_body: '##OTP## is your OTP for reset password',
     },
@@ -27,11 +33,11 @@ export default <Seed<Template>>{
     },
     {
       name: 'contact_us',
-      title: 'Forgot Password',
+      title: 'Contact Us',
       send_email: true,
-      email_subject: 'Forgot Password',
+      email_subject: 'New Contact Query',
       email_body:
-        '<p>Hi ##TO_NAME##,</p><p><br></p><p>##OTP## is your OTP.</p><p><br></p><p>Thanks </p><p>OPUS</p>',
+        '<p>Dear Admin, <br><br>A new contact query has been received. Please review and respond accordingly.<br><br>Thank you.<br><br>Best regards<br>Team OPUS</p>',
       send_sms: false,
       sms_body: '',
     },
@@ -319,6 +325,58 @@ export default <Seed<Template>>{
 <p>As you continue your journey, remember that learning is a lifelong adventure, and we're here to support you every step of the way.</p>
 <br />
 <p>Thank you for choosing Team OPUS. Let's toast to your success! </p>
+<br />
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'order_shipped',
+      title: 'Order Shipment Notification',
+      send_email: true,
+      email_subject: 'Order Shipment Notification',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+<br />
+<p>A notification regarding your order ##ORDERID## has been issued. Please find the details below:</p>
+<br />
+<p>Shipping Address:</p>
+<br />
+<p>Track your shipment with this tracking ID: ##TRACKING_NUMBER##</p>
+<br />
+<p>Thank you.</p>
+<br />
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'order_delivered',
+      title: 'Order Delivered Notification',
+      send_email: true,
+      email_subject: 'Order Delivery Confirmation',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+<br />
+<p>We are pleased to inform you that your package with order ID ##ORDERID## has been delivered. We hope to hear from you again soon!</p>
+<br />
+<p>Thank you.</p>
+<br />
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'order_cancelled',
+      title: 'Order Cancelled Notification',
+      send_email: true,
+      email_subject: 'Order Cancellation Notification',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+<br />
+<p>We regret to inform you that your order ##ORDERID## placed on ##DATE## has been canceled.</p>
+<br />
+<p>If you have any questions or need further assistance, please contact us.</p>
 <br />
 <p>Best regards,</p>
 <p>Team OPUS</p>`,

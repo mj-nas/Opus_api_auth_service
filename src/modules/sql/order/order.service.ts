@@ -109,11 +109,14 @@ export class OrderService extends ModelService<Order> {
         throw error;
       }
 
-      if (data.user_id !== job.owner.id) {
-        throw "You don't have permission to change the status.";
-      }
+      // if (data.user_id !== job.owner.id) {
+      //   throw "You don't have permission to change the status.";
+      // }
 
-      if (data.status !== OrderStatus.PaymentPending) {
+      if (
+        data.status !== OrderStatus.PaymentPending &&
+        data.status !== OrderStatus.Ordered
+      ) {
         throw "You can't cancel this order";
       }
     }
@@ -127,9 +130,9 @@ export class OrderService extends ModelService<Order> {
         throw error;
       }
 
-      if (data.user_id !== job.owner.id) {
-        throw "You don't have permission to change the status.";
-      }
+      // if (data.user_id !== job.owner.id) {
+      //   throw "You don't have permission to change the status.";
+      // }
     }
 
     if (job.action === 'changeOrderStatus') {
@@ -140,12 +143,13 @@ export class OrderService extends ModelService<Order> {
       if (!!error) {
         throw error;
       }
-
-      if (
-        OrderStatusLevel[getEnumKeyByValue(OrderStatus, job.body.status)] <=
-        OrderStatusLevel[getEnumKeyByValue(OrderStatus, data.status)]
-      ) {
-        throw "You can't downgrade the order status";
+      if (job.body.status !== OrderStatus.Cancelled) {
+        if (
+          OrderStatusLevel[getEnumKeyByValue(OrderStatus, job.body.status)] <=
+          OrderStatusLevel[getEnumKeyByValue(OrderStatus, data.status)]
+        ) {
+          throw "You can't downgrade the order status";
+        }
       }
     }
   }
@@ -207,110 +211,12 @@ export class OrderService extends ModelService<Order> {
             },
           }),
         );
-
+        // create order in xps
         await this.createShipments({
           payload: {
             id: response.data.id,
           },
         });
-
-        // const order = await this.$db.findRecordById({
-        //   id: response.data.id,
-        //   options: {
-        //     include: [
-        //       {
-        //         association: 'items',
-        //         include: [
-        //           {
-        //             association: 'product',
-        //           },
-        //         ],
-        //       },
-        //       { association: 'user' },
-        //       { association: 'dispenser' },
-        //       { association: 'address' },
-        //     ],
-        //   },
-        // });
-
-        // const { items, user, dispenser, address } = order.data;
-        // const { order_weight, height, length, width } = order.data.items.reduce(
-        //   (acc, item) => {
-        //     acc.order_weight += item.product.weight_lbs * item.quantity;
-        //     acc.height += item.product.height * item.quantity;
-        //     acc.length += item.product.length * item.quantity;
-        //     acc.width += item.product.width * item.quantity;
-        //     return acc;
-        //   },
-        //   { order_weight: 0, height: 0, length: 0, width: 0 },
-        // );
-        // //ship product
-        // try {
-        //   await this._xpsService.createShipment({
-        //     payload: {
-        //       orderId: response.data.uid,
-        //       orderDate: moment(response.data.updated_at).format('YYYY-MM-DD'),
-        //       orderNumber: null,
-        //       fulfillmentStatus: 'pending',
-        //       shippingService:
-        //         order_weight < 1 ? 'usps_poly_bag' : 'usps_custom_package',
-        //       shippingTotal: null,
-        //       weightUnit: 'lb',
-        //       dimUnit: 'in',
-        //       shipperReference:
-        //         order_weight < 1 ? 'Poly Bag' : 'Your Packaging',
-        //       shipperReference2: dispenser
-        //         ? `referred by: ${dispenser.name}`
-        //         : null,
-        //       dueByDate: null,
-        //       orderGroup: null,
-        //       contentDescription: `Order #${response.data.uid} from ${user.name}`,
-        //       receiver: {
-        //         name: `${address.shipping_first_name} ${address.shipping_last_name}`,
-        //         address1: address.shipping_address,
-        //         company: '',
-        //         address2: '',
-        //         city: address.shipping_city,
-        //         state: address.shipping_state,
-        //         zip: address.shipping_zip_code,
-        //         country: 'US',
-        //         phone: address.shipping_phone,
-        //         email: address.shipping_email,
-        //       },
-        //       items: items.map((item) => ({
-        //         productId: item.product.id.toString(),
-        //         sku: item?.product.slug,
-        //         title: item.product?.product_name,
-        //         price: item?.price.toString(),
-        //         quantity: item?.quantity,
-        //         weight: item.product?.weight_lbs.toString(),
-        //         imgUrl: item.product?.product_image,
-        //         htsNumber: null,
-        //         countryOfOrigin: 'US',
-        //         lineId: null,
-        //       })),
-        //       packages: [
-        //         {
-        //           weight: order_weight.toString(),
-        //           height: order_weight < 1 ? '0' : '4',
-        //           width: order_weight < 1 ? '0' : '6',
-        //           length: order_weight < 1 ? '0' : '8',
-        //           insuranceAmount: null,
-        //           declaredValue: null,
-        //         },
-        //       ],
-        //     },
-        //   });
-        // } catch (error) {
-        //   console.log('Error while creating shipment', error);
-        //   console.error(error);
-        // }
-      }
-
-      if (
-        response.previousData.status === OrderStatus.Ordered &&
-        response.data.status === OrderStatus.Shipped
-      ) {
       }
 
       if (response.previousData.status !== response.data.status) {
@@ -1260,15 +1166,35 @@ export class OrderService extends ModelService<Order> {
             Authorization: `RSIS ${apiKey}`,
           },
         });
+
         //manage voided shipments here
         if (
           response.data ==
           'Shipment is voided. Voided shipments are not tracked'
         ) {
           //recreate shipment
+          // update uid of the order
+          let parts = order.uid.split('-');
+          if (parts[1] === 'RE') {
+            let currentNumber = parseInt(parts[2]);
+            parts[2] = (currentNumber + 1).toString();
+          } else {
+            parts.splice(1, 0, 'RE', '1');
+          }
+          const newUID = parts.join('-');
+          const newOrder = await this.$db.findAndUpdateRecord({
+            body: {
+              uid: newUID,
+            },
+            options: {
+              where: {
+                id: order.id,
+              },
+            },
+          });
           const shipment = await this.createShipments({
             payload: {
-              id: order.id,
+              id: newOrder.data.id,
             },
           });
           if (!!shipment.error) {
@@ -1282,17 +1208,40 @@ export class OrderService extends ModelService<Order> {
             });
           }
         }
+
         if (response.data && response.data.length === 0) {
           return { error: 'No shipment found' };
         }
+
+        // manage shipment status here
         for await (const status of response.data) {
-          if (status.eventStatus == 'Delivered') {
-            await this._msClient.executeJob('order.status.update', {
-              payload: {
-                order_id: order.id,
-                status: OrderStatus.Delivered,
-              },
-            });
+          // if (status.eventStatus == 'Delivered') {
+          //   await this._msClient.executeJob('order.status.update', {
+          //     payload: {
+          //       order_id: order.id,
+          //       status: OrderStatus.Delivered,
+          //     },
+          //   });
+          // }
+          switch (status) {
+            case 'Delivered':
+              await this._msClient.executeJob('order.status.update', {
+                payload: {
+                  order_id: order.id,
+                  status: OrderStatus.Delivered,
+                },
+              });
+              break;
+            case 'Failed Attempt':
+              await this._msClient.executeJob('order.status.update', {
+                payload: {
+                  order_id: order.id,
+                  status: OrderStatus.ShippingFailed,
+                },
+              });
+              break;
+            default:
+            // code block
           }
         }
 
