@@ -42,7 +42,7 @@ export class OrderCron {
   }
 
   // Track shipment cron
-  // @Cron(CronExpression.EVERY_10_MINUTES)
+  // @Cron(CronExpression.EVERY_30_SECONDS)
   // async trackShipmentCron() {
   //   if (this.configService.get('appId') != 'crons') {
   //     return;
@@ -55,4 +55,32 @@ export class OrderCron {
   //   }
   //   this.logger.log(`Shipment tracking cron completed successfully!`);
   // }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async paymentReminderCron() {
+    if (this.configService.get('appId') != 'crons') {
+      return;
+    }
+    this.logger.log('Payment reminder cron started...');
+    const { error } = await this._orderService.paymentReminderCron();
+    if (error) {
+      this.logger.error(`Error - ${error.message || error}`);
+      return;
+    }
+    this.logger.log(`Payment reminder cron completed successfully!`);
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async paymentReminderFinalCron() {
+    if (this.configService.get('appId') != 'crons') {
+      return;
+    }
+    this.logger.log('Payment reminder final cron started...');
+    const { error } = await this._orderService.paymentReminderFinalCron();
+    if (error) {
+      this.logger.error(`Error - ${error.message || error}`);
+      return;
+    }
+    this.logger.log(`Payment reminder final cron completed successfully!`);
+  }
 }

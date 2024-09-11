@@ -1,8 +1,9 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsArray, IsObject } from 'class-validator';
+import { IsArray, IsObject, IsOptional } from 'class-validator';
 import { CreateOrderAddressDto } from '../../order-address/dto/create-order-address.dto';
 import { CreateOrderItemDto } from '../../order-item/dto/create-order-item.dto';
 import { Order } from '../entities/order.entity';
+import { CardDetailsDto } from './card_details_dto';
 
 export class CreateOrderDto extends PickType(Order, [
   'cart_id',
@@ -30,4 +31,12 @@ export class CreateOrderDto extends PickType(Order, [
   })
   @IsObject()
   address: CreateOrderAddressDto;
+
+  @ApiProperty({
+    type: CardDetailsDto,
+    isArray: false,
+  })
+  @IsOptional()
+  @IsObject()
+  card_details: CardDetailsDto;
 }

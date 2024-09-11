@@ -400,7 +400,7 @@ export class Order extends SqlModel {
     if (!o?.uid) {
       instance.uid = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad('1', 6)}`;
     } else {
-      instance.uid = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad((Number(o.uid.substring(11)) + 1).toString(), 6)}`;
+      instance.uid = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad((Number(o.uid.substring(o.uid.length - 6)) + 1).toString(), 6)}`;
     }
   }
 }

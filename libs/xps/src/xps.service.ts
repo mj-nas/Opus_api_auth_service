@@ -51,27 +51,34 @@ export class XpsService {
           Authorization: `RSIS ${apiKey}`,
         },
       });
-      // fetch(url, {
-      //   method: 'PUT',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     Authorization: `RSIS ${apiKey}`,
-      //   },
-      //   body: JSON.stringify(payload),
-      // }).then((res) => {
-      //   console.log('Shipment created');
-      //   console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-      //   console.log(res);
-      // });
-
-      // console.log(response.data);
-      // console.log(response.data.error);
       console.log(response.data);
 
       return { data: response.data };
     } catch (error) {
-      console.error(error);
-      return { error };
+      console.error(error.data);
+      return { error: error.data };
+    }
+  }
+
+  async deleteOrder(job: Job): Promise<any> {
+    const { payload } = job;
+    const apiKey = this._config.get('xps').api_key;
+    const customer_id = this._config.get('xps').customer_id;
+    const integration_id = this._config.get('xps').integration_id;
+    const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/integrations/${integration_id}/orders/${payload.orderId}`;
+
+    try {
+      const response = await axios.delete(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `RSIS ${apiKey}`,
+        },
+      });
+
+      return { data: response.data };
+    } catch (error) {
+      console.error(error.data);
+      return { error: error.data };
     }
   }
 }

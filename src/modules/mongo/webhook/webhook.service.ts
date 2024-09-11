@@ -65,6 +65,7 @@ export class WebhookService extends ModelService<Webhook> {
             response.data.payload.trackingNumbers !== ''
               ? response.data.payload.trackingNumbers
               : response.data.payload.orderId,
+          uid: response.data.payload.orderId,
         });
         if (error) {
           response.data.set('status', WebhookStatus.Errored);

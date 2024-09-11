@@ -33,11 +33,11 @@ export default <Seed<Template>>{
     },
     {
       name: 'contact_us',
-      title: 'Forgot Password',
+      title: 'Contact Us',
       send_email: true,
-      email_subject: 'Forgot Password',
+      email_subject: 'New Contact Query',
       email_body:
-        '<p>Hi ##TO_NAME##,</p><p><br></p><p>##OTP## is your OTP.</p><p><br></p><p>Thanks </p><p>OPUS</p>',
+        '<p>Dear Admin, <br><br>A new contact query has been received. Please review and respond accordingly.<br><br>Thank you.<br><br>Best regards<br>Team OPUS</p>',
       send_sms: false,
       sms_body: '',
     },
@@ -325,6 +325,139 @@ export default <Seed<Template>>{
 <p>As you continue your journey, remember that learning is a lifelong adventure, and we're here to support you every step of the way.</p>
 <br />
 <p>Thank you for choosing Team OPUS. Let's toast to your success! </p>
+<br />
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'order_shipped',
+      title: 'Order Shipment Notification',
+      send_email: true,
+      email_subject: 'Order Shipment Notification',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+<br />
+<p>A notification regarding your order ##ORDER_ID## has been issued. Please find the details below:</p>
+<br />
+<p>Shipping Address:</p>
+<p>##SHIPPING_NAME##</p>
+<p>##SHIPPING_ADDRESS##</p>
+<p>##SHIPPING_CITY_STATE_ZIP##</p>
+<br />
+<p>Track your shipment with this tracking ID: ##TRACKING_NUMBER##</p>
+<br />
+<p>Thank you.</p>
+<br />
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'order_delivered',
+      title: 'Order Delivered Notification',
+      send_email: true,
+      email_subject: 'Order Delivery Confirmation',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+<br />
+<p>We are pleased to inform you that your package with order ID ##ORDERID## has been delivered. We hope to hear from you again soon!</p>
+<br />
+<p>Thank you.</p>
+<br />
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'order_cancelled',
+      title: 'Order Cancelled Notification',
+      send_email: true,
+      email_subject: 'Order Cancellation Notification',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+<br />
+<p>We regret to inform you that your order ##ORDER_ID## placed on ##DATE## has been canceled.</p>
+<br />
+<p>If you have any questions or need further assistance, please contact us.</p>
+<br />
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'reorder_cancelled',
+      title: 'Reorder Cancelled Notification',
+      send_email: true,
+      email_subject: 'Reorder Cancellation Notification',
+      email_body: `<p>Hi ##TO_NAME##,</p>,
+<br />
+<p>Please note that a recurring order has been cancelled.</p>
+<br />
+<p>Order Details:</p>
+<p>Order ID: ##ORDER_ID##</p>
+<p>Customer Name: ##CUSTOMER_NAME##</p>
+<br />
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'reorder_cycle_change',
+      title: 'Reorder Cycle Change Notification',
+      send_email: true,
+      email_subject: 'Reorder Cycle Update Notification',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+      <br />
+      <p>Please note that the recurring cycle for order ##ORDER_ID##, originally set for ##ORIGINAL_DAYS##, has been updated.</p>
+      <p>The new reorder cycle is now scheduled for ##NEW_DAYS## days.</p>
+      <br />
+      <p>Best regards,</p>
+      <p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'payment_pending_reminder',
+      title: 'Payment Pending Reminder',
+      send_email: true,
+      email_subject: 'Payment Reminder for Your Order ##ORDER_ID##',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+<br />
+<p>We noticed that your order ##ORDER_ID##, placed on ##DATE##, is still in 'Payment Pending' status. Please complete your payment within the next 24 hours to avoid order cancellation.</p>
+<br />
+<p>You can complete your payment by clicking the link below:</p>
+<p>##PAYMENT_LINK##</p>
+<br />
+<p>Alternatively, you can visit the My Orders page in your account to review and process the payment.</p>
+<br />
+<p>If the payment is not completed within the next 24 hours, your order will be automatically canceled.</p>
+<br />
+<p>Thank you for your prompt attention to this matter.</p>
+<br />
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'final_payment_pending_reminder',
+      title: 'Final Payment Pending Reminder',
+      send_email: true,
+      email_subject:
+        'Final Reminder: Complete Payment for Order ##ORDER_ID## to Avoid Cancellation',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+<br />
+<p>This is a final reminder to complete the payment for your order ##ORDER_ID##, which is still pending. Your order will be automatically canceled in 2 hours if the payment is not processed.</p>
+<br />
+<p>You can complete your payment by clicking the link below:</p>
+<p><a href="##PAYMENT_LINK##">##PAYMENT_LINK##</a></p>
+<br />
+<p>Please visit the My Orders page in your account if you need further assistance.</p>
+<br />
+<p>We appreciate your prompt response to avoid the cancellation of your order.</p>
 <br />
 <p>Best regards,</p>
 <p>Team OPUS</p>`,
