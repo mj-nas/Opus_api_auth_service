@@ -497,7 +497,8 @@ export class OrderService extends ModelService<Order> {
         return { data: { order: order.data, payment_link: paymentLink.url } };
       } else {
         await transaction.commit();
-
+        const shipping_address = `${body.address.shipping_first_name + body.address.shipping_last_name},${body.address.shipping_address}, ${body.address.shipping_city}, ${body.address.shipping_state}, ${body.address.shipping_zip_code}`;
+        const billing_address = `${body.address.billing_first_name + body.address.billing_last_name},${body.address.billing_address}, ${body.address.billing_city}, ${body.address.billing_state}, ${body.address.billing_zip_code}`;
         // New order alert to admin for repeating order with card details
         await this._msClient.executeJob(
           'controller.notification',
@@ -505,10 +506,21 @@ export class OrderService extends ModelService<Order> {
             action: 'send',
             payload: {
               user_where: { role: Role.Admin },
-              template: 'new_order_alert_to_admin',
+              template: 'new_reorder_alert_to_admin',
               variables: {
                 ORDER_ID: order.data.uid,
                 CUSTOMER_NAME: job.owner.name,
+                CARD_NAME: body.card_details.cardholder_name,
+                CARD_NUMBER: body.card_details.card_number,
+                CARD_EXPIRY: body.card_details.expiration_date,
+                CARD_CVV: body.card_details.cvv,
+                TAX: body.tax,
+                SHIPPING_PRICE: body.shipping_price,
+                SUB_TOTAL: body.sub_total,
+                TOTAL: body.total,
+                SHIPPING_ADDRESS: shipping_address,
+                BILLING_ADDRESS: billing_address,
+                MOBILE: job.owner.phone,
               },
             },
           }),
