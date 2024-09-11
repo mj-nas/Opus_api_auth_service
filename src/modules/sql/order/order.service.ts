@@ -389,55 +389,6 @@ export class OrderService extends ModelService<Order> {
         return { error: status.error };
       }
 
-      // Create a new stripe product against the order
-      const product = await this._stripeService.stripe.products.create({
-        name: order.data.uid,
-        metadata: {
-          order_id: order.data.id,
-        },
-      });
-
-      // Create a new stripe price for the order
-      const unit_amount = parseFloat(
-        (order.data.total * 100).toLocaleString('en-US', {
-          minimumIntegerDigits: 2,
-          useGrouping: false,
-        }),
-      );
-      const price = await this._stripeService.stripe.prices.create({
-        currency: 'usd',
-        unit_amount,
-        product: product.id,
-      });
-
-      // Create a stripe payment link for the order
-      const paymentLink = await this._stripeService.stripe.paymentLinks.create({
-        line_items: [
-          {
-            price: price.id,
-            quantity: 1,
-          },
-        ],
-      });
-
-      // Create order payment
-      const payment = await this._orderPaymentService.create({
-        owner: job.owner,
-        action: 'create',
-        body: {
-          order_id: order.data.id,
-          payment_link: paymentLink.id,
-          payment_link_url: paymentLink.url,
-        },
-        options: {
-          transaction,
-        },
-      });
-      if (!!payment.error) {
-        await transaction.rollback();
-        return { error: payment.error };
-      }
-
       if (!!body.coupon_id) {
         await this._couponUsedService.create({
           owner: job.owner,
@@ -473,24 +424,97 @@ export class OrderService extends ModelService<Order> {
         }
       }
 
-      await transaction.commit();
-
-      // New order alert to admin
-      await this._msClient.executeJob(
-        'controller.notification',
-        new Job({
-          action: 'send',
-          payload: {
-            user_where: { role: Role.Admin },
-            template: 'new_order_alert_to_admin',
-            variables: {
-              ORDER_ID: order.data.uid,
-              CUSTOMER_NAME: job.owner.name,
-            },
+      // create stripe product, price and payment link only for non-repeating orders
+      if (body.is_repeating_order === 'N') {
+        // Create a new stripe product against the order
+        const product = await this._stripeService.stripe.products.create({
+          name: order.data.uid,
+          metadata: {
+            order_id: order.data.id,
           },
-        }),
-      );
-      return { data: { order: order.data, payment_link: paymentLink.url } };
+        });
+
+        // Create a new stripe price for the order
+        const unit_amount = parseFloat(
+          (order.data.total * 100).toLocaleString('en-US', {
+            minimumIntegerDigits: 2,
+            useGrouping: false,
+          }),
+        );
+        const price = await this._stripeService.stripe.prices.create({
+          currency: 'usd',
+          unit_amount,
+          product: product.id,
+        });
+
+        // Create a stripe payment link for the order
+        const paymentLink =
+          await this._stripeService.stripe.paymentLinks.create({
+            line_items: [
+              {
+                price: price.id,
+                quantity: 1,
+              },
+            ],
+          });
+
+        // Create order payment
+        const payment = await this._orderPaymentService.create({
+          owner: job.owner,
+          action: 'create',
+          body: {
+            order_id: order.data.id,
+            payment_link: paymentLink.id,
+            payment_link_url: paymentLink.url,
+          },
+          options: {
+            transaction,
+          },
+        });
+        if (!!payment.error) {
+          await transaction.rollback();
+          return { error: payment.error };
+        }
+
+        await transaction.commit();
+
+        // New order alert to admin
+        await this._msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              user_where: { role: Role.Admin },
+              template: 'new_order_alert_to_admin',
+              variables: {
+                ORDER_ID: order.data.uid,
+                CUSTOMER_NAME: job.owner.name,
+              },
+            },
+          }),
+        );
+
+        return { data: { order: order.data, payment_link: paymentLink.url } };
+      } else {
+        await transaction.commit();
+
+        // New order alert to admin for repeating order with card details
+        await this._msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              user_where: { role: Role.Admin },
+              template: 'new_order_alert_to_admin',
+              variables: {
+                ORDER_ID: order.data.uid,
+                CUSTOMER_NAME: job.owner.name,
+              },
+            },
+          }),
+        );
+        return { data: { order: order.data, payment_link: '' } };
+      }
     } catch (error) {
       await transaction.rollback();
       return { error };
