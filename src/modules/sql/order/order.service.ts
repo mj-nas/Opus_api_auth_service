@@ -124,11 +124,29 @@ export class OrderService extends ModelService<Order> {
     if (job.action === 'cancelReorder') {
       const { error, data } = await this.$db.findRecordById({
         id: +job.id,
+        options: {
+          include: [{ association: 'user' }],
+        },
       });
 
       if (!!error) {
         throw error;
       }
+      // send email to admin for reorder cancellation
+      await this._msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_where: { role: Role.Admin },
+            template: 'reorder_cancelled',
+            variables: {
+              ORDER_ID: data.uid,
+              CUSTOMER_NAME: data.user.name,
+            },
+          },
+        }),
+      );
 
       // if (data.user_id !== job.owner.id) {
       //   throw "You don't have permission to change the status.";
@@ -815,6 +833,24 @@ export class OrderService extends ModelService<Order> {
         };
       }
 
+      if (job.action == 'reorderCycleChange') {
+        // send email to admin for reorder cycle change
+        await this._msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              user_where: { role: Role.Admin },
+              template: 'reorder_cycle_change',
+              variables: {
+                ORDER_ID: data.uid,
+                ORIGINAL_DAYS: data.repeating_days,
+                NEW_DAYS: repeating_days,
+              },
+            },
+          }),
+        );
+      }
       if (job.action === 'reorder') {
         data.setDataValue('is_repeating_order', 'Y');
         data.setDataValue('is_base_order', 'Y');
@@ -1313,6 +1349,89 @@ export class OrderService extends ModelService<Order> {
 
         return { data: order };
       } catch (error) {
+        return { error };
+      }
+    }
+  }
+
+  async paymentReminderCron(): Promise<JobResponse> {
+    const { error, data } = await this.$db.getAllRecords({
+      action: 'findAll',
+      options: {
+        where: {
+          status: OrderStatus.PaymentPending,
+          created_at: literal(
+            `DATE_FORMAT(Order.created_at, '%Y-%m-%d %H:%i:00') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 8 HOUR), '%Y-%m-%d %H:%i:00')`,
+          ),
+        },
+        include: [{ association: 'current_payment' }],
+      },
+    });
+
+    if (!!error) {
+      return { error };
+    }
+    if (data.length === 0) {
+      return { error: 'No order found' };
+    }
+    for await (const order of data) {
+      const { error } = await this._msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_id: order.user_id,
+            template: 'payment_pending_reminder',
+            variables: {
+              ORDER_ID: order.uid,
+              DATE: moment(order.created_at).format('MM/DD/YYYY hh:mm A'),
+              PAYMENT_LINK: order.current_payment.payment_link_url,
+            },
+          },
+        }),
+      );
+      if (!!error) {
+        return { error };
+      }
+    }
+  }
+
+  async paymentReminderFinalCron(): Promise<JobResponse> {
+    const { error, data } = await this.$db.getAllRecords({
+      action: 'findAll',
+      options: {
+        where: {
+          status: OrderStatus.PaymentPending,
+          created_at: literal(
+            `DATE_FORMAT(Order.created_at, '%Y-%m-%d %H:%i:00') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 30 HOUR), '%Y-%m-%d %H:%i:00')`,
+          ),
+        },
+        include: [{ association: 'current_payment' }],
+      },
+    });
+
+    if (!!error) {
+      return { error };
+    }
+    if (data.length === 0) {
+      return { error: 'No order found' };
+    }
+    for await (const order of data) {
+      const { error } = await this._msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_id: order.user_id,
+            template: 'final_payment_pending_reminder',
+            variables: {
+              ORDER_ID: order.uid,
+              PAYMENT_LINK: order.current_payment.payment_link_url,
+            },
+          },
+        }),
+      );
+      if (!!error) {
         return { error };
       }
     }
