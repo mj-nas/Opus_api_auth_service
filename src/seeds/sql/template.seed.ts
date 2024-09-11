@@ -1,4 +1,5 @@
 import { Seed } from '@core/sql/seeder/seeder.dto';
+import { Transporter } from 'src/modules/sql/template/transporter.enum';
 import { Template } from '../../modules/sql/template/entities/template.entity';
 
 export default <Seed<Template>>{
@@ -9,6 +10,7 @@ export default <Seed<Template>>{
       name: 'forgot_password',
       title: 'Forgot Password',
       send_email: true,
+      transporter: Transporter.CustomerServices,
       email_subject: 'Your Verification Code',
       email_body: `<p>Hi ##TO_NAME##,</p>
       <p><br></p>
@@ -25,6 +27,7 @@ export default <Seed<Template>>{
       name: '2fa_otp',
       title: '2FA OTP Verification',
       send_email: true,
+      transporter: Transporter.CustomerServices,
       email_subject: 'OTP Verification',
       email_body:
         '<p>Hi ##TO_NAME##,</p><br><p>##OTP## is your OTP.</p><br><p>Thanks</p>',
@@ -35,6 +38,7 @@ export default <Seed<Template>>{
       name: 'contact_us',
       title: 'Contact Us',
       send_email: true,
+      transporter: Transporter.Info,
       email_subject: 'New Contact Query',
       email_body:
         '<p>Dear Admin, <br><br>A new contact query has been received. Please review and respond accordingly.<br><br>Thank you.<br><br>Best regards<br>Team OPUS</p>',
@@ -45,6 +49,7 @@ export default <Seed<Template>>{
       name: 'welcome_mail',
       title: 'Welcome Email',
       send_email: true,
+      transporter: Transporter.CustomerServices,
       email_subject: 'Welcome to OPUS Cannaboids!',
       email_body: `Hi ##TO_NAME##,<br><br>Welcome aboard!  We're thrilled to have you join us.<br><br>Best regards,Team OPUS`,
       send_sms: false,
@@ -54,6 +59,7 @@ export default <Seed<Template>>{
       name: 'account_status_update',
       title: 'Customer Account Status Update',
       send_email: true,
+      transporter: Transporter.CustomerServices,
       email_subject: 'Account Status Update : OPUS',
       email_body: `Dear ##TO_NAME##,
 <br><br>Your account has been ##STATUS## by our team. Please contact office for more details.
@@ -66,6 +72,7 @@ export default <Seed<Template>>{
       name: 'imported_customer_welcome_mail',
       title: 'Welcome Email For Imported Customer',
       send_email: true,
+      transporter: Transporter.CustomerServices,
       email_subject: 'Welcome to OPUS Cannaboids!',
       email_body: `Hi ##TO_NAME##,
 <br><br>Welcome aboard!  We're thrilled to have you join us.
@@ -81,6 +88,7 @@ export default <Seed<Template>>{
       name: 'change_password_by_admin',
       title: 'Change Password By Admin',
       send_email: true,
+      transporter: Transporter.CustomerServices,
       email_subject: 'Your Password Has Been Changed',
       email_body: `Dear ##TO_NAME##,
 <br><br>Your password has been successfully changed by the admin.
@@ -96,6 +104,7 @@ export default <Seed<Template>>{
       name: 'change_password',
       title: 'Change Password',
       send_email: true,
+      transporter: Transporter.CustomerServices,
       email_subject: 'Account Password Update Confirmation: OPUS',
       email_body: `Dear ##TO_NAME##,
 <br><br>We have successfully updated your account password as requested. If you did not make this change or if you encounter any issues accessing your account, please contact our office immediately for assistance.
@@ -109,6 +118,7 @@ export default <Seed<Template>>{
       name: 'email_verification',
       title: 'Email Verification',
       send_email: true,
+      transporter: Transporter.CustomerServices,
       email_subject: 'Your Verification Code',
       email_body: `<p>Hi ##TO_NAME##,</p>
       <p><br></p>
@@ -125,6 +135,7 @@ export default <Seed<Template>>{
       name: 'email_verification_completed',
       title: 'Email Verification Completed',
       send_email: true,
+      transporter: Transporter.CustomerServices,
       email_subject: 'Email verified',
       email_body: `<p>Hi ##TO_NAME##,</p><p><br></p><p>Your email verification has been completed.</p><p><br></p><p>Thanks</p>`,
       send_sms: false,
@@ -134,6 +145,7 @@ export default <Seed<Template>>{
       name: 'order_confirm_to_customer',
       title: 'Order confirmed email to customer',
       send_email: true,
+      transporter: Transporter.Orders,
       email_subject: 'Your Order ##ORDER_ID## is Confirmed!',
       email_body: `<p>Hello ##TO_NAME##,</p><p><br></p><p>Thank you for your order! Your order ID is: ##ORDER_ID##. We have successfully received your order and it is currently being processed. You can track the status of your order by visiting the My Orders section on our website.</p><p><br></p><p>Best regards,</p><p>Team OPUS</p>`,
       send_sms: false,
@@ -142,6 +154,7 @@ export default <Seed<Template>>{
     {
       name: 'new_order_alert_to_admin',
       title: 'New Order Alert To Admin',
+      transporter: Transporter.Orders,
       send_email: true,
       email_subject: 'New Order Alert - ##ORDER_ID##',
       email_body: `<p>Hello ##TO_NAME##,</p>
@@ -160,6 +173,7 @@ export default <Seed<Template>>{
       name: 'repeat_order_reminder',
       title: 'Repeat Order Reminder To Customer',
       send_email: true,
+      transporter: Transporter.Orders,
       email_subject: 'Reminder: Upcoming Order Renewal',
       email_body: `<p>Hi ##TO_NAME##,</p>
 <p><br /></p>
@@ -183,6 +197,7 @@ export default <Seed<Template>>{
       name: 'dispenser_application_deny',
       title: 'Declined the application as a Dispenser',
       send_email: true,
+      transporter: Transporter.CustomerServices,
       email_subject: 'Application Declined',
       email_body: `<p>Hi ##TO_NAME##,</p>
 <br />
@@ -203,6 +218,7 @@ export default <Seed<Template>>{
       name: 'dispenser_application_approve',
       title: 'Approved as a Dispenser',
       send_email: true,
+      transporter: Transporter.CustomerServices,
       email_subject: 'Welcome to OPUS Cannaboids!',
       email_body: `<p>Hi ##TO_NAME##,</p>
 <br />
@@ -226,6 +242,7 @@ export default <Seed<Template>>{
       name: 'dispenser_account_created',
       title: 'Dispenser Account Created',
       send_email: true,
+      transporter: Transporter.CustomerServices,
       email_subject: 'Welcome to OPUS Cannaboids! ',
       email_body: `<p>Dear ##TO_NAME##,</p>
 <br />
@@ -253,6 +270,7 @@ export default <Seed<Template>>{
       name: 'coupon_added_dispenser',
       title: 'Dispenser Coupon Added',
       send_email: true,
+      transporter: Transporter.CustomerServices,
       email_subject: 'Your Exclusive Coupon Codes from OPUS Cannaboids!',
       email_body: `<p>Dear ##TO_NAME##,</p>
 <br />
@@ -273,6 +291,7 @@ export default <Seed<Template>>{
       name: 'dispenser_added_customer',
       title: 'Dispenser Added Customer',
       send_email: true,
+      transporter: Transporter.CustomerServices,
       email_subject: 'New Dispenser Association: OPUS',
       email_body: `<p>Hi ##TO_NAME##,</p>
 <br />
@@ -293,6 +312,7 @@ export default <Seed<Template>>{
       name: 'customer_added_dispenser',
       title: 'Customer Added Dispenser',
       send_email: true,
+      transporter: Transporter.CustomerServices,
       email_subject: 'New Customer Association: OPUS',
       email_body: `<p>Hi ##TO_NAME##,</p>
 <br />
@@ -313,6 +333,7 @@ export default <Seed<Template>>{
       name: 'e_learning_completed',
       title: 'E Learning Course Completed',
       send_email: true,
+      transporter: Transporter.CustomerServices,
       email_subject: 'Congratulations!  You have Completed the Course!',
       email_body: `<p>Dear ##TO_NAME##,</p>
 <br />
@@ -335,6 +356,7 @@ export default <Seed<Template>>{
       name: 'order_shipped',
       title: 'Order Shipment Notification',
       send_email: true,
+      transporter: Transporter.Orders,
       email_subject: 'Order Shipment Notification',
       email_body: `<p>Hi ##TO_NAME##,</p>
 <br />
@@ -358,6 +380,7 @@ export default <Seed<Template>>{
       name: 'order_delivered',
       title: 'Order Delivered Notification',
       send_email: true,
+      transporter: Transporter.Orders,
       email_subject: 'Order Delivery Confirmation',
       email_body: `<p>Hi ##TO_NAME##,</p>
 <br />
@@ -374,6 +397,7 @@ export default <Seed<Template>>{
       name: 'order_cancelled',
       title: 'Order Cancelled Notification',
       send_email: true,
+      transporter: Transporter.Orders,
       email_subject: 'Order Cancellation Notification',
       email_body: `<p>Hi ##TO_NAME##,</p>
 <br />
@@ -390,6 +414,7 @@ export default <Seed<Template>>{
       name: 'reorder_cancelled',
       title: 'Reorder Cancelled Notification',
       send_email: true,
+      transporter: Transporter.Orders,
       email_subject: 'Reorder Cancellation Notification',
       email_body: `<p>Hi ##TO_NAME##,</p>,
 <br />
@@ -408,6 +433,7 @@ export default <Seed<Template>>{
       name: 'reorder_cycle_change',
       title: 'Reorder Cycle Change Notification',
       send_email: true,
+      transporter: Transporter.Orders,
       email_subject: 'Reorder Cycle Update Notification',
       email_body: `<p>Hi ##TO_NAME##,</p>
       <br />
@@ -423,6 +449,7 @@ export default <Seed<Template>>{
       name: 'payment_pending_reminder',
       title: 'Payment Pending Reminder',
       send_email: true,
+      transporter: Transporter.Orders,
       email_subject: 'Payment Reminder for Your Order ##ORDER_ID##',
       email_body: `<p>Hi ##TO_NAME##,</p>
 <br />
@@ -446,6 +473,7 @@ export default <Seed<Template>>{
       name: 'final_payment_pending_reminder',
       title: 'Final Payment Pending Reminder',
       send_email: true,
+      transporter: Transporter.Orders,
       email_subject:
         'Final Reminder: Complete Payment for Order ##ORDER_ID## to Avoid Cancellation',
       email_body: `<p>Hi ##TO_NAME##,</p>
