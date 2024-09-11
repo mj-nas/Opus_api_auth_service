@@ -14,5 +14,6 @@ export enum OrderStatusLevel {
   Cancelled = 3,
   Ordered = 4,
   Shipped = 5,
-  Delivered = 6,
+  ShippingFailed = 6,
+  Delivered = 7,
 }

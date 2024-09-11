@@ -67,13 +67,18 @@ export class XpsService {
     const integration_id = this._config.get('xps').integration_id;
     const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/integrations/${integration_id}/orders/${payload.orderId}`;
 
-    const response = await axios.delete(url, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `RSIS ${apiKey}`,
-      },
-    });
+    try {
+      const response = await axios.delete(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `RSIS ${apiKey}`,
+        },
+      });
 
-    return { data: response.data };
+      return { data: response.data };
+    } catch (error) {
+      console.error(error.data);
+      return { error: error.data };
+    }
   }
 }

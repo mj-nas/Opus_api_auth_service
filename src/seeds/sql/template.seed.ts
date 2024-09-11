@@ -338,9 +338,12 @@ export default <Seed<Template>>{
       email_subject: 'Order Shipment Notification',
       email_body: `<p>Hi ##TO_NAME##,</p>
 <br />
-<p>A notification regarding your order ##ORDERID## has been issued. Please find the details below:</p>
+<p>A notification regarding your order ##ORDER_ID## has been issued. Please find the details below:</p>
 <br />
 <p>Shipping Address:</p>
+<p>##SHIPPING_NAME##</p>
+<p>##SHIPPING_ADDRESS##</p>
+<p>##SHIPPING_CITY_STATE_ZIP##</p>
 <br />
 <p>Track your shipment with this tracking ID: ##TRACKING_NUMBER##</p>
 <br />
@@ -374,7 +377,7 @@ export default <Seed<Template>>{
       email_subject: 'Order Cancellation Notification',
       email_body: `<p>Hi ##TO_NAME##,</p>
 <br />
-<p>We regret to inform you that your order ##ORDERID## placed on ##DATE## has been canceled.</p>
+<p>We regret to inform you that your order ##ORDER_ID## placed on ##DATE## has been canceled.</p>
 <br />
 <p>If you have any questions or need further assistance, please contact us.</p>
 <br />

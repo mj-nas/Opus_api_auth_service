@@ -181,6 +181,34 @@ export class OrderService extends ModelService<Order> {
         },
       });
 
+      if (response.data.status === OrderStatus.Delivered) {
+        // Send order placed socket notification
+        await this._msClient.executeJob('controller.socket-event', {
+          action: 'orderStatusChange',
+          payload: {
+            user_id: response.data.user_id,
+            data: {
+              order_id: response.data.uid,
+            },
+          },
+        });
+
+        // Send order confirmation mail notification
+        await this._msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              user_id: response.data.user_id,
+              template: 'order_delivered',
+              variables: {
+                ORDER_ID: response.data.uid,
+              },
+            },
+          }),
+        );
+      }
+
       // Change order status from PaymentPending to Ordered
       if (
         response.previousData.status === OrderStatus.PaymentPending &&
@@ -217,6 +245,35 @@ export class OrderService extends ModelService<Order> {
             id: response.data.id,
           },
         });
+      }
+
+      if (
+        response.previousData.status === OrderStatus.Ordered &&
+        response.data.status === OrderStatus.Cancelled
+      ) {
+        const deletedShipment = await this._xpsService.deleteOrder({
+          payload: { orderId: response.data.uid },
+        });
+        if (!!deletedShipment.error) {
+          throw deletedShipment.error;
+        }
+        // send email to customer for order cancellation
+        await this._msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              user_id: response.data.user_id,
+              template: 'order_cancelled',
+              variables: {
+                ORDER_ID: response.data.uid,
+                DATE: moment(response.data.created_at).format(
+                  'MM/DD/YYYY hh:mm A',
+                ),
+              },
+            },
+          }),
+        );
       }
 
       if (response.previousData.status !== response.data.status) {
@@ -1097,6 +1154,9 @@ export class OrderService extends ModelService<Order> {
           },
         },
       });
+      if (!!order_data.error) {
+        return { error: order_data.error };
+      }
 
       // Create order-status-change-log
       await this._msClient.executeJob('order-status-log.create', {
@@ -1118,19 +1178,25 @@ export class OrderService extends ModelService<Order> {
       });
 
       // Send order shipment e-mail notification
-      // await this._msClient.executeJob(
-      //   'controller.notification',
-      //   new Job({
-      //     action: 'send',
-      //     payload: {
-      //       user_id: order_data.data.user_id,
-      //       template: 'order_confirm_to_customer',
-      //       variables: {
-      //         ORDER_ID: order_data.data.uid,
-      //       },
-      //     },
-      //   }),
-      // );
+      const { name, address1, city, state, zip } =
+        response.data.shipments[0].receiver;
+      await this._msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_id: order_data.data.user_id,
+            template: 'order_shipped',
+            variables: {
+              ORDER_ID: order_data.data.uid,
+              TRACKING_NUMBER: order_data.data.tracking_number,
+              SHIPPING_NAME: name,
+              SHIPPING_ADDRESS: address1,
+              SHIPPING_CITY_STATE_ZIP: `${city}, ${state} ${zip}`,
+            },
+          },
+        }),
+      );
 
       return order_data;
     } catch (error) {
