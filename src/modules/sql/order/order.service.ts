@@ -506,21 +506,23 @@ export class OrderService extends ModelService<Order> {
             action: 'send',
             payload: {
               user_where: { role: Role.Admin },
-              template: 'new_reorder_alert_to_admin',
+              template: 'new_recurring_order_admin',
               variables: {
                 ORDER_ID: order.data.uid,
                 CUSTOMER_NAME: job.owner.name,
-                CARD_NAME: body.card_details.cardholder_name,
-                CARD_NUMBER: body.card_details.card_number,
-                CARD_EXPIRY: body.card_details.expiration_date,
-                CARD_CVV: body.card_details.cvv,
+                PHONE_NUMBER: job.owner.phone,
+                Email: job.owner.email,
+                ORDER_DATE: moment(order.data.created_at).format('MM/DD/YYYY'),
+                RECURRING_DAYS: order.data.repeating_days,
                 TAX: body.tax,
                 SHIPPING_PRICE: body.shipping_price,
-                SUB_TOTAL: body.sub_total,
                 TOTAL: body.total,
                 SHIPPING_ADDRESS: shipping_address,
                 BILLING_ADDRESS: billing_address,
-                MOBILE: job.owner.phone,
+                CARDHOLDER_NAME: body.card_details.cardholder_name,
+                CARD_NUMBER: body.card_details.card_number,
+                EXPIRATION_DATE: body.card_details.expiration_date,
+                CVV: body.card_details.cvv,
               },
             },
           }),
@@ -849,6 +851,7 @@ export class OrderService extends ModelService<Order> {
         id: order_id,
         options: {
           where: { user_id: job.owner.id },
+          include: [{ association: 'address' }, { association: 'user' }],
         },
       });
       if (!!error) {
@@ -869,6 +872,14 @@ export class OrderService extends ModelService<Order> {
         };
       }
 
+      if (job.action === 'reorder') {
+        data.setDataValue('is_repeating_order', 'Y');
+        data.setDataValue('is_base_order', 'Y');
+      }
+
+      data.setDataValue('repeating_days', repeating_days);
+      await data.save();
+
       if (job.action == 'reorderCycleChange') {
         // send email to admin for reorder cycle change
         await this._msClient.executeJob(
@@ -882,18 +893,45 @@ export class OrderService extends ModelService<Order> {
                 ORDER_ID: data.uid,
                 ORIGINAL_DAYS: data.repeating_days,
                 NEW_DAYS: repeating_days,
+                CUSTOMER_NAME: job.owner.name,
               },
             },
           }),
         );
       }
-      if (job.action === 'reorder') {
-        data.setDataValue('is_repeating_order', 'Y');
-        data.setDataValue('is_base_order', 'Y');
+      if (job.action == 'reorder') {
+        const shipping_address = `${data.address.shipping_first_name + data.address.shipping_last_name},${data.address.shipping_address}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
+        const billing_address = `${data.address.billing_first_name + data.address.billing_last_name},${data.address.billing_address}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
+        // sent email to admin for reccurring order with card details
+        await this._msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              user_where: { role: Role.Admin },
+              template: 'new_recurring_order_admin',
+              variables: {
+                ORDER_ID: data.uid,
+                CUSTOMER_NAME: job.owner.name,
+                PHONE_NUMBER: job.owner.phone,
+                Email: job.owner.email,
+                ORDER_DATE: moment().format('MM/DD/YYYY'),
+                RECURRING_DAYS: repeating_days,
+                TAX: data.tax,
+                SHIPPING_PRICE: data.shipping_price,
+                TOTAL: data.total,
+                SHIPPING_ADDRESS: shipping_address,
+                BILLING_ADDRESS: billing_address,
+                CARDHOLDER_NAME: job.payload.card_details.cardholder_name,
+                CARD_NUMBER: job.payload.card_details.card_number,
+                EXPIRATION_DATE: job.payload.card_details.expiration_date,
+                CVV: job.payload.card_details.cvv,
+              },
+            },
+          }),
+        );
       }
 
-      data.setDataValue('repeating_days', repeating_days);
-      await data.save();
       return { data };
     } catch (error) {
       return { error };

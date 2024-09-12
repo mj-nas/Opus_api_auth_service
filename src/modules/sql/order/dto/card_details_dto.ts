@@ -27,7 +27,6 @@ export class CardDetailsDto {
     example: '12/25',
   })
   @IsString()
-  @MaxLength(5)
   expiration_date: string;
 
   @ApiProperty({

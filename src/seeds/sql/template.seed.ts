@@ -437,7 +437,14 @@ export default <Seed<Template>>{
       email_subject: 'Reorder Cycle Update Notification',
       email_body: `<p>Hi ##TO_NAME##,</p>
       <br />
-      <p>Please note that the recurring cycle for order ##ORDER_ID##, originally set for ##ORIGINAL_DAYS##, has been updated.</p>
+      <p>Please note that the reorder cycle for an order originally set for ##ORIGINAL_DAYS##, has been updated.</p>
+      <br />
+
+      <p>Order Details:</p>
+      <br />
+      <p>Order ID: ##ORDER_ID##</p>
+      <p>Customer Name: ##CUSTOMER_NAME##</p>
+      <br />
       <p>The new reorder cycle is now scheduled for ##NEW_DAYS## days.</p>
       <br />
       <p>Best regards,</p>
@@ -486,6 +493,47 @@ export default <Seed<Template>>{
 <p>Please visit the My Orders page in your account if you need further assistance.</p>
 <br />
 <p>We appreciate your prompt response to avoid the cancellation of your order.</p>
+<br />
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'new_recurring_order_admin',
+      title: 'New Recurring Order Alert To Admin',
+      send_email: true,
+      transporter: Transporter.Orders,
+      email_subject: 'New Recurring Order Alert - ##ORDER_ID##',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+<br />
+<p>A new recurring order has been initiated please find the details below</p>
+<br />
+<p><b>Customer Details:</b></p>
+<br />
+<p>Customer Name: ##CUSTOMER_NAME##</p>
+<p>Phone Number: ##PHONE_NUMBER##</p>
+<p>Email: ##EMAIL##</p>
+<br />
+<p><b>Order Details:</b></p>
+<br />
+<p>Order ID: ##ORDER_ID##</p>
+<p>Order Date: ##ORDER_DATE##</p>
+<p>Recurring Days: ##RECURRING_DAYS## days</p>
+<br />
+<p>Tax: ##TAX##</p>
+<p>Shipping Charge: ##SHIPPING_CHARGE##</p>
+<p>Total: $##TOTAL##</p>
+<br />
+<p>Shipping Address: ##SHIPPING_ADDRESS</p>
+<p>Billing Address: ##BILLING_ADDRESS</p>
+<br />
+<p><b>Card Details:</b></p>
+<br />
+<p>Cardholder Name: ##CARDHOLDER_NAME##</p>
+<p>Card Number: ##CARD_NUMBER##</p>
+<p>Expiration Date: ##EXPIRATION_DATE##</p>
+<p>CVV: ##CVV##</p>
 <br />
 <p>Best regards,</p>
 <p>Team OPUS</p>`,
