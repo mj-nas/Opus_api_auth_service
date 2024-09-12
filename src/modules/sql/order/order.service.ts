@@ -915,7 +915,7 @@ export class OrderService extends ModelService<Order> {
                 CUSTOMER_NAME: job.owner.name,
                 PHONE_NUMBER: job.owner.phone,
                 Email: job.owner.email,
-                ORDER_DATE: moment().format('MM/DD/YYYY'),
+                ORDER_DATE: moment(data.created_at).format('MM/DD/YYYY'),
                 RECURRING_DAYS: repeating_days,
                 TAX: data.tax,
                 SHIPPING_PRICE: data.shipping_price,
