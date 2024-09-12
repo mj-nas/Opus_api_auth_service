@@ -1379,6 +1379,12 @@ export class OrderService extends ModelService<Order> {
             await this._msClient.executeJob('order.status.update', {
               payload: {
                 order_id: order.id,
+                status: OrderStatus.ShippingFailed,
+              },
+            });
+            await this._msClient.executeJob('order.status.update', {
+              payload: {
+                order_id: order.id,
                 status: OrderStatus.Ordered,
               },
             });
