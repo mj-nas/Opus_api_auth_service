@@ -207,6 +207,7 @@ export class OrderService extends ModelService<Order> {
             user_id: response.data.user_id,
             data: {
               order_id: response.data.uid,
+              id: response.data.id,
             },
           },
         });
@@ -302,6 +303,7 @@ export class OrderService extends ModelService<Order> {
             user_id: response.data.user_id,
             data: {
               order_id: response.data.uid,
+              id: response.data.id,
             },
           },
         });
@@ -1284,6 +1286,7 @@ export class OrderService extends ModelService<Order> {
           user_id: order_data.data.user_id,
           data: {
             order_id: order_data.data.id,
+            id: order_data.data.id,
           },
         },
       });
@@ -1349,6 +1352,12 @@ export class OrderService extends ModelService<Order> {
           response.data ==
           'Shipment is voided. Voided shipments are not tracked'
         ) {
+          await this._msClient.executeJob('order.status.update', {
+            payload: {
+              order_id: order.id,
+              status: OrderStatus.ShippingFailed,
+            },
+          });
           //recreate shipment
           // update uid of the order
           let parts = order.uid.split('-');
@@ -1369,6 +1378,7 @@ export class OrderService extends ModelService<Order> {
               },
             },
           });
+
           const shipment = await this.createShipments({
             payload: {
               id: newOrder.data.id,
@@ -1377,12 +1387,6 @@ export class OrderService extends ModelService<Order> {
           if (!!shipment.error) {
             return { error: shipment.error };
           } else {
-            await this._msClient.executeJob('order.status.update', {
-              payload: {
-                order_id: order.id,
-                status: OrderStatus.ShippingFailed,
-              },
-            });
             await this._msClient.executeJob('order.status.update', {
               payload: {
                 order_id: order.id,

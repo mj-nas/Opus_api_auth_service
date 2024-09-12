@@ -384,7 +384,7 @@ export default <Seed<Template>>{
       email_subject: 'Order Delivery Confirmation',
       email_body: `<p>Hi ##TO_NAME##,</p>
 <br />
-<p>We are pleased to inform you that your package with order ID ##ORDERID## has been delivered. We hope to hear from you again soon!</p>
+<p>We are pleased to inform you that your package with order ID ##ORDER_ID## has been delivered. We hope to hear from you again soon!</p>
 <br />
 <p>Thank you.</p>
 <br />
