@@ -525,8 +525,8 @@ export default <Seed<Template>>{
 <p>Shipping Charge: ##SHIPPING_CHARGE##</p>
 <p>Total: $##TOTAL##</p>
 <br />
-<p>Shipping Address: ##SHIPPING_ADDRESS</p>
-<p>Billing Address: ##BILLING_ADDRESS</p>
+<p>Shipping Address: ##SHIPPING_ADDRESS##</p>
+<p>Billing Address: ##BILLING_ADDRESS##</p>
 <br />
 <p><b>Card Details:</b></p>
 <br />
