@@ -1500,7 +1500,7 @@ export class OrderService extends ModelService<Order> {
       return { error: 'No order found' };
     }
     for await (const order of data) {
-      const { error } = await this._msClient.executeJob(
+      await this._msClient.executeJob(
         'controller.notification',
         new Job({
           action: 'send',
@@ -1514,9 +1514,6 @@ export class OrderService extends ModelService<Order> {
           },
         }),
       );
-      if (!!error) {
-        return { error };
-      }
     }
   }
 
