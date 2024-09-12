@@ -861,6 +861,7 @@ export class OrderService extends ModelService<Order> {
         repeating_days,
         'days',
       );
+      const currentRepeatingDays = data.repeating_days;
       const currentDate = moment();
       if (!nextRepeatingDay.isAfter(currentDate)) {
         const daysDifference = currentDate.diff(
@@ -891,7 +892,7 @@ export class OrderService extends ModelService<Order> {
               template: 'reorder_cycle_change',
               variables: {
                 ORDER_ID: data.uid,
-                ORIGINAL_DAYS: data.repeating_days,
+                ORIGINAL_DAYS: currentRepeatingDays,
                 NEW_DAYS: repeating_days,
                 CUSTOMER_NAME: job.owner.name,
               },
