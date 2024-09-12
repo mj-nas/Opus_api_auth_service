@@ -240,6 +240,7 @@ export class OrderService extends ModelService<Order> {
             user_id: response.data.user_id,
             data: {
               order_id: response.data.uid,
+              id: response.data.id,
             },
           },
         });
@@ -1285,7 +1286,7 @@ export class OrderService extends ModelService<Order> {
         payload: {
           user_id: order_data.data.user_id,
           data: {
-            order_id: order_data.data.id,
+            order_id: order_data.data.uid,
             id: order_data.data.id,
           },
         },
