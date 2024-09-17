@@ -16,6 +16,7 @@ export default registerAs(
         tls: {
           rejectUnauthorized: false,
         },
+        from: `"OPUS" <${process.env.SMTP_USER}>`,
       },
       CustomerServices: {
         host: process.env.SMTP_HOST_365,
@@ -28,6 +29,7 @@ export default registerAs(
         tls: {
           ciphers: 'SSLv3', // Ensures compatibility with certain older servers
         },
+        from: `"OPUS" <${process.env.SMTP_USER_CUSTOMER_SERVICE}>`,
       },
       Orders: {
         host: process.env.SMTP_HOST_365,
@@ -40,6 +42,7 @@ export default registerAs(
         tls: {
           ciphers: 'SSLv3', // Ensures compatibility with certain older servers
         },
+        from: `"OPUS" <${process.env.SMTP_USER_ORDERS}>`,
       },
       Info: {
         host: process.env.SMTP_HOST_365,
@@ -52,10 +55,8 @@ export default registerAs(
         tls: {
           ciphers: 'SSLv3', // Ensures compatibility with certain older servers
         },
+        from: `"OPUS" <${process.env.SMTP_USER_INFO}>`,
       },
-    },
-    defaults: {
-      from: `"OPUS" <${process.env.SMTP_USER_CUSTOMER_SERVICE}>`,
     },
   }),
 );

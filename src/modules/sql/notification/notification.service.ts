@@ -146,6 +146,8 @@ export class NotificationService {
               action: 'sendMail',
               payload: {
                 to: user.email,
+                from:
+                  this.config.get('email').transports[transporter].from || '',
                 subject: _email_subject,
                 html: _email_template,
                 transporterName: transporter,
