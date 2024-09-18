@@ -141,7 +141,7 @@ export class User extends SqlModel {
   @IsString()
   @MaxLength(100)
   @IsOptional()
-  buisiness_name?: string;
+  business_name?: string;
 
   @Column
   @ApiProperty({
