@@ -1479,6 +1479,14 @@ export class OrderService extends ModelService<Order> {
   }
 
   async paymentReminderFinalCron(): Promise<JobResponse> {
+    const reminder_timer = await this._settingService.$db.findOneRecord({
+      action: 'findOne',
+      options: { where: { name: 'timer_for_final_reminder' } },
+    })
+    if (!!reminder_timer.error) {
+      return { error: reminder_timer.error };
+    }
+    
     const { error, data } = await this.$db.getAllRecords({
       action: 'findAll',
       options: {
@@ -1486,7 +1494,7 @@ export class OrderService extends ModelService<Order> {
           status: OrderStatus.PaymentPending,
           is_repeating_order: 'N',
           created_at: literal(
-            `DATE_FORMAT(Order.created_at, '%Y-%m-%d %H:%i:00') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 30 HOUR), '%Y-%m-%d %H:%i:00')`,
+            `DATE_FORMAT(Order.created_at, '%Y-%m-%d %H:%i:00') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ${parseInt(reminder_timer.data.value)} HOUR), '%Y-%m-%d %H:%i:00')`,
           ),
         },
         include: [{ association: 'current_payment' }],
@@ -1518,6 +1526,15 @@ export class OrderService extends ModelService<Order> {
   }
 
   async orderCancelCron(): Promise<JobResponse> {
+    const cancellation_timer = await this._settingService.$db.findOneRecord({
+      action: 'findOne',
+      options: { where: { name: 'hours_for_cancellation' } },
+    });
+    
+    
+    if (!!cancellation_timer.error) {
+      return { error: cancellation_timer.error };
+    }
     const { error, data } = await this.$db.getAllRecords({
       action: 'findAll',
       options: {
@@ -1525,7 +1542,7 @@ export class OrderService extends ModelService<Order> {
           status: OrderStatus.PaymentPending,
           is_repeating_order: 'N',
           created_at: literal(
-            `DATE_FORMAT(Order.created_at, '%Y-%m-%d %H:%i:00') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 32 HOUR), '%Y-%m-%d %H:%i:00')`,
+            `DATE_FORMAT(Order.created_at, '%Y-%m-%d %H:%i:00') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ${parseInt(cancellation_timer.data.value)} HOUR), '%Y-%m-%d %H:%i:00')`,
           ),
         },
         include: [{ association: 'current_payment' }],
