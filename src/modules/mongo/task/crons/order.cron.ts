@@ -56,6 +56,7 @@ export class OrderCron {
     this.logger.log(`Shipment tracking cron completed successfully!`);
   }
 
+  //payment reminder cron
   @Cron(CronExpression.EVERY_MINUTE)
   async paymentReminderCron() {
     if (this.configService.get('appId') != 'crons') {
@@ -69,7 +70,7 @@ export class OrderCron {
     }
     this.logger.log(`Payment reminder cron completed successfully!`);
   }
-
+  //payment reminder final cron
   @Cron(CronExpression.EVERY_MINUTE)
   async paymentReminderFinalCron() {
     if (this.configService.get('appId') != 'crons') {
@@ -82,5 +83,20 @@ export class OrderCron {
       return;
     }
     this.logger.log(`Payment reminder final cron completed successfully!`);
+  }
+
+  // order cancel cron
+  @Cron(CronExpression.EVERY_MINUTE)
+  async orderCancelCron() {
+    if (this.configService.get('appId') != 'crons') {
+      return;
+    }
+    this.logger.log('Order cancel cron started...');
+    const { error } = await this._orderService.orderCancelCron();
+    if (error) {
+      this.logger.error(`Error - ${error.message || error}`);
+      return;
+    }
+    this.logger.log(`Order cancel cron completed successfully!`);
   }
 }

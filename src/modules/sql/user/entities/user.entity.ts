@@ -26,6 +26,7 @@ import {
   DefaultScope,
   ForeignKey,
   Index,
+  Is,
   Table,
 } from 'sequelize-typescript';
 import config from 'src/config';
@@ -130,6 +131,17 @@ export class User extends SqlModel {
   @IsString()
   @MaxLength(50)
   last_name: string;
+
+  @Column
+  @ApiProperty({
+    description: 'Buisiness Name',
+    example: 'Ross Geller',
+    readOnly: true,
+  })
+  @IsString()
+  @MaxLength(100)
+  @IsOptional()
+  business_name?: string;
 
   @Column
   @ApiProperty({

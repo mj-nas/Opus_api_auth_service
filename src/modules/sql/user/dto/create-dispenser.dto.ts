@@ -13,4 +13,5 @@ export class CreateDispenserDto extends PickType(User, [
   'zip_code',
   'longitude',
   'latitude',
+  'business_name',
 ] as const) {}

@@ -617,6 +617,7 @@ export class UserService extends ModelService<User> {
         'Sl. No',
         'First Name',
         'Last Name',
+        'Business Name',
         'Email',
         'Geotag',
         'Unique URL',
@@ -634,6 +635,7 @@ export class UserService extends ModelService<User> {
             index + 1,
             x?.first_name,
             x?.last_name,
+            x?.business_name,
             x.email,
             x.geotag ? 'Yes' : 'No',
             x.referral_link,
@@ -649,6 +651,7 @@ export class UserService extends ModelService<User> {
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'First Name', key: 'first_name', width: 25 },
         { header: 'Last Name', key: 'last_name', width: 25 },
+        { header: 'Business Name', key: 'business_name', width: 25 },
         { header: 'Email', key: 'email', width: 25 },
         { header: 'Geotag', key: 'geotag', width: 25 },
         { header: 'Unique URL', key: 'unique_url', width: 25 },
@@ -709,6 +712,7 @@ export class UserService extends ModelService<User> {
       const headers = [
         'FIRST_NAME',
         'LAST_NAME',
+        'BUSINESS_NAME',
         'EMAIL',
         'PHONE',
         'LATITUDE',
@@ -747,6 +751,11 @@ export class UserService extends ModelService<User> {
             .string()
             .min(1, { message: 'Please enter your last name.' })
             .max(30, 'Your last name exceeds the character limit.'),
+        ),
+        BUSINESS_NAME: parseStringWithWhitespace(
+          z
+            .string()
+            .max(100, 'Your business name exceeds the character limit.'),
         ),
         EMAIL: z
           .string()
@@ -814,6 +823,7 @@ export class UserService extends ModelService<User> {
             role: Role.Dispenser,
             first_name: user.FIRST_NAME,
             last_name: user.LAST_NAME,
+            business_name: user?.BUSINESS_NAME,
             email: user.EMAIL,
             phone: user.PHONE,
             latitude: user.LATITUDE,

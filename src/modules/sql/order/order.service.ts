@@ -1491,6 +1491,7 @@ export class OrderService extends ModelService<Order> {
     if (!!reminder_timer.error) {
       return { error: reminder_timer.error };
     }
+    
     const { error, data } = await this.$db.getAllRecords({
       action: 'findAll',
       options: {
@@ -1526,6 +1527,46 @@ export class OrderService extends ModelService<Order> {
           },
         }),
       );
+    }
+  }
+
+  async orderCancelCron(): Promise<JobResponse> {
+    const cancellation_timer = await this._settingService.$db.findOneRecord({
+      action: 'findOne',
+      options: { where: { name: 'hours_for_cancellation' } },
+    });
+    
+    
+    if (!!cancellation_timer.error) {
+      return { error: cancellation_timer.error };
+    }
+    const { error, data } = await this.$db.getAllRecords({
+      action: 'findAll',
+      options: {
+        where: {
+          status: OrderStatus.PaymentPending,
+          is_repeating_order: 'N',
+          created_at: literal(
+            `DATE_FORMAT(Order.created_at, '%Y-%m-%d %H:%i:00') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ${parseInt(cancellation_timer.data.value)} HOUR), '%Y-%m-%d %H:%i:00')`,
+          ),
+        },
+        include: [{ association: 'current_payment' }],
+      },
+    });
+
+    if (!!error) {
+      return { error };
+    }
+    if (data.length === 0) {
+      return { error: 'No order found' };
+    }
+    for await (const order of data) {
+      await this._msClient.executeJob('order.status.update', {
+        payload: {
+          order_id: order.id,
+          status: OrderStatus.Cancelled,
+        },
+      });
     }
   }
 
