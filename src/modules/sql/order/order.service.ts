@@ -1517,6 +1517,37 @@ export class OrderService extends ModelService<Order> {
     }
   }
 
+  async orderCancelCron(): Promise<JobResponse> {
+    const { error, data } = await this.$db.getAllRecords({
+      action: 'findAll',
+      options: {
+        where: {
+          status: OrderStatus.PaymentPending,
+          is_repeating_order: 'N',
+          created_at: literal(
+            `DATE_FORMAT(Order.created_at, '%Y-%m-%d %H:%i:00') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 32 HOUR), '%Y-%m-%d %H:%i:00')`,
+          ),
+        },
+        include: [{ association: 'current_payment' }],
+      },
+    });
+
+    if (!!error) {
+      return { error };
+    }
+    if (data.length === 0) {
+      return { error: 'No order found' };
+    }
+    for await (const order of data) {
+      await this._msClient.executeJob('order.status.update', {
+        payload: {
+          order_id: order.id,
+          status: OrderStatus.Cancelled,
+        },
+      });
+    }
+  }
+
   async testShip() {
     const order = await this.$db.findRecordById({
       id: 25,
