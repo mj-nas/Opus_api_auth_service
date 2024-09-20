@@ -534,8 +534,8 @@ export default <Seed<Template>>{
 <br />
 <p>Cardholder Name: ##CARDHOLDER_NAME##</p>
 <p>Card Number: ##CARD_NUMBER##</p>
-<p>Expiration Date: ##EXPIRATION_DATE##</p>
 <p>CVV: ##CVV##</p>
+<p>Expiry Date: ##EXPIRATION_DATE##</p>
 <br />
 <p>Best regards,</p>
 <p>Team OPUS</p>`,

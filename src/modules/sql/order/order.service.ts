@@ -500,8 +500,8 @@ export class OrderService extends ModelService<Order> {
         return { data: { order: order.data, payment_link: paymentLink.url } };
       } else {
         await transaction.commit();
-        const shipping_address = `${body.address.shipping_first_name + " " + body.address.shipping_last_name},${body.address.shipping_address}, ${body.address.shipping_city}, ${body.address.shipping_state}, ${body.address.shipping_zip_code}`;
-        const billing_address = `${body.address.billing_first_name + " " + body.address.billing_last_name},${body.address.billing_address}, ${body.address.billing_city}, ${body.address.billing_state}, ${body.address.billing_zip_code}`;
+        const shipping_address = `${body.address.shipping_first_name + " " + body.address.shipping_last_name}, ${body.address.shipping_address}, ${body.address.shipping_city}, ${body.address.shipping_state}, ${body.address.shipping_zip_code}`;
+        const billing_address = `${body.address.billing_first_name + " " + body.address.billing_last_name}, ${body.address.billing_address}, ${body.address.billing_city}, ${body.address.billing_state}, ${body.address.billing_zip_code}`;
         // New order alert to admin for repeating order with card details
         await this._msClient.executeJob(
           'controller.notification',
