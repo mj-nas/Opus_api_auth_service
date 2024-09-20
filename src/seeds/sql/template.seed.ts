@@ -405,6 +405,8 @@ export default <Seed<Template>>{
 <br />
 <p>If you have any questions or need further assistance, please contact us.</p>
 <br />
+<p>Thank you.</p>
+<br />
 <p>Best regards,</p>
 <p>Team OPUS</p>`,
       send_sms: false,
