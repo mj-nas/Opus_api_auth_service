@@ -1448,7 +1448,7 @@ export class OrderService extends ModelService<Order> {
           status: OrderStatus.PaymentPending,
           is_repeating_order: 'N',
           created_at: literal(
-            `DATE_FORMAT(Order.created_at, '%Y-%m-%d %H:%i:00') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 5 MINUTES), '%Y-%m-%d %H:%i:00')`,
+            `DATE_FORMAT(Order.created_at, '%Y-%m-%d %H:%i:00') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 MINUTE), '%Y-%m-%d %H:%i:00')`,
           ),
         },
         include: [{ association: 'current_payment' }],
