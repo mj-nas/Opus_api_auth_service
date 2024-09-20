@@ -635,7 +635,7 @@ export class UserService extends ModelService<User> {
             index + 1,
             x?.first_name,
             x?.last_name,
-            x?.business_name,
+            x.business_name? x.buisiness_name : 'Not Applicable',
             x.email,
             x.geotag ? 'Yes' : 'No',
             x.referral_link,
