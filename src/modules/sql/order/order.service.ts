@@ -1471,7 +1471,9 @@ export class OrderService extends ModelService<Order> {
             template: 'payment_pending_reminder',
             variables: {
               ORDER_ID: order.uid,
-              DATE: moment(order.created_at).format('MM/DD/YYYY hh:mm A'),
+              DATE: moment(order.created_at)
+                .tz('America/New_York')
+                .format('MM/DD/YYYY hh:mm A'),
               PAYMENT_LINK: order.current_payment.payment_link_url,
             },
           },
