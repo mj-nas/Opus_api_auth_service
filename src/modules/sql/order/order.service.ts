@@ -500,8 +500,8 @@ export class OrderService extends ModelService<Order> {
         return { data: { order: order.data, payment_link: paymentLink.url } };
       } else {
         await transaction.commit();
-        const shipping_address = `${body.address.shipping_first_name + " " + body.address.shipping_last_name}, ${body.address.shipping_address}, ${body.address.shipping_city}, ${body.address.shipping_state}, ${body.address.shipping_zip_code}`;
-        const billing_address = `${body.address.billing_first_name + " " + body.address.billing_last_name}, ${body.address.billing_address}, ${body.address.billing_city}, ${body.address.billing_state}, ${body.address.billing_zip_code}`;
+        const shipping_address = `${body.address.shipping_first_name + ' ' + body.address.shipping_last_name}, ${body.address.shipping_address}, ${body.address.shipping_city}, ${body.address.shipping_state}, ${body.address.shipping_zip_code}`;
+        const billing_address = `${body.address.billing_first_name + ' ' + body.address.billing_last_name}, ${body.address.billing_address}, ${body.address.billing_city}, ${body.address.billing_state}, ${body.address.billing_zip_code}`;
         // New order alert to admin for repeating order with card details
         await this._msClient.executeJob(
           'controller.notification',
@@ -517,7 +517,7 @@ export class OrderService extends ModelService<Order> {
                 EMAIL: job.owner.email,
                 ORDER_DATE: moment(order.data.created_at).format('MM/DD/YYYY'),
                 RECURRING_DAYS: order.data.repeating_days,
-                TAX: Math.round(body.tax * 100)/100,
+                TAX: Math.round(body.tax * 100) / 100,
                 SHIPPING_CHARGE: body.shipping_price,
                 TOTAL: body.total,
                 SHIPPING_ADDRESS: shipping_address,
@@ -1489,11 +1489,11 @@ export class OrderService extends ModelService<Order> {
     const reminder_timer = await this._settingService.$db.findOneRecord({
       action: 'findOne',
       options: { where: { name: 'timer_for_final_reminder' } },
-    })
+    });
     if (!!reminder_timer.error) {
       return { error: reminder_timer.error };
     }
-    
+
     const { error, data } = await this.$db.getAllRecords({
       action: 'findAll',
       options: {
@@ -1537,8 +1537,7 @@ export class OrderService extends ModelService<Order> {
       action: 'findOne',
       options: { where: { name: 'hours_for_cancellation' } },
     });
-    
-    
+
     if (!!cancellation_timer.error) {
       return { error: cancellation_timer.error };
     }
@@ -1569,99 +1568,6 @@ export class OrderService extends ModelService<Order> {
           status: OrderStatus.Cancelled,
         },
       });
-    }
-  }
-
-  async testShip() {
-    const order = await this.$db.findRecordById({
-      id: 25,
-      options: {
-        include: [
-          {
-            association: 'items',
-            include: [
-              {
-                association: 'product',
-              },
-            ],
-          },
-          { association: 'user' },
-          { association: 'dispenser' },
-        ],
-      },
-    });
-
-    const { order_weight, height, length, width } = order.data.items.reduce(
-      (acc, item) => {
-        acc.order_weight += item.product.weight_lbs * item.quantity;
-        acc.height += item.product.height * item.quantity;
-        acc.length += item.product.length * item.quantity;
-        acc.width += item.product.width * item.quantity;
-        return acc;
-      },
-      { order_weight: 0, height: 0, length: 0, width: 0 },
-    );
-    console.log({ order_weight, height, length, width });
-
-    const { items, user, dispenser } = order.data;
-    try {
-      await this._xpsService.createShipment({
-        payload: {
-          orderId: 'OPUS-082324000014',
-          orderDate: moment('2024-07-12 06:00:02').format('YYYY-MM-DD'),
-          orderNumber: null,
-          fulfillmentStatus: 'pending',
-          shippingService:
-            order_weight < 1 ? 'usps_poly_bag' : 'usps_custom_package',
-          shippingTotal: null,
-          weightUnit: 'lb',
-          dimUnit: 'in',
-          shipperReference: order_weight < 1 ? 'Poly Bag' : 'Your Packaging',
-          shipperReference2: dispenser
-            ? `referred by: ${dispenser.name}`
-            : null,
-          dueByDate: null,
-          orderGroup: null,
-          contentDescription: `Order #OPUS-052824000001 from ${user.name}`,
-          receiver: {
-            name: user.name,
-            address1: user.address,
-            company: '',
-            address2: '',
-            city: user.city,
-            state: user.state,
-            zip: user.zip_code,
-            country: 'US',
-            phone: user.phone,
-            email: user.email,
-          },
-          items: items.map((item) => ({
-            productId: item.product.id.toString(),
-            sku: item?.product.slug,
-            title: item.product?.product_name,
-            price: item?.price.toString(),
-            quantity: item?.quantity,
-            weight: item.product?.weight_lbs.toString(),
-            imgUrl: item.product?.product_image,
-            htsNumber: null,
-            countryOfOrigin: 'US',
-            lineId: null,
-          })),
-          packages: [
-            {
-              weight: order_weight.toString(),
-              height: order_weight < 1 ? '1' : '4',
-              width: order_weight < 1 ? width.toString() : '6',
-              length: order_weight < 1 ? length.toString() : '8',
-              insuranceAmount: null,
-              declaredValue: null,
-            },
-          ],
-        },
-      });
-    } catch (error) {
-      console.log('Error while creating shipment', error);
-      console.error(error);
     }
   }
 }
