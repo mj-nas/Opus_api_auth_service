@@ -287,9 +287,9 @@ export class OrderService extends ModelService<Order> {
               template: 'order_cancelled',
               variables: {
                 ORDER_ID: response.data.uid,
-                DATE: moment(response.data.created_at).format(
-                  'MM/DD/YYYY hh:mm A',
-                ),
+                DATE: moment(response.data.created_at)
+                  .tz('America/New_York')
+                  .format('MM/DD/YYYY hh:mm A'),
               },
             },
           }),
