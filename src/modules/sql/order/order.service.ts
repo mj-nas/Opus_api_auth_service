@@ -574,10 +574,10 @@ export class OrderService extends ModelService<Order> {
 
       const orders = data;
 
-      const { data: shippingLimitData } = await this._settingService.findOne({
-        action: 'findOne',
-        payload: { where: { name: 'shipping_limit' } },
-      });
+      // const { data: shippingLimitData } = await this._settingService.findOne({
+      //   action: 'findOne',
+      //   payload: { where: { name: 'shipping_limit' } },
+      // });
 
       const { data: shippingPriceData } = await this._settingService.findOne({
         action: 'findOne',
@@ -597,8 +597,7 @@ export class OrderService extends ModelService<Order> {
           return sum + price;
         }, 0);
         const shipping_price =
-          sub_total < Number(shippingLimitData?.value) &&
-          o.user?.role !== Role.Dispenser
+          sub_total < 70 && o.user?.role !== Role.Dispenser
             ? Number(shippingPriceData?.value)
             : 0;
 
