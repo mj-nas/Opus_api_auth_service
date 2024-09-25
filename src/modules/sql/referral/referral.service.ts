@@ -171,6 +171,9 @@ export class ReferralService extends ModelService<Referral> {
           to: email,
           subject: "You've been referred",
           html: _email_template,
+          from:
+            this.config.get('email').transports['CustomerServices'].from || '',
+          transporterName: 'CustomerServices',
         },
       }),
     );
