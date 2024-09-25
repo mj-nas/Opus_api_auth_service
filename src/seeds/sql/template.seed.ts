@@ -51,7 +51,10 @@ export default <Seed<Template>>{
       send_email: true,
       transporter: Transporter.CustomerServices,
       email_subject: 'Welcome to OPUS Cannaboids!',
-      email_body: `Hi ##TO_NAME##,<br><br>Welcome aboard!  We're thrilled to have you join us.<br><br>Best regards,Team OPUS`,
+      email_body: `Hi ##TO_NAME##,
+      <br><br>Welcome aboard!  We're thrilled to have you join us.
+      <br><br>Best regards,
+      <br>Team OPUS`,
       send_sms: false,
       sms_body: '',
     },
