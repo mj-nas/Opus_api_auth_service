@@ -459,6 +459,11 @@ export class OrderService extends ModelService<Order> {
                 quantity: 1,
               },
             ],
+            restrictions: {
+              completed_sessions: {
+                limit: 1,
+              },
+            },
           });
 
         // Create order payment
@@ -734,6 +739,11 @@ export class OrderService extends ModelService<Order> {
                 quantity: 1,
               },
             ],
+            restrictions: {
+              completed_sessions: {
+                limit: 1,
+              },
+            },
           });
 
         // Create order payment
