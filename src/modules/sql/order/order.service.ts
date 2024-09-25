@@ -520,7 +520,9 @@ export class OrderService extends ModelService<Order> {
                 CUSTOMER_NAME: job.owner.name,
                 PHONE_NUMBER: job.owner.phone,
                 EMAIL: job.owner.email,
-                ORDER_DATE: moment(order.data.created_at).format('MM/DD/YYYY'),
+                ORDER_DATE: moment(order.data.created_at)
+                  .tz('America/New_York')
+                  .format('MM/DD/YYYY'),
                 RECURRING_DAYS: order.data.repeating_days,
                 TAX: Math.round(body.tax * 100) / 100,
                 SHIPPING_CHARGE: body.shipping_price,
@@ -913,8 +915,8 @@ export class OrderService extends ModelService<Order> {
         );
       }
       if (job.action == 'reorder') {
-        const shipping_address = `${data.address.shipping_first_name + data.address.shipping_last_name},${data.address.shipping_address}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
-        const billing_address = `${data.address.billing_first_name + data.address.billing_last_name},${data.address.billing_address}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
+        const shipping_address = `${data.address.shipping_first_name + ' ' + data.address.shipping_last_name},${data.address.shipping_address}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
+        const billing_address = `${data.address.billing_first_name + ' ' + data.address.billing_last_name},${data.address.billing_address}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
         // sent email to admin for reccurring order with card details
         await this._msClient.executeJob(
           'controller.notification',
@@ -927,11 +929,13 @@ export class OrderService extends ModelService<Order> {
                 ORDER_ID: data.uid,
                 CUSTOMER_NAME: job.owner.name,
                 PHONE_NUMBER: job.owner.phone,
-                Email: job.owner.email,
-                ORDER_DATE: moment(data.created_at).format('MM/DD/YYYY'),
+                EMAIL: job.owner.email,
+                ORDER_DATE: moment(data.created_at)
+                  .tz('America/New_York')
+                  .format('MM/DD/YYYY'),
                 RECURRING_DAYS: repeating_days,
-                TAX: data.tax,
-                SHIPPING_PRICE: data.shipping_price,
+                TAX: Math.round(data.tax * 100) / 100,
+                SHIPPING_CHARGE: data.shipping_price,
                 TOTAL: data.total,
                 SHIPPING_ADDRESS: shipping_address,
                 BILLING_ADDRESS: billing_address,
