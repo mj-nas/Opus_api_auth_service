@@ -140,7 +140,9 @@ export default <Seed<Template>>{
       send_email: true,
       transporter: Transporter.CustomerServices,
       email_subject: 'Email verified',
-      email_body: `<p>Hi ##TO_NAME##,</p><p><br></p><p>Your email verification has been completed.</p><p><br></p><p>Thanks</p>`,
+      email_body: `<p>Hi ##TO_NAME##,</p>
+      <br/><p>Your email verification has been completed.</p>
+      <br/><p>Thanks</p>`,
       send_sms: false,
       sms_body: '',
     },
@@ -526,8 +528,8 @@ export default <Seed<Template>>{
 <p>Order Date: ##ORDER_DATE##</p>
 <p>Recurring Days: ##RECURRING_DAYS## days</p>
 <br />
-<p>Tax: ##TAX##</p>
-<p>Shipping Charge: ##SHIPPING_CHARGE##</p>
+<p>Tax: $##TAX##</p>
+<p>Shipping Charge: $##SHIPPING_CHARGE##</p>
 <p>Total: $##TOTAL##</p>
 <br />
 <p>Shipping Address: ##SHIPPING_ADDRESS##</p>
