@@ -18,6 +18,28 @@ export default <Seed<Setting>>{
       },
     },
     {
+      name: 'customer_service_email',
+      display_name: 'Customer Service Email',
+      value: 'contact_us@mailinator.com',
+      group_id: 1,
+      option: {
+        type: 'email',
+        format: 'email',
+        required: true,
+      },
+    },
+    {
+      name: 'order_service_email',
+      display_name: 'Order Service Email',
+      value: 'contact_us@mailinator.com',
+      group_id: 1,
+      option: {
+        type: 'email',
+        format: 'email',
+        required: true,
+      },
+    },
+    {
       name: 'shipping_limit',
       display_name: 'Free shipping limit',
       value: '70.00',

@@ -64,6 +64,7 @@ export class Address extends SqlModel {
   })
   @IsString()
   @IsEmail()
+  @IsOptional()
   email: string;
 
   @Column({ type: DataType.STRING(7), defaultValue: '+1' })
