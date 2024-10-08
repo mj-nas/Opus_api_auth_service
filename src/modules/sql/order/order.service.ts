@@ -423,6 +423,15 @@ export class OrderService extends ModelService<Order> {
             );
             userData.data.setDataValue('connection_via', ConnectionVia.Coupon);
             await userData.data.save();
+
+            await this._msClient.executeJob('user.dispenser.change', {
+              owner: { id: job.owner.id },
+              payload: {
+                user_id: job.owner.id,
+                dispenser_id: couponData.data?.user_id,
+                connection_via: ConnectionVia.Coupon,
+              },
+            });
           }
         }
       }
