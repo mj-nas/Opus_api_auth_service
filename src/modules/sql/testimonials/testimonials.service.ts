@@ -8,7 +8,7 @@ export class TestimonialsService extends ModelService<Testimonials> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['name'];
+  searchFields: string[] = ['name', 'speciality'];
 
   constructor(db: SqlService<Testimonials>) {
     super(db);

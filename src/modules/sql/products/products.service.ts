@@ -22,7 +22,12 @@ export class ProductsService extends ModelService<Products> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['product_name'];
+  searchFields: string[] = [
+    'product_name',
+    'product_price',
+    'wholesale_price',
+    'product_description',
+  ];
 
   constructor(
     db: SqlService<Products>,

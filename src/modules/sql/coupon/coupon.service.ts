@@ -16,7 +16,15 @@ export class CouponService extends ModelService<Coupon> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['name', 'code'];
+  searchFields: string[] = [
+    'name',
+    'code',
+    'discount_usage',
+    'discount',
+    '$user.name$',
+  ];
+
+  searchPopulate: string[] = ['user'];
 
   constructor(
     db: SqlService<Coupon>,

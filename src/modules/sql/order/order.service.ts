@@ -36,7 +36,7 @@ export class OrderService extends ModelService<Order> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['uid', '$user.name$'];
+  searchFields: string[] = ['uid', '$user.name$', 'total', 'repeating_days'];
 
   /**
    * searchPopulate
