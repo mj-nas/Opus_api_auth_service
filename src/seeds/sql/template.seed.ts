@@ -547,5 +547,19 @@ export default <Seed<Template>>{
       send_sms: false,
       sms_body: '',
     },
+    {
+      name: 'new_dispenser_application',
+      title: 'New Dispenser Application Alert To Admin',
+      send_email: true,
+      transporter: Transporter.CustomerServices,
+      email_subject: 'New Dispenser Application Received',
+      email_body: `<p>Hi Admin</p>
+      <br/><p>A new application to join as a dispenser has been submitted. Please review the details and proceed with the necessary steps.</p>
+      <br/><p>Thank you for your attention.</p>
+      <br/><p>Best Regards,</p>
+      <p>Best Regards,</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
   ],
 };
