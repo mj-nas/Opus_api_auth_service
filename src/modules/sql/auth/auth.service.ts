@@ -450,6 +450,21 @@ export class AuthService {
         },
       });
 
+      if (body.role === Role.Dispenser) {
+        // send email to admin for new dispenser application
+        await this.msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              user_where: { role: Role.Admin },
+              template: 'new_dispenser_application',
+              variables: {},
+            },
+          }),
+        );
+      }
+
       if (error) {
         return { error, message: 'User signup failed' };
       }

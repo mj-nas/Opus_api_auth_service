@@ -1,6 +1,10 @@
 import { ModelService, SqlJob, SqlService } from '@core/sql';
 import { Injectable } from '@nestjs/common';
-import { Job } from 'src/core/core.job';
+import * as ExcelJS from 'exceljs';
+import * as fs from 'fs';
+import moment from 'moment-timezone';
+import config from 'src/config';
+import { Job, JobResponse } from 'src/core/core.job';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { ProductReview } from './entities/product-review.entity';
 
@@ -71,6 +75,84 @@ export class ProductReviewService extends ModelService<ProductReview> {
         },
       });
       return { data };
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  async exportRating(job: Job): Promise<JobResponse> {
+    try {
+      const { owner, payload } = job;
+      const timezone: string = payload.timezone;
+      delete payload.timezone;
+      const { error, data } = await this.findAll({
+        owner,
+        action: 'findAll',
+        payload: {
+          ...payload,
+          offset: 0,
+          limit: -1,
+        },
+      });
+
+      if (error) throw error;
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Customer');
+
+      worksheet.addRow([
+        'Sl. No',
+        'Product',
+        'Name',
+        'Rating',
+        'Review',
+        'Posted On',
+        'Status',
+      ]);
+
+      const ratings: ProductReview[] = JSON.parse(JSON.stringify(data));
+
+      await Promise.all(
+        ratings.map(async (x, index) => {
+          worksheet.addRow([
+            index + 1,
+            x?.product?.product_name,
+            x?.user?.name,
+            x.rating,
+            x.review,
+            moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
+            x?.status,
+          ]);
+        }),
+      );
+
+      worksheet.columns = [
+        { header: 'Sl. No', key: 'sl_no', width: 25 },
+        { header: 'Product', key: 'product', width: 25 },
+        { header: 'Name', key: 'name', width: 25 },
+        { header: 'Rating', key: 'rating', width: 25 },
+        { header: 'Review', key: 'review', width: 25 },
+        { header: 'Posted On', key: 'created_at', width: 25 },
+        { header: 'Status', key: 'active', width: 25 },
+      ];
+
+      const folder = 'rating-excel';
+      const file_dir = config().cdnPath + `/${folder}`;
+      const file_baseurl = config().cdnLocalURL + `/${folder}`;
+
+      if (!fs.existsSync(file_dir)) {
+        fs.mkdirSync(file_dir);
+      }
+      const filename = `ratings.xlsx`;
+      const full_path = `${file_dir}/${filename}`;
+      await workbook.xlsx.writeFile(full_path);
+      return {
+        data: {
+          url: `${file_baseurl}/${filename}`,
+          filename,
+          isData: !!ratings.length,
+        },
+      };
     } catch (error) {
       return { error };
     }

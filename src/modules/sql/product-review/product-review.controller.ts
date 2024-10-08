@@ -114,6 +114,36 @@ export class ProductReviewController {
   /**
    * Return all entity documents list
    */
+  @Get('export-rating')
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
+  @ApiQueryGetAll()
+  @ResponseGetAll(ProductReview)
+  async exportRating(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.productReviewService.exportRating({
+      owner,
+      action: 'createXls',
+      payload: { ...query },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { ...data },
+      message: 'Ok',
+    });
+  }
+  /**
+   * Return all entity documents list
+   */
   @Get()
   @Roles(Role.Admin)
   @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
