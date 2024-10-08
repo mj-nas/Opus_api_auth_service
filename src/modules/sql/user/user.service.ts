@@ -371,7 +371,6 @@ export class UserService extends ModelService<User> {
       job.options.where = {
         ...job.options.where,
         role: Role.Dispenser,
-        learning_completed: 'Y',
         status: Status.Approve,
       };
       if (job.options.where.deleted_at) {
@@ -582,6 +581,95 @@ export class UserService extends ModelService<User> {
         fs.mkdirSync(file_dir);
       }
       const filename = `Customer.xlsx`;
+      const full_path = `${file_dir}/${filename}`;
+      await workbook.xlsx.writeFile(full_path);
+      return {
+        data: {
+          url: `${file_baseurl}/${filename}`,
+          filename,
+          isData: !!users.length,
+        },
+      };
+    } catch (error) {
+      return { error };
+    }
+  }
+  async createApplicantXls(job: Job): Promise<JobResponse> {
+    try {
+      const { owner, payload } = job;
+      const timezone: string = payload.timezone;
+      delete payload.timezone;
+      const { error, data } = await this.findAll({
+        owner,
+        action: 'findAllDispenserApplicant',
+        payload: {
+          ...payload,
+          offset: 0,
+          limit: -1,
+        },
+      });
+
+      if (error) throw error;
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Applicant');
+
+      worksheet.addRow([
+        'Sl. No',
+        'Name',
+        'Buisiness Name',
+        'Email',
+        'Phone',
+        'Address',
+        'City',
+        'State',
+        'Zip Code',
+        'Created On',
+        'Status',
+      ]);
+
+      const users: User[] = JSON.parse(JSON.stringify(data));
+
+      await Promise.all(
+        users.map(async (x, index) => {
+          worksheet.addRow([
+            index + 1,
+            x?.name,
+            x?.business_name,
+            x.email,
+            `${x?.phone}`,
+            x?.address,
+            x?.city,
+            x?.state,
+            x?.zip_code,
+            moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
+            x?.active ? 'Active' : 'Inactive',
+          ]);
+        }),
+      );
+
+      worksheet.columns = [
+        { header: 'Sl. No', key: 'sl_no', width: 25 },
+        { header: 'Name', key: 'name', width: 25 },
+        { header: 'Buisiness Name', key: 'buisiness_name', width: 25 },
+        { header: 'Email', key: 'email', width: 25 },
+        { header: 'Phone', key: 'phone', width: 50 },
+        { header: 'Address', key: 'address', width: 50 },
+        { header: 'City', key: 'city', width: 50 },
+        { header: 'State', key: 'state', width: 50 },
+        { header: 'Zip Code', key: 'zip_code', width: 15 },
+        { header: 'Created On', key: 'created_at', width: 25 },
+        { header: 'Status', key: 'active', width: 25 },
+      ];
+
+      const folder = 'applicant-excel';
+      const file_dir = config().cdnPath + `/${folder}`;
+      const file_baseurl = config().cdnLocalURL + `/${folder}`;
+
+      if (!fs.existsSync(file_dir)) {
+        fs.mkdirSync(file_dir);
+      }
+      const filename = `Applicant.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {

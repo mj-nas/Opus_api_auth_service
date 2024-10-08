@@ -595,6 +595,52 @@ export class UserController {
     });
   }
 
+  @Get('applicant-export-xls')
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: `Create ${pluralizeString('Applicant')} xls` })
+  @ApiQueryGetAll()
+  @ApiOkResponse({
+    description: 'xls file created',
+    schema: {
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+            },
+          },
+        },
+        message: {
+          type: 'string',
+          example: 'xls file created',
+        },
+      },
+    },
+  })
+  async applicantExportXls(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.userService.createApplicantXls({
+      owner,
+      action: 'createXls',
+      payload: { ...query },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { ...data },
+      message: 'Ok',
+    });
+  }
+
   /**
    * Return all entity documents list
    */
