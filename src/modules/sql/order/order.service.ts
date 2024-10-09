@@ -42,13 +42,14 @@ export class OrderService extends ModelService<Order> {
     'total',
     'repeating_days',
     '$dispenser.name$',
+    '$coupon.code$',
   ];
 
   /**
    * searchPopulate
    * @property array of associations to include for search
    */
-  searchPopulate: string[] = ['user', 'dispenser'];
+  searchPopulate: string[] = ['user', 'dispenser', 'coupon'];
 
   constructor(
     db: SqlService<Order>,
