@@ -153,6 +153,10 @@ export class ReferralService extends ModelService<Referral> {
       logo: this.config.get('cdnLocalURL') + 'assets/logo.png',
       referral_link: data.referral_link,
       qr_link: data.qr_code,
+      dispenser_name: job.owner.name,
+      business_name: job.owner.business_name
+        ? `from <b>${job.owner.business_name}</b>`
+        : '',
       coupons: referred_coupons ? referred_coupons : [],
       products: referred_products
         ? referred_products.map((e: any, index: number) => ({
