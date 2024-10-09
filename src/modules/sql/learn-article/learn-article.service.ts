@@ -92,7 +92,7 @@ export class LearnArticleService extends ModelService<LearnArticle> {
             x?.title,
             x?.description,
             x?.url,
-            x?.thumbnail,
+            x?.thumb,
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
             x?.active ? 'Active' : 'Inactive',
           ]);
