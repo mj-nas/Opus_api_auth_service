@@ -206,6 +206,29 @@ export class LearnArticleController {
     });
   }
 
+  @Get('export')
+  @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
+  @ApiQueryGetAll()
+  @ResponseGetAll(LearnArticle)
+  async export(@Res() res: Response, @Query() query: any) {
+    const { error, data } =
+      await this.learnArticleService.createLearnArticleXls({
+        action: 'findAll',
+        payload: { ...query },
+      });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { ...data },
+      message: 'Ok',
+    });
+  }
+
   /**
    * Delete an entity document by using id
    */
