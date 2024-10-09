@@ -90,7 +90,7 @@ export class GalleryService extends ModelService<Gallery> {
             index + 1,
             x?.name,
             x?.file_url,
-            x?.category.name,
+            x?.category?.name,
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
             x?.active ? 'Active' : 'Inactive',
           ]);

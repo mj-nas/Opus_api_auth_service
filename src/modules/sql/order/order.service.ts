@@ -140,20 +140,33 @@ export class OrderService extends ModelService<Order> {
         throw error;
       }
       // send email to admin for reorder cancellation
-      await this._msClient.executeJob(
-        'controller.notification',
-        new Job({
-          action: 'send',
-          payload: {
-            user_where: { role: Role.Admin },
-            template: 'reorder_cancelled',
-            variables: {
-              ORDER_ID: data.uid,
-              CUSTOMER_NAME: data.user.name,
+      const { data: setttingData } = await this._settingService.findOne({
+        action: 'findOne',
+        payload: { where: { name: 'order_service_email' } },
+      });
+      if (setttingData && setttingData?.getDataValue('value')) {
+        await this._msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              skipUserConfig: true,
+              users: [
+                {
+                  name: 'Super Admin',
+                  email: setttingData.getDataValue('value'),
+                  send_email: true,
+                },
+              ],
+              template: 'reorder_cancelled',
+              variables: {
+                ORDER_ID: data.uid,
+                CUSTOMER_NAME: data.user.name,
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
+      }
 
       // if (data.user_id !== job.owner.id) {
       //   throw "You don't have permission to change the status.";
@@ -443,6 +456,11 @@ export class OrderService extends ModelService<Order> {
         }
       }
 
+      const { data: emailData } = await this._settingService.findOne({
+        action: 'findOne',
+        payload: { where: { name: 'order_service_email' } },
+      });
+
       // create stripe product, price and payment link only for non-repeating orders
       if (body.is_repeating_order === 'N') {
         // Create a new stripe product against the order
@@ -503,20 +521,30 @@ export class OrderService extends ModelService<Order> {
         await transaction.commit();
 
         // New order alert to admin
-        await this._msClient.executeJob(
-          'controller.notification',
-          new Job({
-            action: 'send',
-            payload: {
-              user_where: { role: Role.Admin },
-              template: 'new_order_alert_to_admin',
-              variables: {
-                ORDER_ID: order.data.uid,
-                CUSTOMER_NAME: job.owner.name,
+
+        if (emailData && emailData?.getDataValue('value')) {
+          await this._msClient.executeJob(
+            'controller.notification',
+            new Job({
+              action: 'send',
+              payload: {
+                skipUserConfig: true,
+                users: [
+                  {
+                    name: 'Super Admin',
+                    email: emailData.getDataValue('value'),
+                    send_email: true,
+                  },
+                ],
+                template: 'new_order_alert_to_admin',
+                variables: {
+                  ORDER_ID: order.data.uid,
+                  CUSTOMER_NAME: job.owner.name,
+                },
               },
-            },
-          }),
-        );
+            }),
+          );
+        }
 
         return { data: { order: order.data, payment_link: paymentLink.url } };
       } else {
@@ -524,38 +552,47 @@ export class OrderService extends ModelService<Order> {
         const shipping_address = `${body.address.shipping_first_name + ' ' + body.address.shipping_last_name}, ${body.address.shipping_address}, ${body.address.shipping_city}, ${body.address.shipping_state}, ${body.address.shipping_zip_code}`;
         const billing_address = `${body.address.billing_first_name + ' ' + body.address.billing_last_name}, ${body.address.billing_address}, ${body.address.billing_city}, ${body.address.billing_state}, ${body.address.billing_zip_code}`;
         // New order alert to admin for repeating order with card details
-        await this._msClient.executeJob(
-          'controller.notification',
-          new Job({
-            action: 'send',
-            payload: {
-              user_where: { role: Role.Admin },
-              template: 'new_recurring_order_admin',
-              variables: {
-                ORDER_ID: order.data.uid,
-                CUSTOMER_NAME: job.owner.name,
-                PHONE_NUMBER: job.owner.phone,
-                EMAIL: job.owner.email,
-                ORDER_DATE: moment(order.data.created_at)
-                  .tz('America/New_York')
-                  .format('MM/DD/YYYY'),
-                RECURRING_DAYS: order.data.repeating_days,
-                TAX: Math.round(body.tax * 100) / 100,
-                SHIPPING_CHARGE: body.shipping_price,
-                TOTAL: body.total,
-                SHIPPING_ADDRESS: shipping_address,
-                BILLING_ADDRESS: billing_address,
-                CARDHOLDER_NAME: body.card_details.cardholder_name,
-                CARD_NUMBER: body.card_details.card_number.replace(
-                  /(\d{4})/g,
-                  '$1 ',
-                ),
-                EXPIRATION_DATE: body.card_details.expiration_date,
-                CVV: body.card_details.cvv,
+        if (emailData && emailData?.getDataValue('value')) {
+          await this._msClient.executeJob(
+            'controller.notification',
+            new Job({
+              action: 'send',
+              payload: {
+                skipUserConfig: true,
+                users: [
+                  {
+                    name: 'Super Admin',
+                    email: emailData.getDataValue('value'),
+                    send_email: true,
+                  },
+                ],
+                template: 'new_recurring_order_admin',
+                variables: {
+                  ORDER_ID: order.data.uid,
+                  CUSTOMER_NAME: job.owner.name,
+                  PHONE_NUMBER: job.owner.phone,
+                  EMAIL: job.owner.email,
+                  ORDER_DATE: moment(order.data.created_at)
+                    .tz('America/New_York')
+                    .format('MM/DD/YYYY'),
+                  RECURRING_DAYS: order.data.repeating_days,
+                  TAX: Math.round(body.tax * 100) / 100,
+                  SHIPPING_CHARGE: body.shipping_price,
+                  TOTAL: body.total,
+                  SHIPPING_ADDRESS: shipping_address,
+                  BILLING_ADDRESS: billing_address,
+                  CARDHOLDER_NAME: body.card_details.cardholder_name,
+                  CARD_NUMBER: body.card_details.card_number.replace(
+                    /(\d{4})/g,
+                    '$1 ',
+                  ),
+                  EXPIRATION_DATE: body.card_details.expiration_date,
+                  CVV: body.card_details.cvv,
+                },
               },
-            },
-          }),
-        );
+            }),
+          );
+        }
         return { data: { order: order.data, payment_link: '' } };
       }
     } catch (error) {
@@ -789,21 +826,34 @@ export class OrderService extends ModelService<Order> {
         o.setDataValue('is_base_order', 'N');
         await o.save();
 
-        // New order alert to admin
-        await this._msClient.executeJob(
-          'controller.notification',
-          new Job({
-            action: 'send',
-            payload: {
-              user_where: { role: Role.Admin },
-              template: 'new_order_alert_to_admin',
-              variables: {
-                ORDER_ID: order.data.uid,
-                CUSTOMER_NAME: o.user.name,
+        const { data } = await this._settingService.findOne({
+          action: 'findOne',
+          payload: { where: { name: 'order_service_email' } },
+        });
+        if (data && data?.getDataValue('value')) {
+          // New order alert to admin
+          await this._msClient.executeJob(
+            'controller.notification',
+            new Job({
+              action: 'send',
+              payload: {
+                skipUserConfig: true,
+                users: [
+                  {
+                    name: 'Super Admin',
+                    email: data.getDataValue('value'),
+                    send_email: true,
+                  },
+                ],
+                template: 'new_order_alert_to_admin',
+                variables: {
+                  ORDER_ID: order.data.uid,
+                  CUSTOMER_NAME: o.user.name,
+                },
               },
-            },
-          }),
-        );
+            }),
+          );
+        }
       }
 
       return { data };
@@ -914,58 +964,82 @@ export class OrderService extends ModelService<Order> {
       data.setDataValue('repeating_days', repeating_days);
       await data.save();
 
+      const { data: emailData } = await this._settingService.findOne({
+        action: 'findOne',
+        payload: { where: { name: 'order_service_email' } },
+      });
+
       if (job.action == 'reorderCycleChange') {
         // send email to admin for reorder cycle change
-        await this._msClient.executeJob(
-          'controller.notification',
-          new Job({
-            action: 'send',
-            payload: {
-              user_where: { role: Role.Admin },
-              template: 'reorder_cycle_change',
-              variables: {
-                ORDER_ID: data.uid,
-                ORIGINAL_DAYS: currentRepeatingDays,
-                NEW_DAYS: repeating_days,
-                CUSTOMER_NAME: job.owner.name,
+        if (emailData && emailData?.getDataValue('value')) {
+          await this._msClient.executeJob(
+            'controller.notification',
+            new Job({
+              action: 'send',
+              payload: {
+                skipUserConfig: true,
+                users: [
+                  {
+                    name: 'Super Admin',
+                    email: emailData.getDataValue('value'),
+                    send_email: true,
+                  },
+                ],
+                template: 'reorder_cycle_change',
+                variables: {
+                  ORDER_ID: data.uid,
+                  ORIGINAL_DAYS: currentRepeatingDays,
+                  NEW_DAYS: repeating_days,
+                  CUSTOMER_NAME: job.owner.name,
+                },
               },
-            },
-          }),
-        );
+            }),
+          );
+        }
       }
       if (job.action == 'reorder') {
         const shipping_address = `${data.address.shipping_first_name + ' ' + data.address.shipping_last_name},${data.address.shipping_address}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
         const billing_address = `${data.address.billing_first_name + ' ' + data.address.billing_last_name},${data.address.billing_address}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
         // sent email to admin for reccurring order with card details
-        await this._msClient.executeJob(
-          'controller.notification',
-          new Job({
-            action: 'send',
-            payload: {
-              user_where: { role: Role.Admin },
-              template: 'new_recurring_order_admin',
-              variables: {
-                ORDER_ID: data.uid,
-                CUSTOMER_NAME: job.owner.name,
-                PHONE_NUMBER: job.owner.phone,
-                EMAIL: job.owner.email,
-                ORDER_DATE: moment(data.created_at)
-                  .tz('America/New_York')
-                  .format('MM/DD/YYYY'),
-                RECURRING_DAYS: repeating_days,
-                TAX: Math.round(data.tax * 100) / 100,
-                SHIPPING_CHARGE: data.shipping_price,
-                TOTAL: data.total,
-                SHIPPING_ADDRESS: shipping_address,
-                BILLING_ADDRESS: billing_address,
-                CARDHOLDER_NAME: job.payload.card_details.cardholder_name,
-                CARD_NUMBER: job.payload.card_details.card_number,
-                EXPIRATION_DATE: job.payload.card_details.expiration_date,
-                CVV: job.payload.card_details.cvv,
+
+        if (emailData && emailData?.getDataValue('value')) {
+          await this._msClient.executeJob(
+            'controller.notification',
+            new Job({
+              action: 'send',
+              payload: {
+                skipUserConfig: true,
+                users: [
+                  {
+                    name: 'Super Admin',
+                    email: emailData.getDataValue('value'),
+                    send_email: true,
+                  },
+                ],
+                template: 'new_recurring_order_admin',
+                variables: {
+                  ORDER_ID: data.uid,
+                  CUSTOMER_NAME: job.owner.name,
+                  PHONE_NUMBER: job.owner.phone,
+                  EMAIL: job.owner.email,
+                  ORDER_DATE: moment(data.created_at)
+                    .tz('America/New_York')
+                    .format('MM/DD/YYYY'),
+                  RECURRING_DAYS: repeating_days,
+                  TAX: Math.round(data.tax * 100) / 100,
+                  SHIPPING_CHARGE: data.shipping_price,
+                  TOTAL: data.total,
+                  SHIPPING_ADDRESS: shipping_address,
+                  BILLING_ADDRESS: billing_address,
+                  CARDHOLDER_NAME: job.payload.card_details.cardholder_name,
+                  CARD_NUMBER: job.payload.card_details.card_number,
+                  EXPIRATION_DATE: job.payload.card_details.expiration_date,
+                  CVV: job.payload.card_details.cvv,
+                },
               },
-            },
-          }),
-        );
+            }),
+          );
+        }
       }
 
       return { data };

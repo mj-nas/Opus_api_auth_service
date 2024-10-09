@@ -17,6 +17,7 @@ import { CartItemService } from '../cart-item/cart-item.service';
 import { CartService } from '../cart/cart.service';
 import { NotificationService } from '../notification/notification.service';
 import { ReferralService } from '../referral/referral.service';
+import { SettingService } from '../setting/setting.service';
 import { ConnectionVia } from '../user/connection-via.enum';
 import { User } from '../user/entities/user.entity';
 import { Role } from '../user/role.enum';
@@ -47,6 +48,7 @@ export class AuthService {
     private _cache: CachingService,
     private msClient: MsClientService,
     private notificationService: NotificationService,
+    private settingService: SettingService,
   ) {}
 
   async createSession(owner: OwnerDto, info: any): Promise<any> {
@@ -452,17 +454,30 @@ export class AuthService {
 
       if (body.role === Role.Dispenser) {
         // send email to admin for new dispenser application
-        await this.msClient.executeJob(
-          'controller.notification',
-          new Job({
-            action: 'send',
-            payload: {
-              user_where: { role: Role.Admin },
-              template: 'new_dispenser_application',
-              variables: {},
-            },
-          }),
-        );
+        const { data } = await this.settingService.findOne({
+          action: 'findOne',
+          payload: { where: { name: 'customer_service_email' } },
+        });
+        if (data && data?.getDataValue('value')) {
+          await this.msClient.executeJob(
+            'controller.notification',
+            new Job({
+              action: 'send',
+              payload: {
+                skipUserConfig: true,
+                users: [
+                  {
+                    name: 'Super Admin',
+                    email: data.getDataValue('value'),
+                    send_email: true,
+                  },
+                ],
+                template: 'new_dispenser_application',
+                variables: {},
+              },
+            }),
+          );
+        }
       }
 
       if (error) {

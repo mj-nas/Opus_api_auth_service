@@ -9,6 +9,7 @@ import { CartItemModule } from '../cart-item/cart-item.module';
 import { CartModule } from '../cart/cart.module';
 import { NotificationModule } from '../notification/notification.module';
 import { ReferralModule } from '../referral/referral.module';
+import { SettingModule } from '../setting/setting.module';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -28,6 +29,7 @@ import { TokenStrategy } from './strategies/token/token.strategy';
     ReferralModule,
     CartModule,
     CartItemModule,
+    SettingModule,
   ],
   providers: [AuthService, JwtStrategy, TokenStrategy],
   controllers: [AuthController],
