@@ -55,7 +55,7 @@ export class UserService extends ModelService<User> {
    * searchPopulate
    * @property array of associations to include for search
    */
-  searchPopulate: string[] = ['dispenser', 'video'];
+  searchPopulate: string[] = ['dispenser'];
 
   constructor(
     db: SqlService<User>,
