@@ -166,6 +166,34 @@ export class LearningQuestionSetController {
     });
   }
 
+  @Get('export')
+  @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
+  @ApiQueryGetAll()
+  @ResponseGetAll(LearningQuestionSet)
+  async export(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data } =
+      await this.learningQuestionSetService.createLearningSetXls({
+        owner,
+        action: 'findAll',
+        payload: { ...query },
+      });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { ...data },
+      message: 'Ok',
+    });
+  }
+
   /**
    * Return count of entity documents
    */

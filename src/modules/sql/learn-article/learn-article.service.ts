@@ -71,7 +71,7 @@ export class LearnArticleService extends ModelService<LearnArticle> {
       if (error) throw error;
 
       const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Customer');
+      const worksheet = workbook.addWorksheet('LearnArticle');
 
       worksheet.addRow([
         'Sl. No',
