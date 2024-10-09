@@ -36,13 +36,19 @@ export class OrderService extends ModelService<Order> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['uid', '$user.name$', 'total', 'repeating_days'];
+  searchFields: string[] = [
+    'uid',
+    '$user.name$',
+    'total',
+    'repeating_days',
+    '$dispenser.name$',
+  ];
 
   /**
    * searchPopulate
    * @property array of associations to include for search
    */
-  searchPopulate: string[] = ['user'];
+  searchPopulate: string[] = ['user', 'dispenser'];
 
   constructor(
     db: SqlService<Order>,
