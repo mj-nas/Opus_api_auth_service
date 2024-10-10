@@ -58,6 +58,7 @@ export class GalleryService extends ModelService<Gallery> {
       const { owner, payload } = job;
       const timezone: string = payload.timezone;
       delete payload.timezone;
+
       const { error, data } = await this.findAll({
         owner,
         action: 'findAll',
@@ -76,7 +77,7 @@ export class GalleryService extends ModelService<Gallery> {
       worksheet.addRow([
         'Sl. No',
         'Title',
-        'Image',
+        `${payload.where?.type === 'image' ? 'Image' : 'Video'}`,
         'Category',
         'Created On',
         'Status',
