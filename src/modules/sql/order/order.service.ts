@@ -1158,6 +1158,7 @@ export class OrderService extends ModelService<Order> {
         'Customer Name',
         'Price',
         'Repeated Days',
+        'Created On',
         'Next Order Date',
         'Previous Order Date',
         'Status',
@@ -1173,6 +1174,7 @@ export class OrderService extends ModelService<Order> {
             x?.user?.name,
             `${x?.total}`,
             x?.repeating_days,
+            moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
             moment(x.created_at)
               .add(x?.repeating_days, 'days')
               .tz(timezone)
@@ -1191,6 +1193,7 @@ export class OrderService extends ModelService<Order> {
         { header: 'Customer Name', key: 'name', width: 25 },
         { header: 'Price', key: 'total', width: 10 },
         { header: 'Repeated Days', key: 'repeating_days', width: 10 },
+        { header: 'Created On', key: 'created_at', width: 50 },
         { header: 'Next Order Date', key: 'created_at', width: 50 },
         { header: 'Previous Order Date', key: 'previous_order', width: 50 },
         { header: 'Status', key: 'active', width: 25 },

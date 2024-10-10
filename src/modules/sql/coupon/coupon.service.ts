@@ -144,7 +144,7 @@ export class CouponService extends ModelService<Coupon> {
           ...payload,
           offset: 0,
           limit: -1,
-          populate: ['user', 'coupon_used'],
+          // populate: ['user', 'coupon_used'],
         },
       });
 
