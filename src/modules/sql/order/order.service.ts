@@ -1174,6 +1174,10 @@ export class OrderService extends ModelService<Order> {
             include: [
               {
                 association: 'product',
+                include: [
+                  {
+                    association: 'product_primary_image',
+                  }
               },
             ],
           },
@@ -1231,7 +1235,7 @@ export class OrderService extends ModelService<Order> {
           price: item?.price.toString(),
           quantity: item?.quantity,
           weight: item.product?.weight_lbs.toString(),
-          imgUrl: item.product?.product_image,
+          imgUrl: item.product?.product_primary_image?.product_image,
           htsNumber: null,
           countryOfOrigin: 'US',
           lineId: null,
