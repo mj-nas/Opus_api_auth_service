@@ -1174,7 +1174,7 @@ export class OrderService extends ModelService<Order> {
             include: [
               {
                 association: 'product',
-                include: [{ association: 'product_primary_image' }],
+                include: [{ association: 'product_primary_image' }, { association: 'productCategory' },],
               },
             ],
           },
@@ -1227,7 +1227,7 @@ export class OrderService extends ModelService<Order> {
         },
         items: items.map((item) => ({
           productId: item.product.id.toString(),
-          sku: item?.product.slug,
+          sku: item?.product?.productCategory?.category_name,
           title: item.product?.product_name,
           price: item?.price.toString(),
           quantity: item?.quantity,
