@@ -24,7 +24,7 @@ export class CouponService extends ModelService<Coupon> {
     '$user.name$',
   ];
 
-  // searchPopulate: string[] = ['user', 'coupon_used'];
+  // searchPopulate: string[] = ['user'];
 
   constructor(
     db: SqlService<Coupon>,
@@ -146,7 +146,7 @@ export class CouponService extends ModelService<Coupon> {
           ...payload,
           offset: 0,
           limit: -1,
-          // populate: ['user', 'coupon_used'],
+          populate: ['user', '-coupon_used'],
         },
       });
       console.log('data', data);
@@ -238,7 +238,7 @@ export class CouponService extends ModelService<Coupon> {
           ...payload,
           offset: 0,
           limit: -1,
-          populate: ['user', 'coupon_used'],
+          populate: ['user', '-coupon_used'],
         },
       });
 
