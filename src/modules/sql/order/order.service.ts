@@ -1174,10 +1174,7 @@ export class OrderService extends ModelService<Order> {
             include: [
               {
                 association: 'product',
-                include: [
-                  {
-                    association: 'product_primary_image',
-                  }
+                include: [{ association: 'product_primary_image' }],
               },
             ],
           },
