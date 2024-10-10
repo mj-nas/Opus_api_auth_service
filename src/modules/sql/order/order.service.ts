@@ -6,7 +6,9 @@ import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
+import { handlebars } from 'hbs';
 import * as moment from 'moment-timezone';
+import { join } from 'path';
 import { literal, Op } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import config from 'src/config';
@@ -21,6 +23,7 @@ import { OrderItemStatus } from '../order-item/entities/order-item.entity';
 import { OrderItemService } from '../order-item/order-item.service';
 import { OrderPaymentService } from '../order-payment/order-payment.service';
 import { OrderStatusLogService } from '../order-status-log/order-status-log.service';
+import { ProductsService } from '../products/products.service';
 import { SettingService } from '../setting/setting.service';
 import { ConnectionVia } from '../user/connection-via.enum';
 import { Role } from '../user/role.enum';
@@ -30,6 +33,7 @@ import { OrderStatus, OrderStatusLevel } from './order-status.enum';
 
 @Injectable()
 export class OrderService extends ModelService<Order> {
+  private emailTemplate: HandlebarsTemplateDelegate;
   private logger: Logger = new Logger(`Cron - Order Service`);
 
   /**
@@ -66,6 +70,7 @@ export class OrderService extends ModelService<Order> {
     private _xpsService: XpsService,
     private _config: ConfigService,
     private _settingService: SettingService,
+    private _productService: ProductsService,
   ) {
     super(db);
   }
@@ -553,45 +558,98 @@ export class OrderService extends ModelService<Order> {
         const billing_address = `${body.address.billing_first_name + ' ' + body.address.billing_last_name}, ${body.address.billing_address}, ${body.address.billing_city}, ${body.address.billing_state}, ${body.address.billing_zip_code}`;
         // New order alert to admin for repeating order with card details
         if (emailData && emailData?.getDataValue('value')) {
+          // setting template from hbs file
+          try {
+            const template = fs.readFileSync(
+              join(__dirname, '../src', 'views/order_template.hbs'),
+              'utf8',
+            );
+            // handlebars.registerHelper('checkLength', function (array) {
+            //   if (array.length > 1) {
+            //     return 'These products were recommended by your personal Opus Dispenser';
+            //   } else {
+            //     return 'This product was recommended by your personal Opus Dispenser';
+            //   }
+            // });
+            this.emailTemplate = handlebars.compile(template);
+          } catch (error) {
+            this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
+          }
+
+          const products = body.items.map(async (item) => ({
+            name: item.product.name,
+            price: item.price_per_item,
+            quantity: item.quantity,
+            order_id: order.data.uid,
+            image: await this.getImageUrl(item.product_id),
+          }));
+
+          const _email_template = this.emailTemplate({
+            logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
+            reorder: true,
+            title_content: `
+Following are the product purchase details by ${job.owner.name} on ${moment(
+              order.data.created_at,
+            )
+              .tz('America/New_York')
+              .format('MM/DD/YYYY')}.`,
+            ORDER_ID: order.data.uid,
+            CUSTOMER_NAME: job.owner.name,
+            PHONE_NUMBER: job.owner.phone,
+            EMAIL: job.owner.email,
+            ORDER_DATE: moment(order.data.created_at)
+              .tz('America/New_York')
+              .format('MM/DD/YYYY'),
+            RECURRING_DAYS: order.data.repeating_days,
+            TAX: Math.round(body.tax * 100) / 100,
+            SHIPPING_CHARGE: body.shipping_price,
+            TOTAL: body.total,
+            SHIPPING_ADDRESS: shipping_address,
+            BILLING_ADDRESS: billing_address,
+            CARDHOLDER_NAME: body.card_details.cardholder_name,
+            CARD_NUMBER: body.card_details.card_number.replace(
+              /(\d{4})/g,
+              '$1 ',
+            ),
+            EXPIRATION_DATE: body.card_details.expiration_date,
+            CVV: body.card_details.cvv,
+            products: products,
+          });
+          const email_subject = `New Recurring Order Alert - ${order.data.uid}`;
+
           await this._msClient.executeJob(
-            'controller.notification',
+            'controller.email',
             new Job({
-              action: 'send',
+              action: 'sendMail',
               payload: {
-                skipUserConfig: true,
-                users: [
-                  {
-                    name: 'Super Admin',
-                    email: emailData.getDataValue('value'),
-                    send_email: true,
-                  },
-                ],
-                template: 'new_recurring_order_admin',
-                variables: {
-                  ORDER_ID: order.data.uid,
-                  CUSTOMER_NAME: job.owner.name,
-                  PHONE_NUMBER: job.owner.phone,
-                  EMAIL: job.owner.email,
-                  ORDER_DATE: moment(order.data.created_at)
-                    .tz('America/New_York')
-                    .format('MM/DD/YYYY'),
-                  RECURRING_DAYS: order.data.repeating_days,
-                  TAX: Math.round(body.tax * 100) / 100,
-                  SHIPPING_CHARGE: body.shipping_price,
-                  TOTAL: body.total,
-                  SHIPPING_ADDRESS: shipping_address,
-                  BILLING_ADDRESS: billing_address,
-                  CARDHOLDER_NAME: body.card_details.cardholder_name,
-                  CARD_NUMBER: body.card_details.card_number.replace(
-                    /(\d{4})/g,
-                    '$1 ',
-                  ),
-                  EXPIRATION_DATE: body.card_details.expiration_date,
-                  CVV: body.card_details.cvv,
-                },
+                to: emailData.getDataValue('value'),
+                subject: email_subject,
+                html: _email_template,
+                from:
+                  this._config.get('email').transports['OrderServices'].from ||
+                  '',
+                transporterName: 'OrderServices',
               },
             }),
           );
+
+          // await this._msClient.executeJob(
+          //   'controller.notification',
+          //   new Job({
+          //     action: 'send',
+          //     payload: {
+          //       skipUserConfig: true,
+          //       users: [
+          //         {
+          //           name: 'Super Admin',
+          //           email: emailData.getDataValue('value'),
+          //           send_email: true,
+          //         },
+          //       ],
+          //       template: 'new_recurring_order_admin',
+          //     },
+          //   }),
+          // );
         }
         return { data: { order: order.data, payment_link: '' } };
       }
@@ -1286,7 +1344,10 @@ export class OrderService extends ModelService<Order> {
             include: [
               {
                 association: 'product',
-                include: [{ association: 'product_primary_image' }],
+                include: [
+                  { association: 'product_primary_image' },
+                  { association: 'productCategory' },
+                ],
               },
             ],
           },
@@ -1339,7 +1400,7 @@ export class OrderService extends ModelService<Order> {
         },
         items: items.map((item) => ({
           productId: item.product.id.toString(),
-          sku: item?.product.slug,
+          sku: item?.product?.productCategory?.category_name,
           title: item.product?.product_name,
           price: item?.price.toString(),
           quantity: item?.quantity,
@@ -1697,6 +1758,28 @@ export class OrderService extends ModelService<Order> {
           status: OrderStatus.Cancelled,
         },
       });
+    }
+  }
+  async getImageUrl(id: string): Promise<JobResponse> {
+    try {
+      const { error, data } = await this._productService.$db.findRecordById({
+        id: +id,
+        options: {
+          include: [
+            {
+              association: 'productCategory',
+            },
+            { association: 'product_primary_image' },
+          ],
+        },
+      });
+      if (!!error) {
+        return { error };
+      }
+      const image = data.product_primary_image.product_image;
+      return { data: image };
+    } catch (error) {
+      return { error };
     }
   }
 }

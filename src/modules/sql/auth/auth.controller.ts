@@ -228,6 +228,55 @@ export class AuthController {
   }
 
   @Public()
+  @ApiOperation({ summary: 'Resend OTP' })
+  @ApiOkResponse({
+    description: 'Ok',
+    schema: {
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            session_id: {
+              type: 'string',
+            },
+          },
+        },
+        message: {
+          type: 'string',
+          example: 'Code sent',
+        },
+      },
+    },
+  })
+  @Post('update-email/resend')
+  async updateEmailResend(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() body: SendOtpDto,
+  ) {
+    const verifyOtp = await this.authService.updateEmailResendOtp(body);
+    if (!!verifyOtp.error) {
+      if (verifyOtp.errorCode === 403) {
+        return Forbidden(res, {
+          error: verifyOtp.error,
+          message: `${verifyOtp.error.message || verifyOtp.error}`,
+        });
+      }
+      return BadRequest(res, {
+        error: verifyOtp.error,
+        message: `${verifyOtp.error.message || verifyOtp.error}`,
+      });
+    }
+    return Result(res, {
+      data: {
+        session_id: verifyOtp.data._id,
+        resend_limit: verifyOtp.data.resend_limit,
+      },
+      message: 'Code sent',
+    });
+  }
+
+  @Public()
   @ApiOperation({ summary: 'Verify OTP' })
   @ApiOkResponse({
     description: 'Ok',

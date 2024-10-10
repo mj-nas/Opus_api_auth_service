@@ -1285,13 +1285,16 @@ export class UserService extends ModelService<User> {
     }
   }
 
-  async createOtpSession(user: OwnerDto, email): Promise<JobResponse> {
+  async createOtpSession(user: OwnerDto, email: string): Promise<JobResponse> {
     const { error, data } = await this.otpSessionService.create({
       body: {
         user_id: user.id,
         otp: otp(4),
         type: OtpSessionType.EmailVerify,
         expire_at: new Date(Date.now() + 15 * 60 * 1000),
+        payload: {
+          email,
+        },
       },
     });
     // TODO: send a email/sms notification

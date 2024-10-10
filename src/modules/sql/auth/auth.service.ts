@@ -378,6 +378,57 @@ export class AuthService {
     return { error: false, data };
   }
 
+  async updateEmailResendOtp(body: SendOtpDto): Promise<JobResponse> {
+    const { error, data } = await this.otpSessionService.findById({
+      id: body.session_id,
+    });
+    if (!!error) {
+      return { error: 'Invalid session', errorCode: 403 };
+    }
+    if (
+      !!data.verified ||
+      moment(data.expire_at).diff(moment(), 'seconds') <= 0
+    ) {
+      return {
+        error:
+          'Session expired. Please go back to the previous page and restart the process',
+        errorCode: 403,
+      };
+    }
+    if (data.resend_limit <= 0) {
+      return { error: 'Maximum number of retries exceeded' };
+    }
+    try {
+      // data.expire_at = moment().add(15, 'minutes');
+      data.resend_limit--;
+      await data.save();
+    } catch (error) {
+      return { error };
+    }
+    await this.msClient.executeJob(
+      'controller.notification',
+      new Job({
+        action: 'send',
+        payload: {
+          skipUserConfig: true,
+          users: [
+            {
+              name: 'User',
+              email: data.payload.email,
+              send_email: true,
+            },
+          ],
+          template: 'email_verification',
+          variables: {
+            OTP: data.otp,
+          },
+        },
+      }),
+    );
+
+    return { error: false, data };
+  }
+
   async resetPassword(body: ResetPasswordDto): Promise<JobResponse> {
     const otpSession = await this.otpSessionService.findById({
       id: body.session_id,
