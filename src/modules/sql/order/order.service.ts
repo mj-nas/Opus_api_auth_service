@@ -466,6 +466,34 @@ export class OrderService extends ModelService<Order> {
         payload: { where: { name: 'order_service_email' } },
       });
 
+      // setting template and shipping and billing address and products for email
+
+      try {
+        const template = fs.readFileSync(
+          join(__dirname, '../src', 'views/order_template.hbs'),
+          'utf8',
+        );
+        // handlebars.registerHelper('checkLength', function (array) {
+        //   if (array.length > 1) {
+        //     return 'These products were recommended by your personal Opus Dispenser';
+        //   } else {
+        //     return 'This product was recommended by your personal Opus Dispenser';
+        //   }
+        // });
+        this.emailTemplate = handlebars.compile(template);
+      } catch (error) {
+        this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
+      }
+      const shipping_address = `${body.address.shipping_first_name + ' ' + body.address.shipping_last_name}, ${body.address.shipping_address}, ${body.address.shipping_city}, ${body.address.shipping_state}, ${body.address.shipping_zip_code}`;
+      const billing_address = `${body.address.billing_first_name + ' ' + body.address.billing_last_name}, ${body.address.billing_address}, ${body.address.billing_city}, ${body.address.billing_state}, ${body.address.billing_zip_code}`;
+      const products = body.items.map(async (item) => ({
+        name: item.product.name,
+        price: item.price_per_item,
+        quantity: item.quantity,
+        order_id: order.data.uid,
+        image: await this.getImageUrl(item.product_id),
+      }));
+
       // create stripe product, price and payment link only for non-repeating orders
       if (body.is_repeating_order === 'N') {
         // Create a new stripe product against the order
@@ -528,62 +556,83 @@ export class OrderService extends ModelService<Order> {
         // New order alert to admin
 
         if (emailData && emailData?.getDataValue('value')) {
+          const _email_template = this.emailTemplate({
+            logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
+            reorder: false,
+            title_content: `
+Following are the product purchase details by ${job.owner.name} on ${moment(
+              order.data.created_at,
+            )
+              .tz('America/New_York')
+              .format('MM/DD/YYYY')}.`,
+            ORDER_ID: order.data.uid,
+            CUSTOMER_NAME: job.owner.name,
+            PHONE_NUMBER: job.owner.phone,
+            EMAIL: job.owner.email,
+            ORDER_DATE: moment(order.data.created_at)
+              .tz('America/New_York')
+              .format('MM/DD/YYYY'),
+            RECURRING_DAYS: order.data.repeating_days,
+            TAX: Math.round(body.tax * 100) / 100,
+            SHIPPING_CHARGE: body.shipping_price,
+            TOTAL: body.total,
+            SHIPPING_ADDRESS: shipping_address,
+            BILLING_ADDRESS: billing_address,
+            CARDHOLDER_NAME: body.card_details.cardholder_name,
+            CARD_NUMBER: body.card_details.card_number.replace(
+              /(\d{4})/g,
+              '$1 ',
+            ),
+            EXPIRATION_DATE: body.card_details.expiration_date,
+            CVV: body.card_details.cvv,
+            products: products,
+          });
+          const email_subject = `New Order Alert - ${order.data.uid}`;
+
           await this._msClient.executeJob(
-            'controller.notification',
+            'controller.email',
             new Job({
-              action: 'send',
+              action: 'sendMail',
               payload: {
-                skipUserConfig: true,
-                users: [
-                  {
-                    name: 'Super Admin',
-                    email: emailData.getDataValue('value'),
-                    send_email: true,
-                  },
-                ],
-                template: 'new_order_alert_to_admin',
-                variables: {
-                  ORDER_ID: order.data.uid,
-                  CUSTOMER_NAME: job.owner.name,
-                },
+                to: emailData.getDataValue('value'),
+                subject: email_subject,
+                html: _email_template,
+                from:
+                  this._config.get('email').transports['OrderServices'].from ||
+                  '',
+                transporterName: 'OrderServices',
               },
             }),
           );
+          // await this._msClient.executeJob(
+          //   'controller.notification',
+          //   new Job({
+          //     action: 'send',
+          //     payload: {
+          //       skipUserConfig: true,
+          //       users: [
+          //         {
+          //           name: 'Super Admin',
+          //           email: emailData.getDataValue('value'),
+          //           send_email: true,
+          //         },
+          //       ],
+          //       template: 'new_order_alert_to_admin',
+          //       variables: {
+          //         ORDER_ID: order.data.uid,
+          //         CUSTOMER_NAME: job.owner.name,
+          //       },
+          //     },
+          //   }),
+          // );
         }
 
         return { data: { order: order.data, payment_link: paymentLink.url } };
       } else {
         await transaction.commit();
-        const shipping_address = `${body.address.shipping_first_name + ' ' + body.address.shipping_last_name}, ${body.address.shipping_address}, ${body.address.shipping_city}, ${body.address.shipping_state}, ${body.address.shipping_zip_code}`;
-        const billing_address = `${body.address.billing_first_name + ' ' + body.address.billing_last_name}, ${body.address.billing_address}, ${body.address.billing_city}, ${body.address.billing_state}, ${body.address.billing_zip_code}`;
+
         // New order alert to admin for repeating order with card details
         if (emailData && emailData?.getDataValue('value')) {
-          // setting template from hbs file
-          try {
-            const template = fs.readFileSync(
-              join(__dirname, '../src', 'views/order_template.hbs'),
-              'utf8',
-            );
-            // handlebars.registerHelper('checkLength', function (array) {
-            //   if (array.length > 1) {
-            //     return 'These products were recommended by your personal Opus Dispenser';
-            //   } else {
-            //     return 'This product was recommended by your personal Opus Dispenser';
-            //   }
-            // });
-            this.emailTemplate = handlebars.compile(template);
-          } catch (error) {
-            this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
-          }
-
-          const products = body.items.map(async (item) => ({
-            name: item.product.name,
-            price: item.price_per_item,
-            quantity: item.quantity,
-            order_id: order.data.uid,
-            image: await this.getImageUrl(item.product_id),
-          }));
-
           const _email_template = this.emailTemplate({
             logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
             reorder: true,
