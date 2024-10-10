@@ -1206,7 +1206,6 @@ export class OrderService extends ModelService<Order> {
         { header: 'Created On', key: 'created_at', width: 50 },
         { header: 'Next Order Date', key: 'created_at', width: 50 },
         { header: 'Previous Order Date', key: 'previous_order', width: 50 },
-        { header: 'Status', key: 'active', width: 25 },
       ];
 
       const folder = 'order-excel';
