@@ -289,7 +289,10 @@ export class UserController {
     @Query() query: any,
   ) {
     if (updateUserDto.email && updateUserDto.email !== owner.email) {
-      const session = await this.userService.createOtpSession(owner);
+      const session = await this.userService.createOtpSession(
+        owner,
+        updateUserDto.email,
+      );
       if (session.error) {
         return BadRequest(res, {
           error: session.error,

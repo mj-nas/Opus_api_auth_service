@@ -24,7 +24,7 @@ export class CouponService extends ModelService<Coupon> {
     '$user.name$',
   ];
 
-  searchPopulate: string[] = ['user'];
+  searchPopulate: string[] = ['user', 'coupon_used'];
 
   constructor(
     db: SqlService<Coupon>,
@@ -137,6 +137,8 @@ export class CouponService extends ModelService<Coupon> {
     try {
       const { owner, payload } = job;
       delete payload.timezone;
+      console.log('payload', payload);
+
       const { error, data } = await this.findAll({
         owner,
         action: 'findAll',

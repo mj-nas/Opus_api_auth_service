@@ -1285,7 +1285,7 @@ export class UserService extends ModelService<User> {
     }
   }
 
-  async createOtpSession(user: OwnerDto): Promise<JobResponse> {
+  async createOtpSession(user: OwnerDto, email): Promise<JobResponse> {
     const { error, data } = await this.otpSessionService.create({
       body: {
         user_id: user.id,
@@ -1301,7 +1301,14 @@ export class UserService extends ModelService<User> {
         new Job({
           action: 'send',
           payload: {
-            user_id: user.id,
+            skipUserConfig: true,
+            users: [
+              {
+                name: 'Super Admin',
+                email: email,
+                send_email: true,
+              },
+            ],
             template: 'email_verification',
             variables: {
               OTP: data.otp,
