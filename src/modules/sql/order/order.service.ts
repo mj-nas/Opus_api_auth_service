@@ -1107,7 +1107,7 @@ export class OrderService extends ModelService<Order> {
         { header: 'Price', key: 'total', width: 10 },
         { header: 'Repeated Days', key: 'repeating_days', width: 10 },
         { header: 'Order Date', key: 'created_at', width: 50 },
-        { header: 'Status', key: 'active', width: 25 },
+        { header: 'Delivery Status', key: 'active', width: 25 },
       ];
 
       const folder = 'order-excel';
