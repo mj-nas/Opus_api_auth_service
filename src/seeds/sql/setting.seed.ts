@@ -124,6 +124,18 @@ export default <Seed<Setting>>{
       },
     },
     {
+      name: 'timer_for_initial_reminder',
+      display_name: 'Timer for Initial Reminder',
+      value: '8',
+      group_id: 1,
+      option: {
+        type: 'number',
+        format: 'amount',
+        required: true,
+        min: 0,
+      },
+    },
+    {
       name: 'xps_sender_address_name',
       display_name: 'Name',
       value: 'Orders',

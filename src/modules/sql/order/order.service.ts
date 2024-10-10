@@ -1631,6 +1631,10 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
   }
 
   async paymentReminderCron(): Promise<JobResponse> {
+    const reminder_timer = await this._settingService.$db.findOneRecord({
+      action: 'findOne',
+      options: { where: { name: 'timer_for_initial_reminder' } },
+    });
     const { error, data } = await this.$db.getAllRecords({
       action: 'findAll',
       options: {
@@ -1638,7 +1642,7 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
           status: OrderStatus.PaymentPending,
           is_repeating_order: 'N',
           created_at: literal(
-            `DATE_FORMAT(Order.created_at, '%Y-%m-%d %H:%i:00') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 HOUR), '%Y-%m-%d %H:%i:00')`,
+            `DATE_FORMAT(Order.created_at, '%Y-%m-%d %H:%i:00') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ${parseInt(reminder_timer.data.value)} HOUR), '%Y-%m-%d %H:%i:00')`,
           ),
         },
         include: [{ association: 'current_payment' }],
