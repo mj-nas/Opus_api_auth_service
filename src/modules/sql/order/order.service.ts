@@ -1077,7 +1077,7 @@ export class OrderService extends ModelService<Order> {
         'Price',
         'Repeated Days',
         'Order Date',
-        'Status',
+        'Delivery Status',
       ]);
 
       const orders: Order[] = JSON.parse(JSON.stringify(data));
@@ -1155,36 +1155,44 @@ export class OrderService extends ModelService<Order> {
       worksheet.addRow([
         'Sl. No',
         'Order ID',
-        'Customer Name',
+        'User Name',
         'Price',
-        'Repeated Days',
+        'Repeat Interval (in days)',
         'Created On',
         'Next Order Date',
         'Previous Order Date',
-        'Status',
+        // 'Status',
       ]);
 
       const orders: Order[] = JSON.parse(JSON.stringify(data));
 
       await Promise.all(
-        orders.map(async (x, index) => {
+        orders?.map(async (x, index) => {
+          console.log(x);
+
           worksheet.addRow([
             index + 1,
             x?.uid,
             x?.user?.name,
             `${x?.total}`,
             x?.repeating_days,
-            moment(x?.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
-            moment(x?.created_at)
-              .add(x?.repeating_days, 'days')
-              .tz(timezone)
-              .format('MM/DD/YYYY hh:mm A'),
-            moment(x?.previous_order?.created_at)
-              .tz(timezone)
-              .format('MM/DD/YYYY hh:mm A'),
-            x?.status,
-
-            x?.status,
+            x?.created_at
+              ? moment(x?.created_at)
+                  ?.tz(timezone)
+                  ?.format('MM/DD/YYYY hh:mm A')
+              : '',
+            x?.created_at
+              ? moment(x?.created_at)
+                  ?.add(x?.repeating_days, 'days')
+                  ?.tz(timezone)
+                  ?.format('MM/DD/YYYY hh:mm A')
+              : '',
+            x?.previous_order && x?.previous_order?.created_at
+              ? moment(x?.previous_order?.created_at)
+                  ?.tz(timezone)
+                  ?.format('MM/DD/YYYY hh:mm A')
+              : '',
+            // x?.status,
           ]);
         }),
       );
