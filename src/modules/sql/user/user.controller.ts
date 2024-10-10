@@ -288,9 +288,35 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
     @Query() query: any,
   ) {
+    if (updateUserDto.email && updateUserDto.email !== owner.email) {
+      const { error, data } = await this.userService.findOne({
+        owner,
+        action: 'findOne',
+        payload: { email: updateUserDto.email },
+      });
+
+      if (data) {
+        return BadRequest(res, {
+          error: 'Email already exists',
+          message: `Email already exists`,
+        });
+      } else {
+        const session = await this.userService.createOtpSession(owner);
+        if (session.error) {
+          return BadRequest(res, {
+            error: session.error,
+            message: `Error creating OTP session`,
+          });
+        }
+        return Result(res, {
+          data: { session_id: session.data.id },
+          message: 'Code sent',
+        });
+      }
+    }
     const { error, data } = await this.userService.update({
       owner,
-      action: 'update',
+      action: 'updateMe',
       id: owner.id,
       body: updateUserDto,
       payload: { ...query },

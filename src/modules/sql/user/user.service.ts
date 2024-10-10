@@ -18,8 +18,11 @@ import * as QRCode from 'qrcode';
 import { Op, literal } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
-import { compareHash, generateHash } from 'src/core/core.utils';
+import { compareHash, generateHash, otp } from 'src/core/core.utils';
+import { OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
+import { OtpSessionType } from 'src/modules/mongo/otp-session/entities/otp-session.entity';
+import { OtpSessionService } from 'src/modules/mongo/otp-session/otp-session.service';
 import { ZodError, z } from 'zod';
 import { AddressService } from '../address/address.service';
 import { SignupDto } from '../auth/dto/signup.dto';
@@ -62,6 +65,7 @@ export class UserService extends ModelService<User> {
     private msClient: MsClientService,
     private addressService: AddressService,
     private config: ConfigService,
+    private otpSessionService: OtpSessionService,
   ) {
     super(db);
   }
@@ -87,6 +91,10 @@ export class UserService extends ModelService<User> {
    */
   protected async doBeforeUpdate(job: SqlJob<User>): Promise<void> {
     await super.doBeforeUpdate(job);
+    if (job.action === 'updateMe') {
+      if (job.payload?.email !== job.owner.email) {
+      }
+    }
     if (job.action === 'updateDispenser') {
       const user = await this.$db.findRecordById({ id: job.id });
       if (user.error) {
@@ -733,6 +741,7 @@ export class UserService extends ModelService<User> {
         'Created At',
         'Created By',
         'Status',
+        'E-Learning Status',
       ]);
 
       const users: User[] = JSON.parse(JSON.stringify(data));
@@ -752,6 +761,9 @@ export class UserService extends ModelService<User> {
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY, hh:mm A'),
             x.created_by == 1 ? 'Admin' : 'Applicant',
             x?.active ? 'Active' : 'Inactive',
+            x?.learning_completed == 'Y'
+              ? 'Training Completed'
+              : 'Awaiting Training Completion',
           ]);
         }),
       );
@@ -769,6 +781,7 @@ export class UserService extends ModelService<User> {
         { header: 'Created At', key: 'created_at', width: 25 },
         { header: 'Created By', key: 'created_by', width: 25 },
         { header: 'Status', key: 'active', width: 25 },
+        { header: 'E-Learning Status', key: 'learning_completed', width: 25 },
       ];
 
       const folder = 'dispenser-excel';
@@ -1270,5 +1283,33 @@ export class UserService extends ModelService<User> {
     } catch (error) {
       return { error };
     }
+  }
+
+  async createOtpSession(user: OwnerDto): Promise<JobResponse> {
+    const { error, data } = await this.otpSessionService.create({
+      body: {
+        user_id: user.id,
+        otp: otp(4),
+        type: OtpSessionType.EmailVerify,
+        expire_at: new Date(Date.now() + 15 * 60 * 1000),
+      },
+    });
+    // TODO: send a email/sms notification
+    if (!error) {
+      await this.msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            user_id: user.id,
+            template: 'email_verification',
+            variables: {
+              OTP: data.otp,
+            },
+          },
+        }),
+      );
+    }
+    return { error, data };
   }
 }
