@@ -166,6 +166,7 @@ export class ReferralService extends ModelService<Referral> {
           }))
         : [],
     });
+    const email_subject = `You've been referred by ${job.owner.name} ${job.owner.business_name ? `of ${job.owner.business_name}` : ''}`;
 
     await this.msClient.executeJob(
       'controller.email',
@@ -173,7 +174,7 @@ export class ReferralService extends ModelService<Referral> {
         action: 'sendMail',
         payload: {
           to: email,
-          subject: "You've been referred",
+          subject: email_subject,
           html: _email_template,
           from:
             this.config.get('email').transports['CustomerServices'].from || '',
