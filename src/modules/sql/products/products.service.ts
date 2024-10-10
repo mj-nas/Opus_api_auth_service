@@ -173,6 +173,7 @@ export class ProductsService extends ModelService<Products> {
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Product Name', key: 'product_name', width: 25 },
         { header: 'Price', key: 'product_price', width: 25 },
+        { header: 'Wholesale Price', key: 'wholesale_price', width: 25 },
         { header: 'Category Name', key: 'category_name', width: 25 },
         { header: 'Description', key: 'product_description', width: 50 },
         { header: 'Created At', key: 'created_at', width: 25 },
