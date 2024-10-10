@@ -288,22 +288,6 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
     @Query() query: any,
   ) {
-    if (updateUserDto.email && updateUserDto.email !== owner.email) {
-      const session = await this.userService.createOtpSession(
-        owner,
-        updateUserDto.email,
-      );
-      if (session.error) {
-        return BadRequest(res, {
-          error: session.error,
-          message: `Error creating OTP session`,
-        });
-      }
-      return Result(res, {
-        data: { session_id: session.data.id },
-        message: 'Code sent',
-      });
-    }
     const { error, data } = await this.userService.update({
       owner,
       action: 'updateMe',
@@ -325,6 +309,36 @@ export class UserController {
       });
     }
     return Result(res, { data: { user: data }, message: 'Updated' });
+  }
+  @Put('update-email')
+  @ApiOperation({ summary: 'Update logged in user details' })
+  @ApiConsumes('application/json', 'multipart/form-data')
+  @FileUploads([{ name: 'avatar_file', required: false, bodyField: 'avatar' }])
+  @ApiQuery(QueryPopulate)
+  @ResponseUpdated(User)
+  async updateEmail(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Body() updateUserDto: UpdateUserDto,
+    @Query() query: any,
+  ) {
+    if (updateUserDto.email && updateUserDto.email !== owner.email) {
+      const session = await this.userService.createOtpSession(
+        owner,
+        updateUserDto.email,
+      );
+      if (session.error) {
+        return BadRequest(res, {
+          error: session.error,
+          message: `Error creating OTP session`,
+        });
+      }
+      return Result(res, {
+        data: { session_id: session.data.id },
+        message: 'Code sent',
+      });
+    }
   }
 
   /**

@@ -417,6 +417,8 @@ export class OrderController {
     });
 
     if (error) {
+      console.log(error);
+
       return ErrorResponse(res, {
         error,
         message: `${error.message || error}`,
@@ -466,6 +468,8 @@ export class OrderController {
     });
 
     if (error) {
+      console.log(error);
+
       return ErrorResponse(res, {
         error,
         message: `${error.message || error}`,

@@ -1174,14 +1174,16 @@ export class OrderService extends ModelService<Order> {
             x?.user?.name,
             `${x?.total}`,
             x?.repeating_days,
-            moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
-            moment(x.created_at)
+            moment(x?.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
+            moment(x?.created_at)
               .add(x?.repeating_days, 'days')
               .tz(timezone)
               .format('MM/DD/YYYY hh:mm A'),
-            moment(x.previous_order.created_at)
+            moment(x?.previous_order?.created_at)
               .tz(timezone)
               .format('MM/DD/YYYY hh:mm A'),
+            x?.status,
+
             x?.status,
           ]);
         }),
