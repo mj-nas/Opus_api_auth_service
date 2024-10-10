@@ -1200,9 +1200,13 @@ export class OrderService extends ModelService<Order> {
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Order ID', key: 'uid', width: 25 },
-        { header: 'Customer Name', key: 'name', width: 25 },
+        { header: 'User Name', key: 'name', width: 25 },
         { header: 'Price', key: 'total', width: 10 },
-        { header: 'Repeated Days', key: 'repeating_days', width: 10 },
+        {
+          header: 'Repeat Interval (in days)',
+          key: 'repeating_days',
+          width: 10,
+        },
         { header: 'Created On', key: 'created_at', width: 50 },
         { header: 'Next Order Date', key: 'created_at', width: 50 },
         { header: 'Previous Order Date', key: 'previous_order', width: 50 },

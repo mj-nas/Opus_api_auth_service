@@ -164,6 +164,7 @@ export class CouponService extends ModelService<Coupon> {
         'Start Date',
         'End Date',
         'Price/Percentage',
+        'Discount Type',
         'Redemption limit per person',
         'Redemption Status',
         'Activation Status',
@@ -183,6 +184,7 @@ export class CouponService extends ModelService<Coupon> {
             x?.coupon_type === 'percentage'
               ? `${x.discount}%`
               : `$${x.discount}`,
+            x?.coupon_type,
             x?.discount_usage,
             x?.coupon_used.length > 0 ? 'Redeemed' : 'Not Redeemed',
             x.active ? 'Active' : 'Inactive',
@@ -198,6 +200,7 @@ export class CouponService extends ModelService<Coupon> {
         { header: 'Start Date', key: 'valid_from', width: 25 },
         { header: 'End Date', key: 'valid_to', width: 50 },
         { header: 'Price/Percentage', key: 'percentage', width: 25 },
+        { header: 'Discount Type', key: 'coupon_type', width: 25 },
         {
           header: 'Redemption limit per person',
           key: 'discount_usage',
