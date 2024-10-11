@@ -494,6 +494,11 @@ export class OrderService extends ModelService<Order> {
         image: await this.getProductImageUrl(item.product_id),
       }));
 
+      console.log("adress and products");
+      
+      console.log(shipping_address, billing_address, products);
+      
+
       // create stripe product, price and payment link only for non-repeating orders
       if (body.is_repeating_order === 'N') {
         // Create a new stripe product against the order
@@ -546,6 +551,10 @@ export class OrderService extends ModelService<Order> {
             transaction,
           },
         });
+        console.log("payent errr");
+        
+        console.log(payment.error);
+        
         if (!!payment.error) {
           await transaction.rollback();
           return { error: payment.error };
@@ -577,13 +586,6 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
             TOTAL: body.total,
             SHIPPING_ADDRESS: shipping_address,
             BILLING_ADDRESS: billing_address,
-            CARDHOLDER_NAME: body.card_details.cardholder_name,
-            CARD_NUMBER: body.card_details.card_number.replace(
-              /(\d{4})/g,
-              '$1 ',
-            ),
-            EXPIRATION_DATE: body.card_details.expiration_date,
-            CVV: body.card_details.cvv,
             products: products,
           });
           const email_subject = `New Order Alert - ${order.data.uid}`;
@@ -702,6 +704,8 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
         return { data: { order: order.data, payment_link: '' } };
       }
     } catch (error) {
+      console.log(error);
+      
       await transaction.rollback();
       return { error };
     }
