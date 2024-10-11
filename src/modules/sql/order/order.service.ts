@@ -486,18 +486,15 @@ export class OrderService extends ModelService<Order> {
       }
       const shipping_address = `${body.address.shipping_first_name + ' ' + body.address.shipping_last_name}, ${body.address.shipping_address}, ${body.address.shipping_city}, ${body.address.shipping_state}, ${body.address.shipping_zip_code}`;
       const billing_address = `${body.address.billing_first_name + ' ' + body.address.billing_last_name}, ${body.address.billing_address}, ${body.address.billing_city}, ${body.address.billing_state}, ${body.address.billing_zip_code}`;
-      const products = body.items.map(async (item) => ({
-        name: await this.getProductName(item.product_id),
-        price: item.price_per_item,
-        quantity: item.quantity,
-        order_id: order.data.uid,
-        image: await this.getProductImageUrl(item.product_id),
-      }));
-
-      console.log("products");
-      
-      console.log( products);
-      
+      const products = await Promise.all(
+        body.items.map(async (item) => ({
+          name: await this.getProductName(item.product_id),
+          price: item.price_per_item,
+          quantity: item.quantity,
+          order_id: order.data.uid,
+          image: await this.getProductImageUrl(item.product_id),
+        })),
+      );
 
       // create stripe product, price and payment link only for non-repeating orders
       if (body.is_repeating_order === 'N') {
@@ -564,10 +561,8 @@ export class OrderService extends ModelService<Order> {
         if (emailData && emailData?.getDataValue('value')) {
           const _email_template = this.emailTemplate({
             logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
-            // header_bg_image: this._config.get('cdnLocalURL') + 'assets/header-bg.jpg',
-            header_bg_image: "https://opus-dev-s3.s3.amazonaws.com/header-bg.png",
-            // footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.jpg',
-            footer_bg_image: "https://opus-dev-s3.s3.amazonaws.com/footer-bg.png",
+            header_bg_image: this._config.get('cdnLocalURL') + 'assets/header-bg.jpg',
+            footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.jpg',
             reorder: false,
             title_content: `
 Following are the product purchase details by ${job.owner.name} on ${moment(
@@ -587,13 +582,7 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
             TOTAL: body.total,
             SHIPPING_ADDRESS: shipping_address,
             BILLING_ADDRESS: billing_address,
-            products: body.items.map((item) => ({
-              name: this.getProductName(item.product_id),
-              price: item.price_per_item,
-              quantity: item.quantity,
-              order_id: order.data.uid,
-              image: this.getProductImageUrl(item.product_id),
-            }))
+            products: products,
           });
           const email_subject = `New Order Alert - ${order.data.uid}`;
 
@@ -612,27 +601,6 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
               },
             }),
           );
-          // await this._msClient.executeJob(
-          //   'controller.notification',
-          //   new Job({
-          //     action: 'send',
-          //     payload: {
-          //       skipUserConfig: true,
-          //       users: [
-          //         {
-          //           name: 'Super Admin',
-          //           email: emailData.getDataValue('value'),
-          //           send_email: true,
-          //         },
-          //       ],
-          //       template: 'new_order_alert_to_admin',
-          //       variables: {
-          //         ORDER_ID: order.data.uid,
-          //         CUSTOMER_NAME: job.owner.name,
-          //       },
-          //     },
-          //   }),
-          // );
         }
 
         return { data: { order: order.data, payment_link: paymentLink.url } };
@@ -643,6 +611,8 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
         if (emailData && emailData?.getDataValue('value')) {
           const _email_template = this.emailTemplate({
             logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
+            header_bg_image: this._config.get('cdnLocalURL') + 'assets/header-bg.jpg',
+            footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.jpg',
             reorder: true,
             title_content: `
 Following are the product purchase details by ${job.owner.name} on ${moment(
@@ -711,8 +681,6 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
         return { data: { order: order.data, payment_link: '' } };
       }
     } catch (error) {
-      console.log(error);
-      
       await transaction.rollback();
       return { error };
     }
@@ -1135,19 +1103,22 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
       }
       const shipping_address = `${data.address.shipping_first_name + ' ' + data.address.shipping_last_name}, ${data.address.shipping_address}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
       const billing_address = `${data.address.billing_first_name + ' ' + data.address.billing_last_name}, ${data.address.billing_address}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
-      const products = data.items.map(async (item) => ({
-        name: item.product.product_name,
-        price: item.price_per_item,
-        quantity: item.quantity,
-        order_id: data.uid,
-        image: await this.getProductImageUrl(item.product_id),
-      }));
-
+      const products = await Promise.all(
+        data.items.map(async (item) => ({
+          name: await this.getProductName(item.product_id),
+          price: item.price_per_item,
+          quantity: item.quantity,
+          order_id: data.uid,
+          image: await this.getProductImageUrl(item.product_id),
+        })),
+      )
        // sent email to admin for reccurring order with card details
        // New order alert to admin for repeating order with card details
        if (emailData && emailData?.getDataValue('value')) {
         const _email_template = this.emailTemplate({
           logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
+          header_bg_image: this._config.get('cdnLocalURL') + 'assets/header-bg.jpg',
+            footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.jpg',
           reorder: true,
           title_content: `
 Following are the product purchase details by ${job.owner.name} on ${moment(
@@ -1195,44 +1166,6 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
           }),
         );
       }
-
-        // if (emailData && emailData?.getDataValue('value')) {
-        //   await this._msClient.executeJob(
-        //     'controller.notification',
-        //     new Job({
-        //       action: 'send',
-        //       payload: {
-        //         skipUserConfig: true,
-        //         users: [
-        //           {
-        //             name: 'Super Admin',
-        //             email: emailData.getDataValue('value'),
-        //             send_email: true,
-        //           },
-        //         ],
-        //         template: 'new_recurring_order_admin',
-        //         variables: {
-        //           ORDER_ID: data.uid,
-        //           CUSTOMER_NAME: job.owner.name,
-        //           PHONE_NUMBER: job.owner.phone,
-        //           EMAIL: job.owner.email,
-        //           ORDER_DATE: moment(data.created_at)
-        //             .tz('America/New_York')
-        //             .format('MM/DD/YYYY'),
-        //           RECURRING_DAYS: repeating_days,
-        //           TAX: Math.round(data.tax * 100) / 100,
-        //           SHIPPING_CHARGE: data.shipping_price,
-        //           TOTAL: data.total,
-        //           SHIPPING_ADDRESS: shipping_address,
-        //           BILLING_ADDRESS: billing_address,
-        //           CARDHOLDER_NAME: job.payload.card_details.cardholder_name,
-        //           CARD_NUMBER: job.payload.card_details.card_number,
-        //           EXPIRATION_DATE: job.payload.card_details.expiration_date,
-        //           CVV: job.payload.card_details.cvv,
-        //         },
-        //       },
-        //     }),
-        //   );
         }
         return { data };
       }
