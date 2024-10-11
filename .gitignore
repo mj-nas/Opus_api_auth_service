@@ -37,6 +37,9 @@ lerna-debug.log*
 # environment
 .env
 
+template.html
+
+
 # public 
 public/*
 !public/assets/

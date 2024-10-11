@@ -486,17 +486,17 @@ export class OrderService extends ModelService<Order> {
       }
       const shipping_address = `${body.address.shipping_first_name + ' ' + body.address.shipping_last_name}, ${body.address.shipping_address}, ${body.address.shipping_city}, ${body.address.shipping_state}, ${body.address.shipping_zip_code}`;
       const billing_address = `${body.address.billing_first_name + ' ' + body.address.billing_last_name}, ${body.address.billing_address}, ${body.address.billing_city}, ${body.address.billing_state}, ${body.address.billing_zip_code}`;
-      const products = body.items.map(async (item) => ({
-        name: await this.getProductName(item.product_id),
+      const products = body.items.map((item) => ({
+        name: this.getProductName(item.product_id),
         price: item.price_per_item,
         quantity: item.quantity,
         order_id: order.data.uid,
-        image: await this.getProductImageUrl(item.product_id),
+        image: this.getProductImageUrl(item.product_id),
       }));
 
-      console.log("adress and products");
+      console.log("products");
       
-      console.log(shipping_address, billing_address, products);
+      console.log( products);
       
 
       // create stripe product, price and payment link only for non-repeating orders
@@ -551,9 +551,6 @@ export class OrderService extends ModelService<Order> {
             transaction,
           },
         });
-        console.log("payent errr");
-        
-        console.log(payment.error);
         
         if (!!payment.error) {
           await transaction.rollback();
@@ -567,6 +564,10 @@ export class OrderService extends ModelService<Order> {
         if (emailData && emailData?.getDataValue('value')) {
           const _email_template = this.emailTemplate({
             logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
+            // header_bg_image: this._config.get('cdnLocalURL') + 'assets/header-bg.jpg',
+            header_bg_image: "https://opus-dev-s3.s3.amazonaws.com/header-bg.png",
+            // footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.jpg',
+            footer_bg_image: "https://opus-dev-s3.s3.amazonaws.com/footer-bg.png",
             reorder: false,
             title_content: `
 Following are the product purchase details by ${job.owner.name} on ${moment(
@@ -599,9 +600,9 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
                 subject: email_subject,
                 html: _email_template,
                 from:
-                  this._config.get('email').transports['OrderServices'].from ||
+                  this._config.get('email').transports['Orders'].from ||
                   '',
-                transporterName: 'OrderServices',
+                transporterName: 'Orders',
               },
             }),
           );
