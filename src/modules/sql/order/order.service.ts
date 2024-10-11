@@ -561,8 +561,8 @@ export class OrderService extends ModelService<Order> {
         if (emailData && emailData?.getDataValue('value')) {
           const _email_template = this.emailTemplate({
             logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
-            header_bg_image: this._config.get('cdnLocalURL') + 'assets/header-bg.jpg',
-            footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.jpg',
+            header_bg_image: this._config.get('cdnLocalURL') + 'assets/header-bg.png',
+            footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.png',
             reorder: false,
             title_content: `
 Following are the product purchase details by ${job.owner.name} on ${moment(
@@ -611,8 +611,8 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
         if (emailData && emailData?.getDataValue('value')) {
           const _email_template = this.emailTemplate({
             logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
-            header_bg_image: this._config.get('cdnLocalURL') + 'assets/header-bg.jpg',
-            footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.jpg',
+            header_bg_image: this._config.get('cdnLocalURL') + 'assets/header-bg.png',
+            footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.png',
             reorder: true,
             title_content: `
 Following are the product purchase details by ${job.owner.name} on ${moment(
@@ -1117,8 +1117,8 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
        if (emailData && emailData?.getDataValue('value')) {
         const _email_template = this.emailTemplate({
           logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
-          header_bg_image: this._config.get('cdnLocalURL') + 'assets/header-bg.jpg',
-            footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.jpg',
+          header_bg_image: this._config.get('cdnLocalURL') + 'assets/header-bg.png',
+            footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.png',
           reorder: true,
           title_content: `
 Following are the product purchase details by ${job.owner.name} on ${moment(
