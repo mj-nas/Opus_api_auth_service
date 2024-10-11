@@ -486,12 +486,12 @@ export class OrderService extends ModelService<Order> {
       }
       const shipping_address = `${body.address.shipping_first_name + ' ' + body.address.shipping_last_name}, ${body.address.shipping_address}, ${body.address.shipping_city}, ${body.address.shipping_state}, ${body.address.shipping_zip_code}`;
       const billing_address = `${body.address.billing_first_name + ' ' + body.address.billing_last_name}, ${body.address.billing_address}, ${body.address.billing_city}, ${body.address.billing_state}, ${body.address.billing_zip_code}`;
-      const products = body.items.map((item) => ({
-        name: this.getProductName(item.product_id),
+      const products = body.items.map(async (item) => ({
+        name: await this.getProductName(item.product_id),
         price: item.price_per_item,
         quantity: item.quantity,
         order_id: order.data.uid,
-        image: this.getProductImageUrl(item.product_id),
+        image: await this.getProductImageUrl(item.product_id),
       }));
 
       console.log("products");
@@ -571,10 +571,10 @@ export class OrderService extends ModelService<Order> {
             reorder: false,
             title_content: `
 Following are the product purchase details by ${job.owner.name} on ${moment(
-              order.data.created_at,
+              order.data.created_at
             )
-              .tz('America/New_York')
-              .format('MM/DD/YYYY')}.`,
+                .tz('America/New_York')
+                .format('MM/DD/YYYY')}.`,
             ORDER_ID: order.data.uid,
             CUSTOMER_NAME: job.owner.name,
             PHONE_NUMBER: job.owner.phone,
@@ -587,7 +587,13 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
             TOTAL: body.total,
             SHIPPING_ADDRESS: shipping_address,
             BILLING_ADDRESS: billing_address,
-            products: products,
+            products: body.items.map((item) => ({
+              name: this.getProductName(item.product_id),
+              price: item.price_per_item,
+              quantity: item.quantity,
+              order_id: order.data.uid,
+              image: this.getProductImageUrl(item.product_id),
+            }))
           });
           const email_subject = `New Order Alert - ${order.data.uid}`;
 
@@ -1893,7 +1899,7 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
       });
     }
   }
-  async getProductImageUrl(id: number) {
+  async getProductImageUrl (id: number){
     try {
       const { error, data } = await this._productService.$db.findRecordById({
         id: +id,
