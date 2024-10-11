@@ -677,9 +677,9 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
                 subject: email_subject,
                 html: _email_template,
                 from:
-                  this._config.get('email').transports['OrderServices'].from ||
+                  this._config.get('email').transports['Orders'].from ||
                   '',
-                transporterName: 'OrderServices',
+                transporterName: 'Orders',
               },
             }),
           );
@@ -1182,9 +1182,9 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
               subject: email_subject,
               html: _email_template,
               from:
-                this._config.get('email').transports['OrderServices'].from ||
+                this._config.get('email').transports['Orders'].from ||
                 '',
-              transporterName: 'OrderServices',
+              transporterName: 'Orders',
             },
           }),
         );
