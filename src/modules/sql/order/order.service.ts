@@ -487,11 +487,11 @@ export class OrderService extends ModelService<Order> {
       const shipping_address = `${body.address.shipping_first_name + ' ' + body.address.shipping_last_name}, ${body.address.shipping_address}, ${body.address.shipping_city}, ${body.address.shipping_state}, ${body.address.shipping_zip_code}`;
       const billing_address = `${body.address.billing_first_name + ' ' + body.address.billing_last_name}, ${body.address.billing_address}, ${body.address.billing_city}, ${body.address.billing_state}, ${body.address.billing_zip_code}`;
       const products = body.items.map(async (item) => ({
-        name: item.product.name,
+        name: await this.getProductName(item.product_id),
         price: item.price_per_item,
         quantity: item.quantity,
         order_id: order.data.uid,
-        image: await this.getImageUrl(item.product_id),
+        image: await this.getProductImageUrl(item.product_id),
       }));
 
       // create stripe product, price and payment link only for non-repeating orders
@@ -1129,7 +1129,7 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
         price: item.price_per_item,
         quantity: item.quantity,
         order_id: data.uid,
-        image: await this.getImageUrl(item.product_id),
+        image: await this.getProductImageUrl(item.product_id),
       }));
 
        // sent email to admin for reccurring order with card details
@@ -1888,7 +1888,7 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
       });
     }
   }
-  async getImageUrl(id: number): Promise<JobResponse> {
+  async getProductImageUrl(id: number) {
     try {
       const { error, data } = await this._productService.$db.findRecordById({
         id: +id,
@@ -1905,7 +1905,21 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
         return { error };
       }
       const image = data.product_primary_image.product_image;
-      return { data: image };
+      return image;
+    } catch (error) {
+      return { error };
+    }
+  }
+  async getProductName(id: number){
+    try {
+      const { error, data } = await this._productService.$db.findRecordById({
+        id: +id,
+      });
+      if (!!error) {
+        return { error };
+      }
+      
+      return data.product_name;
     } catch (error) {
       return { error };
     }
