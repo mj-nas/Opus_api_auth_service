@@ -26,7 +26,6 @@ import {
   DefaultScope,
   ForeignKey,
   Index,
-  Is,
   Table,
 } from 'sequelize-typescript';
 import config from 'src/config';
@@ -239,6 +238,16 @@ export class User extends SqlModel {
   @IsString()
   @MaxLength(100)
   address: string;
+
+  @Column
+  @ApiProperty({
+    description: 'address',
+    example: 'address',
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  address2: string;
 
   @Column
   @ApiProperty({

@@ -365,7 +365,7 @@ export default <Seed<Template>>{
       email_subject: 'Order Shipment Notification',
       email_body: `<p>Hi ##TO_NAME##,</p>
 <br />
-<p>You Order ##ORDERID## has been shipped. Please find the details below:</p>
+<p>You Order ##ORDER_ID## has been shipped. Please find the details below:</p>
 <br />
 <p>Shipping Address:</p>
 <p>##SHIPPING_NAME##</p>

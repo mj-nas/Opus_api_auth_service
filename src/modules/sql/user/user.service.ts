@@ -49,6 +49,7 @@ export class UserService extends ModelService<User> {
     '$dispenser.name$',
     'phone',
     'address',
+    'address2',
     'city',
     'state',
     'zip_code',
@@ -175,6 +176,7 @@ export class UserService extends ModelService<User> {
         id: payload.user_id,
         body: {
           password,
+          force_password_change: true,
         },
       });
 
@@ -473,6 +475,7 @@ export class UserService extends ModelService<User> {
       phone,
       email,
       address,
+      address2,
       city,
       state,
       zip_code,
@@ -487,6 +490,7 @@ export class UserService extends ModelService<User> {
         phone,
         email,
         address,
+        address2,
         city,
         state,
         zip_code,
@@ -504,6 +508,7 @@ export class UserService extends ModelService<User> {
         id: id,
         body: {
           password: passwordHash,
+          force_password_change: true,
         },
       });
 
@@ -960,6 +965,7 @@ export class UserService extends ModelService<User> {
             password,
             status: Status.Approve,
             learning_completed: 'Y',
+            force_password_change: true,
           };
           const { errors } = await trimAndValidateCustom(
             CreateDispenserDto,
@@ -1138,6 +1144,7 @@ export class UserService extends ModelService<User> {
             state: user.STATE,
             country: user.COUNTRY,
             zip_code: user.ZIP_CODE,
+            force_password_change: true,
             password,
           };
           const { errors } = await trimAndValidateCustom(SignupDto, body, [
@@ -1165,6 +1172,7 @@ export class UserService extends ModelService<User> {
               state: user.STATE,
               country: user.COUNTRY,
               zip_code: user.ZIP_CODE,
+              force_password_change: true,
               password,
             },
           });

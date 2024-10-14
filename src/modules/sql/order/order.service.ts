@@ -237,7 +237,7 @@ export class OrderService extends ModelService<Order> {
           },
         });
 
-        // Send order confirmation mail notification
+        // Send order delivered mail notification
         await this._msClient.executeJob(
           'controller.notification',
           new Job({
@@ -293,15 +293,15 @@ export class OrderService extends ModelService<Order> {
       }
 
       if (
-        response.previousData.status === OrderStatus.Ordered &&
+        // response.previousData.status === OrderStatus.Ordered &&
         response.data.status === OrderStatus.Cancelled
       ) {
         const deletedShipment = await this._xpsService.deleteOrder({
           payload: { orderId: response.data.uid },
         });
-        if (!!deletedShipment.error) {
-          throw deletedShipment.error;
-        }
+        // if (!!deletedShipment.error) {
+        //   throw deletedShipment.error;
+        // }
         // send email to customer for order cancellation
         await this._msClient.executeJob(
           'controller.notification',
@@ -548,7 +548,7 @@ export class OrderService extends ModelService<Order> {
             transaction,
           },
         });
-        
+
         if (!!payment.error) {
           await transaction.rollback();
           return { error: payment.error };
@@ -561,15 +561,17 @@ export class OrderService extends ModelService<Order> {
         if (emailData && emailData?.getDataValue('value')) {
           const _email_template = this.emailTemplate({
             logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
-            header_bg_image: this._config.get('cdnLocalURL') + 'assets/header-bg.png',
-            footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.png',
+            header_bg_image:
+              this._config.get('cdnLocalURL') + 'assets/header-bg.png',
+            footer_bg_image:
+              this._config.get('cdnLocalURL') + 'assets/footer-bg.png',
             reorder: false,
             title_content: `
 Following are the product purchase details by ${job.owner.name} on ${moment(
-              order.data.created_at
+              order.data.created_at,
             )
-                .tz('America/New_York')
-                .format('MM/DD/YYYY')}.`,
+              .tz('America/New_York')
+              .format('MM/DD/YYYY')}.`,
             ORDER_ID: order.data.uid,
             CUSTOMER_NAME: job.owner.name,
             PHONE_NUMBER: job.owner.phone,
@@ -594,9 +596,7 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
                 to: emailData.getDataValue('value'),
                 subject: email_subject,
                 html: _email_template,
-                from:
-                  this._config.get('email').transports['Orders'].from ||
-                  '',
+                from: this._config.get('email').transports['Orders'].from || '',
                 transporterName: 'Orders',
               },
             }),
@@ -611,8 +611,10 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
         if (emailData && emailData?.getDataValue('value')) {
           const _email_template = this.emailTemplate({
             logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
-            header_bg_image: this._config.get('cdnLocalURL') + 'assets/header-bg.png',
-            footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.png',
+            header_bg_image:
+              this._config.get('cdnLocalURL') + 'assets/header-bg.png',
+            footer_bg_image:
+              this._config.get('cdnLocalURL') + 'assets/footer-bg.png',
             reorder: true,
             title_content: `
 Following are the product purchase details by ${job.owner.name} on ${moment(
@@ -652,9 +654,7 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
                 to: emailData.getDataValue('value'),
                 subject: email_subject,
                 html: _email_template,
-                from:
-                  this._config.get('email').transports['Orders'].from ||
-                  '',
+                from: this._config.get('email').transports['Orders'].from || '',
                 transporterName: 'Orders',
               },
             }),
@@ -1019,7 +1019,12 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
         id: order_id,
         options: {
           where: { user_id: job.owner.id },
-          include: [{ association: 'address' }, { association: 'user' }, {association: 'items', include: [{association: 'product'}, ]}],
+          include: [
+            { association: 'address' },
+            { association: 'user' },
+            { association: 'coupon' },
+            { association: 'items', include: [{ association: 'product' }] },
+          ],
         },
       });
       if (!!error) {
@@ -1083,93 +1088,94 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
         }
       }
       if (job.action == 'reorder') {
-          // setting template and shipping and billing address and products for email
+        // setting template and shipping and billing address and products for email
 
-      try {
-        const template = fs.readFileSync(
-          join(__dirname, '../src', 'views/order_template.hbs'),
-          'utf8',
-        );
-        // handlebars.registerHelper('checkLength', function (array) {
-        //   if (array.length > 1) {
-        //     return 'These products were recommended by your personal Opus Dispenser';
-        //   } else {
-        //     return 'This product was recommended by your personal Opus Dispenser';
-        //   }
-        // });
-        this.emailTemplate = handlebars.compile(template);
-      } catch (error) {
-        this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
-      }
-      const shipping_address = `${data.address.shipping_first_name + ' ' + data.address.shipping_last_name}, ${data.address.shipping_address}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
-      const billing_address = `${data.address.billing_first_name + ' ' + data.address.billing_last_name}, ${data.address.billing_address}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
-      const products = await Promise.all(
-        data.items.map(async (item) => ({
-          name: await this.getProductName(item.product_id),
-          price: item.price_per_item,
-          quantity: item.quantity,
-          order_id: data.uid,
-          image: await this.getProductImageUrl(item.product_id),
-        })),
-      )
-       // sent email to admin for reccurring order with card details
-       // New order alert to admin for repeating order with card details
-       if (emailData && emailData?.getDataValue('value')) {
-        const _email_template = this.emailTemplate({
-          logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
-          header_bg_image: this._config.get('cdnLocalURL') + 'assets/header-bg.png',
-            footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.png',
-          reorder: true,
-          title_content: `
-Following are the product purchase details by ${job.owner.name} on ${moment(
-            data.created_at,
-          )
-            .tz('America/New_York')
-            .format('MM/DD/YYYY')}.`,
-          ORDER_ID: data.uid,
-          CUSTOMER_NAME: job.owner.name,
-          PHONE_NUMBER: job.owner.phone,
-          EMAIL: job.owner.email,
-          ORDER_DATE: moment(data.created_at)
-            .tz('America/New_York')
-            .format('MM/DD/YYYY'),
-          RECURRING_DAYS: repeating_days,
-          TAX: Math.round(data.tax * 100) / 100,
-          SHIPPING_CHARGE: data.shipping_price,
-          TOTAL: data.total,
-          SHIPPING_ADDRESS: shipping_address,
-          BILLING_ADDRESS: billing_address,
-          CARDHOLDER_NAME: job.payload.card_details.cardholder_name,
-          CARD_NUMBER: job.payload.card_details.card_number.replace(
-            /(\d{4})/g,
-            '$1 ',
-          ),
-          EXPIRATION_DATE: job.payload.card_details.expiration_date,
-          CVV: job.payload.card_details.cvv,
-          products: products,
-        });
-        const email_subject = `New Recurring Order Alert - ${data.uid}`;
-
-        await this._msClient.executeJob(
-          'controller.email',
-          new Job({
-            action: 'sendMail',
-            payload: {
-              to: emailData.getDataValue('value'),
-              subject: email_subject,
-              html: _email_template,
-              from:
-                this._config.get('email').transports['Orders'].from ||
-                '',
-              transporterName: 'Orders',
-            },
-          }),
-        );
-      }
+        try {
+          const template = fs.readFileSync(
+            join(__dirname, '../src', 'views/order_template.hbs'),
+            'utf8',
+          );
+          // handlebars.registerHelper('checkLength', function (array) {
+          //   if (array.length > 1) {
+          //     return 'These products were recommended by your personal Opus Dispenser';
+          //   } else {
+          //     return 'This product was recommended by your personal Opus Dispenser';
+          //   }
+          // });
+          this.emailTemplate = handlebars.compile(template);
+        } catch (error) {
+          this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
         }
-        return { data };
+        const shipping_address = `${data.address.shipping_first_name + ' ' + data.address.shipping_last_name}, ${data.address.shipping_address}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
+        const billing_address = `${data.address.billing_first_name + ' ' + data.address.billing_last_name}, ${data.address.billing_address}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
+        const products = await Promise.all(
+          data.items.map(async (item) => ({
+            name: await this.getProductName(item.product_id),
+            price: item.price_per_item,
+            quantity: item.quantity,
+            order_id: data.uid,
+            image: await this.getProductImageUrl(item.product_id),
+          })),
+        );
+        // sent email to admin for reccurring order with card details
+        // New order alert to admin for repeating order with card details
+        if (emailData && emailData?.getDataValue('value')) {
+          const _email_template = this.emailTemplate({
+            logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
+            header_bg_image:
+              this._config.get('cdnLocalURL') + 'assets/header-bg.png',
+            footer_bg_image:
+              this._config.get('cdnLocalURL') + 'assets/footer-bg.png',
+            reorder: true,
+            title_content: `
+Following are the product purchase details by ${job.owner.name} on ${moment(
+              data.created_at,
+            )
+              .tz('America/New_York')
+              .format('MM/DD/YYYY')}.`,
+            ORDER_ID: data.uid,
+            CUSTOMER_NAME: job.owner.name,
+            PHONE_NUMBER: job.owner.phone,
+            EMAIL: job.owner.email,
+            ORDER_DATE: moment(data.created_at)
+              .tz('America/New_York')
+              .format('MM/DD/YYYY'),
+            RECURRING_DAYS: repeating_days,
+            TAX: Math.round(data.tax * 100) / 100,
+            SHIPPING_CHARGE: data.shipping_price,
+            DISCOUNT: data.coupon_discount_amount,
+            COUPON: data.coupon?.code,
+            TOTAL: data.total,
+            SHIPPING_ADDRESS: shipping_address,
+            BILLING_ADDRESS: billing_address,
+            CARDHOLDER_NAME: job.payload.card_details.cardholder_name,
+            CARD_NUMBER: job.payload.card_details.card_number.replace(
+              /(\d{4})/g,
+              '$1 ',
+            ),
+            EXPIRATION_DATE: job.payload.card_details.expiration_date,
+            CVV: job.payload.card_details.cvv,
+            products: products,
+          });
+          const email_subject = `New Recurring Order Alert - ${data.uid}`;
+
+          await this._msClient.executeJob(
+            'controller.email',
+            new Job({
+              action: 'sendMail',
+              payload: {
+                to: emailData.getDataValue('value'),
+                subject: email_subject,
+                html: _email_template,
+                from: this._config.get('email').transports['Orders'].from || '',
+                transporterName: 'Orders',
+              },
+            }),
+          );
+        }
       }
-     catch (error) {
+      return { data };
+    } catch (error) {
       return { error };
     }
   }
@@ -1832,7 +1838,7 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
       });
     }
   }
-  async getProductImageUrl (id: number){
+  async getProductImageUrl(id: number) {
     try {
       const { error, data } = await this._productService.$db.findRecordById({
         id: +id,
@@ -1854,7 +1860,7 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
       return { error };
     }
   }
-  async getProductName(id: number){
+  async getProductName(id: number) {
     try {
       const { error, data } = await this._productService.$db.findRecordById({
         id: +id,
@@ -1862,7 +1868,7 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
       if (!!error) {
         return { error };
       }
-      
+
       return data.product_name;
     } catch (error) {
       return { error };

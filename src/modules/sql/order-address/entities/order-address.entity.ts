@@ -105,6 +105,16 @@ export class OrderAddress extends SqlModel {
 
   @Column
   @ApiProperty({
+    description: 'address',
+    example: 'address',
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  billing_address2: string;
+
+  @Column
+  @ApiProperty({
     description: 'city',
     example: 'city',
   })
@@ -190,6 +200,16 @@ export class OrderAddress extends SqlModel {
   @IsString()
   @MaxLength(100)
   shipping_address: string;
+
+  @Column
+  @ApiProperty({
+    description: 'address2',
+    example: 'address',
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  shipping_address2: string;
 
   @Column
   @ApiProperty({
