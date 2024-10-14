@@ -60,20 +60,23 @@ export class WebhookService extends ModelService<Webhook> {
         await response.data.save();
         break;
       case 'xps.order.update':
-        const { error } = await this._orderService.retrieveOrderNumber({
-          keyword:
-            response.data.payload.trackingNumbers !== ''
-              ? response.data.payload.trackingNumbers
-              : response.data.payload.orderId,
-          uid: response.data.payload.orderId,
-        });
-        if (error) {
-          response.data.set('status', WebhookStatus.Errored);
+        const uid = response.data.payload.orderId;
+        if (uid.startsWith('OPUS')) {
+          const { error } = await this._orderService.retrieveOrderNumber({
+            keyword:
+              response.data.payload.trackingNumbers !== ''
+                ? response.data.payload.trackingNumbers
+                : response.data.payload.orderId,
+            uid: response.data.payload.orderId,
+          });
+          if (error) {
+            response.data.set('status', WebhookStatus.Errored);
+            await response.data.save();
+            throw new Error('Order Could not be Updated');
+          }
+          response.data.set('status', WebhookStatus.Completed);
           await response.data.save();
-          throw new Error('Order Could not be Updated');
         }
-        response.data.set('status', WebhookStatus.Completed);
-        await response.data.save();
         break;
       default:
         break;
