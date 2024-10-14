@@ -284,6 +284,7 @@ export class OrderService extends ModelService<Order> {
             },
           }),
         );
+        await this.sendOrderConfirmEmail(response.data.id);
         // create order in xps
         await this.createShipments({
           payload: {
@@ -581,6 +582,9 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
               .format('MM/DD/YYYY'),
             TAX: Math.round(body.tax * 100) / 100,
             SHIPPING_CHARGE: body.shipping_price,
+            DISCOUNT: order.data.coupon_discount_amount
+              ? order.data.coupon_discount_amount
+              : 0,
             TOTAL: body.total,
             SHIPPING_ADDRESS: shipping_address,
             BILLING_ADDRESS: billing_address,
@@ -632,6 +636,9 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
             RECURRING_DAYS: order.data.repeating_days,
             TAX: Math.round(body.tax * 100) / 100,
             SHIPPING_CHARGE: body.shipping_price,
+            DISCOUNT: order.data.coupon_discount_amount
+              ? order.data.coupon_discount_amount
+              : 0,
             TOTAL: body.total,
             SHIPPING_ADDRESS: shipping_address,
             BILLING_ADDRESS: billing_address,
@@ -1022,7 +1029,6 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
           include: [
             { association: 'address' },
             { association: 'user' },
-            { association: 'coupon' },
             { association: 'items', include: [{ association: 'product' }] },
           ],
         },
@@ -1143,8 +1149,9 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
             RECURRING_DAYS: repeating_days,
             TAX: Math.round(data.tax * 100) / 100,
             SHIPPING_CHARGE: data.shipping_price,
-            DISCOUNT: data.coupon_discount_amount,
-            COUPON: data.coupon?.code,
+            DISCOUNT: data.coupon_discount_amount
+              ? data.coupon_discount_amount
+              : 0,
             TOTAL: data.total,
             SHIPPING_ADDRESS: shipping_address,
             BILLING_ADDRESS: billing_address,
@@ -1569,6 +1576,7 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
             variables: {
               ORDER_ID: order_data.data.uid,
               TRACKING_NUMBER: order_data.data.tracking_number,
+              TRACKING_LINK: `https://tools.usps.com/go/TrackConfirmAction?qtc_tLabels1=${order_data.data.tracking_number}`,
               SHIPPING_NAME: name,
               SHIPPING_ADDRESS: address1,
               SHIPPING_CITY_STATE_ZIP: `${city}, ${state} ${zip}`,
@@ -1873,5 +1881,87 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
     } catch (error) {
       return { error };
     }
+  }
+  async sendOrderConfirmEmail(id: number) {
+    const { error, data } = await this.$db.findRecordById({
+      id: id,
+      options: {
+        include: [
+          { association: 'address' },
+          { association: 'user' },
+          { association: 'items', include: [{ association: 'product' }] },
+        ],
+      },
+    });
+    if (!!error) {
+      return { error };
+    }
+
+    try {
+      const template = fs.readFileSync(
+        join(__dirname, '../src', 'views/order_template.hbs'),
+        'utf8',
+      );
+      // handlebars.registerHelper('checkLength', function (array) {
+      //   if (array.length > 1) {
+      //     return 'These products were recommended by your personal Opus Dispenser';
+      //   } else {
+      //     return 'This product was recommended by your personal Opus Dispenser';
+      //   }
+      // });
+      this.emailTemplate = handlebars.compile(template);
+    } catch (error) {
+      this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
+    }
+
+    const shipping_address = `${data.address.shipping_first_name + ' ' + data.address.shipping_last_name}, ${data.address.shipping_address}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
+    const billing_address = `${data.address.billing_first_name + ' ' + data.address.billing_last_name}, ${data.address.billing_address}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
+    const products = await Promise.all(
+      data.items.map(async (item) => ({
+        name: await this.getProductName(item.product_id),
+        price: item.price_per_item,
+        quantity: item.quantity,
+        order_id: data.uid,
+        image: await this.getProductImageUrl(item.product_id),
+      })),
+    );
+    const _email_template = this.emailTemplate({
+      logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
+      header_bg_image: this._config.get('cdnLocalURL') + 'assets/header-bg.png',
+      footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.png',
+      reorder: false,
+      title_content: `
+Hello ${data.user.name}, thank you for your order!`,
+      ORDER_ID: data.uid,
+      CUSTOMER_NAME: data.user.name,
+      PHONE_NUMBER: data.user.phone,
+      EMAIL: data.user.email,
+      ORDER_DATE: moment(data.created_at)
+        .tz('America/New_York')
+        .format('MM/DD/YYYY'),
+      TAX: Math.round(data.tax * 100) / 100,
+      SHIPPING_CHARGE: data.shipping_price,
+      DISCOUNT: data.coupon_discount_amount ? data.coupon_discount_amount : 0,
+      TOTAL: data.total,
+      SHIPPING_ADDRESS: shipping_address,
+      BILLING_ADDRESS: billing_address,
+      products: products,
+    });
+
+    const email_subject = `Your Order ${data.uid} is Confirmed!`;
+
+    await this._msClient.executeJob(
+      'controller.email',
+      new Job({
+        action: 'sendMail',
+        payload: {
+          to: data.user.email,
+          subject: email_subject,
+          html: _email_template,
+          from: this._config.get('email').transports['Orders'].from || '',
+          transporterName: 'Orders',
+        },
+      }),
+    );
   }
 }

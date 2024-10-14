@@ -372,7 +372,11 @@ export default <Seed<Template>>{
 <p>##SHIPPING_ADDRESS##</p>
 <p>##SHIPPING_CITY_STATE_ZIP##</p>
 <br />
-<p>Track your shipment with this tracking ID: ##TRACKING_NUMBER##</p>
+<p>Track your shipment <a href="##TRACKING_LINK##">here..</a></p>
+<br />
+<p>Alternatively you can track your shipment here:</p>
+<p><a href="https://tools.usps.com/go/TrackConfirmAction_input">https://tools.usps.com/go/TrackConfirmAction_input</a></p>
+<p>Tracking Number: ##TRACKING_NUMBER##</p>
 <br />
 <p>Thank you.</p>
 <br />
