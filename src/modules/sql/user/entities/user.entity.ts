@@ -422,6 +422,16 @@ export class User extends SqlModel {
   @IsEnum(ConnectionVia)
   connection_via?: ConnectionVia;
 
+  @Column({ defaultValue: false })
+  @ApiProperty({
+    description: 'Forced Password Change',
+    example: false,
+    required: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  force_password_change?: boolean;
+
   @Include({
     attributes: [
       'id',

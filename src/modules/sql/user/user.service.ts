@@ -134,6 +134,7 @@ export class UserService extends ModelService<User> {
         id: owner.id,
         body: {
           password,
+          force_password_change: false,
         },
       });
 

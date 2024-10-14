@@ -7,9 +7,15 @@
     <meta name="viewport" content="width=device-width"> <!-- Forcing initial-scale shouldn't be necessary -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Use the latest (edge) version of IE rendering engine -->
     <meta name="x-apple-disable-message-reformatting"> <!-- Disable auto-scale in iOS 10 Mail entirely -->
+    <link href="https://fonts.cdnfonts.com/css/proxima-nova-condensed" rel="stylesheet">
     <title></title> <!-- The title tag shows in email notifications, like Android 4.4. -->
     <title></title>
     <style>
+        body {
+            font-family: 'Proxima Nova Condensed', sans-serif;
+            font-family: 'Proxima Nova Extra Condensed', sans-serif;
+        }
+
         .wrapper {
             width: 100%;
             table-layout: fixed;
@@ -66,7 +72,7 @@
     <center class="wrapper">
         <table class="main" width="100%">
             <tr
-                style="background:#27CFAF url(images/ft_banner.png); background-repeat: no-repeat; background-position: bottom;">
+                style="background:#27CFAF url({{header_bg_image}}); background-repeat: no-repeat; background-position: bottom;">
                 <td>
                     <table width="100%">
                         <tr>
@@ -108,7 +114,7 @@
                                         {{#each products}}
                                         <tr style="display: block;">
                                             <td>
-                                                <img src={{image}} alt="">
+                                                <img style="width: 100px; height: 100px;" src={{image}} alt="">
                                             </td>
                                             <td
                                                 style="font-size: 18px;list-style: 35px; line-height: 24px; padding: 20px 0px;">
@@ -230,7 +236,7 @@
                                     <tr>
                                         <td>
                                             <p style="color: #231F20;font-size: 20px; margin: 5px 0px;">
-                                                <b>{{SHIPPING_ADDRESS}}
+                                                <b>Shipping Address: </b>{{SHIPPING_ADDRESS}}
                                             </p>
                                         </td>
                                     </tr>
@@ -249,22 +255,32 @@
                                 </table>
                             </td>
                         </tr>
+                    </table>
+                </td>
 
             </tr>
+
             <tr>
                 <td>
-
-                    <p style="font-size: 17px;line-height: 30px;color: #231F20;">
-                        Regards, </br> Team Opus
-                    </p>
+                    <table style="max-width: 740px;height: 150px; margin: 0 auto;width: 100%;">
+                        <tr>
+                            <td>
+                                <p style="font-size: 17px;line-height: 30px;color: #231F20;">
+                                    Regards, </br> Team Opus
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
-        </table>
-        </td>
-        </tr>
-        <tr>
+
+            {{!--
+        </table> --}}
+        {{!-- </td>
+        </tr> --}}
+        <tr style="background: #fff;">
             <td>
-                <img src="images/ft_banner.png" alt="">
+                <img src={{footer_bg_image}} alt="">
             </td>
         </tr>
         </table>
