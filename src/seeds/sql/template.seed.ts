@@ -386,6 +386,28 @@ export default <Seed<Template>>{
       sms_body: '',
     },
     {
+      name: 'order_shipped_manually',
+      title: 'Manual Order Shipment Notification',
+      send_email: true,
+      transporter: Transporter.Orders,
+      email_subject: 'Order Shipment Notification',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+<br />
+<p>You Order ##ORDER_ID## has been shipped. Please find the details below:</p>
+<br />
+<p>Shipping Address:</p>
+<p>##SHIPPING_NAME##</p>
+<p>##SHIPPING_ADDRESS##</p>
+<p>##SHIPPING_CITY_STATE_ZIP##</p>
+<br />
+<p>Thank you.</p>
+<br />
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
       name: 'order_delivered',
       title: 'Order Delivered Notification',
       send_email: true,

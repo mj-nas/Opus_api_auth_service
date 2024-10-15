@@ -1935,7 +1935,11 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
       footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.png',
       reorder: false,
       title_content: `
-Hello ${data.user.name}, thank you for your order!`,
+Hello ${data.user.name}, thank you for your order!, Your order placed on ${moment(
+        data.created_at,
+      )
+        .tz('America/New_York')
+        .format('MM/DD/YYYY')} is confirmed. You can find the details below.`,
       ORDER_ID: data.uid,
       CUSTOMER_NAME: data.user.name,
       PHONE_NUMBER: data.user.phone,
