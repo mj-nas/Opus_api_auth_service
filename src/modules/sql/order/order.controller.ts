@@ -75,6 +75,13 @@ export class OrderController {
     await this._msClient.jobDone(job, response);
   }
 
+  @MsEventListener('order.confirm.email')
+  async orderCofirmEmailListener(job: Job): Promise<void> {
+    const { id } = job.payload;
+    const response = await this.orderService.sendOrderConfirmEmail(id);
+    await this._msClient.jobDone(job, response);
+  }
+
   /**
    * Queue listener for order status update
    */

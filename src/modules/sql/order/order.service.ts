@@ -271,20 +271,24 @@ export class OrderService extends ModelService<Order> {
         });
 
         // Send order confirmation mail notification
-        await this._msClient.executeJob(
-          'controller.notification',
-          new Job({
-            action: 'send',
-            payload: {
-              user_id: response.data.user_id,
-              template: 'order_confirm_to_customer',
-              variables: {
-                ORDER_ID: response.data.uid,
-              },
-            },
-          }),
-        );
-        await this.sendOrderConfirmEmail(response.data.id);
+        // await this._msClient.executeJob(
+        //   'controller.notification',
+        //   new Job({
+        //     action: 'send',
+        //     payload: {
+        //       user_id: response.data.user_id,
+        //       template: 'order_confirm_to_customer',
+        //       variables: {
+        //         ORDER_ID: response.data.uid,
+        //       },
+        //     },
+        //   }),
+        // );
+        await this._msClient.executeJob('order.confirm.email', {
+          payload: {
+            id: response.data.id,
+          },
+        });
         // create order in xps
         await this.createShipments({
           payload: {
