@@ -175,6 +175,60 @@ export default <Seed<Template>>{
       sms_body: '',
     },
     {
+      name: 'new_repeat_order_alert_to_admin',
+      title: 'New Repeat Order Alert To Admin',
+      transporter: Transporter.Orders,
+      send_email: true,
+      email_subject: 'New Order Alert - ##ORDER_ID##',
+      email_body: `<p>Hello ##TO_NAME##,</p>
+<p><br /></p>
+<p>We have received a new order. Here are the initial details:</p>
+<p><br /></p>
+<p>Customer Name: ##CUSTOMER_NAME##</p>
+<p>Order ID: ##ORDER_ID##</p>
+<p><br /></p>
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'new_reorder_alert_to_admin',
+      title: 'New Reorder Alert To Admin',
+      transporter: Transporter.Orders,
+      send_email: true,
+      email_subject: 'New Reorder Alert - ##ORDER_ID##',
+      email_body: `<p>Hello ##TO_NAME##,</p>
+<p><br /></p>
+<p>We have received a new order. Here are the initial details:</p>
+<p><br /></p>
+<p>Customer Name: ##CUSTOMER_NAME##</p>
+<p>Order ID: ##ORDER_ID##</p>
+<p><br /></p>
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'new_order_alert_to_customer',
+      title: 'Order confirmed email to customer',
+      transporter: Transporter.Orders,
+      send_email: true,
+      email_subject: 'Your Order ##ORDER_ID## is Confirmed!',
+      email_body: `<p>Hello ##TO_NAME##,</p>
+<p><br /></p>
+<p>We have received a new order. Here are the initial details:</p>
+<p><br /></p>
+<p>Customer Name: ##CUSTOMER_NAME##</p>
+<p>Order ID: ##ORDER_ID##</p>
+<p><br /></p>
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
       name: 'repeat_order_reminder',
       title: 'Repeat Order Reminder To Customer',
       send_email: true,
@@ -526,47 +580,6 @@ export default <Seed<Template>>{
 <p>Please visit the My Orders page in your account if you need further assistance.</p>
 <br />
 <p>We appreciate your prompt response to avoid the cancellation of your order.</p>
-<br />
-<p>Best regards,</p>
-<p>Team OPUS</p>`,
-      send_sms: false,
-      sms_body: '',
-    },
-    {
-      name: 'new_recurring_order_admin',
-      title: 'New Recurring Order Alert To Admin',
-      send_email: true,
-      transporter: Transporter.Orders,
-      email_subject: 'New Recurring Order Alert - ##ORDER_ID##',
-      email_body: `<p>Hi ##TO_NAME##,</p>
-<br />
-<p>A new recurring order has been initiated please find the details below</p>
-<br />
-<p><b>Customer Details:</b></p>
-<br />
-<p>Customer Name: ##CUSTOMER_NAME##</p>
-<p>Phone Number: ##PHONE_NUMBER##</p>
-<p>Email: ##EMAIL##</p>
-<br />
-<p><b>Order Details:</b></p>
-<br />
-<p>Order ID: ##ORDER_ID##</p>
-<p>Order Date: ##ORDER_DATE##</p>
-<p>Recurring Days: ##RECURRING_DAYS## days</p>
-<br />
-<p>Tax: $##TAX##</p>
-<p>Shipping Charge: $##SHIPPING_CHARGE##</p>
-<p>Total: $##TOTAL##</p>
-<br />
-<p>Shipping Address: ##SHIPPING_ADDRESS##</p>
-<p>Billing Address: ##BILLING_ADDRESS##</p>
-<br />
-<p><b>Card Details:</b></p>
-<br />
-<p>Cardholder Name: ##CARDHOLDER_NAME##</p>
-<p>Card Number: ##CARD_NUMBER##</p>
-<p>CVV: ##CVV##</p>
-<p>Expiry Date: ##EXPIRATION_DATE##</p>
 <br />
 <p>Best regards,</p>
 <p>Team OPUS</p>`,

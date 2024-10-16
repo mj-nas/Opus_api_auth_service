@@ -25,6 +25,7 @@ import { OrderPaymentService } from '../order-payment/order-payment.service';
 import { OrderStatusLogService } from '../order-status-log/order-status-log.service';
 import { ProductsService } from '../products/products.service';
 import { SettingService } from '../setting/setting.service';
+import { TemplateService } from '../template/template.service';
 import { ConnectionVia } from '../user/connection-via.enum';
 import { Role } from '../user/role.enum';
 import { UserService } from '../user/user.service';
@@ -71,6 +72,7 @@ export class OrderService extends ModelService<Order> {
     private _config: ConfigService,
     private _settingService: SettingService,
     private _productService: ProductsService,
+    private templateService: TemplateService,
   ) {
     super(db);
   }
@@ -284,9 +286,15 @@ export class OrderService extends ModelService<Order> {
         //     },
         //   }),
         // );
-        await this._msClient.executeJob('order.confirm.email', {
+        // await this._msClient.executeJob('order.confirm.email', {
+        //   payload: {
+        //     id: response.data.id,
+        //   },
+        // });
+        await this._msClient.executeJob('order.mail.sent', {
           payload: {
-            id: response.data.id,
+            order_id: response.data.id,
+            to: Role.Customer,
           },
         });
         // create order in xps
@@ -466,41 +474,6 @@ export class OrderService extends ModelService<Order> {
         }
       }
 
-      const { data: emailData } = await this._settingService.findOne({
-        action: 'findOne',
-        payload: { where: { name: 'order_service_email' } },
-      });
-
-      // setting template and shipping and billing address and products for email
-
-      try {
-        const template = fs.readFileSync(
-          join(__dirname, '../src', 'views/order_template.hbs'),
-          'utf8',
-        );
-        // handlebars.registerHelper('checkLength', function (array) {
-        //   if (array.length > 1) {
-        //     return 'These products were recommended by your personal Opus Dispenser';
-        //   } else {
-        //     return 'This product was recommended by your personal Opus Dispenser';
-        //   }
-        // });
-        this.emailTemplate = handlebars.compile(template);
-      } catch (error) {
-        this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
-      }
-      const shipping_address = `${body.address.shipping_first_name + ' ' + body.address.shipping_last_name}, ${body.address.shipping_address}, ${body.address.shipping_city}, ${body.address.shipping_state}, ${body.address.shipping_zip_code}`;
-      const billing_address = `${body.address.billing_first_name + ' ' + body.address.billing_last_name}, ${body.address.billing_address}, ${body.address.billing_city}, ${body.address.billing_state}, ${body.address.billing_zip_code}`;
-      const products = await Promise.all(
-        body.items.map(async (item) => ({
-          name: await this.getProductName(item.product_id),
-          price: item.price_per_item,
-          quantity: item.quantity,
-          order_id: order.data.uid,
-          image: await this.getProductImageUrl(item.product_id),
-        })),
-      );
-
       // create stripe product, price and payment link only for non-repeating orders
       if (body.is_repeating_order === 'N') {
         // Create a new stripe product against the order
@@ -561,134 +534,23 @@ export class OrderService extends ModelService<Order> {
 
         await transaction.commit();
 
-        // New order alert to admin
-
-        if (emailData && emailData?.getDataValue('value')) {
-          const _email_template = this.emailTemplate({
-            logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
-            header_bg_image:
-              this._config.get('cdnLocalURL') + 'assets/header-bg.png',
-            footer_bg_image:
-              this._config.get('cdnLocalURL') + 'assets/footer-bg.png',
-            reorder: false,
-            title_content: `
-Following are the product purchase details by ${job.owner.name} on ${moment(
-              order.data.created_at,
-            )
-              .tz('America/New_York')
-              .format('MM/DD/YYYY')}.`,
-            ORDER_ID: order.data.uid,
-            CUSTOMER_NAME: job.owner.name,
-            PHONE_NUMBER: job.owner.phone,
-            EMAIL: job.owner.email,
-            ORDER_DATE: moment(order.data.created_at)
-              .tz('America/New_York')
-              .format('MM/DD/YYYY'),
-            TAX: Math.round(body.tax * 100) / 100,
-            SHIPPING_CHARGE: body.shipping_price,
-            DISCOUNT: order.data.coupon_discount_amount
-              ? order.data.coupon_discount_amount
-              : 0,
-            TOTAL: body.total,
-            SHIPPING_ADDRESS: shipping_address,
-            BILLING_ADDRESS: billing_address,
-            products: products,
-          });
-          const email_subject = `New Order Alert - ${order.data.uid}`;
-
-          await this._msClient.executeJob(
-            'controller.email',
-            new Job({
-              action: 'sendMail',
-              payload: {
-                to: emailData.getDataValue('value'),
-                subject: email_subject,
-                html: _email_template,
-                from: this._config.get('email').transports['Orders'].from || '',
-                transporterName: 'Orders',
-              },
-            }),
-          );
-        }
+        await this._msClient.executeJob('order.mail.sent', {
+          payload: {
+            order_id: order.data.id,
+            to: Role.Admin,
+          },
+        });
 
         return { data: { order: order.data, payment_link: paymentLink.url } };
       } else {
         await transaction.commit();
-
-        // New order alert to admin for repeating order with card details
-        if (emailData && emailData?.getDataValue('value')) {
-          const _email_template = this.emailTemplate({
-            logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
-            header_bg_image:
-              this._config.get('cdnLocalURL') + 'assets/header-bg.png',
-            footer_bg_image:
-              this._config.get('cdnLocalURL') + 'assets/footer-bg.png',
-            reorder: true,
-            title_content: `
-Following are the product purchase details by ${job.owner.name} on ${moment(
-              order.data.created_at,
-            )
-              .tz('America/New_York')
-              .format('MM/DD/YYYY')}.`,
-            ORDER_ID: order.data.uid,
-            CUSTOMER_NAME: job.owner.name,
-            PHONE_NUMBER: job.owner.phone,
-            EMAIL: job.owner.email,
-            ORDER_DATE: moment(order.data.created_at)
-              .tz('America/New_York')
-              .format('MM/DD/YYYY'),
-            RECURRING_DAYS: order.data.repeating_days,
-            TAX: Math.round(body.tax * 100) / 100,
-            SHIPPING_CHARGE: body.shipping_price,
-            DISCOUNT: order.data.coupon_discount_amount
-              ? order.data.coupon_discount_amount
-              : 0,
-            TOTAL: body.total,
-            SHIPPING_ADDRESS: shipping_address,
-            BILLING_ADDRESS: billing_address,
-            CARDHOLDER_NAME: body.card_details.cardholder_name,
-            CARD_NUMBER: body.card_details.card_number.replace(
-              /(\d{4})/g,
-              '$1 ',
-            ),
-            EXPIRATION_DATE: body.card_details.expiration_date,
-            CVV: body.card_details.cvv,
-            products: products,
-          });
-          const email_subject = `New Recurring Order Alert - ${order.data.uid}`;
-
-          await this._msClient.executeJob(
-            'controller.email',
-            new Job({
-              action: 'sendMail',
-              payload: {
-                to: emailData.getDataValue('value'),
-                subject: email_subject,
-                html: _email_template,
-                from: this._config.get('email').transports['Orders'].from || '',
-                transporterName: 'Orders',
-              },
-            }),
-          );
-
-          // await this._msClient.executeJob(
-          //   'controller.notification',
-          //   new Job({
-          //     action: 'send',
-          //     payload: {
-          //       skipUserConfig: true,
-          //       users: [
-          //         {
-          //           name: 'Super Admin',
-          //           email: emailData.getDataValue('value'),
-          //           send_email: true,
-          //         },
-          //       ],
-          //       template: 'new_recurring_order_admin',
-          //     },
-          //   }),
-          // );
-        }
+        await this._msClient.executeJob('order.mail.sent', {
+          payload: {
+            order_id: order.data.id,
+            to: Role.Admin,
+            card_details: body.card_details,
+          },
+        });
         return { data: { order: order.data, payment_link: '' } };
       }
     } catch (error) {
@@ -922,34 +784,42 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
         o.setDataValue('is_base_order', 'N');
         await o.save();
 
-        const { data } = await this._settingService.findOne({
-          action: 'findOne',
-          payload: { where: { name: 'order_service_email' } },
+        await this._msClient.executeJob('order.mail.sent', {
+          payload: {
+            order_id: order.data.id,
+            to: Role.Admin,
+            isReorder: true,
+          },
         });
-        if (data && data?.getDataValue('value')) {
-          // New order alert to admin
-          await this._msClient.executeJob(
-            'controller.notification',
-            new Job({
-              action: 'send',
-              payload: {
-                skipUserConfig: true,
-                users: [
-                  {
-                    name: 'Super Admin',
-                    email: data.getDataValue('value'),
-                    send_email: true,
-                  },
-                ],
-                template: 'new_order_alert_to_admin',
-                variables: {
-                  ORDER_ID: order.data.uid,
-                  CUSTOMER_NAME: o.user.name,
-                },
-              },
-            }),
-          );
-        }
+
+        // const { data } = await this._settingService.findOne({
+        //   action: 'findOne',
+        //   payload: { where: { name: 'order_service_email' } },
+        // });
+        // if (data && data?.getDataValue('value')) {
+        //   // New order alert to admin
+        //   await this._msClient.executeJob(
+        //     'controller.notification',
+        //     new Job({
+        //       action: 'send',
+        //       payload: {
+        //         skipUserConfig: true,
+        //         users: [
+        //           {
+        //             name: 'Super Admin',
+        //             email: data.getDataValue('value'),
+        //             send_email: true,
+        //           },
+        //         ],
+        //         template: 'new_order_alert_to_admin',
+        //         variables: {
+        //           ORDER_ID: order.data.uid,
+        //           CUSTOMER_NAME: o.user.name,
+        //         },
+        //       },
+        //     }),
+        //   );
+        // }
       }
 
       return { data };
@@ -1968,6 +1838,163 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
           html: _email_template,
           from: this._config.get('email').transports['Orders'].from || '',
           transporterName: 'Orders',
+        },
+      }),
+    );
+  }
+
+  async orderMail({
+    order_id,
+    to,
+    card_details,
+    isReorder = false,
+  }: {
+    order_id: number;
+    to: Role;
+    isReorder: boolean;
+    card_details?: {
+      cardholder_name: string;
+      card_number: string;
+      expiration_date: string;
+      cvv: string;
+    };
+  }) {
+    const { error, data } = await this.$db.findRecordById({
+      id: order_id,
+      options: {
+        include: [
+          { association: 'address' },
+          { association: 'user' },
+          {
+            association: 'items',
+            include: [
+              {
+                association: 'product',
+                include: [{ association: 'product_primary_image' }],
+              },
+            ],
+          },
+        ],
+      },
+    });
+    if (!!error) {
+      return { error };
+    }
+
+    const templateName =
+      to === Role.Admin
+        ? !!isReorder
+          ? 'new_reorder_alert_to_admin'
+          : data.is_repeating_order === 'Y'
+            ? 'new_repeat_order_alert_to_admin'
+            : 'new_order_alert_to_admin'
+        : 'new_order_alert_to_customer';
+
+    const getTemplate = await this.templateService.$db.findOneRecord({
+      options: {
+        where: {
+          name: templateName,
+        },
+      },
+    });
+
+    if (!!getTemplate.error) {
+      return { error: getTemplate.error };
+    }
+
+    const template = getTemplate.data;
+    const transporter = template.getDataValue('transporter') || '';
+    let email_subject = template.getDataValue('email_subject') || '',
+      email_body = template.getDataValue('email_body') || '';
+
+    const SHIPPING_ADDRESS = `${data.address.shipping_first_name + ' ' + data.address.shipping_last_name}, ${data.address.shipping_address}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
+    const BILLING_ADDRESS = `${data.address.billing_first_name + ' ' + data.address.billing_last_name}, ${data.address.billing_address}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
+
+    let products_table = `<figure class="table">
+    <table class="gmail-table" style="margin-bottom:30px;">
+        <thead>
+            <tr>
+                <th colspan="2">
+                    Products
+                </th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+    data.items.forEach((item) => {
+      products_table += `<tr style="display: block;">
+        <td>
+            <img style="width: 100px; height: 100px;" src="${item.product.product_primary_image.product_image}" alt="">
+        </td>
+        <td
+            style="font-size: 18px;list-style: 35px; line-height: 24px; padding: 20px 0px;">
+            ${item.product.product_name}</br>
+            <b>$${item.price_per_item}</b> </br>
+            Item: <b>${item.quantity}</b></br>
+            Order ID: <b>${data.uid}</b>
+        </td>
+    </tr>`;
+    });
+
+    products_table += `</tbody>
+    </table>
+</figure>`;
+
+    const variables = {
+      LOGO: this._config.get('cdnLocalURL') + 'assets/logo.png',
+      HEADER_BG_IMAGE: this._config.get('cdnLocalURL') + 'assets/header-bg.png',
+      FOOTER_BG_IMAGE: this._config.get('cdnLocalURL') + 'assets/footer-bg.png',
+      CUSTOMER_NAME: data.user.name,
+      ORDER_DATE: moment(data.created_at)
+        .tz('America/New_York')
+        .format('MM/DD/YYYY'),
+      ORDER_ID: data.uid,
+      PHONE_NUMBER: data.user.phone,
+      EMAIL: data.user.email,
+      RECURRING_DAYS: data.repeating_days,
+      TAX: Math.round(data.tax * 100) / 100,
+      SHIPPING_CHARGE: data.shipping_price,
+      DISCOUNT: data.coupon_discount_amount ? data.coupon_discount_amount : 0,
+      TOTAL: data.total,
+      SHIPPING_ADDRESS,
+      BILLING_ADDRESS,
+      CARDHOLDER_NAME: card_details?.cardholder_name || '',
+      CARD_NUMBER: (card_details.card_number || '').replace(/(\d{4})/g, '$1 '),
+      EXPIRATION_DATE: card_details.expiration_date || '',
+      CVV: card_details?.cvv || '',
+      PRODUCTS: products_table,
+    };
+
+    for (const key in variables) {
+      if (Object.prototype.hasOwnProperty.call(variables, key)) {
+        email_subject = email_subject.split(`##${key}##`).join(variables[key]);
+        email_body = email_body.split(`##${key}##`).join(variables[key]);
+      }
+    }
+
+    this.emailTemplate = handlebars.compile(email_body);
+
+    let toEmail = ``;
+    if (to === Role.Admin) {
+      const { data: emailData } = await this._settingService.findOne({
+        action: 'findOne',
+        payload: { where: { name: 'order_service_email' } },
+      });
+      toEmail = emailData.getDataValue('value');
+    } else {
+      toEmail = data.user.email;
+    }
+
+    await this._msClient.executeJob(
+      'controller.email',
+      new Job({
+        action: 'sendMail',
+        payload: {
+          to: toEmail,
+          subject: email_subject,
+          html: this.emailTemplate({}),
+          from: this._config.get('email').transports[transporter].from || '',
+          transporterName: transporter,
         },
       }),
     );
