@@ -10,6 +10,7 @@ export class SignupDto extends PickType(User, [
   'avatar',
   'email',
   'address',
+  'address2',
   'city',
   'state',
   'zip_code',
