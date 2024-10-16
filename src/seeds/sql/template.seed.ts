@@ -595,7 +595,7 @@ export default <Seed<Template>>{
       <br/><p>A new application to join as a dispenser has been submitted. Please review the details and proceed with the necessary steps.</p>
       <br/><p>Thank you for your attention.</p>
       <br/><p>Best Regards,</p>
-      <p>Best Regards,</p>`,
+      <p>Team OPUS,</p>`,
       send_sms: false,
       sms_body: '',
     },

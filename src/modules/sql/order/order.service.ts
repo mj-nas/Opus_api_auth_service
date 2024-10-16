@@ -928,27 +928,27 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
         });
         if (data && data?.getDataValue('value')) {
           // New order alert to admin
-          await this._msClient.executeJob(
-            'controller.notification',
-            new Job({
-              action: 'send',
-              payload: {
-                skipUserConfig: true,
-                users: [
-                  {
-                    name: 'Super Admin',
-                    email: data.getDataValue('value'),
-                    send_email: true,
-                  },
-                ],
-                template: 'new_order_alert_to_admin',
-                variables: {
-                  ORDER_ID: order.data.uid,
-                  CUSTOMER_NAME: o.user.name,
-                },
-              },
-            }),
-          );
+          // await this._msClient.executeJob(
+          //   'controller.notification',
+          //   new Job({
+          //     action: 'send',
+          //     payload: {
+          //       skipUserConfig: true,
+          //       users: [
+          //         {
+          //           name: 'Super Admin',
+          //           email: data.getDataValue('value'),
+          //           send_email: true,
+          //         },
+          //       ],
+          //       template: 'new_order_alert_to_admin',
+          //       variables: {
+          //         ORDER_ID: order.data.uid,
+          //         CUSTOMER_NAME: o.user.name,
+          //       },
+          //     },
+          //   }),
+          // );
         }
       }
 
