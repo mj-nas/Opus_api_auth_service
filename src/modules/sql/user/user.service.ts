@@ -1190,6 +1190,7 @@ export class UserService extends ModelService<User> {
               country: user.COUNTRY,
               zip_code: user.ZIP_CODE,
               force_password_change: true,
+              role: Role.Customer,
               password,
             },
           });
