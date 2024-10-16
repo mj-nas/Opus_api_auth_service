@@ -337,6 +337,7 @@ export class Order extends SqlModel {
       'first_name',
       'last_name',
       'address',
+      'address2',
       'city',
       'state',
       'zip_code',
