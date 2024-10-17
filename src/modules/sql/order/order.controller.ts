@@ -98,6 +98,21 @@ export class OrderController {
   }
 
   /**
+   * Queue listener for order status update
+   */
+  @MsEventListener('order.mail.sent')
+  async orderMail(job: Job): Promise<void> {
+    const { order_id, to, card_details, isReorder } = job.payload;
+    const response = await this.orderService.orderMail({
+      order_id,
+      to,
+      card_details,
+      isReorder,
+    });
+    await this._msClient.jobDone(job, response);
+  }
+
+  /**
    * Create a new entity document
    */
   @Post()
