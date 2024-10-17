@@ -1220,6 +1220,7 @@ export class UserService extends ModelService<User> {
                   TO_NAME: data.name,
                   USERNAME: data.email,
                   PASSWORD: password,
+                  LOGIN_LINK: process.env.WEBSITE_URL + '/auth/signin',
                 },
               },
             }),

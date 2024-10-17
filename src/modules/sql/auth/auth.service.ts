@@ -584,7 +584,7 @@ export class AuthService {
             skipUserConfig: true,
             variables: {
               TO_NAME: userDetails.data.name,
-              USERNAME: userDetails.data.email,
+              LOGIN_LINK: `${process.env.WEBSITE_URL}/auth/signin`,
             },
           },
         }),

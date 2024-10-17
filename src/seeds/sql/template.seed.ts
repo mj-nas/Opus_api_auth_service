@@ -53,6 +53,8 @@ export default <Seed<Template>>{
       email_subject: 'Welcome to OPUS Cannaboids!',
       email_body: `Hi ##TO_NAME##,
       <br><br>Welcome aboard!  We're thrilled to have you join us.
+      <br><br>Please click the link below to log in.
+      <br><br><a href="##LOGIN_LINK##">##LOGIN_LINK##</a>,
       <br><br>Best regards,
       <br>Team OPUS`,
       send_sms: false,
@@ -82,6 +84,8 @@ export default <Seed<Template>>{
 <br><br><b>Credentials</b>,
 <br>Username: ##USERNAME##
 <br>Password: ##PASSWORD##
+<br><br>Please click the link below to log in.
+      <br><br><a href="##LOGIN_LINK##">##LOGIN_LINK##</a>,
 <br><br>Best regards,
 <br>Team OPUS`,
       send_sms: false,
