@@ -559,7 +559,8 @@ export class UserService extends ModelService<User> {
         'Email',
         'Referred By',
         'Phone',
-        'Address',
+        'Address1',
+        'Address2',
         'City',
         'State',
         'Zip Code',
@@ -579,6 +580,7 @@ export class UserService extends ModelService<User> {
             x?.dispenser?.name,
             `${x?.phone}`,
             x?.address,
+            x?.address2,
             x?.city,
             x?.state,
             x?.zip_code,
@@ -595,7 +597,8 @@ export class UserService extends ModelService<User> {
         { header: 'Email', key: 'email', width: 25 },
         { header: 'Referred By', key: 'referred_by', width: 50 },
         { header: 'Phone', key: 'phone', width: 50 },
-        { header: 'Address', key: 'address', width: 50 },
+        { header: 'Address1', key: 'address', width: 50 },
+        { header: 'Address2', key: 'address2', width: 50 },
         { header: 'City', key: 'city', width: 50 },
         { header: 'State', key: 'state', width: 50 },
         { header: 'Zip Code', key: 'zip_code', width: 15 },
@@ -650,7 +653,8 @@ export class UserService extends ModelService<User> {
         'Buisiness Name',
         'Email',
         'Phone',
-        'Address',
+        'Address1',
+        'Address2',
         'City',
         'State',
         'Zip Code',
@@ -669,6 +673,7 @@ export class UserService extends ModelService<User> {
             x.email,
             `${x?.phone}`,
             x?.address,
+            x?.address2,
             x?.city,
             x?.state,
             x?.zip_code,
@@ -684,7 +689,8 @@ export class UserService extends ModelService<User> {
         { header: 'Buisiness Name', key: 'buisiness_name', width: 25 },
         { header: 'Email', key: 'email', width: 25 },
         { header: 'Phone', key: 'phone', width: 50 },
-        { header: 'Address', key: 'address', width: 50 },
+        { header: 'Address1', key: 'address', width: 50 },
+        { header: 'Address2', key: 'address2', width: 50 },
         { header: 'City', key: 'city', width: 50 },
         { header: 'State', key: 'state', width: 50 },
         { header: 'Zip Code', key: 'zip_code', width: 15 },
@@ -847,6 +853,7 @@ export class UserService extends ModelService<User> {
         'LATITUDE',
         'LONGITUDE',
         'ADDRESS',
+        'ADDRESS2',
         'CITY',
         'STATE',
         'COUNTRY',
@@ -911,6 +918,9 @@ export class UserService extends ModelService<User> {
             .min(1, { message: 'Please enter your address.' })
             .max(100, 'Your address exceeds the character limit.'),
         ),
+        ADDRESS2: parseStringWithWhitespace(
+          z.string().max(100, 'Your address exceeds the character limit.'),
+        ),
         CITY: parseStringWithWhitespace(
           z
             .string()
@@ -958,6 +968,7 @@ export class UserService extends ModelService<User> {
             latitude: user.LATITUDE,
             longitude: user.LONGITUDE,
             address: user.ADDRESS,
+            address2: user.ADDRESS2,
             city: user.CITY,
             state: user.STATE,
             country: user.COUNTRY,
@@ -1050,6 +1061,7 @@ export class UserService extends ModelService<User> {
         'EMAIL',
         'PHONE',
         'ADDRESS',
+        'ADDRESS2',
         'CITY',
         'STATE',
         'COUNTRY',
@@ -1097,6 +1109,9 @@ export class UserService extends ModelService<User> {
             .min(1, { message: 'Please enter your address.' })
             .max(100, 'Your address exceeds the character limit.'),
         ),
+        ADDRESS2: parseStringWithWhitespace(
+          z.string().max(100, 'Your address exceeds the character limit.'),
+        ),
         CITY: parseStringWithWhitespace(
           z
             .string()
@@ -1140,11 +1155,13 @@ export class UserService extends ModelService<User> {
             email: user.EMAIL,
             phone: user.PHONE,
             address: user.ADDRESS,
+            address2: user?.ADDRESS2,
             city: user.CITY,
             state: user.STATE,
             country: user.COUNTRY,
             zip_code: user.ZIP_CODE,
             force_password_change: true,
+            role: Role.Customer,
             password,
           };
           const { errors } = await trimAndValidateCustom(SignupDto, body, [
@@ -1168,11 +1185,13 @@ export class UserService extends ModelService<User> {
               email: user.EMAIL,
               phone: user.PHONE,
               address: user.ADDRESS,
+              address2: user?.ADDRESS2,
               city: user.CITY,
               state: user.STATE,
               country: user.COUNTRY,
               zip_code: user.ZIP_CODE,
               force_password_change: true,
+              role: Role.Customer,
               password,
             },
           });
