@@ -38,6 +38,21 @@ export class ProductsService extends ModelService<Products> {
   }
 
   /**
+   * doBeforeFindAll
+   * @function function will execute before findAll function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeFindAll(job: SqlJob<Products>): Promise<void> {
+    await super.doBeforeFindAll(job);
+    if (job.action === 'findAll') {
+      if (job.options?.where && 'deleted_at' in job.options.where) {
+        job.options.paranoid = false;
+      }
+    }
+  }
+
+  /**
    * doBeforeRead
    * @function function will execute before findAll, getCount, findById and findOne function
    * @param {object} job - mandatory - a job object representing the job information
