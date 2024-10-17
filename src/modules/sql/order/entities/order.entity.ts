@@ -239,6 +239,15 @@ export class Order extends SqlModel {
   @IsNumber()
   coupon_discount_amount: number;
 
+  @Column
+  @ApiProperty({
+    description: 'Coupon code of applied coupon',
+    example: 'ASD123',
+  })
+  @IsString()
+  @IsOptional()
+  coupon_code: string;
+
   @Include({
     attributes: [
       'id',
