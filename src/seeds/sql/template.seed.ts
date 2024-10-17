@@ -288,9 +288,14 @@ export default <Seed<Template>>{
 <p>Username: ##USERNAME##</p>
 <p>Password: ##PASSWORD##</p>
 <br />
-<p>Please ensure to change your password upon your first login for security purposes. Your account is now active, and you can start accessing our resources and managing your new role.</p>
+<p>You can begin accessing our resources and managing your new role.</p>
 <br />
-<p>If you have any questions or need further assistance, don't hesitate to reach out.</p>
+<p>Security Reminder: For your protection, please change your password upon your first login.</p>
+<br />
+<p>Additionally, to ensure you can fully utilize your account, we kindly ask that you complete the E-Learning module at your earliest convenience.</p>
+<br />
+<p>If you have any questions or need further assistance, don't hesitate to reach out.
+</p>
 <br />
 <p>Best regards,</p>
 <p>Team OPUS</p>`,
