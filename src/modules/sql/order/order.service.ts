@@ -1102,7 +1102,7 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
             x?.uid,
             x?.user?.name,
             x?.dispenser?.name,
-            x?.coupon?.code,
+            x?.coupon_code,
             `${x?.total}`,
             x?.repeating_days,
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),

@@ -17,6 +17,7 @@ export class CreateOrderDto extends PickType(Order, [
   'coupon_discount',
   'coupon_type',
   'coupon_discount_amount',
+  'coupon_code',
 ] as const) {
   @ApiProperty({
     type: CreateOrderItemDto,
