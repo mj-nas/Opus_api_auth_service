@@ -161,7 +161,7 @@ export class ProductsService extends ModelService<Products> {
         'Wholesale Price',
         'Category Name',
         'Description',
-        'Created At',
+        'Created On',
         'Status',
         'Featured',
       ]);
@@ -191,7 +191,7 @@ export class ProductsService extends ModelService<Products> {
         { header: 'Wholesale Price', key: 'wholesale_price', width: 25 },
         { header: 'Category Name', key: 'category_name', width: 25 },
         { header: 'Description', key: 'product_description', width: 50 },
-        { header: 'Created At', key: 'created_at', width: 25 },
+        { header: 'Created On', key: 'created_at', width: 25 },
         { header: 'Status', key: 'status', width: 25 },
         { header: 'Featured', key: 'is_featured', width: 25 },
       ];
