@@ -492,6 +492,8 @@ export default <Seed<Template>>{
 <br />
 <p>We are pleased to inform you that your package with order ID ##ORDER_ID## has been delivered. We hope to hear from you again soon!</p>
 <br />
+<p>You can add ratings and reviews by going to the My Orders section.</p>
+<br />
 <p>Thank you.</p>
 <br />
 <p>Best regards,</p>

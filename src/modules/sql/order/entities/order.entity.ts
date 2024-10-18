@@ -230,6 +230,15 @@ export class Order extends SqlModel {
   @IsOptional()
   tracking_number: string;
 
+  @Column
+  @ApiProperty({
+    description: 'Shipping Service',
+    example: 'usps_ground_advantage',
+  })
+  @IsString()
+  @IsOptional()
+  shipping_service: string;
+
   @Column(DataTypes.FLOAT({ precision: 11, scale: 2 }))
   @ApiProperty({
     description: 'Coupon Discount Amount',
