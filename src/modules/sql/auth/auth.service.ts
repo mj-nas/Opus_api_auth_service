@@ -510,6 +510,7 @@ export class AuthService {
           payload: { where: { name: 'customer_service_email' } },
         });
         if (data && data?.getDataValue('value')) {
+          //send email to admin for new dispenser application
           await this.msClient.executeJob(
             'controller.notification',
             new Job({
@@ -524,6 +525,20 @@ export class AuthService {
                   },
                 ],
                 template: 'new_dispenser_application',
+                variables: {},
+              },
+            }),
+          );
+
+          // send email to user for new dispenser application
+          await this.msClient.executeJob(
+            'controller.notification',
+            new Job({
+              action: 'send',
+              payload: {
+                skipUserConfig: true,
+                user_id: data.id,
+                template: 'dispenser_application_received',
                 variables: {},
               },
             }),

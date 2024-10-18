@@ -307,6 +307,27 @@ export default <Seed<Template>>{
       sms_body: '',
     },
     {
+      name: 'dispenser_application_received',
+      title: 'Application Received - Dispenser',
+      send_email: true,
+      transporter: Transporter.CustomerServices,
+      email_subject: 'We’ve Received Your Application!',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+  <br />
+  <p>Thank you for your interest in becoming a Dispenser with OPUS Cannaboids. We have successfully received your application and our team is currently reviewing it.</p>
+  <br />
+  <p>Our verification process ensures that all information is accurate and aligns with our standards. We will notify you as soon as we have completed our review, typically within a few business days.</p>
+  <br />
+  <p>If additional information is needed, please feel free to reach out to us.</p>
+  <br />
+  <p>We appreciate your patience during this process and are excited about the possibility of you joining us!</p>
+  <br />
+  <p>Best regards,</p>
+  <p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
       name: 'dispenser_account_created',
       title: 'Dispenser Account Created',
       send_email: true,

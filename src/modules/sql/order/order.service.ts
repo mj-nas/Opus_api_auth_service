@@ -1110,7 +1110,7 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
             x?.dispenser?.name,
             x?.coupon_code,
             `${x?.total}`,
-            `${x?.tax}`,
+            `${Math.round(x?.tax * 100) / 100}`,
             `${x?.coupon_discount_amount}`,
             `${x?.shipping_price}`,
             x?.shipping_service,
