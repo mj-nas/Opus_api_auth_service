@@ -246,7 +246,7 @@ export class Order extends SqlModel {
   })
   @IsString()
   @IsOptional()
-  coupon_code: string;
+  coupon_code?: string;
 
   @Include({
     attributes: [

@@ -94,6 +94,16 @@ export class Products extends SqlModel {
   @IsOptional()
   product_description_html: string;
 
+  @Column({
+    type: DataType.STRING(500),
+  })
+  @ApiProperty({
+    description: 'ingredients',
+    example: 'ingredients',
+  })
+  @IsOptional()
+  ingredients: string;
+
   @Column({ type: DataType.ENUM('Y', 'N') })
   @ApiProperty({
     description: 'Y | N',

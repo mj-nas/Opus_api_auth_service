@@ -47,7 +47,7 @@ export class OrderService extends ModelService<Order> {
     'total',
     'repeating_days',
     '$dispenser.name$',
-    '$coupon.code$',
+    'coupon_code',
   ];
 
   /**
