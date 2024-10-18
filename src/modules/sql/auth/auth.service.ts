@@ -505,11 +505,11 @@ export class AuthService {
 
       if (body.role === Role.Dispenser) {
         // send email to admin for new dispenser application
-        const { data } = await this.settingService.findOne({
+        const { data: settingsData } = await this.settingService.findOne({
           action: 'findOne',
           payload: { where: { name: 'customer_service_email' } },
         });
-        if (data && data?.getDataValue('value')) {
+        if (settingsData && settingsData?.getDataValue('value')) {
           //send email to admin for new dispenser application
           await this.msClient.executeJob(
             'controller.notification',
@@ -520,7 +520,7 @@ export class AuthService {
                 users: [
                   {
                     name: 'Super Admin',
-                    email: data.getDataValue('value'),
+                    email: settingsData.getDataValue('value'),
                     send_email: true,
                   },
                 ],
@@ -529,21 +529,21 @@ export class AuthService {
               },
             }),
           );
-
-          // send email to user for new dispenser application
-          await this.msClient.executeJob(
-            'controller.notification',
-            new Job({
-              action: 'send',
-              payload: {
-                skipUserConfig: true,
-                user_id: data.id,
-                template: 'dispenser_application_received',
-                variables: {},
-              },
-            }),
-          );
         }
+
+        // send email to user for new dispenser application
+        await this.msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              skipUserConfig: true,
+              user_id: data.id,
+              template: 'dispenser_application_received',
+              variables: {},
+            },
+          }),
+        );
       }
 
       if (error) {
