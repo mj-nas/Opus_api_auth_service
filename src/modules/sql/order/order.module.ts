@@ -10,7 +10,9 @@ import { OrderAddressModule } from '../order-address/order-address.module';
 import { OrderItemModule } from '../order-item/order-item.module';
 import { OrderPaymentModule } from '../order-payment/order-payment.module';
 import { OrderStatusLogModule } from '../order-status-log/order-status-log.module';
+import { ProductsModule } from '../products/products.module';
 import { SettingModule } from '../setting/setting.module';
+import { TemplateModule } from '../template/template.module';
 import { UserModule } from '../user/user.module';
 import { Order } from './entities/order.entity';
 import { OrderController } from './order.controller';
@@ -31,6 +33,8 @@ import { OrderService } from './order.service';
     XpsModule,
     ConfigModule,
     SettingModule,
+    ProductsModule,
+    TemplateModule,
   ],
   controllers: [OrderController],
   providers: [OrderService],

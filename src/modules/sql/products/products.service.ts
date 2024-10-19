@@ -22,7 +22,12 @@ export class ProductsService extends ModelService<Products> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['product_name'];
+  searchFields: string[] = [
+    'product_name',
+    'product_price',
+    'wholesale_price',
+    'product_description',
+  ];
 
   constructor(
     db: SqlService<Products>,
@@ -30,6 +35,21 @@ export class ProductsService extends ModelService<Products> {
     private cartItemService: CartItemService,
   ) {
     super(db);
+  }
+
+  /**
+   * doBeforeFindAll
+   * @function function will execute before findAll function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeFindAll(job: SqlJob<Products>): Promise<void> {
+    await super.doBeforeFindAll(job);
+    if (job.action === 'findAll') {
+      if (job.options?.where && 'deleted_at' in job.options.where) {
+        job.options.paranoid = false;
+      }
+    }
   }
 
   /**
@@ -138,9 +158,10 @@ export class ProductsService extends ModelService<Products> {
         'Sl. No',
         'Product Name',
         'Price',
+        'Wholesale Price',
         'Category Name',
         'Description',
-        'Created At',
+        'Created On',
         'Status',
         'Featured',
       ]);
@@ -153,6 +174,7 @@ export class ProductsService extends ModelService<Products> {
             index + 1,
             x?.product_name,
             `$${x.product_price}`,
+            `$${x.wholesale_price}`,
             x?.productCategory?.category_name,
             x?.product_description,
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
@@ -166,9 +188,10 @@ export class ProductsService extends ModelService<Products> {
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Product Name', key: 'product_name', width: 25 },
         { header: 'Price', key: 'product_price', width: 25 },
+        { header: 'Wholesale Price', key: 'wholesale_price', width: 25 },
         { header: 'Category Name', key: 'category_name', width: 25 },
         { header: 'Description', key: 'product_description', width: 50 },
-        { header: 'Created At', key: 'created_at', width: 25 },
+        { header: 'Created On', key: 'created_at', width: 25 },
         { header: 'Status', key: 'status', width: 25 },
         { header: 'Featured', key: 'is_featured', width: 25 },
       ];

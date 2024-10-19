@@ -290,7 +290,7 @@ export class UserController {
   ) {
     const { error, data } = await this.userService.update({
       owner,
-      action: 'update',
+      action: 'updateMe',
       id: owner.id,
       body: updateUserDto,
       payload: { ...query },
@@ -309,6 +309,36 @@ export class UserController {
       });
     }
     return Result(res, { data: { user: data }, message: 'Updated' });
+  }
+  @Put('update-email')
+  @ApiOperation({ summary: 'Update logged in user details' })
+  @ApiConsumes('application/json', 'multipart/form-data')
+  @FileUploads([{ name: 'avatar_file', required: false, bodyField: 'avatar' }])
+  @ApiQuery(QueryPopulate)
+  @ResponseUpdated(User)
+  async updateEmail(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Body() updateUserDto: UpdateUserDto,
+    @Query() query: any,
+  ) {
+    if (updateUserDto.email && updateUserDto.email !== owner.email) {
+      const session = await this.userService.createOtpSession(
+        owner,
+        updateUserDto.email,
+      );
+      if (session.error) {
+        return BadRequest(res, {
+          error: session.error,
+          message: `Error creating OTP session`,
+        });
+      }
+      return Result(res, {
+        data: { session_id: session.data.id },
+        message: 'Code sent',
+      });
+    }
   }
 
   /**
@@ -578,6 +608,52 @@ export class UserController {
     @Query() query: any,
   ) {
     const { error, data } = await this.userService.createCustomerXls({
+      owner,
+      action: 'createXls',
+      payload: { ...query },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { ...data },
+      message: 'Ok',
+    });
+  }
+
+  @Get('applicant-export-xls')
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: `Create ${pluralizeString('Applicant')} xls` })
+  @ApiQueryGetAll()
+  @ApiOkResponse({
+    description: 'xls file created',
+    schema: {
+      properties: {
+        data: {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'string',
+            },
+          },
+        },
+        message: {
+          type: 'string',
+          example: 'xls file created',
+        },
+      },
+    },
+  })
+  async applicantExportXls(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data } = await this.userService.createApplicantXls({
       owner,
       action: 'createXls',
       payload: { ...query },

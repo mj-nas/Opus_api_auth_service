@@ -16,7 +16,15 @@ export class CouponService extends ModelService<Coupon> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['name', 'code'];
+  searchFields: string[] = [
+    'name',
+    'code',
+    'discount_usage',
+    'discount',
+    '$user.name$',
+  ];
+
+  // searchPopulate: string[] = ['user'];
 
   constructor(
     db: SqlService<Coupon>,
@@ -35,6 +43,10 @@ export class CouponService extends ModelService<Coupon> {
   protected async doBeforeFindAll(job: SqlJob<Coupon>): Promise<void> {
     await super.doBeforeFindAll(job);
     const date = new Date().toISOString().split('T')[0];
+
+    if (job.options?.where && 'deleted_at' in job.options.where) {
+      job.options.paranoid = false;
+    }
     if (job.action === 'findAllMe') {
       job.options.where = {
         ...job.options.where,
@@ -118,6 +130,9 @@ export class CouponService extends ModelService<Coupon> {
             skipUserConfig: true,
             variables: {
               COUPON_CODE: response.data.code,
+              DISCOUNT: `${response.data.coupon_type == 'price' ? `$${response.data.discount}` : `${response.data.discount}%`}`,
+              VALIDITY: `${moment(response.data.valid_from).format('DD/MM/YYYY')} - ${moment(response.data.valid_to).format('DD/MM/YYYY')}`,
+              USE: response.data.discount_usage,
             },
           },
         }),
@@ -129,6 +144,8 @@ export class CouponService extends ModelService<Coupon> {
     try {
       const { owner, payload } = job;
       delete payload.timezone;
+      console.log('payload', payload);
+
       const { error, data } = await this.findAll({
         owner,
         action: 'findAll',
@@ -136,9 +153,10 @@ export class CouponService extends ModelService<Coupon> {
           ...payload,
           offset: 0,
           limit: -1,
-          populate: ['user', 'coupon_used'],
+          populate: ['user', '-coupon_used'],
         },
       });
+      console.log('data', data);
 
       if (error) throw error;
 
@@ -153,6 +171,7 @@ export class CouponService extends ModelService<Coupon> {
         'Start Date',
         'End Date',
         'Price/Percentage',
+        'Discount Type',
         'Redemption limit per person',
         'Redemption Status',
         'Activation Status',
@@ -172,6 +191,7 @@ export class CouponService extends ModelService<Coupon> {
             x?.coupon_type === 'percentage'
               ? `${x.discount}%`
               : `$${x.discount}`,
+            x?.coupon_type,
             x?.discount_usage,
             x?.coupon_used.length > 0 ? 'Redeemed' : 'Not Redeemed',
             x.active ? 'Active' : 'Inactive',
@@ -187,6 +207,7 @@ export class CouponService extends ModelService<Coupon> {
         { header: 'Start Date', key: 'valid_from', width: 25 },
         { header: 'End Date', key: 'valid_to', width: 50 },
         { header: 'Price/Percentage', key: 'percentage', width: 25 },
+        { header: 'Discount Type', key: 'coupon_type', width: 25 },
         {
           header: 'Redemption limit per person',
           key: 'discount_usage',
@@ -227,7 +248,7 @@ export class CouponService extends ModelService<Coupon> {
           ...payload,
           offset: 0,
           limit: -1,
-          populate: ['user', 'coupon_used'],
+          populate: ['user', '-coupon_used'],
         },
       });
 

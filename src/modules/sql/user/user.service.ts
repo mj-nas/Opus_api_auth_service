@@ -18,8 +18,11 @@ import * as QRCode from 'qrcode';
 import { Op, literal } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
-import { compareHash, generateHash } from 'src/core/core.utils';
+import { compareHash, generateHash, otp } from 'src/core/core.utils';
+import { OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
+import { OtpSessionType } from 'src/modules/mongo/otp-session/entities/otp-session.entity';
+import { OtpSessionService } from 'src/modules/mongo/otp-session/otp-session.service';
 import { ZodError, z } from 'zod';
 import { AddressService } from '../address/address.service';
 import { SignupDto } from '../auth/dto/signup.dto';
@@ -39,13 +42,31 @@ export class UserService extends ModelService<User> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['name', 'email'];
+  searchFields: string[] = [
+    'name',
+    'email',
+    'business_name',
+    '$dispenser.name$',
+    'phone',
+    'address',
+    'address2',
+    'city',
+    'state',
+    'zip_code',
+  ];
+
+  /**
+   * searchPopulate
+   * @property array of associations to include for search
+   */
+  searchPopulate: string[] = ['dispenser'];
 
   constructor(
     db: SqlService<User>,
     private msClient: MsClientService,
     private addressService: AddressService,
     private config: ConfigService,
+    private otpSessionService: OtpSessionService,
   ) {
     super(db);
   }
@@ -71,6 +92,10 @@ export class UserService extends ModelService<User> {
    */
   protected async doBeforeUpdate(job: SqlJob<User>): Promise<void> {
     await super.doBeforeUpdate(job);
+    if (job.action === 'updateMe') {
+      if (job.payload?.email !== job.owner.email) {
+      }
+    }
     if (job.action === 'updateDispenser') {
       const user = await this.$db.findRecordById({ id: job.id });
       if (user.error) {
@@ -110,6 +135,7 @@ export class UserService extends ModelService<User> {
         id: owner.id,
         body: {
           password,
+          force_password_change: false,
         },
       });
 
@@ -150,6 +176,7 @@ export class UserService extends ModelService<User> {
         id: payload.user_id,
         body: {
           password,
+          force_password_change: true,
         },
       });
 
@@ -202,46 +229,46 @@ export class UserService extends ModelService<User> {
           connection_via,
         },
       });
-      // send maiil to dispenser
-      await this.msClient.executeJob(
-        'controller.notification',
-        new Job({
-          action: 'send',
-          payload: {
-            user_id: dispenser_id,
-            template: 'customer_added_dispenser',
-            skipUserConfig: true,
-            variables: {
-              CUSTOMER_NAME: response.data.name,
-              CUSTOMER_CONTACT_INFO: response.data.email,
-            },
-          },
-        }),
-      );
-      const { error, data: userData } = await this.findById({
-        action: 'findById',
-        id,
-        payload: { populate: ['dispenser'] },
-      });
-      if (error) {
-        throw new Error(error);
-      }
-      // send maiil to customer
-      await this.msClient.executeJob(
-        'controller.notification',
-        new Job({
-          action: 'send',
-          payload: {
-            user_id: id,
-            template: 'dispenser_added_customer',
-            skipUserConfig: true,
-            variables: {
-              DISPENSER_NAME: userData.dispenser.name,
-              DISPENSER_CONTACT_INFO: userData.dispenser.email,
-            },
-          },
-        }),
-      );
+      // // send maiil to dispenser
+      // await this.msClient.executeJob(
+      //   'controller.notification',
+      //   new Job({
+      //     action: 'send',
+      //     payload: {
+      //       user_id: dispenser_id,
+      //       template: 'customer_added_dispenser',
+      //       skipUserConfig: true,
+      //       variables: {
+      //         CUSTOMER_NAME: response.data.name,
+      //         CUSTOMER_CONTACT_INFO: response.data.email,
+      //       },
+      //     },
+      //   }),
+      // );
+      // const { error, data: userData } = await this.findById({
+      //   action: 'findById',
+      //   id,
+      //   payload: { populate: ['dispenser'] },
+      // });
+      // if (error) {
+      //   throw new Error(error);
+      // }
+      // // send maiil to customer
+      // await this.msClient.executeJob(
+      //   'controller.notification',
+      //   new Job({
+      //     action: 'send',
+      //     payload: {
+      //       user_id: id,
+      //       template: 'dispenser_added_customer',
+      //       skipUserConfig: true,
+      //       variables: {
+      //         DISPENSER_NAME: userData.dispenser.name,
+      //         DISPENSER_CONTACT_INFO: userData.dispenser.email,
+      //       },
+      //     },
+      //   }),
+      // );
     }
     const { active, id, status, email, role } = response.data;
     const { active: previousActive, status: previousStatus } =
@@ -371,7 +398,6 @@ export class UserService extends ModelService<User> {
       job.options.where = {
         ...job.options.where,
         role: Role.Dispenser,
-        learning_completed: 'Y',
         status: Status.Approve,
       };
       if (job.options.where.deleted_at) {
@@ -449,6 +475,7 @@ export class UserService extends ModelService<User> {
       phone,
       email,
       address,
+      address2,
       city,
       state,
       zip_code,
@@ -463,6 +490,7 @@ export class UserService extends ModelService<User> {
         phone,
         email,
         address,
+        address2,
         city,
         state,
         zip_code,
@@ -480,6 +508,7 @@ export class UserService extends ModelService<User> {
         id: id,
         body: {
           password: passwordHash,
+          force_password_change: true,
         },
       });
 
@@ -528,9 +557,10 @@ export class UserService extends ModelService<User> {
         'First Name',
         'Last Name',
         'Email',
-        'Phone',
         'Referred By',
-        'Address',
+        'Phone',
+        'Address1',
+        'Address2',
         'City',
         'State',
         'Zip Code',
@@ -547,9 +577,10 @@ export class UserService extends ModelService<User> {
             x?.first_name,
             x?.last_name,
             x.email,
-            `${x?.phone}`,
             x?.dispenser?.name,
+            `${x?.phone}`,
             x?.address,
+            x?.address2,
             x?.city,
             x?.state,
             x?.zip_code,
@@ -564,9 +595,10 @@ export class UserService extends ModelService<User> {
         { header: 'First Name', key: 'first_name', width: 25 },
         { header: 'Last Name', key: 'last_name', width: 25 },
         { header: 'Email', key: 'email', width: 25 },
-        { header: 'Phone', key: 'phone', width: 50 },
         { header: 'Referred By', key: 'referred_by', width: 50 },
-        { header: 'Address', key: 'address', width: 50 },
+        { header: 'Phone', key: 'phone', width: 50 },
+        { header: 'Address1', key: 'address', width: 50 },
+        { header: 'Address2', key: 'address2', width: 50 },
         { header: 'City', key: 'city', width: 50 },
         { header: 'State', key: 'state', width: 50 },
         { header: 'Zip Code', key: 'zip_code', width: 15 },
@@ -582,6 +614,98 @@ export class UserService extends ModelService<User> {
         fs.mkdirSync(file_dir);
       }
       const filename = `Customer.xlsx`;
+      const full_path = `${file_dir}/${filename}`;
+      await workbook.xlsx.writeFile(full_path);
+      return {
+        data: {
+          url: `${file_baseurl}/${filename}`,
+          filename,
+          isData: !!users.length,
+        },
+      };
+    } catch (error) {
+      return { error };
+    }
+  }
+  async createApplicantXls(job: Job): Promise<JobResponse> {
+    try {
+      const { owner, payload } = job;
+      const timezone: string = payload.timezone;
+      delete payload.timezone;
+      const { error, data } = await this.findAll({
+        owner,
+        action: 'findAllDispenserApplicant',
+        payload: {
+          ...payload,
+          offset: 0,
+          limit: -1,
+        },
+      });
+
+      if (error) throw error;
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Applicant');
+
+      worksheet.addRow([
+        'Sl. No',
+        'Name',
+        'Buisiness Name',
+        'Email',
+        'Phone',
+        'Address1',
+        'Address2',
+        'City',
+        'State',
+        'Zip Code',
+        'Created On',
+        'Status',
+      ]);
+
+      const users: User[] = JSON.parse(JSON.stringify(data));
+
+      await Promise.all(
+        users.map(async (x, index) => {
+          worksheet.addRow([
+            index + 1,
+            x?.name,
+            x?.business_name,
+            x.email,
+            `${x?.phone}`,
+            x?.address,
+            x?.address2,
+            x?.city,
+            x?.state,
+            x?.zip_code,
+            moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
+            x?.active ? 'Active' : 'Inactive',
+          ]);
+        }),
+      );
+
+      worksheet.columns = [
+        { header: 'Sl. No', key: 'sl_no', width: 25 },
+        { header: 'Name', key: 'name', width: 25 },
+        { header: 'Buisiness Name', key: 'buisiness_name', width: 25 },
+        { header: 'Email', key: 'email', width: 25 },
+        { header: 'Phone', key: 'phone', width: 50 },
+        { header: 'Address1', key: 'address', width: 50 },
+        { header: 'Address2', key: 'address2', width: 50 },
+        { header: 'City', key: 'city', width: 50 },
+        { header: 'State', key: 'state', width: 50 },
+        { header: 'Zip Code', key: 'zip_code', width: 15 },
+        { header: 'Created On', key: 'created_at', width: 25 },
+        { header: 'Status', key: 'active', width: 25 },
+      ];
+
+      const folder = 'applicant-excel';
+      const file_dir = config().cdnPath + `/${folder}`;
+      const file_baseurl = config().cdnLocalURL + `/${folder}`;
+
+      if (!fs.existsSync(file_dir)) {
+        fs.mkdirSync(file_dir);
+      }
+      const filename = `Applicant.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {
@@ -622,12 +746,14 @@ export class UserService extends ModelService<User> {
         'Last Name',
         'Business Name',
         'Email',
+        'Phone',
         'Geotag',
         'Unique URL',
         'QR Code',
-        'Created At',
+        'Created On',
         'Created By',
         'Status',
+        'E-Learning Status',
       ]);
 
       const users: User[] = JSON.parse(JSON.stringify(data));
@@ -640,12 +766,16 @@ export class UserService extends ModelService<User> {
             x?.last_name,
             x.business_name ? x.business_name : 'Not Applicable',
             x.email,
+            `${x.phone}`,
             x.geotag ? 'Yes' : 'No',
             x.referral_link,
             x.qr_code,
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY, hh:mm A'),
             x.created_by == 1 ? 'Admin' : 'Applicant',
             x?.active ? 'Active' : 'Inactive',
+            x?.learning_completed == 'Y'
+              ? 'Training Completed'
+              : 'Awaiting Training Completion',
           ]);
         }),
       );
@@ -656,12 +786,14 @@ export class UserService extends ModelService<User> {
         { header: 'Last Name', key: 'last_name', width: 25 },
         { header: 'Business Name', key: 'business_name', width: 25 },
         { header: 'Email', key: 'email', width: 25 },
+        { header: 'Phone', key: 'phone', width: 25 },
         { header: 'Geotag', key: 'geotag', width: 25 },
         { header: 'Unique URL', key: 'unique_url', width: 25 },
         { header: 'QR Code', key: 'qr_code', width: 25 },
-        { header: 'Created At', key: 'created_at', width: 25 },
+        { header: 'Created On', key: 'created_at', width: 25 },
         { header: 'Created By', key: 'created_by', width: 25 },
         { header: 'Status', key: 'active', width: 25 },
+        { header: 'E-Learning Status', key: 'learning_completed', width: 25 },
       ];
 
       const folder = 'dispenser-excel';
@@ -721,6 +853,7 @@ export class UserService extends ModelService<User> {
         'LATITUDE',
         'LONGITUDE',
         'ADDRESS',
+        'ADDRESS2',
         'CITY',
         'STATE',
         'COUNTRY',
@@ -785,6 +918,9 @@ export class UserService extends ModelService<User> {
             .min(1, { message: 'Please enter your address.' })
             .max(100, 'Your address exceeds the character limit.'),
         ),
+        ADDRESS2: parseStringWithWhitespace(
+          z.string().max(100, 'Your address exceeds the character limit.'),
+        ),
         CITY: parseStringWithWhitespace(
           z
             .string()
@@ -832,6 +968,7 @@ export class UserService extends ModelService<User> {
             latitude: user.LATITUDE,
             longitude: user.LONGITUDE,
             address: user.ADDRESS,
+            address2: user.ADDRESS2,
             city: user.CITY,
             state: user.STATE,
             country: user.COUNTRY,
@@ -839,6 +976,7 @@ export class UserService extends ModelService<User> {
             password,
             status: Status.Approve,
             learning_completed: 'Y',
+            force_password_change: true,
           };
           const { errors } = await trimAndValidateCustom(
             CreateDispenserDto,
@@ -923,6 +1061,7 @@ export class UserService extends ModelService<User> {
         'EMAIL',
         'PHONE',
         'ADDRESS',
+        'ADDRESS2',
         'CITY',
         'STATE',
         'COUNTRY',
@@ -970,6 +1109,9 @@ export class UserService extends ModelService<User> {
             .min(1, { message: 'Please enter your address.' })
             .max(100, 'Your address exceeds the character limit.'),
         ),
+        ADDRESS2: parseStringWithWhitespace(
+          z.string().max(100, 'Your address exceeds the character limit.'),
+        ),
         CITY: parseStringWithWhitespace(
           z
             .string()
@@ -1013,10 +1155,13 @@ export class UserService extends ModelService<User> {
             email: user.EMAIL,
             phone: user.PHONE,
             address: user.ADDRESS,
+            address2: user?.ADDRESS2,
             city: user.CITY,
             state: user.STATE,
             country: user.COUNTRY,
             zip_code: user.ZIP_CODE,
+            force_password_change: true,
+            role: Role.Customer,
             password,
           };
           const { errors } = await trimAndValidateCustom(SignupDto, body, [
@@ -1040,10 +1185,13 @@ export class UserService extends ModelService<User> {
               email: user.EMAIL,
               phone: user.PHONE,
               address: user.ADDRESS,
+              address2: user?.ADDRESS2,
               city: user.CITY,
               state: user.STATE,
               country: user.COUNTRY,
               zip_code: user.ZIP_CODE,
+              force_password_change: true,
+              role: Role.Customer,
               password,
             },
           });
@@ -1072,6 +1220,7 @@ export class UserService extends ModelService<User> {
                   TO_NAME: data.name,
                   USERNAME: data.email,
                   PASSWORD: password,
+                  LOGIN_LINK: process.env.WEBSITE_URL + '/auth/signin',
                 },
               },
             }),
@@ -1163,5 +1312,43 @@ export class UserService extends ModelService<User> {
     } catch (error) {
       return { error };
     }
+  }
+
+  async createOtpSession(user: OwnerDto, email: string): Promise<JobResponse> {
+    const { error, data } = await this.otpSessionService.create({
+      body: {
+        user_id: user.id,
+        otp: otp(4),
+        type: OtpSessionType.EmailVerify,
+        expire_at: new Date(Date.now() + 15 * 60 * 1000),
+        payload: {
+          email,
+        },
+      },
+    });
+    // TODO: send a email/sms notification
+    if (!error) {
+      await this.msClient.executeJob(
+        'controller.notification',
+        new Job({
+          action: 'send',
+          payload: {
+            skipUserConfig: true,
+            users: [
+              {
+                name: 'Super Admin',
+                email: email,
+                send_email: true,
+              },
+            ],
+            template: 'email_verification',
+            variables: {
+              OTP: data.otp,
+            },
+          },
+        }),
+      );
+    }
+    return { error, data };
   }
 }

@@ -17,6 +17,7 @@ import { CartItemService } from '../cart-item/cart-item.service';
 import { CartService } from '../cart/cart.service';
 import { NotificationService } from '../notification/notification.service';
 import { ReferralService } from '../referral/referral.service';
+import { SettingService } from '../setting/setting.service';
 import { ConnectionVia } from '../user/connection-via.enum';
 import { User } from '../user/entities/user.entity';
 import { Role } from '../user/role.enum';
@@ -47,6 +48,7 @@ export class AuthService {
     private _cache: CachingService,
     private msClient: MsClientService,
     private notificationService: NotificationService,
+    private settingService: SettingService,
   ) {}
 
   async createSession(owner: OwnerDto, info: any): Promise<any> {
@@ -376,6 +378,57 @@ export class AuthService {
     return { error: false, data };
   }
 
+  async updateEmailResendOtp(body: SendOtpDto): Promise<JobResponse> {
+    const { error, data } = await this.otpSessionService.findById({
+      id: body.session_id,
+    });
+    if (!!error) {
+      return { error: 'Invalid session', errorCode: 403 };
+    }
+    if (
+      !!data.verified ||
+      moment(data.expire_at).diff(moment(), 'seconds') <= 0
+    ) {
+      return {
+        error:
+          'Session expired. Please go back to the previous page and restart the process',
+        errorCode: 403,
+      };
+    }
+    if (data.resend_limit <= 0) {
+      return { error: 'Maximum number of retries exceeded' };
+    }
+    try {
+      // data.expire_at = moment().add(15, 'minutes');
+      data.resend_limit--;
+      await data.save();
+    } catch (error) {
+      return { error };
+    }
+    await this.msClient.executeJob(
+      'controller.notification',
+      new Job({
+        action: 'send',
+        payload: {
+          skipUserConfig: true,
+          users: [
+            {
+              name: 'User',
+              email: data.payload.email,
+              send_email: true,
+            },
+          ],
+          template: 'email_verification',
+          variables: {
+            OTP: data.otp,
+          },
+        },
+      }),
+    );
+
+    return { error: false, data };
+  }
+
   async resetPassword(body: ResetPasswordDto): Promise<JobResponse> {
     const otpSession = await this.otpSessionService.findById({
       id: body.session_id,
@@ -450,6 +503,49 @@ export class AuthService {
         },
       });
 
+      if (body.role === Role.Dispenser) {
+        // send email to admin for new dispenser application
+        const { data: settingsData } = await this.settingService.findOne({
+          action: 'findOne',
+          payload: { where: { name: 'customer_service_email' } },
+        });
+        if (settingsData && settingsData?.getDataValue('value')) {
+          //send email to admin for new dispenser application
+          await this.msClient.executeJob(
+            'controller.notification',
+            new Job({
+              action: 'send',
+              payload: {
+                skipUserConfig: true,
+                users: [
+                  {
+                    name: 'Super Admin',
+                    email: settingsData.getDataValue('value'),
+                    send_email: true,
+                  },
+                ],
+                template: 'new_dispenser_application',
+                variables: {},
+              },
+            }),
+          );
+        }
+
+        // send email to user for new dispenser application
+        await this.msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              skipUserConfig: true,
+              user_id: data.id,
+              template: 'dispenser_application_received',
+              variables: {},
+            },
+          }),
+        );
+      }
+
       if (error) {
         return { error, message: 'User signup failed' };
       }
@@ -503,7 +599,7 @@ export class AuthService {
             skipUserConfig: true,
             variables: {
               TO_NAME: userDetails.data.name,
-              USERNAME: userDetails.data.email,
+              LOGIN_LINK: `${process.env.WEBSITE_URL}/auth/signin`,
             },
           },
         }),

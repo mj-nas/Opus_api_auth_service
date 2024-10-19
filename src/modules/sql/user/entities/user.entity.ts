@@ -26,7 +26,6 @@ import {
   DefaultScope,
   ForeignKey,
   Index,
-  Is,
   Table,
 } from 'sequelize-typescript';
 import config from 'src/config';
@@ -242,6 +241,16 @@ export class User extends SqlModel {
 
   @Column
   @ApiProperty({
+    description: 'address',
+    example: 'address',
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  address2: string;
+
+  @Column
+  @ApiProperty({
     description: 'zip_code',
     example: 'zip_code',
   })
@@ -421,6 +430,16 @@ export class User extends SqlModel {
   @IsOptional()
   @IsEnum(ConnectionVia)
   connection_via?: ConnectionVia;
+
+  @Column({ defaultValue: false })
+  @ApiProperty({
+    description: 'Forced Password Change',
+    example: false,
+    required: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  force_password_change?: boolean;
 
   @Include({
     attributes: [

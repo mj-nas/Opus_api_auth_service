@@ -57,7 +57,7 @@ export class DashboardService {
         where: {
           role: Role.Dispenser,
           status: Status.Approve,
-          learning_completed: 'Y',
+          // learning_completed: 'Y',
         },
       },
     });

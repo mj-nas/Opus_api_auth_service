@@ -94,6 +94,16 @@ export class Address extends SqlModel {
 
   @Column
   @ApiProperty({
+    description: 'address',
+    example: 'address',
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  address2: string;
+
+  @Column
+  @ApiProperty({
     description: 'city',
     example: 'city',
   })

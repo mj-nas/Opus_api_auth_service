@@ -230,6 +230,15 @@ export class Order extends SqlModel {
   @IsOptional()
   tracking_number: string;
 
+  @Column
+  @ApiProperty({
+    description: 'Shipping Service',
+    example: 'usps_ground_advantage',
+  })
+  @IsString()
+  @IsOptional()
+  shipping_service: string;
+
   @Column(DataTypes.FLOAT({ precision: 11, scale: 2 }))
   @ApiProperty({
     description: 'Coupon Discount Amount',
@@ -238,6 +247,15 @@ export class Order extends SqlModel {
   @ValidateIf((object) => !!object.coupon_id)
   @IsNumber()
   coupon_discount_amount: number;
+
+  @Column
+  @ApiProperty({
+    description: 'Coupon code of applied coupon',
+    example: 'ASD123',
+  })
+  @IsString()
+  @IsOptional()
+  coupon_code?: string;
 
   @Include({
     attributes: [
@@ -251,6 +269,7 @@ export class Order extends SqlModel {
       'billing_phone_code',
       'billing_phone',
       'billing_address',
+      'billing_address2',
       'billing_city',
       'billing_state',
       'billing_zip_code',
@@ -261,6 +280,7 @@ export class Order extends SqlModel {
       'shipping_phone_code',
       'shipping_phone',
       'shipping_address',
+      'shipping_address2',
       'shipping_city',
       'shipping_state',
       'shipping_zip_code',
@@ -335,6 +355,7 @@ export class Order extends SqlModel {
       'first_name',
       'last_name',
       'address',
+      'address2',
       'city',
       'state',
       'zip_code',

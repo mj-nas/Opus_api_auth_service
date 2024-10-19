@@ -7,6 +7,7 @@ export class CreateAddressDto extends PickType(Address, [
   'email',
   'phone',
   'address',
+  'address2',
   'city',
   'state',
   'zip_code',

@@ -53,6 +53,8 @@ export default <Seed<Template>>{
       email_subject: 'Welcome to OPUS Cannaboids!',
       email_body: `Hi ##TO_NAME##,
       <br><br>Welcome aboard!  We're thrilled to have you join us.
+      <br><br>Please click the link below to log in.
+      <br><br><a href="##LOGIN_LINK##">##LOGIN_LINK##</a>,
       <br><br>Best regards,
       <br>Team OPUS`,
       send_sms: false,
@@ -82,6 +84,8 @@ export default <Seed<Template>>{
 <br><br><b>Credentials</b>,
 <br>Username: ##USERNAME##
 <br>Password: ##PASSWORD##
+<br><br>Please click the link below to log in.
+      <br><br><a href="##LOGIN_LINK##">##LOGIN_LINK##</a>,
 <br><br>Best regards,
 <br>Team OPUS`,
       send_sms: false,
@@ -146,22 +150,76 @@ export default <Seed<Template>>{
       send_sms: false,
       sms_body: '',
     },
-    {
-      name: 'order_confirm_to_customer',
-      title: 'Order confirmed email to customer',
-      send_email: true,
-      transporter: Transporter.Orders,
-      email_subject: 'Your Order ##ORDER_ID## is Confirmed!',
-      email_body: `<p>Hello ##TO_NAME##,</p><p><br></p><p>Thank you for your order! Your order ID is: ##ORDER_ID##. We have successfully received your order and it is currently being processed. You can track the status of your order by visiting the My Orders section on our website.</p><p><br></p><p>Best regards,</p><p>Team OPUS</p>`,
-      send_sms: false,
-      sms_body: '',
-    },
+    // {
+    //   name: 'order_confirm_to_customer',
+    //   title: 'Order confirmed email to customer',
+    //   send_email: true,
+    //   transporter: Transporter.Orders,
+    //   email_subject: 'Your Order ##ORDER_ID## is Confirmed!',
+    //   email_body: `<p>Hello ##TO_NAME##,</p><p><br></p><p>Thank you for your order! Your order ID is: ##ORDER_ID##. We have successfully received your order and it is currently being processed. You can track the status of your order by visiting the My Orders section on our website.</p><p><br></p><p>Best regards,</p><p>Team OPUS</p>`,
+    //   send_sms: false,
+    //   sms_body: '',
+    // },
     {
       name: 'new_order_alert_to_admin',
       title: 'New Order Alert To Admin',
       transporter: Transporter.Orders,
       send_email: true,
       email_subject: 'New Order Alert - ##ORDER_ID##',
+      email_body: `<p>Hello ##TO_NAME##,</p>
+<p><br /></p>
+<p>We have received a new order. Here are the initial details:</p>
+<p><br /></p>
+<p>Customer Name: ##CUSTOMER_NAME##</p>
+<p>Order ID: ##ORDER_ID##</p>
+<p><br /></p>
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'new_repeat_order_alert_to_admin',
+      title: 'New Repeat Order Alert To Admin',
+      transporter: Transporter.Orders,
+      send_email: true,
+      email_subject: 'New Order Alert - ##ORDER_ID##',
+      email_body: `<p>Hello ##TO_NAME##,</p>
+<p><br /></p>
+<p>We have received a new order. Here are the initial details:</p>
+<p><br /></p>
+<p>Customer Name: ##CUSTOMER_NAME##</p>
+<p>Order ID: ##ORDER_ID##</p>
+<p><br /></p>
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'new_reorder_alert_to_admin',
+      title: 'New Reorder Alert To Admin',
+      transporter: Transporter.Orders,
+      send_email: true,
+      email_subject: 'New Reorder Alert - ##ORDER_ID##',
+      email_body: `<p>Hello ##TO_NAME##,</p>
+<p><br /></p>
+<p>We have received a new order. Here are the initial details:</p>
+<p><br /></p>
+<p>Customer Name: ##CUSTOMER_NAME##</p>
+<p>Order ID: ##ORDER_ID##</p>
+<p><br /></p>
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'new_order_alert_to_customer',
+      title: 'Order confirmed email to customer',
+      transporter: Transporter.Orders,
+      send_email: true,
+      email_subject: 'Your Order ##ORDER_ID## is Confirmed!',
       email_body: `<p>Hello ##TO_NAME##,</p>
 <p><br /></p>
 <p>We have received a new order. Here are the initial details:</p>
@@ -234,12 +292,38 @@ export default <Seed<Template>>{
 <p>Username: ##USERNAME##</p>
 <p>Password: ##PASSWORD##</p>
 <br />
-<p>Please ensure to change your password upon your first login for security purposes. Your account is now active, and you can start accessing our resources and managing your new role.</p>
+<p>You can begin accessing our resources and managing your new role.</p>
 <br />
-<p>If you have any questions or need further assistance, don't hesitate to reach out.</p>
+<p>Security Reminder: For your protection, please change your password upon your first login.</p>
+<br />
+<p>Additionally, to ensure you can fully utilize your account, we kindly ask that you complete the E-Learning module at your earliest convenience.</p>
+<br />
+<p>If you have any questions or need further assistance, don't hesitate to reach out.
+</p>
 <br />
 <p>Best regards,</p>
 <p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'dispenser_application_received',
+      title: 'Application Received Dispenser',
+      send_email: true,
+      transporter: Transporter.CustomerServices,
+      email_subject: 'We’ve Received Your Application!',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+  <br />
+  <p>Thank you for your interest in becoming a Dispenser with OPUS Cannaboids. We have successfully received your application and our team is currently reviewing it.</p>
+  <br />
+  <p>Our verification process ensures that all information is accurate and aligns with our standards. We will notify you as soon as we have completed our review, typically within a few business days.</p>
+  <br />
+  <p>If additional information is needed, please feel free to reach out to us.</p>
+  <br />
+  <p>We appreciate your patience during this process and are excited about the possibility of you joining us!</p>
+  <br />
+  <p>Best regards,</p>
+  <p>Team OPUS</p>`,
       send_sms: false,
       sms_body: '',
     },
@@ -284,6 +368,18 @@ export default <Seed<Template>>{
 <p><b>Coupon Code:</b></p>
 <br />
 <p>##COUPON_CODE##</p>
+<br />
+<p><b>Discount:</b></p>
+<br />
+<p>##DISCOUNT##</p>
+<br />
+<p><b>Validity:</b></p>
+<br />
+<p>##VALIDITY##</p>
+<br />
+<p><b>No of Use:</b></p>
+<br />
+<p>##USE##</p>
 <br />
 <p>Feel free to share these codes with friends and family who might enjoy our products! Explore our latest offers and products on our website.</p>
 <br />
@@ -365,14 +461,18 @@ export default <Seed<Template>>{
       email_subject: 'Order Shipment Notification',
       email_body: `<p>Hi ##TO_NAME##,</p>
 <br />
-<p>You Order ##ORDERID## has been shipped. Please find the details below:</p>
+<p>You Order ##ORDER_ID## has been shipped. Please find the details below:</p>
 <br />
 <p>Shipping Address:</p>
 <p>##SHIPPING_NAME##</p>
 <p>##SHIPPING_ADDRESS##</p>
 <p>##SHIPPING_CITY_STATE_ZIP##</p>
 <br />
-<p>Track your shipment with this tracking ID: ##TRACKING_NUMBER##</p>
+<p>Track your shipment <a href="##TRACKING_LINK##">here..</a></p>
+<br />
+<p>Alternatively you can track your shipment here:</p>
+<p><a href="https://tools.usps.com/go/TrackConfirmAction_input">https://tools.usps.com/go/TrackConfirmAction_input</a></p>
+<p>Tracking Number: ##TRACKING_NUMBER##</p>
 <br />
 <p>Thank you.</p>
 <br />
@@ -381,6 +481,28 @@ export default <Seed<Template>>{
       send_sms: false,
       sms_body: '',
     },
+    //     {
+    //       name: 'order_shipped_manually',
+    //       title: 'Manual Order Shipment Notification',
+    //       send_email: true,
+    //       transporter: Transporter.Orders,
+    //       email_subject: 'Order Shipment Notification',
+    //       email_body: `<p>Hi ##TO_NAME##,</p>
+    // <br />
+    // <p>You Order ##ORDER_ID## has been shipped. Please find the details below:</p>
+    // <br />
+    // <p>Shipping Address:</p>
+    // <p>##SHIPPING_NAME##</p>
+    // <p>##SHIPPING_ADDRESS##</p>
+    // <p>##SHIPPING_CITY_STATE_ZIP##</p>
+    // <br />
+    // <p>Thank you.</p>
+    // <br />
+    // <p>Best regards,</p>
+    // <p>Team OPUS</p>`,
+    //       send_sms: false,
+    //       sms_body: '',
+    //     },
     {
       name: 'order_delivered',
       title: 'Order Delivered Notification',
@@ -390,6 +512,8 @@ export default <Seed<Template>>{
       email_body: `<p>Hi ##TO_NAME##,</p>
 <br />
 <p>We are pleased to inform you that your package with order ID ##ORDER_ID## has been delivered. We hope to hear from you again soon!</p>
+<br />
+<p>You can add ratings and reviews by going to the My Orders section.</p>
 <br />
 <p>Thank you.</p>
 <br />
@@ -507,43 +631,16 @@ export default <Seed<Template>>{
       sms_body: '',
     },
     {
-      name: 'new_recurring_order_admin',
-      title: 'New Recurring Order Alert To Admin',
+      name: 'new_dispenser_application',
+      title: 'New Dispenser Application Alert To Admin',
       send_email: true,
-      transporter: Transporter.Orders,
-      email_subject: 'New Recurring Order Alert - ##ORDER_ID##',
-      email_body: `<p>Hi ##TO_NAME##,</p>
-<br />
-<p>A new recurring order has been initiated please find the details below</p>
-<br />
-<p><b>Customer Details:</b></p>
-<br />
-<p>Customer Name: ##CUSTOMER_NAME##</p>
-<p>Phone Number: ##PHONE_NUMBER##</p>
-<p>Email: ##EMAIL##</p>
-<br />
-<p><b>Order Details:</b></p>
-<br />
-<p>Order ID: ##ORDER_ID##</p>
-<p>Order Date: ##ORDER_DATE##</p>
-<p>Recurring Days: ##RECURRING_DAYS## days</p>
-<br />
-<p>Tax: $##TAX##</p>
-<p>Shipping Charge: $##SHIPPING_CHARGE##</p>
-<p>Total: $##TOTAL##</p>
-<br />
-<p>Shipping Address: ##SHIPPING_ADDRESS##</p>
-<p>Billing Address: ##BILLING_ADDRESS##</p>
-<br />
-<p><b>Card Details:</b></p>
-<br />
-<p>Cardholder Name: ##CARDHOLDER_NAME##</p>
-<p>Card Number: ##CARD_NUMBER##</p>
-<p>CVV: ##CVV##</p>
-<p>Expiry Date: ##EXPIRATION_DATE##</p>
-<br />
-<p>Best regards,</p>
-<p>Team OPUS</p>`,
+      transporter: Transporter.CustomerServices,
+      email_subject: 'New Dispenser Application Received',
+      email_body: `<p>Hi Admin</p>
+      <br/><p>A new application to join as a dispenser has been submitted. Please review the details and proceed with the necessary steps.</p>
+      <br/><p>Thank you for your attention.</p>
+      <br/><p>Best Regards,</p>
+      <p>Team OPUS,</p>`,
       send_sms: false,
       sms_body: '',
     },

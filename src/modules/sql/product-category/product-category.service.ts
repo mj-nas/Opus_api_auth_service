@@ -5,6 +5,10 @@ import {
   SqlService,
 } from '@core/sql';
 import { Injectable } from '@nestjs/common';
+import * as ExcelJS from 'exceljs';
+import * as fs from 'fs';
+import config from 'src/config';
+import { Job, JobResponse } from 'src/core/core.job';
 import { ProductsService } from '../products/products.service';
 import { ProductCategory } from './entities/product-category.entity';
 
@@ -14,7 +18,7 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['category_name'];
+  searchFields: string[] = ['category_name', 'category_description'];
 
   constructor(
     db: SqlService<ProductCategory>,
@@ -118,6 +122,72 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
         },
       });
       return { data };
+    } catch (error) {
+      return { error };
+    }
+  }
+
+  async createCategoryXls(job: Job): Promise<JobResponse> {
+    try {
+      const { owner, payload } = job;
+      const timezone: string = payload.timezone;
+      delete payload.timezone;
+      const { error, data } = await this.findAll({
+        owner,
+        action: 'findAll',
+        payload: {
+          ...payload,
+          offset: 0,
+          limit: -1,
+        },
+      });
+
+      if (error) throw error;
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Category');
+
+      worksheet.addRow(['Sl. No', 'Image', 'Title', 'Description', 'Status']);
+
+      const categories: ProductCategory[] = JSON.parse(JSON.stringify(data));
+
+      await Promise.all(
+        categories.map(async (x, index) => {
+          worksheet.addRow([
+            index + 1,
+            x.category_image,
+            x.category_name,
+            x.category_description,
+            x.status === 'Y' ? 'Active' : 'Inactive',
+          ]);
+        }),
+      );
+
+      worksheet.columns = [
+        { header: 'Sl. No', key: 'sl_no', width: 25 },
+        { header: 'Image', key: 'category_image', width: 25 },
+        { header: 'Title', key: 'category_name', width: 25 },
+        { header: 'Description', key: 'category_description', width: 25 },
+        { header: 'Status', key: 'status', width: 25 },
+      ];
+
+      const folder = 'product-category-excel';
+      const file_dir = config().cdnPath + `/${folder}`;
+      const file_baseurl = config().cdnLocalURL + `/${folder}`;
+
+      if (!fs.existsSync(file_dir)) {
+        fs.mkdirSync(file_dir);
+      }
+      const filename = `ProductCategories.xlsx`;
+      const full_path = `${file_dir}/${filename}`;
+      await workbook.xlsx.writeFile(full_path);
+      return {
+        data: {
+          url: `${file_baseurl}/${filename}`,
+          filename,
+          isData: !!categories.length,
+        },
+      };
     } catch (error) {
       return { error };
     }

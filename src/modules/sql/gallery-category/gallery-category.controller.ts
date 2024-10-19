@@ -39,10 +39,10 @@ import {
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
-import { GalleryCategoryService } from './gallery-category.service';
 import { CreateGalleryCategoryDto } from './dto/create-gallery-category.dto';
 import { UpdateGalleryCategoryDto } from './dto/update-gallery-category.dto';
 import { GalleryCategory } from './entities/gallery-category.entity';
+import { GalleryCategoryService } from './gallery-category.service';
 
 const entity = snakeCase(GalleryCategory.name);
 
@@ -52,7 +52,9 @@ const entity = snakeCase(GalleryCategory.name);
 @ApiExtraModels(GalleryCategory)
 @Controller(entity)
 export class GalleryCategoryController {
-  constructor(private readonly galleryCategoryService: GalleryCategoryService) {}
+  constructor(
+    private readonly galleryCategoryService: GalleryCategoryService,
+  ) {}
 
   /**
    * Create a new entity document
@@ -141,6 +143,34 @@ export class GalleryCategoryController {
     }
     return Result(res, {
       data: { [pluralizeString(entity)]: data, offset, limit, count },
+      message: 'Ok',
+    });
+  }
+
+  @Get('export')
+  @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
+  @ApiQueryGetAll()
+  @ResponseGetAll(GalleryCategory)
+  async export(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
+    const { error, data } =
+      await this.galleryCategoryService.createGalleryCategoryXls({
+        owner,
+        action: 'findAll',
+        payload: { ...query },
+      });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Result(res, {
+      data: { ...data },
       message: 'Ok',
     });
   }
