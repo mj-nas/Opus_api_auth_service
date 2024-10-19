@@ -975,7 +975,6 @@ export class UserService extends ModelService<User> {
             zip_code: user.ZIP_CODE,
             password,
             status: Status.Approve,
-            learning_completed: 'Y',
             force_password_change: true,
           };
           const { errors } = await trimAndValidateCustom(
