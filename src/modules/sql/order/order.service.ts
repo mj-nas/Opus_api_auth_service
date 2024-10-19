@@ -968,92 +968,24 @@ export class OrderService extends ModelService<Order> {
         }
       }
       if (job.action == 'reorder') {
-        // setting template and shipping and billing address and products for email
-
-        try {
-          const template = fs.readFileSync(
-            join(__dirname, '../src', 'views/order_template.hbs'),
-            'utf8',
-          );
-          // handlebars.registerHelper('checkLength', function (array) {
-          //   if (array.length > 1) {
-          //     return 'These products were recommended by your personal Opus Dispenser';
-          //   } else {
-          //     return 'This product was recommended by your personal Opus Dispenser';
-          //   }
-          // });
-          this.emailTemplate = handlebars.compile(template);
-        } catch (error) {
-          this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
-        }
-        const shipping_address = `${data.address.shipping_first_name + ' ' + data.address.shipping_last_name}, ${data.address.shipping_address}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
-        const billing_address = `${data.address.billing_first_name + ' ' + data.address.billing_last_name}, ${data.address.billing_address}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
-        const products = await Promise.all(
-          data.items.map(async (item) => ({
-            name: await this.getProductName(item.product_id),
-            price: item.price_per_item,
-            quantity: item.quantity,
-            order_id: data.uid,
-            image: await this.getProductImageUrl(item.product_id),
-          })),
-        );
+        // send email to admin
         // sent email to admin for reccurring order with card details
-        // New order alert to admin for repeating order with card details
-        if (emailData && emailData?.getDataValue('value')) {
-          const _email_template = this.emailTemplate({
-            logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
-            header_bg_image:
-              this._config.get('cdnLocalURL') + 'assets/header-bg.png',
-            footer_bg_image:
-              this._config.get('cdnLocalURL') + 'assets/footer-bg.png',
-            reorder: true,
-            title_content: `
-Following are the product purchase details by ${job.owner.name} on ${moment(
-              data.created_at,
-            )
-              .tz('America/New_York')
-              .format('MM/DD/YYYY')}.`,
-            ORDER_ID: data.uid,
-            CUSTOMER_NAME: job.owner.name,
-            PHONE_NUMBER: job.owner.phone,
-            EMAIL: job.owner.email,
-            ORDER_DATE: moment(data.created_at)
-              .tz('America/New_York')
-              .format('MM/DD/YYYY'),
-            RECURRING_DAYS: repeating_days,
-            TAX: Math.round(data.tax * 100) / 100,
-            SHIPPING_CHARGE: data.shipping_price,
-            DISCOUNT: data.coupon_discount_amount
-              ? data.coupon_discount_amount
-              : 0,
-            TOTAL: data.total,
-            SHIPPING_ADDRESS: shipping_address,
-            BILLING_ADDRESS: billing_address,
-            CARDHOLDER_NAME: job.payload.card_details.cardholder_name,
-            CARD_NUMBER: job.payload.card_details.card_number.replace(
-              /(\d{4})/g,
-              '$1 ',
-            ),
-            EXPIRATION_DATE: job.payload.card_details.expiration_date,
-            CVV: job.payload.card_details.cvv,
-            products: products,
-          });
-          const email_subject = `New Recurring Order Alert - ${data.uid}`;
-
-          await this._msClient.executeJob(
-            'controller.email',
-            new Job({
-              action: 'sendMail',
-              payload: {
-                to: emailData.getDataValue('value'),
-                subject: email_subject,
-                html: _email_template,
-                from: this._config.get('email').transports['Orders'].from || '',
-                transporterName: 'Orders',
-              },
-            }),
-          );
-        }
+        const card_details = {
+          cardholder_name: job.payload.card_details.cardholder_name,
+          card_number: job.payload.card_details.card_number.replace(
+            /(\d{4})/g,
+            '$1 ',
+          ),
+          expiration_date: job.payload.card_details.expiration_date,
+          cvv: job.payload.card_details.cvv,
+        };
+        await this._msClient.executeJob('order.mail.sent', {
+          payload: {
+            order_id: data.id,
+            to: Role.Admin,
+            card_details: card_details,
+          },
+        });
       }
       return { data };
     } catch (error) {
