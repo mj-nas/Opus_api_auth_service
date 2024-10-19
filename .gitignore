@@ -38,6 +38,7 @@ lerna-debug.log*
 .env
 
 template.html
+test_template.html
 
 
 # public 

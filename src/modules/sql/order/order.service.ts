@@ -1866,7 +1866,7 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
     const BILLING_ADDRESS = `${data.address.billing_first_name + ' ' + data.address.billing_last_name}, ${data.address.billing_address}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
 
     let products_table = `<figure class="table">
-    <table class="gmail-table" style="margin-bottom:30px;">
+    <table class="gmail-table" style="margin-bottom:30px; width:100%">
         <thead>
             <tr>
                 <th colspan="2">
