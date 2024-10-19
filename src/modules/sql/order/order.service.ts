@@ -1325,7 +1325,6 @@ Following are the product purchase details by ${job.owner.name} on ${moment(
                   { association: 'product_primary_image' },
                   { association: 'productCategory' },
                 ],
-                include: [{ association: 'product_primary_image' }, { association: 'productCategory' },],
               },
             ],
           },
