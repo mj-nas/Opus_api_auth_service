@@ -131,7 +131,7 @@ export class CouponService extends ModelService<Coupon> {
             variables: {
               COUPON_CODE: response.data.code,
               DISCOUNT: `${response.data.coupon_type == 'price' ? `$${response.data.discount}` : `${response.data.discount}%`}`,
-              VALIDITY: `${moment(response.data.valid_from).format('DD/MM/YYYY')} - ${moment(response.data.valid_to).format('DD/MM/YYYY')}`,
+              VALIDITY: `${moment(response.data.valid_from).format('MM/DD/YYYY')} - ${moment(response.data.valid_to).format('MM/DD/YYYY')}`,
               USE: response.data.discount_usage,
             },
           },
@@ -264,6 +264,7 @@ export class CouponService extends ModelService<Coupon> {
         'Start Date',
         'End Date',
         'Price/Percentage',
+        'Discount Type',
         'Use Per Person',
         'Description',
         'Status',
@@ -282,6 +283,7 @@ export class CouponService extends ModelService<Coupon> {
             x?.coupon_type === 'percentage'
               ? `${x.discount}%`
               : `$${x.discount}`,
+            x?.coupon_type,
             x?.discount_usage,
             x?.description,
             x.active ? 'Active' : 'Inactive',
@@ -296,6 +298,7 @@ export class CouponService extends ModelService<Coupon> {
         { header: 'Start Date', key: 'valid_from', width: 25 },
         { header: 'End Date', key: 'valid_to', width: 50 },
         { header: 'Price/Percentage', key: 'percentage', width: 25 },
+        { header: 'Discount Type', key: 'coupon_type', width: 25 },
         {
           header: 'Use Per Person',
           key: 'discount_usage',

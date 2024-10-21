@@ -650,7 +650,7 @@ export class UserService extends ModelService<User> {
       worksheet.addRow([
         'Sl. No',
         'Name',
-        'Buisiness Name',
+        'Business Name',
         'Email',
         'Phone',
         'Address1',
@@ -678,7 +678,7 @@ export class UserService extends ModelService<User> {
             x?.state,
             x?.zip_code,
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
-            x?.active ? 'Active' : 'Inactive',
+            x?.status,
           ]);
         }),
       );
@@ -686,7 +686,7 @@ export class UserService extends ModelService<User> {
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Name', key: 'name', width: 25 },
-        { header: 'Buisiness Name', key: 'buisiness_name', width: 25 },
+        { header: 'Business Name', key: 'buisiness_name', width: 25 },
         { header: 'Email', key: 'email', width: 25 },
         { header: 'Phone', key: 'phone', width: 50 },
         { header: 'Address1', key: 'address', width: 50 },
@@ -695,7 +695,7 @@ export class UserService extends ModelService<User> {
         { header: 'State', key: 'state', width: 50 },
         { header: 'Zip Code', key: 'zip_code', width: 15 },
         { header: 'Created On', key: 'created_at', width: 25 },
-        { header: 'Status', key: 'active', width: 25 },
+        { header: 'Status', key: 'status', width: 25 },
       ];
 
       const folder = 'applicant-excel';
