@@ -413,7 +413,7 @@ export class AuthService {
           skipUserConfig: true,
           users: [
             {
-              name: 'User',
+              name: data.payload.user,
               email: data.payload.email,
               send_email: true,
             },

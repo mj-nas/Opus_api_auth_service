@@ -1322,6 +1322,7 @@ export class UserService extends ModelService<User> {
         expire_at: new Date(Date.now() + 15 * 60 * 1000),
         payload: {
           email,
+          user: user.name,
         },
       },
     });
@@ -1335,7 +1336,7 @@ export class UserService extends ModelService<User> {
             skipUserConfig: true,
             users: [
               {
-                name: 'Super Admin',
+                name: user.name,
                 email: email,
                 send_email: true,
               },

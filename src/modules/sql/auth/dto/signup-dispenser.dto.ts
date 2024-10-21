@@ -17,6 +17,7 @@ export class SignupDispenserDto extends PickType(User, [
   'latitude',
   'longitude',
   'business_name',
+  'force_password_change',
 ] as const) {
   @ApiProperty({
     enum: Role,

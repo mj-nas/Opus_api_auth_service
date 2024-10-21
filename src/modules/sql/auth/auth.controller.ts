@@ -491,6 +491,7 @@ export class AuthController {
     @Body() body: SignupDispenserDto,
   ) {
     body.role = Role.Dispenser;
+    body.force_password_change = true;
     const signup = await this.authService.signup(body);
     if (!!signup.error) {
       return BadRequest(res, {
