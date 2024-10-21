@@ -150,16 +150,6 @@ export default <Seed<Template>>{
       send_sms: false,
       sms_body: '',
     },
-    // {
-    //   name: 'order_confirm_to_customer',
-    //   title: 'Order confirmed email to customer',
-    //   send_email: true,
-    //   transporter: Transporter.Orders,
-    //   email_subject: 'Your Order ##ORDER_ID## is Confirmed!',
-    //   email_body: `<p>Hello ##TO_NAME##,</p><p><br></p><p>Thank you for your order! Your order ID is: ##ORDER_ID##. We have successfully received your order and it is currently being processed. You can track the status of your order by visiting the My Orders section on our website.</p><p><br></p><p>Best regards,</p><p>Team OPUS</p>`,
-    //   send_sms: false,
-    //   sms_body: '',
-    // },
     {
       name: 'new_order_alert_to_admin',
       title: 'New Order Alert To Admin',
