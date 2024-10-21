@@ -678,7 +678,11 @@ export class UserService extends ModelService<User> {
             x?.state,
             x?.zip_code,
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
-            x?.status,
+            x?.status == Status.Deny
+              ? 'Denied'
+              : Status.Approve
+                ? 'Approved'
+                : x?.status,
           ]);
         }),
       );

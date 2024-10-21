@@ -356,19 +356,15 @@ export default <Seed<Template>>{
 <p>We're excited to offer you exclusive coupon codes to share with others:</p>
 <br />
 <p><b>Coupon Code:</b></p>
-<br />
 <p>##COUPON_CODE##</p>
 <br />
 <p><b>Discount:</b></p>
-<br />
 <p>##DISCOUNT##</p>
 <br />
 <p><b>Validity:</b></p>
-<br />
 <p>##VALIDITY##</p>
 <br />
 <p><b>No of Use:</b></p>
-<br />
 <p>##USE##</p>
 <br />
 <p>Feel free to share these codes with friends and family who might enjoy our products! Explore our latest offers and products on our website.</p>

@@ -589,21 +589,23 @@ export class AuthService {
         }),
       );
 
-      await this.msClient.executeJob(
-        'controller.notification',
-        new Job({
-          action: 'send',
-          payload: {
-            user_id: data.user_id,
-            template: 'welcome_mail',
-            skipUserConfig: true,
-            variables: {
-              TO_NAME: userDetails.data.name,
-              LOGIN_LINK: `${process.env.WEBSITE_URL}/auth/signin`,
+      if (!data.payload.user && !data.payload.email) {
+        await this.msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              user_id: data.user_id,
+              template: 'welcome_mail',
+              skipUserConfig: true,
+              variables: {
+                TO_NAME: userDetails.data.name,
+                LOGIN_LINK: `${process.env.WEBSITE_URL}/auth/signin`,
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
+      }
 
       return { error: false, data };
     } catch (error) {
