@@ -680,7 +680,7 @@ export class UserService extends ModelService<User> {
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
             x?.status == Status.Deny
               ? 'Denied'
-              : Status.Approve
+              : x?.status == Status.Approve
                 ? 'Approved'
                 : x?.status,
           ]);
