@@ -258,11 +258,11 @@ export class OrderController {
       action: 'cancelReorder',
       id: +order_id,
       body: { is_repeating_order: 'N' },
-      payload: {
-        where: {
-          user_id: owner.id,
-        },
-      },
+      // payload: {
+      //   where: {
+      //     user_id: owner.id,
+      //   },
+      // },
     });
 
     if (error) {
