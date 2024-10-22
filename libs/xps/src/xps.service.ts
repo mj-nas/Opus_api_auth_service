@@ -51,9 +51,9 @@ export class XpsService {
           Authorization: `RSIS ${apiKey}`,
         },
       });
-      console.log(response.data);
-      console.log(payload);
       console.log(response);
+      console.log(payload);
+      console.log(response.data);
 
       return { data: response.data };
     } catch (error) {
