@@ -52,6 +52,7 @@ export class XpsService {
       },
     });
     console.log(response);
+    console.error(response);
     this.logger.log(payload);
     this.logger.log(response);
 
