@@ -78,7 +78,7 @@ export class ExamModuleService extends ModelService<ExamModule> {
           },
         });
 
-        if (!o?.data.cert_id) {
+        if (!o?.data?.cert_id) {
           unique_id = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad('1', 6)}`;
         } else {
           unique_id = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad((Number(o.data.cert_id.substring(11)) + 1).toString(), 6)}`;

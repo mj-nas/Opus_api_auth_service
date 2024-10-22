@@ -1904,7 +1904,7 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
         .tz('America/New_York')
         .format('MM/DD/YYYY'),
       ORDER_ID: data.uid,
-      PHONE_NUMBER: `${data.user.phone_code} ${data.user.phone}`,
+      PHONE_NUMBER: data.user.phone,
       EMAIL: data.user.email,
       RECURRING_DAYS: data.repeating_days,
       TAX: Math.round(data.tax * 100) / 100,

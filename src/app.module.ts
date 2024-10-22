@@ -20,6 +20,7 @@ import { ExamQuestionSetModule } from './modules/sql/exam-question-set/exam-ques
 import { ExamQuestionsModule } from './modules/sql/exam-questions/exam-questions.module';
 import { ExamQuestionOptionsModule } from './modules/sql/exam-question-options/exam-question-options.module';
 import { DashboardModule } from './modules/sql/dashboard/dashboard.module';
+import { CmsHomeModule } from './modules/sql/cms-home/cms-home.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { DashboardModule } from './modules/sql/dashboard/dashboard.module';
     ExamQuestionsModule,
     ExamQuestionOptionsModule,
     DashboardModule,
+    CmsHomeModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],
