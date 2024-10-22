@@ -35,7 +35,7 @@ import { OrderStatus, OrderStatusLevel } from './order-status.enum';
 @Injectable()
 export class OrderService extends ModelService<Order> {
   private emailTemplate: HandlebarsTemplateDelegate;
-  private logger: Logger = new Logger(`Cron - Order Service`);
+  private logger: Logger = new Logger(`XPS - Order Service`);
 
   /**
    * searchFields
