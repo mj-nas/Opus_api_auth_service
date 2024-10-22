@@ -899,7 +899,7 @@ export class OrderService extends ModelService<Order> {
       const { error, data } = await this.$db.findRecordById({
         id: order_id,
         options: {
-          where: { user_id: job.owner.id },
+          // where: { user_id: job.owner.id },
           include: [
             { association: 'address' },
             { association: 'user' },
@@ -1910,6 +1910,8 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
       TAX: Math.round(data.tax * 100) / 100,
       SHIPPING_CHARGE: data.shipping_price,
       DISCOUNT: data.coupon_discount_amount ? data.coupon_discount_amount : 0,
+      SHIPPING_SERVICE: 'USPS Ground Advantage',
+      SUB_TOTAL: data.sub_total,
       TOTAL: data.total,
       SHIPPING_ADDRESS,
       BILLING_ADDRESS,
