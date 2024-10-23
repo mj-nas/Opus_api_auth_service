@@ -574,22 +574,43 @@ export class AuthService {
         return { error };
       }
 
-      await this.msClient.executeJob(
-        'controller.notification',
-        new Job({
-          action: 'send',
-          payload: {
-            user_id: data.user_id,
-            template: 'email_verification_completed',
-            skipUserConfig: true,
-            variables: {
-              TO_NAME: userDetails.data.name,
+      if (data.payload.user && data.payload.email)
+        await this.msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              users: [
+                {
+                  name: data.payload.user,
+                  email: data.payload.email,
+                  send_email: true,
+                },
+              ],
+              template: 'email_verification_completed',
+              skipUserConfig: true,
+              variables: {
+                TO_NAME: userDetails.data.name,
+              },
             },
-          },
-        }),
-      );
+          }),
+        );
 
       if (!data.payload.user && !data.payload.email) {
+        await this.msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              user_id: data.user_id,
+              template: 'email_verification_completed',
+              skipUserConfig: true,
+              variables: {
+                TO_NAME: userDetails.data.name,
+              },
+            },
+          }),
+        );
         await this.msClient.executeJob(
           'controller.notification',
           new Job({
