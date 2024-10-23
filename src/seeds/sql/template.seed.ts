@@ -547,11 +547,53 @@ export default <Seed<Template>>{
       sms_body: '',
     },
     {
+      name: 'reorder_cancelled_by_admin',
+      title: 'Admin Reorder Cancelled Notification',
+      send_email: true,
+      transporter: Transporter.Orders,
+      email_subject: 'Reorder Cancelled by Admin',
+      email_body: `<p>Hi ##TO_NAME##,</p>,
+<br />
+<p>The reccurring order has been deleted by the admin.</p>
+<br />
+<p>Order Details:</p>
+<p>Order ID: ##ORDER_ID##</p>
+<p>Customer Name: ##CUSTOMER_NAME##</p>
+<br />
+<p>Best regards,</p>
+<p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
       name: 'reorder_cycle_change',
       title: 'Reorder Cycle Change Notification',
       send_email: true,
       transporter: Transporter.Orders,
       email_subject: 'Reorder Cycle Update Notification',
+      email_body: `<p>Hi ##TO_NAME##,</p>
+      <br />
+      <p>Please note that the reorder cycle for an order originally set for ##ORIGINAL_DAYS##, has been updated.</p>
+      <br />
+
+      <p>Order Details:</p>
+      <br />
+      <p>Order ID: ##ORDER_ID##</p>
+      <p>Customer Name: ##CUSTOMER_NAME##</p>
+      <br />
+      <p>The new reorder cycle is now scheduled for ##NEW_DAYS## days.</p>
+      <br />
+      <p>Best regards,</p>
+      <p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'reorder_cycle_change_by_admin',
+      title: 'Reorder Cycle Change by Admin Notification',
+      send_email: true,
+      transporter: Transporter.Orders,
+      email_subject: 'Reorder Cycle Update by Admin',
       email_body: `<p>Hi ##TO_NAME##,</p>
       <br />
       <p>Please note that the reorder cycle for an order originally set for ##ORIGINAL_DAYS##, has been updated.</p>

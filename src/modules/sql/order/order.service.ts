@@ -151,7 +151,24 @@ export class OrderService extends ModelService<Order> {
         action: 'findOne',
         payload: { where: { name: 'order_service_email' } },
       });
-      if (setttingData && setttingData?.getDataValue('value')) {
+      if (data.user_id !== job.owner.id) {
+        //send email to customer
+        await this._msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              skipUserConfig: true,
+              user_id: data.user_id,
+              template: 'reorder_cancelled_by_admin',
+              variables: {
+                ORDER_ID: data.uid,
+                CUSTOMER_NAME: data.user.name,
+              },
+            },
+          }),
+        );
+      } else if (setttingData && setttingData?.getDataValue('value')) {
         await this._msClient.executeJob(
           'controller.notification',
           new Job({
@@ -940,8 +957,27 @@ export class OrderService extends ModelService<Order> {
       });
 
       if (job.action == 'reorderCycleChange') {
-        // send email to admin for reorder cycle change
-        if (emailData && emailData?.getDataValue('value')) {
+        // send emai to customer for updates by admin
+        if (job.owner.id !== data.user_id) {
+          await this._msClient.executeJob(
+            'controller.notification',
+            new Job({
+              action: 'send',
+              payload: {
+                skipUserConfig: true,
+                user_id: data.user_id,
+                template: 'reorder_cycle_change_by_admin',
+                variables: {
+                  ORDER_ID: data.uid,
+                  ORIGINAL_DAYS: currentRepeatingDays,
+                  NEW_DAYS: repeating_days,
+                  CUSTOMER_NAME: data.user.name,
+                },
+              },
+            }),
+          );
+        } else if (emailData && emailData?.getDataValue('value')) {
+          // send email to admin for reorder cycle change
           await this._msClient.executeJob(
             'controller.notification',
             new Job({
@@ -960,7 +996,7 @@ export class OrderService extends ModelService<Order> {
                   ORDER_ID: data.uid,
                   ORIGINAL_DAYS: currentRepeatingDays,
                   NEW_DAYS: repeating_days,
-                  CUSTOMER_NAME: job.owner.name,
+                  CUSTOMER_NAME: data.user.name,
                 },
               },
             }),
