@@ -43,8 +43,15 @@ export class CouponService extends ModelService<Coupon> {
   protected async doBeforeFindAll(job: SqlJob<Coupon>): Promise<void> {
     await super.doBeforeFindAll(job);
     const date = new Date().toISOString().split('T')[0];
+    console.log(job.options.where);
 
     if (job.options?.where && 'deleted_at' in job.options.where) {
+      job.options.paranoid = false;
+    }
+    if (
+      job.options?.where[Symbol.for('or')] &&
+      job.options.where[Symbol.for('or')][0].deleted_at
+    ) {
       job.options.paranoid = false;
     }
     if (job.action === 'findAllMe') {

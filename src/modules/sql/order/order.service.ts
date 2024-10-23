@@ -1337,7 +1337,7 @@ export class OrderService extends ModelService<Order> {
         receiver: {
           name: `${address.shipping_first_name} ${address.shipping_last_name}`,
           address1: address.shipping_address,
-          company: '',
+          company: user.business_name ? user.business_name : '',
           address2: address.shipping_address ? address.shipping_address : '',
           city: address.shipping_city,
           state: address.shipping_state,
