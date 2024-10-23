@@ -49,6 +49,12 @@ export class ProductsService extends ModelService<Products> {
       if (job.options?.where && 'deleted_at' in job.options.where) {
         job.options.paranoid = false;
       }
+      if (
+        job.options?.where[Symbol.for('or')] &&
+        job.options.where[Symbol.for('or')][0].deleted_at
+      ) {
+        job.options.paranoid = false;
+      }
     }
   }
 

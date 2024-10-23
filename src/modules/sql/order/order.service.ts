@@ -1361,9 +1361,9 @@ export class OrderService extends ModelService<Order> {
         packages: [
           {
             weight: order_weight.toString(),
-            height: order_weight < 1 ? '0' : '4',
-            width: order_weight < 1 ? '11' : '6',
-            length: order_weight < 1 ? '8' : '8',
+            height: +order_weight < 1 ? '0' : '4',
+            width: +order_weight < 1 ? '11' : '6',
+            length: +order_weight < 1 ? '8' : '8',
             insuranceAmount: null,
             declaredValue: null,
           },
