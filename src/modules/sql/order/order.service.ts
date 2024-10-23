@@ -367,6 +367,20 @@ export class OrderService extends ModelService<Order> {
         });
       }
     }
+
+    if (job.action === 'cancelReorder') {
+      // Send order placed socket notification
+      await this._msClient.executeJob('controller.socket-event', {
+        action: 'cancelReorder',
+        payload: {
+          user_id: response.data.user_id,
+          data: {
+            order_id: response.data.uid,
+            id: response.data.id,
+          },
+        },
+      });
+    }
   }
 
   async createOrder(job: Job): Promise<JobResponse> {

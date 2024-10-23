@@ -42,4 +42,13 @@ export class SocketEventService {
     });
     return { error: false };
   }
+
+  async cancelReorder(job: Job) {
+    this.redisPropagatorService.propagateEvent({
+      userId: `${job.payload.user_id}`,
+      event: SocketEvent.ReorderCancelled,
+      data: { ...job.payload.data, reason: 'Repeating order cancelled' },
+    });
+    return { error: false };
+  }
 }
