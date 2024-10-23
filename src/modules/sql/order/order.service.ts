@@ -168,7 +168,9 @@ export class OrderService extends ModelService<Order> {
             },
           }),
         );
-      } else if (setttingData && setttingData?.getDataValue('value')) {
+      }
+      // send to admin
+      if (setttingData && setttingData?.getDataValue('value')) {
         await this._msClient.executeJob(
           'controller.notification',
           new Job({
@@ -976,7 +978,8 @@ export class OrderService extends ModelService<Order> {
               },
             }),
           );
-        } else if (emailData && emailData?.getDataValue('value')) {
+        }
+        if (emailData && emailData?.getDataValue('value')) {
           // send email to admin for reorder cycle change
           await this._msClient.executeJob(
             'controller.notification',
