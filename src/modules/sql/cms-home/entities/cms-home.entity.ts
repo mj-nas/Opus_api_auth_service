@@ -23,6 +23,24 @@ export class CmsHome extends SqlModel {
   @IsString()
   title: string;
 
+  @Column
+  @Index
+  @ApiProperty({
+    description: 'Group',
+    example: 'Group',
+  })
+  @IsString()
+  group: string;
+
+  @Column
+  @Index
+  @ApiProperty({
+    description: 'Order',
+    example: 'Order',
+  })
+  @IsString()
+  order: string;
+
   @Column({
     type: DataType.STRING(2000),
   })
