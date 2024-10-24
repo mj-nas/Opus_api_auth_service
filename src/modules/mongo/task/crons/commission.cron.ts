@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Cron } from '@nestjs/schedule';
 import { CommissionService } from 'src/modules/sql/commission/commission.service';
 
 @Injectable()
@@ -13,7 +12,7 @@ export class CommissionCron {
 
   // Commission Calculator
   // @Cron('0 20 * * *') // 08:00 PM
-  @Cron('43 16 * * *') // 11:22 AM
+  // @Cron('43 16 * * *') // 4:16 PM
   // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async commissionCalculatorCron() {
     if (this.configService.get('appId') != 'crons') {
