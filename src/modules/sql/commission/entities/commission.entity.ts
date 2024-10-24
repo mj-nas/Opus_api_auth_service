@@ -146,7 +146,7 @@ export class Commission extends SqlModel {
   }
 
   @BeforeSave
-  static setName(instance: Commission) {
+  static setCommission(instance: Commission) {
     const order_amount = instance.order_amount || 0;
     const coupon_discount_amount = instance.coupon_discount_amount || 0;
     const internal_fee = instance.internal_fee || 0;
@@ -155,7 +155,7 @@ export class Commission extends SqlModel {
       const total = order_amount - coupon_discount_amount - internal_fee;
       if (total >= 0) {
         instance.commission =
-          Math.floor(total * (commission_percentage / 100) * 100) / 100;
+          Math.round(total * (commission_percentage / 100) * 100) / 100;
       } else {
         instance.commission = 0;
       }
