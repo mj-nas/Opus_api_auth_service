@@ -678,6 +678,8 @@ export class OrderService extends ModelService<Order> {
           },
         });
         if (!!order.error) {
+          console.log(order.error);
+
           await transaction.rollback();
           return { error: order.error };
         }
@@ -1338,7 +1340,7 @@ export class OrderService extends ModelService<Order> {
           name: `${address.shipping_first_name} ${address.shipping_last_name}`,
           address1: address.shipping_address,
           company: user.business_name ? user.business_name : '',
-          address2: address.shipping_address ? address.shipping_address : '',
+          address2: address.shipping_address2 ? address.shipping_address2 : '',
           city: address.shipping_city,
           state: address.shipping_state,
           zip: address.shipping_zip_code,
@@ -1362,8 +1364,8 @@ export class OrderService extends ModelService<Order> {
           {
             weight: order_weight.toString(),
             height: +order_weight < 1 ? '0' : '4',
-            width: +order_weight < 1 ? '11' : '6',
-            length: +order_weight < 1 ? '8' : '8',
+            width: +order_weight <= 1 ? '11' : '6',
+            length: +order_weight <= 1 ? '8' : '8',
             insuranceAmount: null,
             declaredValue: null,
           },

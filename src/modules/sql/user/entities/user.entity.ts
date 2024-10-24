@@ -255,7 +255,7 @@ export class User extends SqlModel {
     example: 'zip_code',
   })
   @IsString()
-  @MaxLength(6)
+  @MaxLength(10)
   zip_code?: string;
 
   @Column

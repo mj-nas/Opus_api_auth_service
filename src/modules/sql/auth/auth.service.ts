@@ -538,7 +538,13 @@ export class AuthService {
             action: 'send',
             payload: {
               skipUserConfig: true,
-              user_id: data.id,
+              users: [
+                {
+                  name: data.name,
+                  email: data.email,
+                  send_email: true,
+                },
+              ],
               template: 'dispenser_application_received',
               variables: {},
             },

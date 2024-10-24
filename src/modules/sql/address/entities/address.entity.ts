@@ -126,7 +126,7 @@ export class Address extends SqlModel {
     example: 'zip_code',
   })
   @IsNumberString()
-  @MaxLength(6)
+  @MaxLength(10)
   zip_code?: string;
 
   @Column({ type: DataType.ENUM('Y', 'N'), defaultValue: 'N' })
