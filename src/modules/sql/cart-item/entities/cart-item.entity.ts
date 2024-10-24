@@ -1,4 +1,3 @@
-import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
@@ -45,9 +44,9 @@ export class CartItem extends SqlModel {
   @BelongsTo(() => Cart)
   cart: Cart;
 
-  @Include({
-    required: true,
-  })
+  // @Include({
+  //   required: true,
+  // })
   @BelongsTo(() => Products)
   product: Products;
 }
