@@ -193,6 +193,9 @@ export class CommissionController {
         action: 'findAll',
         payload: { ...query },
       });
+    console.log(countData);
+    console.log(countError);
+
     if (countError) {
       return ErrorResponse(res, {
         error: countError,

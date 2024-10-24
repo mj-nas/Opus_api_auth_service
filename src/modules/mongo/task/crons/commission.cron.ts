@@ -12,7 +12,8 @@ export class CommissionCron {
   ) {}
 
   // Commission Calculator
-  @Cron('22 11 * * *')
+  // @Cron('0 20 * * *') // 08:00 PM
+  @Cron('2 15 * * *') // 11:22 AM
   // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async commissionCalculatorCron() {
     if (this.configService.get('appId') != 'crons') {

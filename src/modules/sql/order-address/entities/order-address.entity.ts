@@ -137,7 +137,7 @@ export class OrderAddress extends SqlModel {
     example: 'zip_code',
   })
   @IsString()
-  @MaxLength(6)
+  @MaxLength(10)
   billing_zip_code?: string;
 
   @Column
@@ -235,7 +235,7 @@ export class OrderAddress extends SqlModel {
     example: 'zip_code',
   })
   @IsString()
-  @MaxLength(6)
+  @MaxLength(10)
   shipping_zip_code?: string;
 
   @Column({ type: DataType.ENUM('Y', 'N'), defaultValue: 'N' })
