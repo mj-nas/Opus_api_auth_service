@@ -82,6 +82,9 @@ export class OrderItem extends SqlModel {
   @BelongsTo(() => Order)
   order: Order;
 
+  @Include({
+    paranoid: false,
+  })
   @BelongsTo(() => Products)
   product: Products;
 

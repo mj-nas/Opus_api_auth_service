@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
@@ -79,6 +80,9 @@ export class ProductCategory extends SqlModel {
   @IsOptional()
   status: string;
 
+  @Include({
+    paranoid: false,
+  })
   @HasMany(() => Products)
   products: Products[];
 

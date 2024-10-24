@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
@@ -53,6 +54,9 @@ export class ProductGallery extends SqlModel {
   @IsString()
   is_primary: string;
 
+  @Include({
+    paranoid: false,
+  })
   @BelongsTo(() => Products)
   products: Products;
 

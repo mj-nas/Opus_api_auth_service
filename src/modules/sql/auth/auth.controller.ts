@@ -494,6 +494,8 @@ export class AuthController {
     body.force_password_change = true;
     const signup = await this.authService.signup(body);
     if (!!signup.error) {
+      console.log(signup.error);
+
       return BadRequest(res, {
         error: signup.error,
         message: `${signup.error.message || signup.error}`,

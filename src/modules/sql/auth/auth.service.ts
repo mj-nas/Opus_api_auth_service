@@ -502,6 +502,12 @@ export class AuthService {
           ...body,
         },
       });
+      if (error) {
+        console.log(error);
+        return {
+          error,
+        };
+      }
 
       if (body.role === Role.Dispenser) {
         // send email to admin for new dispenser application
@@ -538,13 +544,7 @@ export class AuthService {
             action: 'send',
             payload: {
               skipUserConfig: true,
-              users: [
-                {
-                  name: data.name,
-                  email: data.email,
-                  send_email: true,
-                },
-              ],
+              user_id: data.id,
               template: 'dispenser_application_received',
               variables: {},
             },

@@ -1,3 +1,4 @@
+import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -88,6 +89,9 @@ export class ProductReview extends SqlModel {
   @BelongsTo(() => Order)
   order: Order;
 
+  @Include({
+    paranoid: false,
+  })
   @BelongsTo(() => Products)
   product: Products;
 
