@@ -46,7 +46,7 @@ export class CartItem extends SqlModel {
   cart: Cart;
 
   @Include({
-    paranoid: false,
+    required: true,
   })
   @BelongsTo(() => Products)
   product: Products;

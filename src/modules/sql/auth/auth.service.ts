@@ -695,7 +695,12 @@ export class AuthService {
               owner: { id: user_id },
               options: {
                 where: { user_id },
-                include: [{ association: 'items' }],
+                include: [
+                  {
+                    association: 'items',
+                    include: [{ association: 'product', required: true }],
+                  },
+                ],
               },
               body: {
                 user_id,
