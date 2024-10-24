@@ -1,4 +1,3 @@
-import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
@@ -30,9 +29,6 @@ export class Wishlist extends SqlModel {
   @IsNumber()
   product_id: number;
 
-  @Include({
-    paranoid: false,
-  })
   @BelongsTo(() => Products)
   product: Products;
 }
