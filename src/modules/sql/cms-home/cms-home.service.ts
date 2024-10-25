@@ -8,7 +8,7 @@ export class CmsHomeService extends ModelService<CmsHome> {
    * searchFields
    * @property array of fields to include in search
    */
-  searchFields: string[] = ['name'];
+  searchFields: string[] = ['name', 'Title'];
 
   constructor(db: SqlService<CmsHome>) {
     super(db);
