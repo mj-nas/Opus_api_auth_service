@@ -698,7 +698,7 @@ export class AuthService {
                 include: [
                   {
                     association: 'items',
-                    // include: [{ association: 'product' }],
+                    include: [{ association: 'product', required: true }],
                   },
                 ],
               },
