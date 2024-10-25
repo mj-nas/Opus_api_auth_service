@@ -14,6 +14,7 @@ import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
 import { CartItemService } from '../cart-item/cart-item.service';
 import { ProductReviewService } from '../product-review/product-review.service';
+import { ReferredProductsService } from '../referred-products/referred-products.service';
 import { Products } from './entities/products.entity';
 
 @Injectable()
@@ -33,6 +34,7 @@ export class ProductsService extends ModelService<Products> {
     db: SqlService<Products>,
     private _productReviewService: ProductReviewService,
     private cartItemService: CartItemService,
+    private referredProductsService: ReferredProductsService,
   ) {
     super(db);
   }
@@ -111,6 +113,12 @@ export class ProductsService extends ModelService<Products> {
 
     // Delete cart items
     await this.cartItemService.$db.deleteBulkRecords({
+      options: {
+        where: { product_id: response.data.id },
+      },
+    });
+    // Delete Referred Products
+    await this.referredProductsService.$db.deleteBulkRecords({
       options: {
         where: { product_id: response.data.id },
       },
