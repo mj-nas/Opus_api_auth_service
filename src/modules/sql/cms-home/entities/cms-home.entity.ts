@@ -1,6 +1,6 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 import { Column, DataType, Index, Table } from 'sequelize-typescript';
 
 @Table
@@ -38,7 +38,7 @@ export class CmsHome extends SqlModel {
     description: 'Order',
     example: 'Order',
   })
-  @IsString()
+  @IsNumber()
   order: string;
 
   @Column({
