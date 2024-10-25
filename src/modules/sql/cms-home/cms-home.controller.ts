@@ -38,6 +38,7 @@ import {
   Result,
 } from 'src/core/core.responses';
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
+import { Public } from 'src/core/decorators/public.decorator';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { CmsHomeService } from './cms-home.service';
 import { CreateCmsHomeDto } from './dto/create-cms-home.dto';
@@ -118,6 +119,7 @@ export class CmsHomeController {
    * Return all entity documents list
    */
   @Get()
+  @Public()
   @ApiOperation({ summary: `Get all ${pluralizeString(entity)}` })
   @ApiQueryGetAll()
   @ResponseGetAll(CmsHome)
