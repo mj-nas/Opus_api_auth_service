@@ -1997,18 +1997,20 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
       toEmail = data.user.email;
     }
 
-    await this._msClient.executeJob(
-      'controller.email',
-      new Job({
-        action: 'sendMail',
-        payload: {
-          to: toEmail,
-          subject: email_subject,
-          html: this.emailTemplate({}),
-          from: this._config.get('email').transports[transporter].from || '',
-          transporterName: transporter,
-        },
-      }),
-    );
+    if (template.getDataValue('active')) {
+      await this._msClient.executeJob(
+        'controller.email',
+        new Job({
+          action: 'sendMail',
+          payload: {
+            to: toEmail,
+            subject: email_subject,
+            html: this.emailTemplate({}),
+            from: this._config.get('email').transports[transporter].from || '',
+            transporterName: transporter,
+          },
+        }),
+      );
+    }
   }
 }

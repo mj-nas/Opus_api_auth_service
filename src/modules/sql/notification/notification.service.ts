@@ -138,6 +138,7 @@ export class NotificationService {
 
         if (
           !!template.getDataValue('send_email') &&
+          !!template.getDataValue('active') &&
           (!!payload.skipUserConfig || !!user.send_email)
         ) {
           await this.msClient.executeJob(
