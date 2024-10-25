@@ -623,5 +623,9 @@ export class AuthController {
         message: `${connectingToDispenser.error.message || connectingToDispenser.error}`,
       });
     }
+    return Result(res, {
+      data: { connectingToDispenser },
+      message: 'Code verified',
+    });
   }
 }

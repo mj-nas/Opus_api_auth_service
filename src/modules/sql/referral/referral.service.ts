@@ -161,7 +161,7 @@ export class ReferralService extends ModelService<Referral> {
       products: referred_products
         ? referred_products.map((e: any, index: number) => ({
             ...e,
-            url: `${process.env.WEBSITE_URL}/products/${e.slug}`,
+            url: `${process.env.WEBSITE_URL}/products/${e.slug}?r=${data.uid}`,
             productbgcolor: colours[index % colours.length],
           }))
         : [],
