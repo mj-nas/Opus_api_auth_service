@@ -601,7 +601,7 @@ export class AuthController {
         },
         message: {
           type: 'string',
-          example: 'OTP verified',
+          example: 'Dispenser Connected',
         },
       },
     },
@@ -625,7 +625,7 @@ export class AuthController {
     }
     return Result(res, {
       data: { connectingToDispenser },
-      message: 'Code verified',
+      message: 'Dispenser connected',
     });
   }
 }
