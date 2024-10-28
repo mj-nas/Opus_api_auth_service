@@ -1920,35 +1920,146 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
     const SHIPPING_ADDRESS = `${data.address.shipping_first_name + ' ' + data.address.shipping_last_name}, ${data.address.shipping_address}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
     const BILLING_ADDRESS = `${data.address.billing_first_name + ' ' + data.address.billing_last_name}, ${data.address.billing_address}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
 
-    let products_table = `<figure class="table">
-    <table class="gmail-table" style="margin-bottom:30px; width:100%">
-        <thead>
-            <tr>
-                <th colspan="2">
-                    Products
-                </th>
-            </tr>
-        </thead>
-        <tbody>`;
+    // let products_table = `<figure class="table">
+    // <table class="gmail-table" style="margin-bottom:30px; width:100%">
+    //     <thead>
+    //         <tr>
+    //             <th colspan="2">
+    //                 Products
+    //             </th>
+    //         </tr>
+    //     </thead>
+    //     <tbody>`;
+    //      data.items.forEach((item) => {
+    //        products_table += `<tr style="display: block;">
+    //         <td>
+    //             <img style="width: 100px; height: 100px;" src="${item.product.product_primary_image.product_image}" alt="">
+    //         </td>
+    //         <td
+    //             style="font-size: 18px;list-style: 35px; line-height: 24px; padding: 20px 0px;">
+    //             ${item.product.product_name}</br>
+    //             <b>$${item.price_per_item}</b> </br>
+    //             Item: <b>${item.quantity}</b></br>
+    //             Order ID: <b>${data.uid}</b>
+    //         </td>
+    //     </tr>`;
+    //      });
 
+    //      products_table += `</tbody>
+    //     </table>
+    // </figure>`;
+
+    let products_table = `<table
+      align="center"
+      width="100%"
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      role="presentation"
+      style="
+        max-width: 37.5em;
+        margin-left: auto;
+        margin-right: auto;
+        box-sizing: border-box;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        height: 100vh;
+      "
+    >
+      <tbody>
+        <tr style="width: 100%">
+          <td>
+            <table
+              align="center"
+              width="100%"
+              border="0"
+              cellpadding="0"
+              cellspacing="0"
+              role="presentation"
+              style="margin-top: 16px; margin-bottom: 16px"
+            >
+              <tbody border="1px ">
+                <tr>
+                  <td>
+                    
+                  `;
     data.items.forEach((item) => {
-      products_table += `<tr style="display: block;">
-        <td>
-            <img style="width: 100px; height: 100px;" src="${item.product.product_primary_image.product_image}" alt="">
-        </td>
-        <td
-            style="font-size: 18px;list-style: 35px; line-height: 24px; padding: 20px 0px;">
-            ${item.product.product_name}</br>
-            <b>$${item.price_per_item}</b> </br>
-            Item: <b>${item.quantity}</b></br>
-            Order ID: <b>${data.uid}</b>
-        </td>
-    </tr>`;
+      products_table += `<table style="width: 100%; border: solid 1px black">
+                      <tbody style="width: 100%">
+                        <tr style="width: 100%">
+                          <td
+                            style="
+                              width: 50%;
+                              padding-right: 32px;
+                              box-sizing: border-box;
+                            "
+                          >
+                            <img
+                              alt="Braun Vintage"
+                              height="220"
+                              src="${item.product.product_primary_image.product_image}"
+                              style="
+                                display: block;
+                                outline: none;
+                                border: none;
+                                text-decoration: none;
+                                border-radius: 8px;
+                                width: 70%;
+                                height: 70%
+                                object-fit: cover;
+                              "
+                            />
+                          </td>
+                          <td style="width: 50%; vertical-align: baseline">
+                            <p
+                              style="
+                                font-size: 20px;
+                                line-height: 28px;
+                                margin: 0px;
+                                margin-top: 30px;
+                                font-weight: 600;
+                                color: rgb(17, 24, 39);
+                              "
+                            >
+                              ${item.product.product_name}
+                            </p>
+                            <p
+                              style="
+                                font-size: 16px;
+                                line-height: 24px;
+                                margin: 16px 0;
+                                margin-top: 8px;
+                                color: rgb(107, 114, 128);
+                              "
+                            >
+                              Quantity: ${item.quantity}
+                            </p>
+                            <p
+                              style="
+                                font-size: 18px;
+                                line-height: 28px;
+                                margin: 16px 0;
+                                margin-top: 8px;
+                                font-weight: 600;
+                                color: rgb(17, 24, 39);
+                              "
+                            >
+                              $${item.price_per_item}
+                            </p>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>`;
     });
 
-    products_table += `</tbody>
-    </table>
-</figure>`;
+    products_table += `</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>`;
 
     const variables = {
       LOGO: this._config.get('cdnLocalURL') + 'assets/logo.png',
