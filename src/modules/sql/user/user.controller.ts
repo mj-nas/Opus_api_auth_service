@@ -112,7 +112,8 @@ export class UserController {
    * Create a new Dispenser
    */
   @Post('dispenser')
-  @Roles(Role.Admin)
+  // @Roles(Role.Admin)
+  @Public()
   @ApiOperation({ summary: 'Create a new Dispencer' })
   // @ApiConsumes('application/json', 'multipart/form-data')
   // @FileUploads([{ name: 'avatar_file', required: false, bodyField: 'avatar' }])
@@ -125,6 +126,8 @@ export class UserController {
     @Body() createDispenserDto: CreateDispenserDto,
     @Query() query: any,
   ) {
+    console.log(createDispenserDto);
+
     const { error, data } = await this.userService.create({
       owner,
       action: 'createDispenser',
