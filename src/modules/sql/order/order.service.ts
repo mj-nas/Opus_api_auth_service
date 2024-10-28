@@ -1345,11 +1345,10 @@ export class OrderService extends ModelService<Order> {
         shippingTotal: null,
         weightUnit: 'lb',
         dimUnit: 'in',
-        // shipperReference: order_weight < 1 ? 'Poly Bag' : 'Your Packaging',
-        shipperReference: 'OPUS',
-        shipperReference2: order.data.uid.split('-')[1],
+        shipperReference: order_weight < 1 ? 'Poly Bag' : 'Your Packaging',
+        shipperReference2: dispenser ? `referred by: ${dispenser.name}` : null,
         dueByDate: null,
-        orderGroup: 'OPUS',
+        orderGroup: null,
         contentDescription: `Order #${order.data.uid} from ${user.name}`,
         receiver: {
           name: `${address.shipping_first_name} ${address.shipping_last_name}`,
@@ -1960,7 +1959,7 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
         .tz('America/New_York')
         .format('MM/DD/YYYY'),
       ORDER_ID: data.uid,
-      PHONE_NUMBER: data.user.phone,
+      PHONE_NUMBER: data.user.phone_code + data.user.phone,
       EMAIL: data.user.email,
       RECURRING_DAYS: data.repeating_days,
       TAX: Math.round(data.tax * 100) / 100,

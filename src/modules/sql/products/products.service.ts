@@ -145,6 +145,11 @@ export class ProductsService extends ModelService<Products> {
           where: { product_id: response.data.id },
         },
       });
+      await this.referredProductsService.$db.deleteBulkRecords({
+        options: {
+          where: { product_id: response.data.id },
+        },
+      });
     }
   }
 
