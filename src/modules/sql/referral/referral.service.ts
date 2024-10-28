@@ -74,7 +74,14 @@ export class ReferralService extends ModelService<Referral> {
 
   async createReferrals(job: Job): Promise<JobResponse> {
     const { referred_coupons, referred_products, email } = job.payload;
-    const colours = ['#AA674F', '#E8AE9A', '#CFAFA4', '#FFFEDB', '#C4946B'];
+    // const colours = ['#AA674F', '#E8AE9A', '#CFAFA4', '#FFFEDB', '#C4946B'];
+    const colours = [
+      { bgColor: '#AA674F', textColor: '#FFFFFF' },
+      { bgColor: '#E8AE9A', textColor: '#FFFFFF' },
+      { bgColor: '#CFAFA4', textColor: '#FFFFFF' },
+      { bgColor: '#FFFEDB', textColor: '#000000' },
+      { bgColor: '#C4946B', textColor: '#FFFFFF' },
+    ];
     const { error, data } = await this.create({
       owner: job.owner,
       action: 'create',
@@ -159,11 +166,15 @@ export class ReferralService extends ModelService<Referral> {
         : '',
       coupons: referred_coupons ? referred_coupons : [],
       products: referred_products
-        ? referred_products.map((e: any, index: number) => ({
-            ...e,
-            url: `${process.env.WEBSITE_URL}/products/${e.slug}?r=${data.uid}`,
-            productbgcolor: colours[index % colours.length],
-          }))
+        ? referred_products.map((e: any, index: number) => {
+            const colorIndex = index % colours.length;
+            return {
+              ...e,
+              url: `${process.env.WEBSITE_URL}/products/${e.slug}?r=${data.uid}`,
+              productbgcolor: colours[colorIndex].bgColor,
+              producttxtcolor: colours[colorIndex].textColor,
+            };
+          })
         : [],
     });
     const email_subject = `You've been referred by ${job.owner.name} ${job.owner.business_name ? `of ${job.owner.business_name}` : ''}`;
