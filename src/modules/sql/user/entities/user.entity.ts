@@ -217,7 +217,12 @@ export class User extends SqlModel {
     example: 10.013947,
   })
   @ValidateIf((o) => o.role === Role.Dispenser)
-  @IsDecimal()
+  @IsDecimal(
+    {},
+    {
+      message: 'Please select an address from the Google auto-suggestion list',
+    },
+  )
   latitude: number;
 
   @Column(DataType.DECIMAL(10, 8))
@@ -227,7 +232,12 @@ export class User extends SqlModel {
     example: 76.363272,
   })
   @ValidateIf((o) => o.role === Role.Dispenser)
-  @IsDecimal()
+  @IsDecimal(
+    {},
+    {
+      message: 'Please select an address from the Google auto-suggestion list',
+    },
+  )
   longitude: number;
 
   @Column

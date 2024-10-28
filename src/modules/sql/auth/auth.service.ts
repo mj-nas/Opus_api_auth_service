@@ -678,8 +678,6 @@ export class AuthService {
           },
         });
 
-        console.log('connecting to dispenser>>>>>>>>>>>>>>>>');
-
         // if the connection type is Referral
         if (type === ConnectionVia.Referral) {
           const referral = await this.referralService.findOne({
@@ -691,7 +689,6 @@ export class AuthService {
           if (!!referral.error) {
             throw referral.error;
           }
-          console.log(referral.data.products);
 
           if (referral.data.products.length) {
             const cart = await this.cartService.$db.findOrCreate({
@@ -708,8 +705,6 @@ export class AuthService {
                 user_id,
               },
             });
-            console.log('cart>>>>>>>>>>>>>>>>');
-            console.log(cart);
 
             if (!!cart.error) {
               throw cart.error;
