@@ -112,8 +112,7 @@ export class UserController {
    * Create a new Dispenser
    */
   @Post('dispenser')
-  // @Roles(Role.Admin)
-  @Public()
+  @Roles(Role.Admin)
   @ApiOperation({ summary: 'Create a new Dispencer' })
   // @ApiConsumes('application/json', 'multipart/form-data')
   // @FileUploads([{ name: 'avatar_file', required: false, bodyField: 'avatar' }])
