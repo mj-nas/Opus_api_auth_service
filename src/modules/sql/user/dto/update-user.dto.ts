@@ -2,7 +2,7 @@ import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
 import { User } from '../entities/user.entity';
 
 export class UpdateUserDto extends PartialType(
-  OmitType(User, ['role', 'password'] as const),
+  OmitType(User, ['password'] as const),
 ) {
   @ApiProperty({
     type: 'string',
