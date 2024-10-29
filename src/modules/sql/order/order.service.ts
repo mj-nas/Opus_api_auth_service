@@ -2083,7 +2083,7 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
                                   <b>$${item.price_per_item}</b> <br />
                                   Quantity: <b>${item.quantity}</b>
                                 </td>
-                                <td style="text-align: end">$${item.price_per_item * item.quantity}</td>
+                                <td style="text-align: end"><b>$${item.price_per_item * item.quantity}</b></td>
                               </tr>`;
     });
     const variables = {
