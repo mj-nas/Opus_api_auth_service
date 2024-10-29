@@ -1985,7 +1985,7 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
                     
                   `;
     data.items.forEach((item) => {
-      products_table += `<table style="width: 100%; border: solid 1px black; margin-top: 5px; border-radius: 7px;">
+      products_table += `<table style="width: 100%; border: solid 1px #DCFFF8; margin-top: 5px; border-radius: 7px;">
                       <tbody style="width: 100%">
                         <tr style="width: 100%">
                           <td
