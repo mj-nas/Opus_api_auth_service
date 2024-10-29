@@ -214,7 +214,7 @@ export class User extends SqlModel {
   @ApiProperty({
     format: 'float',
     description: 'Latitude',
-    example: 10.013947,
+    example: 90.013947,
   })
   @ValidateIf((o) => o.role === Role.Dispenser)
   @IsDecimal(
@@ -225,11 +225,11 @@ export class User extends SqlModel {
   )
   latitude: number;
 
-  @Column(DataType.DECIMAL(10, 8))
+  @Column(DataType.DECIMAL(11, 8))
   @ApiProperty({
     format: 'float',
     description: 'Longitude',
-    example: 76.363272,
+    example: 180.363272,
   })
   @ValidateIf((o) => o.role === Role.Dispenser)
   @IsDecimal(
