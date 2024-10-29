@@ -101,7 +101,7 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
     try {
       const { data } = await this.$db.getAllRecords({
         options: {
-          limit: 4,
+          limit: 1000,
           order: [['sort', 'asc']],
           where: { status: 'Y' },
         },

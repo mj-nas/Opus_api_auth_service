@@ -105,7 +105,7 @@ export class OrderAddress extends SqlModel {
 
   @Column
   @ApiProperty({
-    description: 'address',
+    description: 'address2',
     example: 'address',
   })
   @IsString()
