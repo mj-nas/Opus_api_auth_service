@@ -1957,13 +1957,14 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
       cellspacing="0"
       role="presentation"
       style="
-        max-width: 37.5em;
+        /* max-width: 37.5em; */
+        width: 80%;
         margin-left: auto;
         margin-right: auto;
         box-sizing: border-box;
         padding-top: 1rem;
         padding-bottom: 1rem;
-        height: 100vh;
+        /* height: 100vh; */
       "
     >
       <tbody>
@@ -1978,7 +1979,7 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
               role="presentation"
               style="margin-top: 16px; margin-bottom: 16px"
             >
-              <tbody border="1px ">
+              <tbody border="1">
                 <tr>
                   <td>
                     
@@ -1989,13 +1990,13 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
                         <tr style="width: 100%">
                           <td
                             style="
-                              width: 50%;
+                              width: 30%;
                               padding-right: 32px;
                               box-sizing: border-box;
                             "
                           >
                             <img
-                              alt="Braun Vintage"
+                              alt="Product Image"
                               height="220"
                               src="${item.product.product_primary_image.product_image}"
                               style="
@@ -2004,13 +2005,13 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
                                 border: none;
                                 text-decoration: none;
                                 border-radius: 8px;
-                                width: 70%;
-                                height: 70%
+                                width: 100px;
+                                height: auto;
                                 object-fit: cover;
                               "
                             />
                           </td>
-                          <td style="width: 50%; vertical-align: baseline">
+                          <td style="width: 70%; vertical-align: baseline">
                             <p
                               style="
                                 font-size: 20px;
