@@ -1349,7 +1349,7 @@ export class OrderService extends ModelService<Order> {
         shipperReference2: order.data.uid.split('-')[1],
         dueByDate: null,
         orderGroup: 'OPUS',
-        contentDescription: `Order #${order.data.uid} from ${user.name}`,
+        contentDescription: `Order from ${user.name}`,
         receiver: {
           name: `${address.shipping_first_name} ${address.shipping_last_name}`,
           address1: address.shipping_address,
