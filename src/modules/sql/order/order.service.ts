@@ -1359,8 +1359,8 @@ export class OrderService extends ModelService<Order> {
           state: address.shipping_state,
           zip: address.shipping_zip_code,
           country: 'US',
-          phone: address.shipping_phone ? address.shipping_phone : '',
-          email: address.shipping_email ? address.shipping_email : null,
+          phone: address.shipping_phone ? address.shipping_phone : user.phone,
+          email: address.shipping_email ? address.shipping_email : user.email,
         },
         items: items.map((item) => ({
           productId: item.product.id.toString(),
