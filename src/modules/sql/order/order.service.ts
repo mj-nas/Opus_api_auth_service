@@ -316,6 +316,13 @@ export class OrderService extends ModelService<Order> {
             to: Role.Customer,
           },
         });
+        //send email to admin
+        await this._msClient.executeJob('order.mail.sent', {
+          payload: {
+            order_id: response.data.id,
+            to: Role.Admin,
+          },
+        });
         // create order in xps
         await this.createShipments({
           payload: {
@@ -566,13 +573,6 @@ export class OrderService extends ModelService<Order> {
         }
 
         await transaction.commit();
-
-        await this._msClient.executeJob('order.mail.sent', {
-          payload: {
-            order_id: order.data.id,
-            to: Role.Admin,
-          },
-        });
 
         return { data: { order: order.data, payment_link: paymentLink.url } };
       } else {
