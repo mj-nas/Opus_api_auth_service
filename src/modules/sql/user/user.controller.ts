@@ -564,6 +564,7 @@ export class UserController {
         action: 'findARep',
         payload: { ...query },
       });
+    console.log(error);
 
     if (error) {
       return ErrorResponse(res, {

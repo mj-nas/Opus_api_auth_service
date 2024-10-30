@@ -433,11 +433,11 @@ export class UserService extends ModelService<User> {
               config().distanceUnitCalculationNumber
             } * acos(cos(radians(${
               job.options.where.latitude
-            })) * cos(radians(latitude)) * cos(radians(${
+            })) * cos(radians(User.latitude)) * cos(radians(${
               job.options.where.longitude
-            }) - radians(longitude)) + sin(radians(${
+            }) - radians(User.longitude)) + sin(radians(${
               job.options.where.latitude
-            })) * sin(radians(latitude)))), 1)`,
+            })) * sin(radians(User.latitude)))), 1)`,
           ),
           'distance',
         ]);
