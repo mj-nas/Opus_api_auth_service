@@ -1226,7 +1226,7 @@ export class OrderService extends ModelService<Order> {
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Order ID', key: 'uid', width: 25 },
         { header: 'User Name', key: 'name', width: 25 },
-        { header: 'Price ($)', key: 'total', width: 10 },
+        { header: 'Total Price ($)', key: 'total', width: 10 },
         {
           header: 'Repeat Interval (in days)',
           key: 'repeating_days',
