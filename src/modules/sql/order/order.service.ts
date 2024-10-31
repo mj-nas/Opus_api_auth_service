@@ -1074,10 +1074,11 @@ export class OrderService extends ModelService<Order> {
         'Customer Name',
         'Dispenser Name',
         'Coupon Code',
-        'Price ($)',
+        'Total Price ($)',
         'Tax ($)',
         'Discount Applied ($)',
         'Shipping Price ($)',
+        'Total Price ($)',
         'Shipping Service',
         'Shipping Address',
         'Billing Address',
@@ -1096,10 +1097,11 @@ export class OrderService extends ModelService<Order> {
             x?.user?.name,
             x?.dispenser?.name,
             x?.coupon_code,
-            `${x?.total}`,
+            `${x?.sub_total}`,
             `${Math.round(x?.tax * 100) / 100}`,
             `${x?.coupon_discount_amount}`,
             `${x?.shipping_price}`,
+            `${x?.total}`,
             x?.shipping_service,
             `${x?.address?.shipping_name}, ${x?.address?.shipping_address}, ${x?.address?.shipping_city}, ${x?.address?.shipping_state}, ${x?.address?.shipping_zip_code}`,
             `${x?.address?.billing_name}, ${x?.address?.billing_address}, ${x?.address?.billing_city}, ${x?.address?.billing_state}, ${x?.address?.billing_zip_code}`,
@@ -1116,7 +1118,7 @@ export class OrderService extends ModelService<Order> {
         { header: 'Customer Name', key: 'name', width: 25 },
         { header: 'Dispenser Name', key: 'dispenser', width: 25 },
         { header: 'Coupon Code', key: 'coupon', width: 25 },
-        { header: 'Price ($)', key: 'total', width: 10 },
+        { header: 'Price ($)', key: 'sub_total', width: 10 },
         { header: 'Tax ($)', key: 'tax', width: 10 },
         {
           header: 'Discount Applied ($)',
@@ -1124,6 +1126,7 @@ export class OrderService extends ModelService<Order> {
           width: 10,
         },
         { header: 'Shipping Price ($)', key: 'shipping_price', width: 10 },
+        { header: 'Total Price ($)', key: 'total', width: 10 },
         { header: 'Shipping Service', key: 'shipping_service', width: 25 },
         { header: 'Shipping Address', key: 'shipping_address', width: 50 },
         { header: 'Billing Address', key: 'billing_address', width: 50 },
@@ -1518,11 +1521,11 @@ export class OrderService extends ModelService<Order> {
           //recreate shipment
           // update uid of the order
           let parts = order.uid.split('-');
-          if (parts[1] === 'RE') {
-            let currentNumber = parseInt(parts[2]);
-            parts[2] = (currentNumber + 1).toString();
+          if (parts[2] === 'RE') {
+            let currentNumber = parseInt(parts[3]);
+            parts[3] = (currentNumber + 1).toString();
           } else {
-            parts.splice(1, 0, 'RE', '1');
+            parts.splice(2, 0, 'RE', '1');
           }
           const newUID = parts.join('-');
           const newOrder = await this.$db.findAndUpdateRecord({
@@ -2095,7 +2098,9 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
         .tz('America/New_York')
         .format('MM/DD/YYYY'),
       ORDER_ID: data.uid,
-      PHONE_NUMBER: data.user.phone_code + data.user.phone,
+      PHONE_NUMBER: `${data.user.phone_code}${data.user.phone}`
+        .replace(/\D/g, '')
+        .replace(/(\d{1})(\d{3})(\d{3})(\d{4})/, '$1-$2-$3-$4'),
       EMAIL: data.user.email,
       RECURRING_DAYS: data.repeating_days,
       TAX: Math.round(data.tax * 100) / 100,
@@ -2147,6 +2152,18 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
           },
         }),
       );
+    }
+  }
+
+  async formatPhoneNumber(number: string) {
+    // Remove any non-numeric characters
+    const cleaned = ('' + number).replace(/\D/g, '');
+
+    // Check if the cleaned number has at least 11 digits (for country code + area code + number)
+    if (cleaned.length === 11) {
+      return cleaned.replace(/(\d{1})(\d{3})(\d{3})(\d{4})/, '$1-$2-$3-$4');
+    } else {
+      return 'Invalid number';
     }
   }
 }
