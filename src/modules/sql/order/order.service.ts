@@ -1181,7 +1181,7 @@ export class OrderService extends ModelService<Order> {
         'Sl. No',
         'Order ID',
         'User Name',
-        'Price ($)',
+        'Total Price ($)',
         'Repeat Interval (in days)',
         'Created On',
         'Next Order Date',
