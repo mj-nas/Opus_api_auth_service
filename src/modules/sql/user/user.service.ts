@@ -601,7 +601,7 @@ export class UserService extends ModelService<User> {
         { header: 'Address 2', key: 'address2', width: 50 },
         { header: 'City', key: 'city', width: 50 },
         { header: 'State', key: 'state', width: 50 },
-        { header: 'Zip Code', key: 'zip_code', width: 15 },
+        { header: 'Zip Code', key: 'zip_code', width: 25 },
         { header: 'Created On', key: 'created_at', width: 25 },
         { header: 'Status', key: 'active', width: 25 },
       ];
@@ -942,7 +942,7 @@ export class UserService extends ModelService<User> {
           z
             .string()
             .min(1, { message: 'Please enter your zip code.' })
-            .max(6, 'Your zip code exceeds the character limit.'),
+            .max(10, 'Your zip code exceeds the character limit.'),
         ),
       });
       const schema = z.preprocess(
@@ -1132,7 +1132,7 @@ export class UserService extends ModelService<User> {
           z
             .string()
             .min(1, { message: 'Please enter your zip code.' })
-            .max(6, 'Your zip code exceeds the character limit.'),
+            .max(10, 'Your zip code exceeds the character limit.'),
         ),
       });
       const schema = z.preprocess(
