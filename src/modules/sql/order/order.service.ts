@@ -2105,7 +2105,7 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
       RECURRING_DAYS: data.repeating_days,
       TAX: Math.round(data.tax * 100) / 100,
       SHIPPING_CHARGE: data.shipping_price,
-      DISCOUNT: data.coupon_discount_amount ? `(${data.coupon_code})$${data.coupon_discount_amount}` : 0,
+      DISCOUNT: data.coupon_discount_amount ? `(${data.coupon_code})$${data.coupon_discount_amount}` : "$0",
       SHIPPING_SERVICE: 'USPS Ground Advantage',
       SUB_TOTAL: data.sub_total,
       TOTAL: data.total,
