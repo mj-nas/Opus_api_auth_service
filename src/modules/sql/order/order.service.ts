@@ -2156,15 +2156,19 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
     }
   }
 
-  async formatPhoneNumber(number: string) {
-    // Remove any non-numeric characters
-    const cleaned = ('' + number).replace(/\D/g, '');
-
-    // Check if the cleaned number has at least 11 digits (for country code + area code + number)
-    if (cleaned.length === 11) {
-      return cleaned.replace(/(\d{1})(\d{3})(\d{3})(\d{4})/, '$1-$2-$3-$4');
-    } else {
-      return 'Invalid number';
+ async quoteShippingPrice(job: Job): Promise<JobResponse>{
+  const senderAddress = this._settingService.$db.findOneRecord({
+    options:{
+      where:{
+        
+      }
     }
-  }
+  })
+  await this._xpsService.quoteShippingPrice({
+    payload:{
+    ...job.payload.body      
+    }
+  })
+  return {}
+ }
 }

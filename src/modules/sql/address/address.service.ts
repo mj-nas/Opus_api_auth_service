@@ -16,6 +16,23 @@ export class AddressService extends ModelService<Address> {
   }
 
   /**
+   * doBeforeDelete
+   * @function function will execute before delete function
+   * @param {object} job - mandatory - a job object representing the job information
+   * @return {void}
+   */
+  protected async doBeforeDelete(job: SqlJob<Address>): Promise<void> {
+    await super.doBeforeDelete(job);
+    //check if the address is primary
+    const address = await this.findOne({
+        options: { where: { id: job.id } },
+      })
+      if (address.data && address.data.is_primary== "Y") {
+        throw new Error("Primary address cannot be deleted")
+      }
+  }
+
+  /**
    * doBeforeCreate
    * @function function will execute before create function
    * @param {object} job - mandatory - a job object representing the job information

@@ -45,6 +45,7 @@ import { ReorderDto } from './dto/reorder.dto';
 import { Order } from './entities/order.entity';
 import { OrderStatus } from './order-status.enum';
 import { OrderService } from './order.service';
+import { CreateQuoteDto } from './dto/create-quote.dto';
 
 const entity = snakeCase(Order.name);
 
@@ -131,6 +132,33 @@ export class OrderController {
     }
     return Created(res, { data: { [entity]: data }, message: 'Created' });
   }
+
+   /**
+   * Quote Shipping Price
+   */
+   @Post("quote")
+   @ApiOperation({ summary: `Quote Shipping Price` })
+   async quoteShippingPrice(
+     @Res() res: Response,
+     @Owner() owner: OwnerDto,
+     @Body() quoteDto: CreateQuoteDto,
+   ) {
+     const { error, data } = await this.orderService.quoteShippingPrice({
+       owner,
+       action: 'createQuote',
+       payload: {
+         body: quoteDto,
+       },
+     });
+ 
+     if (error) {
+       return ErrorResponse(res, {
+         error,
+         message: `${error.message || error}`,
+       });
+     }
+     return Created(res, { data: { [entity]: data }, message: 'Created' });
+   }
 
   /**
    * Reorder order with repeating days
