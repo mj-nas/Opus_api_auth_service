@@ -1362,8 +1362,8 @@ export class OrderService extends ModelService<Order> {
           state: address.shipping_state,
           zip: address.shipping_zip_code,
           country: 'US',
-          phone: address.shipping_phone ? address.shipping_phone : user.phone,
-          email: address.shipping_email ? address.shipping_email : user.email,
+          phone: user.phone,
+          email: user.email,
         },
         items: items.map((item) => ({
           productId: item.product.id.toString(),
@@ -2157,16 +2157,71 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
   }
 
  async quoteShippingPrice(job: Job): Promise<JobResponse>{
-  const senderAddress = this._settingService.$db.findOneRecord({
+  const {payload} = job
+  const senderAddress = await this._settingService.$db.findOneRecord({
     options:{
+      attributes: ["value"],
       where:{
-        
+        group_id:2 ,
+        name: "xps_sender_address_zip"
       }
     }
   })
+  const pieces = [];
+  for (let index = 0; index < payload.items.length; index++) {
+    let count = payload.items[index].quantity
+    if(count > 1) {
+      index --
+      count --
+    } 
+    pieces.push({
+      weight:payload.items[index].weight,
+      length:payload.items[index].length,
+      width:payload.items[index].width,
+      height:payload.items[index].height,
+      insuranceAmount: "",
+      declaredValue:""
+
+    })
+    
+  }
   await this._xpsService.quoteShippingPrice({
     payload:{
-    ...job.payload.body      
+      "carrierCode": "usps",
+      "serviceCode": "",
+      "packageTypeCode": "",
+      "sender": {
+        "country": "US",
+        "zip": senderAddress.data.value
+      },
+      "receiver": {
+        "city": payload.shipping_city,
+        "country": "US",
+        "zip": payload.shipping_zip_code
+        // "email":"foo@bar.com"
+      },
+      "residential": true,
+      "signatureOptionCode": "DIRECT",
+      "contentDescription": "stuff and things",
+      "weightUnit": "oz",
+      "dimUnit": "in",
+      "currency": "USD",
+      "customsCurrency": "USD",
+      "pieces": pieces,
+      // [
+      //   {
+      //     "weight": "1.4",
+      //     "length": "5.1",
+      //     "width": "4",
+      //     "height": "2.5",
+      //     "insuranceAmount": "12.15",
+      //     "declaredValue": null
+      //   }
+      // ],
+      "billing": {
+        "party": "sender"
+      }
+    //   "providerAccountId": null
     }
   })
   return {}

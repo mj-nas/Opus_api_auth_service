@@ -147,7 +147,7 @@ export class OrderController {
        owner,
        action: 'createQuote',
        payload: {
-         body: quoteDto,
+         ...quoteDto,
        },
      });
  
