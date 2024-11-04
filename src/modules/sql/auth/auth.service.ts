@@ -533,6 +533,9 @@ export class AuthService {
                 template: 'new_dispenser_application',
                 variables: {
                   NAME: data.name,
+                  BUSINESS_NAME: data.business_name
+                    ? data.business_name
+                    : 'Not available',
                   EMAIL: data.email,
                   PHONE: `${data.phone_code}${data.phone}`
                     .replace(/\D/g, '')
