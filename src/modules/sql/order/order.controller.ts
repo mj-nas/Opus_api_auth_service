@@ -41,11 +41,11 @@ import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { Role } from '../user/role.enum';
 import { ChangeOrderStatusDto } from './dto/change-order-status.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { CreateQuoteDto } from './dto/create-quote.dto';
 import { ReorderDto } from './dto/reorder.dto';
 import { Order } from './entities/order.entity';
 import { OrderStatus } from './order-status.enum';
 import { OrderService } from './order.service';
-import { CreateQuoteDto } from './dto/create-quote.dto';
 
 const entity = snakeCase(Order.name);
 
@@ -133,32 +133,32 @@ export class OrderController {
     return Created(res, { data: { [entity]: data }, message: 'Created' });
   }
 
-   /**
+  /**
    * Quote Shipping Price
    */
-   @Post("quote")
-   @ApiOperation({ summary: `Quote Shipping Price` })
-   async quoteShippingPrice(
-     @Res() res: Response,
-     @Owner() owner: OwnerDto,
-     @Body() quoteDto: CreateQuoteDto,
-   ) {
-     const { error, data } = await this.orderService.quoteShippingPrice({
-       owner,
-       action: 'createQuote',
-       payload: {
-         ...quoteDto,
-       },
-     });
- 
-     if (error) {
-       return ErrorResponse(res, {
-         error,
-         message: `${error.message || error}`,
-       });
-     }
-     return Created(res, { data: { [entity]: data }, message: 'Created' });
-   }
+  @Post('quote')
+  @ApiOperation({ summary: `Quote Shipping Price` })
+  async quoteShippingPrice(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Body() quoteDto: CreateQuoteDto,
+  ) {
+    const { error, data } = await this.orderService.quoteShippingPrice({
+      owner,
+      action: 'createQuote',
+      payload: {
+        ...quoteDto,
+      },
+    });
+
+    if (error) {
+      return ErrorResponse(res, {
+        error,
+        message: `${error.message || error}`,
+      });
+    }
+    return Created(res, { data: data, message: 'Quoted Succesfully' });
+  }
 
   /**
    * Reorder order with repeating days

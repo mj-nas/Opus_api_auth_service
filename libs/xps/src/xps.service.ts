@@ -81,14 +81,15 @@ export class XpsService {
       return { error: error.data };
     }
   }
-  
-  async quoteShippingPrice(job: Job): Promise<any>{
+
+  async quoteShippingPrice(job: Job): Promise<any> {
     const { payload } = job;
     const apiKey = this._config.get('xps').api_key;
     const customer_id = this._config.get('xps').customer_id;
 
-    const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/quote`
-    
+    const url = `https://xpsshipper.com/restapi/v1/customers/${customer_id}/quote`;
+    console.log(payload);
+
     try {
       const response = await axios.post(url, payload, {
         headers: {
@@ -96,11 +97,11 @@ export class XpsService {
           Authorization: `RSIS ${apiKey}`,
         },
       });
-
-      return {data: response.data}
+      return { data: response.data };
     } catch (error) {
-      console.error(error.data);
-      return { error: error.data };
+      console.log(error.response.data);
+      console.error(error.response.data);
+      return { error: error.response.data };
     }
   }
 }

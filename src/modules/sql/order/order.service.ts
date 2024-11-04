@@ -2178,13 +2178,12 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
     for (let i = 0; i < payload.items.length; i++) {
       for (let j = 0; j < payload.items[i].quantity; j++) {
         pieces.push({
-          name: payload.items[i].name,
-          weight: payload.items[i].weight,
-          length: payload.items[i].lenght,
-          width: payload.items[i].width,
-          height: payload.items[i].height,
-          insuranceAmount: '',
-          declaredValue: '',
+          weight: payload.items[i].weight.toString(),
+          length: payload.items[i].length.toString(),
+          width: payload.items[i].width.toString(),
+          height: payload.items[i].height.toString(),
+          insuranceAmount: null,
+          declaredValue: null,
         });
       }
     }
@@ -2217,6 +2216,17 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
         //   "providerAccountId": null
       },
     });
-    return {};
+    if (price.data.quotes && price.data.quotes.length > 0) {
+      const data = price.data.quotes.map((e) => ({
+        carrierCode: e.carrierCode,
+        serviceCode: e.serviceCode,
+        packageTypeCode: e.packageTypeCode,
+        totalAmount: e.totalAmount,
+      }));
+
+      return { data };
+    } else {
+      return { error: 'error quoting' };
+    }
   }
 }
