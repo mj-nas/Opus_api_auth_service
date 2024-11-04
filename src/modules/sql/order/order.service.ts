@@ -2070,6 +2070,8 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
                                 <td>
                                   <img
                                     style="width: 100px; height: 100px"
+                                    width="100"
+                                    height="100"
                                     src="${item.product.product_primary_image.product_image}"
                                     alt="Product Image"
                                   />
@@ -2105,7 +2107,9 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
       RECURRING_DAYS: data.repeating_days,
       TAX: Math.round(data.tax * 100) / 100,
       SHIPPING_CHARGE: data.shipping_price,
-      DISCOUNT_KEY: data.coupon_discount_amount? `Discount (${data.coupon_code})` : `Discount`,
+      DISCOUNT_KEY: data.coupon_discount_amount
+        ? `Discount (${data.coupon_code})`
+        : `Discount`,
       DISCOUNT: data.coupon_discount_amount ? data.coupon_discount_amount : 0,
       SHIPPING_SERVICE: 'USPS Ground Advantage',
       SUB_TOTAL: data.sub_total,
@@ -2156,74 +2160,60 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
     }
   }
 
- async quoteShippingPrice(job: Job): Promise<JobResponse>{
-  const {payload} = job
-  const senderAddress = await this._settingService.$db.findOneRecord({
-    options:{
-      attributes: ["value"],
-      where:{
-        group_id:2 ,
-        name: "xps_sender_address_zip"
+  async quoteShippingPrice(job: Job): Promise<JobResponse> {
+    const { payload } = job;
+    const senderAddress = await this._settingService.$db.findOneRecord({
+      options: {
+        attributes: ['value'],
+        where: {
+          group_id: 2,
+          name: 'xps_sender_address_zip',
+        },
+      },
+    });
+    const pieces = [];
+    for (let i = 0; i < payload.items.length; i++) {
+      for (let j = 0; j < payload.items[i].quantity; j++) {
+        pieces.push({
+          name: payload.items[i].name,
+          weight: payload.items[i].weight,
+          length: payload.items[i].lenght,
+          width: payload.items[i].width,
+          height: payload.items[i].height,
+          insuranceAmount: '',
+          declaredValue: '',
+        });
       }
     }
-  })
-  const pieces = [];
-  for (let index = 0; index < payload.items.length; index++) {
-    let count = payload.items[index].quantity
-    if(count > 1) {
-      index --
-      count --
-    } 
-    pieces.push({
-      weight:payload.items[index].weight,
-      length:payload.items[index].length,
-      width:payload.items[index].width,
-      height:payload.items[index].height,
-      insuranceAmount: "",
-      declaredValue:""
-
-    })
-    
+    const price = await this._xpsService.quoteShippingPrice({
+      payload: {
+        carrierCode: 'usps',
+        serviceCode: '',
+        packageTypeCode: '',
+        sender: {
+          country: 'US',
+          zip: senderAddress.data.value,
+        },
+        receiver: {
+          city: payload.shipping_city,
+          country: 'US',
+          zip: payload.shipping_zip_code,
+          // "email":"foo@bar.com"
+        },
+        residential: true,
+        signatureOptionCode: 'DIRECT',
+        contentDescription: 'stuff and things',
+        weightUnit: 'oz',
+        dimUnit: 'in',
+        currency: 'USD',
+        customsCurrency: 'USD',
+        pieces: pieces,
+        billing: {
+          party: 'sender',
+        },
+        //   "providerAccountId": null
+      },
+    });
+    return {};
   }
-  await this._xpsService.quoteShippingPrice({
-    payload:{
-      "carrierCode": "usps",
-      "serviceCode": "",
-      "packageTypeCode": "",
-      "sender": {
-        "country": "US",
-        "zip": senderAddress.data.value
-      },
-      "receiver": {
-        "city": payload.shipping_city,
-        "country": "US",
-        "zip": payload.shipping_zip_code
-        // "email":"foo@bar.com"
-      },
-      "residential": true,
-      "signatureOptionCode": "DIRECT",
-      "contentDescription": "stuff and things",
-      "weightUnit": "oz",
-      "dimUnit": "in",
-      "currency": "USD",
-      "customsCurrency": "USD",
-      "pieces": pieces,
-      // [
-      //   {
-      //     "weight": "1.4",
-      //     "length": "5.1",
-      //     "width": "4",
-      //     "height": "2.5",
-      //     "insuranceAmount": "12.15",
-      //     "declaredValue": null
-      //   }
-      // ],
-      "billing": {
-        "party": "sender"
-      }
-    //   "providerAccountId": null
-    }
-  })
-  return {}
- }
 }
