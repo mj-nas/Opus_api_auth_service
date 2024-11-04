@@ -666,6 +666,10 @@ export default <Seed<Template>>{
       email_subject: 'New Dispenser Application Received',
       email_body: `<p>Hi Admin</p>
       <br/><p>A new application to join as a dispenser has been submitted. Please review the details and proceed with the necessary steps.</p>
+      <p>Application Details:</p>
+      <p>User Name: ##NAME##</p>
+      <p>Phone: ##PHONE##</p>
+      <p>Email:##EMAIL##</p>
       <br/><p>Thank you for your attention.</p>
       <br/><p>Best Regards,</p>
       <p>Team OPUS,</p>`,
