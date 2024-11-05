@@ -3,6 +3,7 @@ import { IsUnique } from '@core/sql/sql.unique-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
 import { Column, DataType, Index, Table } from 'sequelize-typescript';
+import { Reciever } from '../reciever.enum';
 import { Transporter } from '../transporter.enum';
 
 @Table
@@ -77,4 +78,17 @@ export class Template extends SqlModel {
   @IsOptional()
   @IsEnum(Transporter)
   transporter: Transporter;
+
+  @Column({
+    type: DataType.ENUM(...Object.values(Reciever)),
+    defaultValue: Reciever.User,
+  })
+  @ApiProperty({
+    enum: Reciever,
+    description: 'Reciever',
+    example: Reciever.User,
+  })
+  @IsOptional()
+  @IsEnum(Transporter)
+  reciever: Reciever;
 }

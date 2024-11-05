@@ -551,7 +551,7 @@ export default <Seed<Template>>{
       title: 'Admin Reorder Cancelled Notification',
       send_email: true,
       transporter: Transporter.Orders,
-      email_subject: 'Reorder Cancelled by Admin',
+      email_subject: 'Your Reorder has been Cancelled by Admin',
       email_body: `<p>Hi ##TO_NAME##,</p>,
 <br />
 <p>The reccurring order has been deleted by the admin.</p>

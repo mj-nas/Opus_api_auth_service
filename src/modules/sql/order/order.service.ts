@@ -135,69 +135,69 @@ export class OrderService extends ModelService<Order> {
       }
     }
 
-    if (job.action === 'cancelReorder') {
-      const { error, data } = await this.$db.findRecordById({
-        id: +job.id,
-        options: {
-          include: [{ association: 'user' }],
-        },
-      });
+    // if (job.action === 'cancelReorder') {
+    //   const { error, data } = await this.$db.findRecordById({
+    //     id: +job.id,
+    //     options: {
+    //       include: [{ association: 'user' }],
+    //     },
+    //   });
 
-      if (!!error) {
-        throw error;
-      }
-      // send email to admin for reorder cancellation
-      const { data: setttingData } = await this._settingService.findOne({
-        action: 'findOne',
-        payload: { where: { name: 'order_service_email' } },
-      });
-      if (data.user_id !== job.owner.id) {
-        //send email to customer
-        await this._msClient.executeJob(
-          'controller.notification',
-          new Job({
-            action: 'send',
-            payload: {
-              skipUserConfig: true,
-              user_id: data.user_id,
-              template: 'reorder_cancelled_by_admin',
-              variables: {
-                ORDER_ID: data.uid,
-                CUSTOMER_NAME: data.user.name,
-              },
-            },
-          }),
-        );
-      }
-      // send to admin
-      if (setttingData && setttingData?.getDataValue('value')) {
-        await this._msClient.executeJob(
-          'controller.notification',
-          new Job({
-            action: 'send',
-            payload: {
-              skipUserConfig: true,
-              users: [
-                {
-                  name: 'Super Admin',
-                  email: setttingData.getDataValue('value'),
-                  send_email: true,
-                },
-              ],
-              template: 'reorder_cancelled',
-              variables: {
-                ORDER_ID: data.uid,
-                CUSTOMER_NAME: data.user.name,
-              },
-            },
-          }),
-        );
-      }
+    //   if (!!error) {
+    //     throw error;
+    //   }
+    //   // send email to admin for reorder cancellation
+    //   const { data: setttingData } = await this._settingService.findOne({
+    //     action: 'findOne',
+    //     payload: { where: { name: 'order_service_email' } },
+    //   });
+    //   if (data.user_id !== job.owner.id) {
+    //     //send email to customer
+    //     await this._msClient.executeJob(
+    //       'controller.notification',
+    //       new Job({
+    //         action: 'send',
+    //         payload: {
+    //           skipUserConfig: true,
+    //           user_id: data.user_id,
+    //           template: 'reorder_cancelled_by_admin',
+    //           variables: {
+    //             ORDER_ID: data.uid,
+    //             CUSTOMER_NAME: data.user.name,
+    //           },
+    //         },
+    //       }),
+    //     );
+    //   }
+    //   // send to admin
+    //   if (setttingData && setttingData?.getDataValue('value')) {
+    //     await this._msClient.executeJob(
+    //       'controller.notification',
+    //       new Job({
+    //         action: 'send',
+    //         payload: {
+    //           skipUserConfig: true,
+    //           users: [
+    //             {
+    //               name: 'Admin',
+    //               email: setttingData.getDataValue('value'),
+    //               send_email: true,
+    //             },
+    //           ],
+    //           template: 'reorder_cancelled',
+    //           variables: {
+    //             ORDER_ID: data.uid,
+    //             CUSTOMER_NAME: data.user.name,
+    //           },
+    //         },
+    //       }),
+    //     );
+    //   }
 
-      // if (data.user_id !== job.owner.id) {
-      //   throw "You don't have permission to change the status.";
-      // }
-    }
+    //   // if (data.user_id !== job.owner.id) {
+    //   //   throw "You don't have permission to change the status.";
+    //   // }
+    // }
 
     if (job.action === 'changeOrderStatus') {
       const { error, data } = await this.$db.findRecordById({
@@ -378,19 +378,19 @@ export class OrderService extends ModelService<Order> {
       }
     }
 
-    if (job.action === 'cancelReorder') {
-      // Send order placed socket notification
-      await this._msClient.executeJob('controller.socket-event', {
-        action: 'cancelReorder',
-        payload: {
-          user_id: response.data.user_id,
-          data: {
-            order_id: response.data.uid,
-            id: response.data.id,
-          },
-        },
-      });
-    }
+    // if (job.action === 'cancelReorder') {
+    //   // Send order placed socket notification
+    //   await this._msClient.executeJob('controller.socket-event', {
+    //     action: 'cancelReorder',
+    //     payload: {
+    //       user_id: response.data.user_id,
+    //       data: {
+    //         order_id: response.data.uid,
+    //         id: response.data.id,
+    //       },
+    //     },
+    //   });
+    // }
   }
 
   async createOrder(job: Job): Promise<JobResponse> {
@@ -844,7 +844,7 @@ export class OrderService extends ModelService<Order> {
         //         skipUserConfig: true,
         //         users: [
         //           {
-        //             name: 'Super Admin',
+        //             name: 'Admin',
         //             email: data.getDataValue('value'),
         //             send_email: true,
         //           },
@@ -1008,7 +1008,7 @@ export class OrderService extends ModelService<Order> {
                 skipUserConfig: true,
                 users: [
                   {
-                    name: 'Super Admin',
+                    name: 'Admin',
                     email: emailData.getDataValue('value'),
                     send_email: true,
                   },
@@ -1106,8 +1106,8 @@ export class OrderService extends ModelService<Order> {
             `${x?.shipping_price}`,
             `${x?.total}`,
             x?.shipping_service,
-            `${x?.address?.shipping_name}, ${x?.address?.shipping_address}, ${x?.address?.shipping_city}, ${x?.address?.shipping_state}, ${x?.address?.shipping_zip_code}`,
-            `${x?.address?.billing_name}, ${x?.address?.billing_address}, ${x?.address?.billing_city}, ${x?.address?.billing_state}, ${x?.address?.billing_zip_code}`,
+            `${x?.address?.shipping_name}, ${x?.address?.shipping_address + x?.address?.shipping_address2 ? `,${x?.address?.shipping_address2}` : ''}, ${x?.address?.shipping_city}, ${x?.address?.shipping_state}, ${x?.address?.shipping_zip_code}`,
+            `${x?.address?.billing_name}, ${x?.address?.billing_address + x?.address?.billing_address2 ? `,${x?.address?.billing_address2}` : ''}}, ${x?.address?.billing_city}, ${x?.address?.billing_state}, ${x?.address?.billing_zip_code}`,
             x?.repeating_days,
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
             x?.status,
@@ -1923,8 +1923,8 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
     let email_subject = template.getDataValue('email_subject') || '',
       email_body = template.getDataValue('email_body') || '';
 
-    const SHIPPING_ADDRESS = `${data.address.shipping_first_name + ' ' + data.address.shipping_last_name}, ${data.address.shipping_address}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
-    const BILLING_ADDRESS = `${data.address.billing_first_name + ' ' + data.address.billing_last_name}, ${data.address.billing_address}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
+    const SHIPPING_ADDRESS = `${data.address.shipping_first_name + ' ' + data.address.shipping_last_name}, ${data.address.shipping_address + data?.address?.shipping_address2 ? `, ${data?.address?.shipping_address2}` : ''}}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
+    const BILLING_ADDRESS = `${data.address.billing_first_name + ' ' + data.address.billing_last_name}, ${data.address.billing_address + data?.address?.billing_address2 ? `, ${data?.address?.billing_address2}` : ''}}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
 
     // let products_table = `<figure class="table">
     // <table class="gmail-table" style="margin-bottom:30px; width:100%">
@@ -2227,6 +2227,136 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
       return { data };
     } else {
       return { error: 'error quoting' };
+    }
+  }
+
+  async cancelReorder(job: Job): Promise<JobResponse> {
+    try {
+      const { order_id, next_order_only } = job.payload;
+      const body = next_order_only
+        ? {
+            next_order_date: literal(
+              `DATE_ADD(Order.next_order_date, INTERVAL Order.repeating_days DAY)`,
+            ),
+          }
+        : {
+            is_repeating_order: 'N',
+          };
+      const { error, data } = await this.$db.findAndUpdateRecord({
+        options: {
+          where: { id: +order_id },
+          include: [
+            { association: 'address' },
+            { association: 'user' },
+            { association: 'items' },
+          ],
+        },
+        body,
+      });
+      if (!!error) {
+        return { error };
+      }
+
+      //TODO send email to user for reorder cancellation by admin
+      if (data.user_id !== job.owner.id) {
+        if (next_order_only) {
+          await this._msClient.executeJob(
+            'controller.notification',
+            new Job({
+              action: 'send',
+              payload: {
+                skipUserConfig: true,
+                user_id: data.user_id,
+                template: 'reorder_cancelled_by_admin',
+                variables: {},
+              },
+            }),
+          );
+        } else {
+          await this._msClient.executeJob(
+            'controller.notification',
+            new Job({
+              action: 'send',
+              payload: {
+                skipUserConfig: true,
+                user_id: data.user_id,
+                template: 'reorder_cancelled_by_admin',
+                variables: {},
+              },
+            }),
+          );
+        }
+      } else {
+        // send email to admin for reorder cancellation by user
+        const { data: setttingData } = await this._settingService.findOne({
+          action: 'findOne',
+          payload: { where: { name: 'order_service_email' } },
+        });
+
+        if (setttingData && setttingData?.getDataValue('value')) {
+          if (next_order_only) {
+            await this._msClient.executeJob(
+              'controller.notification',
+              new Job({
+                action: 'send',
+                payload: {
+                  skipUserConfig: true,
+                  users: [
+                    {
+                      name: 'Admin',
+                      email: setttingData.getDataValue('value'),
+                      send_email: true,
+                    },
+                  ],
+                  template: 'reorder_cancelled',
+                  variables: {
+                    ORDER_ID: data.uid,
+                    CUSTOMER_NAME: data.user.name,
+                  },
+                },
+              }),
+            );
+          } else {
+            await this._msClient.executeJob(
+              'controller.notification',
+              new Job({
+                action: 'send',
+                payload: {
+                  skipUserConfig: true,
+                  users: [
+                    {
+                      name: 'Admin',
+                      email: setttingData.getDataValue('value'),
+                      send_email: true,
+                    },
+                  ],
+                  template: 'reorder_cancelled',
+                  variables: {
+                    ORDER_ID: data.uid,
+                    CUSTOMER_NAME: data.user.name,
+                  },
+                },
+              }),
+            );
+          }
+        }
+      }
+
+      // Send reorder cancelled socket notification
+      await this._msClient.executeJob('controller.socket-event', {
+        action: 'cancelReorder',
+        payload: {
+          user_id: data.user_id,
+          data: {
+            order_id: data.uid,
+            id: data.id,
+          },
+        },
+      });
+
+      return { data };
+    } catch (error) {
+      return { error };
     }
   }
 }

@@ -525,7 +525,7 @@ export class AuthService {
                 skipUserConfig: true,
                 users: [
                   {
-                    name: 'Super Admin',
+                    name: 'Admin',
                     email: settingsData.getDataValue('value'),
                     send_email: true,
                   },

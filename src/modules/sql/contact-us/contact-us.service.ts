@@ -68,7 +68,7 @@ export class ContactUsService extends ModelService<ContactUs> {
             skipUserConfig: true,
             users: [
               {
-                name: 'Super Admin',
+                name: 'Admin',
                 email: data.getDataValue('value'),
                 send_email: true,
               },
