@@ -90,5 +90,5 @@ export class Template extends SqlModel {
   })
   @IsOptional()
   @IsEnum(Transporter)
-  recepient: Reciever;
+  recipient: Reciever;
 }
