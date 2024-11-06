@@ -135,69 +135,69 @@ export class OrderService extends ModelService<Order> {
       }
     }
 
-    // if (job.action === 'cancelReorder') {
-    //   const { error, data } = await this.$db.findRecordById({
-    //     id: +job.id,
-    //     options: {
-    //       include: [{ association: 'user' }],
-    //     },
-    //   });
+    if (job.action === 'cancelReorder') {
+      const { error, data } = await this.$db.findRecordById({
+        id: +job.id,
+        options: {
+          include: [{ association: 'user' }],
+        },
+      });
 
-    //   if (!!error) {
-    //     throw error;
-    //   }
-    //   // send email to admin for reorder cancellation
-    //   const { data: setttingData } = await this._settingService.findOne({
-    //     action: 'findOne',
-    //     payload: { where: { name: 'order_service_email' } },
-    //   });
-    //   if (data.user_id !== job.owner.id) {
-    //     //send email to customer
-    //     await this._msClient.executeJob(
-    //       'controller.notification',
-    //       new Job({
-    //         action: 'send',
-    //         payload: {
-    //           skipUserConfig: true,
-    //           user_id: data.user_id,
-    //           template: 'reorder_cancelled_by_admin',
-    //           variables: {
-    //             ORDER_ID: data.uid,
-    //             CUSTOMER_NAME: data.user.name,
-    //           },
-    //         },
-    //       }),
-    //     );
-    //   }
-    //   // send to admin
-    //   if (setttingData && setttingData?.getDataValue('value')) {
-    //     await this._msClient.executeJob(
-    //       'controller.notification',
-    //       new Job({
-    //         action: 'send',
-    //         payload: {
-    //           skipUserConfig: true,
-    //           users: [
-    //             {
-    //               name: 'Admin',
-    //               email: setttingData.getDataValue('value'),
-    //               send_email: true,
-    //             },
-    //           ],
-    //           template: 'reorder_cancelled',
-    //           variables: {
-    //             ORDER_ID: data.uid,
-    //             CUSTOMER_NAME: data.user.name,
-    //           },
-    //         },
-    //       }),
-    //     );
-    //   }
+      if (!!error) {
+        throw error;
+      }
+      // send email to admin for reorder cancellation
+      const { data: setttingData } = await this._settingService.findOne({
+        action: 'findOne',
+        payload: { where: { name: 'order_service_email' } },
+      });
+      if (data.user_id !== job.owner.id) {
+        //send email to customer
+        await this._msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              skipUserConfig: true,
+              user_id: data.user_id,
+              template: 'reorder_cancelled_by_admin',
+              variables: {
+                ORDER_ID: data.uid,
+                CUSTOMER_NAME: data.user.name,
+              },
+            },
+          }),
+        );
+      }
+      // send to admin
+      if (setttingData && setttingData?.getDataValue('value')) {
+        await this._msClient.executeJob(
+          'controller.notification',
+          new Job({
+            action: 'send',
+            payload: {
+              skipUserConfig: true,
+              users: [
+                {
+                  name: 'Admin',
+                  email: setttingData.getDataValue('value'),
+                  send_email: true,
+                },
+              ],
+              template: 'reorder_cancelled',
+              variables: {
+                ORDER_ID: data.uid,
+                CUSTOMER_NAME: data.user.name,
+              },
+            },
+          }),
+        );
+      }
 
-    //   // if (data.user_id !== job.owner.id) {
-    //   //   throw "You don't have permission to change the status.";
-    //   // }
-    // }
+      // if (data.user_id !== job.owner.id) {
+      //   throw "You don't have permission to change the status.";
+      // }
+    }
 
     if (job.action === 'changeOrderStatus') {
       const { error, data } = await this.$db.findRecordById({
@@ -378,19 +378,19 @@ export class OrderService extends ModelService<Order> {
       }
     }
 
-    // if (job.action === 'cancelReorder') {
-    //   // Send order placed socket notification
-    //   await this._msClient.executeJob('controller.socket-event', {
-    //     action: 'cancelReorder',
-    //     payload: {
-    //       user_id: response.data.user_id,
-    //       data: {
-    //         order_id: response.data.uid,
-    //         id: response.data.id,
-    //       },
-    //     },
-    //   });
-    // }
+    if (job.action === 'cancelReorder') {
+      // Send order placed socket notification
+      await this._msClient.executeJob('controller.socket-event', {
+        action: 'cancelReorder',
+        payload: {
+          user_id: response.data.user_id,
+          data: {
+            order_id: response.data.uid,
+            id: response.data.id,
+          },
+        },
+      });
+    }
   }
 
   async createOrder(job: Job): Promise<JobResponse> {

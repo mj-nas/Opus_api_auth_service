@@ -281,14 +281,15 @@ export class OrderController {
     @Owner() owner: OwnerDto,
     @Param('order_id') order_id: number,
   ) {
-    const { error, data } = await this.orderService.cancelReorder({
+    const { error, data } = await this.orderService.update({
       owner,
       action: 'cancelReorder',
-      payload: {
-        is_repeating_order: 'N',
-        order_id: +order_id,
-      },
-      // body: { },
+      id: +order_id,
+      body: { is_repeating_order: 'N' },
+      // payload: {
+      //   is_repeating_order: 'N',
+      //   order_id: +order_id,
+      // },
       // payload: {
       //   where: {
       //     user_id: owner.id,
