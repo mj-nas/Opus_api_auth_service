@@ -1923,8 +1923,8 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
     let email_subject = template.getDataValue('email_subject') || '',
       email_body = template.getDataValue('email_body') || '';
 
-    const SHIPPING_ADDRESS = `${data.address.shipping_first_name + ' ' + data.address.shipping_last_name}, ${data.address.shipping_address + data?.address?.shipping_address2 ? `, ${data?.address?.shipping_address2}` : ''}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
-    const BILLING_ADDRESS = `${data.address.billing_first_name + ' ' + data.address.billing_last_name}, ${data.address.billing_address + data?.address?.billing_address2 ? `, ${data?.address?.billing_address2}` : ''}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
+    const SHIPPING_ADDRESS = `${data.address.shipping_first_name + ' ' + data.address.shipping_last_name}, ${data.address.shipping_address} ${data?.address?.shipping_address2 ? `, ${data?.address?.shipping_address2}` : ''}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
+    const BILLING_ADDRESS = `${data.address.billing_first_name + ' ' + data.address.billing_last_name}, ${data.address.billing_address} ${data?.address?.billing_address2 ? `, ${data?.address?.billing_address2}` : ''}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
 
     // let products_table = `<figure class="table">
     // <table class="gmail-table" style="margin-bottom:30px; width:100%">
