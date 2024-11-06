@@ -170,7 +170,8 @@ export class ReferralService extends ModelService<Referral> {
             const colorIndex = index % colours.length;
             return {
               ...e,
-              url: `${process.env.WEBSITE_URL}/products/${e.slug}?r=${data.uid}`,
+              // url: `${process.env.WEBSITE_URL}/products/${e.slug}?r=${data.uid}`,
+              url: data.referral_link,
               productbgcolor: colours[colorIndex].bgColor,
               producttxtcolor: colours[colorIndex].textColor,
             };
