@@ -73,6 +73,7 @@ export class OrderAddress extends SqlModel {
     description: 'Email',
     example: 'ross.geller@gmail.com',
   })
+  @IsOptional()
   @IsString()
   @IsEmail()
   billing_email: string;
@@ -82,6 +83,7 @@ export class OrderAddress extends SqlModel {
     description: 'Phone Code',
     example: '+91',
   })
+  @IsOptional()
   @IsString()
   billing_phone_code: string;
 
@@ -90,6 +92,7 @@ export class OrderAddress extends SqlModel {
     description: 'Phone',
     example: '9999999999',
   })
+  @IsOptional()
   @IsNumberString()
   @MaxLength(10)
   billing_phone: string;
@@ -172,6 +175,7 @@ export class OrderAddress extends SqlModel {
     example: 'ross.geller@gmail.com',
   })
   @IsString()
+  @IsOptional()
   @IsEmail()
   shipping_email: string;
 
@@ -180,6 +184,7 @@ export class OrderAddress extends SqlModel {
     description: 'Phone Code',
     example: '+91',
   })
+  @IsOptional()
   @IsString()
   shipping_phone_code: string;
 
@@ -189,6 +194,7 @@ export class OrderAddress extends SqlModel {
     example: '9999999999',
   })
   @IsNumberString()
+  @IsOptional()
   @MaxLength(10)
   shipping_phone: string;
 

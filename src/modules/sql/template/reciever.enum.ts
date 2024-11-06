@@ -3,4 +3,5 @@ export enum Reciever {
   Dispenser = 'Dispenser',
   Admin = 'Admin',
   Customer = 'Customer',
+  General = 'General',
 }

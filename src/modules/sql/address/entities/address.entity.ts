@@ -72,6 +72,7 @@ export class Address extends SqlModel {
     description: 'Phone Code',
     example: '+91',
   })
+  @IsOptional()
   phone_code: string;
 
   @Column(DataType.STRING(20))
@@ -80,6 +81,7 @@ export class Address extends SqlModel {
     example: '9999999999',
   })
   @IsNumberString()
+  @IsOptional()
   @MaxLength(10)
   phone: string;
 
