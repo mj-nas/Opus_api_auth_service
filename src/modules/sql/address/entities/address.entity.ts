@@ -125,7 +125,7 @@ export class Address extends SqlModel {
     description: 'zip_code',
     example: 'zip_code',
   })
-  @IsNumberString()
+  @IsString()
   @MaxLength(10)
   zip_code?: string;
 
