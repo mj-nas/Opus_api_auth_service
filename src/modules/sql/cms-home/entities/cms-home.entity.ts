@@ -1,7 +1,15 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
-import { Column, DataType, Index, Table } from 'sequelize-typescript';
+import { IsEnum, IsNumber, IsString } from 'class-validator';
+import {
+  BeforeUpdate,
+  Column,
+  DataType,
+  Index,
+  Table,
+} from 'sequelize-typescript';
+import config from 'src/config';
+import { InputType } from '../input-type.enum';
 
 @Table
 export class CmsHome extends SqlModel {
@@ -50,5 +58,41 @@ export class CmsHome extends SqlModel {
     example: 'Content',
   })
   @IsString()
-  content: string;
+  get content(): string {
+    return this.getDataValue('input_type') == InputType.File
+      ? config().cdnURL + this.getDataValue('content')
+      : this.getDataValue('content');
+  }
+
+  set content(v: string) {
+    this.setDataValue(
+      'content',
+      typeof v === 'string' && this.getDataValue('input_type') == InputType.File
+        ? v.replace(config().cdnURL, '')
+        : v,
+    );
+  }
+
+  @Column({
+    type: DataType.ENUM(...Object.values(InputType)),
+    defaultValue: InputType.Editor,
+  })
+  @Index
+  @ApiProperty({
+    enum: InputType,
+    example: InputType.Editor,
+    description: 'Input Type',
+  })
+  @IsEnum(InputType)
+  input_type: InputType;
+
+  @BeforeUpdate
+  static async formatThumb(instance: CmsHome) {
+    if (instance.content) {
+      instance.content =
+        instance.input_type == InputType.File
+          ? instance.content.replace(config().cdnURL, '')
+          : instance.content;
+    }
+  }
 }
