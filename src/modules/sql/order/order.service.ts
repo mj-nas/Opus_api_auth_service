@@ -2267,8 +2267,11 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
               payload: {
                 skipUserConfig: true,
                 user_id: data.user_id,
-                template: 'reorder_cancelled_by_admin',
-                variables: {},
+                template: 'single_reorder_cancelled_by_admin',
+                variables: {
+                  DATE: '',
+                  ORDERID: data.uid,
+                },
               },
             }),
           );
@@ -2281,7 +2284,9 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
                 skipUserConfig: true,
                 user_id: data.user_id,
                 template: 'reorder_cancelled_by_admin',
-                variables: {},
+                variables: {
+                  ORDERID: data.uid,
+                },
               },
             }),
           );

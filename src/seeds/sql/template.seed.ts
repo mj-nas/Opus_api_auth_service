@@ -467,28 +467,6 @@ export default <Seed<Template>>{
       send_sms: false,
       sms_body: '',
     },
-    //     {
-    //       name: 'order_shipped_manually',
-    //       title: 'Manual Order Shipment Notification',
-    //       send_email: true,
-    //       transporter: Transporter.Orders,
-    //       email_subject: 'Order Shipment Notification',
-    //       email_body: `<p>Hi ##TO_NAME##,</p>
-    // <br />
-    // <p>You Order ##ORDER_ID## has been shipped. Please find the details below:</p>
-    // <br />
-    // <p>Shipping Address:</p>
-    // <p>##SHIPPING_NAME##</p>
-    // <p>##SHIPPING_ADDRESS##</p>
-    // <p>##SHIPPING_CITY_STATE_ZIP##</p>
-    // <br />
-    // <p>Thank you.</p>
-    // <br />
-    // <p>Best regards,</p>
-    // <p>Team OPUS</p>`,
-    //       send_sms: false,
-    //       sms_body: '',
-    //     },
     {
       name: 'order_delivered',
       title: 'Order Delivered Notification',
@@ -554,11 +532,9 @@ export default <Seed<Template>>{
       email_subject: 'Your Reorder has been Cancelled by Admin',
       email_body: `<p>Hi ##TO_NAME##,</p>,
 <br />
-<p>The reccurring order has been deleted by the admin.</p>
+<p>We regret to inform you that your recurring order ##ORDERID##,has been canceled by Admin.</p>
 <br />
-<p>Order Details:</p>
-<p>Order ID: ##ORDER_ID##</p>
-<p>Customer Name: ##CUSTOMER_NAME##</p>
+<p>If you have any questions or need further assistance, please contact us.</p>
 <br />
 <p>Best regards,</p>
 <p>Team OPUS</p>`,
@@ -602,7 +578,6 @@ export default <Seed<Template>>{
       <p>Order Details:</p>
       <br />
       <p>Order ID: ##ORDER_ID##</p>
-      <p>Customer Name: ##CUSTOMER_NAME##</p>
       <br />
       <p>The new reorder cycle is now scheduled for ##NEW_DAYS## days.</p>
       <br />
@@ -672,6 +647,20 @@ export default <Seed<Template>>{
       <p>Phone: ##PHONE##</p>
       <p>Email:##EMAIL##</p>
       <br/><p>Thank you for your attention.</p>
+      <br/><p>Best Regards,</p>
+      <p>Team OPUS,</p>`,
+      send_sms: false,
+      sms_body: '',
+    },
+    {
+      name: 'single_reorder_cancelled_by_admin',
+      title: 'Single Reorder Cancelled by Admin',
+      send_email: true,
+      transporter: Transporter.CustomerServices,
+      email_subject: 'Your Upcoming Reorder has been Cancelled by Admin',
+      email_body: `<p>Hi ##TO_NAME##</p>
+      <br/><p>We regret to inform you that your upcoming recurring order ##ORDERID##, scheduled for ##DATE## has been canceled.</p>
+      <br/><p>If you have any questions or need further assistance, please contact us.</p>
       <br/><p>Best Regards,</p>
       <p>Team OPUS,</p>`,
       send_sms: false,
