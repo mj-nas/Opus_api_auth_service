@@ -1106,8 +1106,8 @@ export class OrderService extends ModelService<Order> {
             `${x?.shipping_price}`,
             `${x?.total}`,
             x?.shipping_service,
-            `${x?.address?.shipping_name}, ${x?.address?.shipping_address + x?.address?.shipping_address2 ? `,${x?.address?.shipping_address2}` : ''}, ${x?.address?.shipping_city}, ${x?.address?.shipping_state}, ${x?.address?.shipping_zip_code}`,
-            `${x?.address?.billing_name}, ${x?.address?.billing_address + x?.address?.billing_address2 ? `,${x?.address?.billing_address2}` : ''}}, ${x?.address?.billing_city}, ${x?.address?.billing_state}, ${x?.address?.billing_zip_code}`,
+            `${x?.address?.shipping_name}, ${x?.address?.shipping_address} ${x?.address?.shipping_address2 ? `,${x?.address?.shipping_address2}` : ''}, ${x?.address?.shipping_city}, ${x?.address?.shipping_state}, ${x?.address?.shipping_zip_code}`,
+            `${x?.address?.billing_name}, ${x?.address?.billing_address} ${x?.address?.billing_address2 ? `,${x?.address?.billing_address2}` : ''}, ${x?.address?.billing_city}, ${x?.address?.billing_state}, ${x?.address?.billing_zip_code}`,
             x?.repeating_days,
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
             x?.status,
@@ -1923,8 +1923,8 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
     let email_subject = template.getDataValue('email_subject') || '',
       email_body = template.getDataValue('email_body') || '';
 
-    const SHIPPING_ADDRESS = `${data.address.shipping_first_name + ' ' + data.address.shipping_last_name}, ${data.address.shipping_address + data?.address?.shipping_address2 ? `, ${data?.address?.shipping_address2}` : ''}}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
-    const BILLING_ADDRESS = `${data.address.billing_first_name + ' ' + data.address.billing_last_name}, ${data.address.billing_address + data?.address?.billing_address2 ? `, ${data?.address?.billing_address2}` : ''}}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
+    const SHIPPING_ADDRESS = `${data.address.shipping_first_name + ' ' + data.address.shipping_last_name}, ${data.address.shipping_address} ${data?.address?.shipping_address2 ? `, ${data?.address?.shipping_address2}` : ''}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
+    const BILLING_ADDRESS = `${data.address.billing_first_name + ' ' + data.address.billing_last_name}, ${data.address.billing_address} ${data?.address?.billing_address2 ? `, ${data?.address?.billing_address2}` : ''}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
 
     // let products_table = `<figure class="table">
     // <table class="gmail-table" style="margin-bottom:30px; width:100%">
@@ -2267,8 +2267,11 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
               payload: {
                 skipUserConfig: true,
                 user_id: data.user_id,
-                template: 'reorder_cancelled_by_admin',
-                variables: {},
+                template: 'single_reorder_cancelled_by_admin',
+                variables: {
+                  DATE: '',
+                  ORDERID: data.uid,
+                },
               },
             }),
           );
@@ -2281,7 +2284,9 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
                 skipUserConfig: true,
                 user_id: data.user_id,
                 template: 'reorder_cancelled_by_admin',
-                variables: {},
+                variables: {
+                  ORDERID: data.uid,
+                },
               },
             }),
           );
