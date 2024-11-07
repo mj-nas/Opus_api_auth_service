@@ -280,6 +280,7 @@ export class OrderController {
     @Res() res: Response,
     @Owner() owner: OwnerDto,
     @Param('order_id') order_id: number,
+    @Body() body: any,
   ) {
     const { error, data } = await this.orderService.cancelReorder({
       owner,
@@ -287,7 +288,7 @@ export class OrderController {
       // id: +order_id,
       // body: { is_repeating_order: 'N' },
       payload: {
-        is_repeating_order: 'N',
+        ...body,
         order_id: +order_id,
       },
       // payload: {
