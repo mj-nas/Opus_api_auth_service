@@ -2232,30 +2232,37 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
 
   async cancelReorder(job: Job): Promise<JobResponse> {
     try {
-      const { order_id, next_order_only } = job.payload;
-      const body = next_order_only
-        ? {
-            next_order_date: literal(
-              `DATE_ADD(Order.next_order_date, INTERVAL Order.repeating_days DAY)`,
-            ),
-          }
-        : {
-            is_repeating_order: 'N',
-          };
-      const { error, data } = await this.$db.findAndUpdateRecord({
-        options: {
-          where: { id: +order_id },
-          include: [
-            { association: 'address' },
-            { association: 'user' },
-            { association: 'items' },
-          ],
+      const {
+        payload: { order_id, next_order_only },
+        owner,
+        action,
+      } = job;
+
+      const { error, data } = await this.findById({
+        owner,
+        action,
+        id: +order_id,
+        payload: {
+          populate: ['address', 'user', 'items'],
         },
-        body,
       });
+
       if (!!error) {
         return { error };
       }
+
+      if (!!next_order_only) {
+        const previousRepeatingDate = data.getDataValue('next_order_date');
+        const repeatingDays = data.getDataValue('repeating_days');
+        data.setDataValue(
+          'next_order_date',
+          moment(previousRepeatingDate).add(repeatingDays, 'days'),
+        );
+      } else {
+        data.setDataValue('is_repeating_order', 'N');
+      }
+
+      await data.save();
 
       //TODO send email to user for reorder cancellation by admin
       if (data.user_id !== job.owner.id) {
