@@ -609,7 +609,7 @@ export class OrderService extends ModelService<Order> {
             is_repeating_order: 'Y',
             is_base_order: 'Y',
             created_at: literal(
-              `DATE_FORMAT(DATE_ADD(Order.created_at, INTERVAL repeating_days DAY ),'%Y-%M-%d') = DATE_FORMAT(CURDATE( ),'%Y-%M-%d')`,
+              `DATE_FORMAT(Order.next_order_date),'%Y-%M-%d') = DATE_FORMAT(CURDATE( ),'%Y-%M-%d')`,
             ),
           },
           include: [
@@ -881,7 +881,7 @@ export class OrderService extends ModelService<Order> {
             is_repeating_order: 'Y',
             is_base_order: 'Y',
             created_at: literal(
-              `DATE_FORMAT(DATE_ADD(Order.created_at, INTERVAL repeating_days - 2 DAY ),'%Y-%M-%d') = DATE_FORMAT(CURDATE( ),'%Y-%M-%d')`,
+              `DATE_FORMAT(DATE_ADD(Order.next_order_date, INTERVAL 1 - 3 DAY ),'%Y-%M-%d') = DATE_FORMAT(CURDATE( ),'%Y-%M-%d')`,
             ),
           },
           include: [
