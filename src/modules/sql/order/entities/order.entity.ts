@@ -125,6 +125,15 @@ export class Order extends SqlModel {
   @IsNumber()
   repeating_days?: number;
 
+  @Column
+  @ApiProperty({
+    format: 'date-time',
+    description: 'Next reorder date',
+    example: '2021-01-01T00:00:00Z',
+    readOnly: true,
+  })
+  next_order_date?: Date;
+
   @Column({ type: DataType.ENUM('Y', 'N'), defaultValue: 'N' })
   @ApiProperty({
     enum: { Y: 'Y', N: 'N' },

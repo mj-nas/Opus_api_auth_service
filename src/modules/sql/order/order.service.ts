@@ -969,6 +969,7 @@ export class OrderService extends ModelService<Order> {
         data.setDataValue('is_base_order', 'Y');
       }
 
+      data.setDataValue('next_order_date', nextRepeatingDay);
       data.setDataValue('repeating_days', repeating_days);
       await data.save();
 
