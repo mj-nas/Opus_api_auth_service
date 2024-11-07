@@ -406,6 +406,10 @@ export class OrderService extends ModelService<Order> {
           ...body,
           user_id: job.owner.id,
           is_base_order: body.is_repeating_order === 'Y' ? 'Y' : 'N',
+          next_order_date:
+            body.is_repeating_order === 'Y'
+              ? moment().add(body.repeating_days, 'days')
+              : null,
           status: OrderStatus.PaymentPending,
           dispenser_id: job.owner.dispenser_id || null,
         },
