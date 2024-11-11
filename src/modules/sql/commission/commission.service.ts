@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import * as moment from 'moment-timezone';
-import { Op, col, fn, literal } from 'sequelize';
+import { Op, col, fn } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
 import { BulkDeleteMode } from '../contact-us/bulk-delete-mode.enum';
@@ -214,85 +214,151 @@ export class CommissionService extends ModelService<Commission> {
     }
   }
 
-  async commissionCalculatorCron(): Promise<JobResponse> {
-    try {
-      const { data, error } = await this._orderService.$db.getAllRecords({
-        action: 'commissionCalculator',
-        options: {
-          limit: -1,
-          where: {
-            status: {
-              [Op.in]: [OrderStatus.Delivered, OrderStatus.Cancelled],
-            },
-            '$current_status.created_at$': literal(
-              `DATE_FORMAT(DATE_ADD( current_status.created_at, INTERVAL 15 DAY ),'%Y-%m-%d') = DATE_FORMAT(CURDATE( ),'%Y-%m-%d')`,
-            ),
-          },
-          include: [
-            { association: 'current_status' },
-            { association: 'items', separate: true },
-            { association: 'coupon' },
-            { association: 'user' },
-            {
-              association: 'dispenser',
-              where: { active: true },
-              required: true,
-            },
-          ],
+  // async commissionCalculatorCron(): Promise<JobResponse> {
+  //   try {
+  //     const { data, error } = await this._orderService.$db.getAllRecords({
+  //       action: 'commissionCalculator',
+  //       options: {
+  //         limit: -1,
+  //         where: {
+  //           status: {
+  //             [Op.in]: [OrderStatus.Delivered, OrderStatus.Cancelled],
+  //           },
+  //           '$current_status.created_at$': literal(
+  //             `DATE_FORMAT(DATE_ADD( current_status.created_at, INTERVAL 15 DAY ),'%Y-%m-%d') = DATE_FORMAT(CURDATE( ),'%Y-%m-%d')`,
+  //           ),
+  //         },
+  //         include: [
+  //           { association: 'current_status' },
+  //           { association: 'items', separate: true },
+  //           { association: 'coupon' },
+  //           { association: 'user' },
+  //           {
+  //             association: 'dispenser',
+  //             where: { active: true },
+  //             required: true,
+  //           },
+  //         ],
+  //       },
+  //     });
+  //     if (!!error) {
+  //       return { error };
+  //     }
+
+  //     const { data: internalFeeData } = await this._settingService.findOne({
+  //       action: 'findOne',
+  //       payload: { where: { name: 'minus_price' } },
+  //     });
+
+  //     const { data: commissionData } = await this._settingService.findOne({
+  //       action: 'findOne',
+  //       payload: { where: { name: 'commission' } },
+  //     });
+
+  //     const orders = data;
+  //     console.log(orders);
+  //     console.log(orders.length);
+  //     for await (const order of orders) {
+  //       if (!!order?.dispenser_id) {
+  //         const items = order.items.filter(
+  //           (item) => item.status === OrderItemStatus.Ordered,
+  //         );
+  //         const sub_total = items.reduce((sum, item) => sum + item.price, 0);
+  //         let body: any = {
+  //           order_id: order.id,
+  //           user_id: order.dispenser_id,
+  //           order_amount:
+  //             order.status === OrderStatus.Cancelled ? 0 : sub_total,
+  //           internal_fee: internalFeeData.value || 0,
+  //           commission_percentage: commissionData.value || 0,
+  //           status:
+  //             order.status === OrderStatus.Cancelled
+  //               ? CommissionStatus.Cancelled
+  //               : CommissionStatus.Pending,
+  //         };
+  //         if (!!order.coupon_id) {
+  //           body = {
+  //             ...body,
+  //             coupon_discount_amount: await this.calculateCouponAmount({
+  //               coupon_type: order.coupon_type,
+  //               sub_total,
+  //               coupon_discount: order.coupon_discount,
+  //             }),
+  //           };
+  //         }
+  //         await this.create({ body });
+  //       }
+  //     }
+  //     return { data: orders };
+  //   } catch (error) {
+  //     return { error };
+  //   }
+  // }
+  async calculateCommission(order_id: Number): Promise<JobResponse> {
+    const { data, error } = await this._orderService.$db.findOneRecord({
+      options: {
+        where: {
+          id: +order_id,
         },
-      });
-      if (!!error) {
-        return { error };
-      }
+        include: [
+          { association: 'items', separate: true },
+          { association: 'coupon' },
+          { association: 'user' },
+          {
+            association: 'dispenser',
+            where: { active: true },
+            required: true,
+          },
+        ],
+      },
+    });
 
-      const { data: internalFeeData } = await this._settingService.findOne({
-        action: 'findOne',
-        payload: { where: { name: 'minus_price' } },
-      });
-
-      const { data: commissionData } = await this._settingService.findOne({
-        action: 'findOne',
-        payload: { where: { name: 'commission' } },
-      });
-
-      const orders = data;
-      console.log(orders);
-      console.log(orders.length);
-      for await (const order of orders) {
-        if (!!order?.dispenser_id) {
-          const items = order.items.filter(
-            (item) => item.status === OrderItemStatus.Ordered,
-          );
-          const sub_total = items.reduce((sum, item) => sum + item.price, 0);
-          let body: any = {
-            order_id: order.id,
-            user_id: order.dispenser_id,
-            order_amount:
-              order.status === OrderStatus.Cancelled ? 0 : sub_total,
-            internal_fee: internalFeeData.value || 0,
-            commission_percentage: commissionData.value || 0,
-            status:
-              order.status === OrderStatus.Cancelled
-                ? CommissionStatus.Cancelled
-                : CommissionStatus.Pending,
-          };
-          if (!!order.coupon_id) {
-            body = {
-              ...body,
-              coupon_discount_amount: await this.calculateCouponAmount({
-                coupon_type: order.coupon_type,
-                sub_total,
-                coupon_discount: order.coupon_discount,
-              }),
-            };
-          }
-          await this.create({ body });
-        }
-      }
-      return { data: orders };
-    } catch (error) {
+    if (error) {
       return { error };
     }
+
+    const { data: internalFeeData } = await this._settingService.findOne({
+      action: 'findOne',
+      payload: { where: { name: 'minus_price' } },
+    });
+
+    const { data: commissionData } = await this._settingService.findOne({
+      action: 'findOne',
+      payload: { where: { name: 'commission' } },
+    });
+
+    if (!!data?.dispenser_id) {
+      const items = data.items.filter(
+        (item) => item.status === OrderItemStatus.Ordered,
+      );
+      const sub_total = items.reduce((sum, item) => sum + item.price, 0);
+      let body: any = {
+        order_id: data.id,
+        user_id: data.dispenser_id,
+        order_amount: data.status === OrderStatus.Cancelled ? 0 : sub_total,
+        internal_fee: internalFeeData.value || 0,
+        commission_percentage: commissionData.value || 0,
+        status:
+          data.status === OrderStatus.Cancelled
+            ? CommissionStatus.Cancelled
+            : CommissionStatus.Pending,
+      };
+      if (!!data.coupon_id) {
+        body = {
+          ...body,
+          coupon_discount_amount: await this.calculateCouponAmount({
+            coupon_type: data.coupon_type,
+            sub_total,
+            coupon_discount: data.coupon_discount,
+          }),
+        };
+      }
+      console.log(body);
+
+      await this.create({ body });
+    }
+
+    return { data: data };
   }
   async createCommissionXls(job: Job): Promise<JobResponse> {
     try {
@@ -373,7 +439,6 @@ export class CommissionService extends ModelService<Commission> {
       return { error };
     }
   }
-
   async updateBulkStatus(job: SqlJob<Commission>): Promise<JobResponse> {
     try {
       const { owner, payload, body } = job;

@@ -21,11 +21,13 @@ import {
   ApiQueryGetAll,
   ApiQueryGetById,
   ApiQueryGetOne,
+  MsEventListener,
   ResponseGetAll,
   ResponseGetOne,
   ResponseUpdated,
 } from 'src/core/core.decorators';
 import { NotFoundError } from 'src/core/core.errors';
+import { Job } from 'src/core/core.job';
 import {
   Created,
   ErrorResponse,
@@ -35,6 +37,7 @@ import {
 import { pluralizeString, snakeCase } from 'src/core/core.utils';
 import { Owner, OwnerDto } from 'src/core/decorators/sql/owner.decorator';
 import { Roles } from 'src/core/decorators/sql/roles.decorator';
+import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { Role } from '../user/role.enum';
 import { CommissionStatus } from './commission-status.enum';
 import { CommissionService } from './commission.service';
@@ -50,7 +53,10 @@ const entity = snakeCase(Commission.name);
 @ApiExtraModels(Commission)
 @Controller(entity)
 export class CommissionController {
-  constructor(private readonly commissionService: CommissionService) {}
+  constructor(
+    private readonly commissionService: CommissionService,
+    private _msClient: MsClientService,
+  ) {}
 
   /**
    * Reorder cron
@@ -70,6 +76,30 @@ export class CommissionController {
   //   }
   //   return Created(res, { data: { [entity]: data }, message: 'Created' });
   // }
+
+  @MsEventListener('order.commission.create')
+  async createCommission(job: Job): Promise<void> {
+    const { order_id } = job.payload;
+    const response = await this.commissionService.calculateCommission(order_id);
+    await this._msClient.jobDone(job, response);
+  }
+
+  @MsEventListener('order.commission.cancel')
+  async cancelCommission(job: Job): Promise<void> {
+    const { order_id } = job.payload;
+    const response = await this.commissionService.$db.findAndUpdateRecord({
+      options: {
+        where: {
+          order_id: order_id,
+        },
+      },
+      body: {
+        status: CommissionStatus.Cancelled,
+        commission: 0,
+      },
+    });
+    await this._msClient.jobDone(job, response);
+  }
 
   @Post('bulk-update/cancel')
   @Roles(Role.Admin)

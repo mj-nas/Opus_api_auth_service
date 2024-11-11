@@ -1,5 +1,6 @@
 import { SqlModule } from '@core/sql';
 import { Module } from '@nestjs/common';
+import { MsClientModule } from 'src/core/modules/ms-client/ms-client.module';
 import { OrderModule } from '../order/order.module';
 import { SettingModule } from '../setting/setting.module';
 import { CommissionController } from './commission.controller';
@@ -7,7 +8,12 @@ import { CommissionService } from './commission.service';
 import { Commission } from './entities/commission.entity';
 
 @Module({
-  imports: [SqlModule.register(Commission), OrderModule, SettingModule],
+  imports: [
+    SqlModule.register(Commission),
+    OrderModule,
+    SettingModule,
+    MsClientModule,
+  ],
   controllers: [CommissionController],
   providers: [CommissionService],
   exports: [CommissionService],

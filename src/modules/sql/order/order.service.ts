@@ -344,6 +344,12 @@ export class OrderService extends ModelService<Order> {
         // if (!!deletedShipment.error) {
         //   throw deletedShipment.error;
         // }
+
+        await this._msClient.executeJob('order.commission.cancel', {
+          payload: {
+            order_id: response.data.id,
+          },
+        });
         // send email to customer for order cancellation
         await this._msClient.executeJob(
           'controller.notification',
@@ -580,10 +586,21 @@ export class OrderService extends ModelService<Order> {
         }
 
         await transaction.commit();
+        await this._msClient.executeJob('order.commission.create', {
+          payload: {
+            order_id: order.data.id,
+          },
+        });
 
         return { data: { order: order.data, payment_link: paymentLink.url } };
       } else {
         await transaction.commit();
+
+        await this._msClient.executeJob('order.commission.create', {
+          payload: {
+            order_id: order.data.id,
+          },
+        });
         await this._msClient.executeJob('order.mail.sent', {
           payload: {
             order_id: order.data.id,
@@ -826,6 +843,12 @@ export class OrderService extends ModelService<Order> {
 
         o.setDataValue('is_base_order', 'N');
         await o.save();
+
+        await this._msClient.executeJob('order.commission.create', {
+          payload: {
+            order_id: order.data.id,
+          },
+        });
 
         await this._msClient.executeJob('order.mail.sent', {
           payload: {
