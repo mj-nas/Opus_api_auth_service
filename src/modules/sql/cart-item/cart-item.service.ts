@@ -22,7 +22,7 @@ export class CartItemService extends ModelService<CartItem> {
    */
   protected async doBeforeCreate(job: SqlJob<CartItem>): Promise<void> {
     await super.doBeforeCreate(job);
-    const { cart_id, product_id } = job.payload;
+    const { cart_id, product_id } = job.body;
     const item = await this.$db.findOneRecord({
       options: {
         where: {
@@ -31,7 +31,6 @@ export class CartItemService extends ModelService<CartItem> {
         },
       },
     });
-
     if (item.data) {
       const newCart = await this.$db.updateRecord({
         id: item.data.id,
