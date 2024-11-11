@@ -95,11 +95,8 @@ export class CommissionController {
       },
       body: {
         status: CommissionStatus.Cancelled,
-        commission: '0',
       },
     });
-    console.log(response);
-
     await this._msClient.jobDone(job, response);
   }
 
