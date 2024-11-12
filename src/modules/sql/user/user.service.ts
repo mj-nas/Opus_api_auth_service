@@ -473,6 +473,7 @@ export class UserService extends ModelService<User> {
     const {
       id,
       uid,
+      role,
       first_name,
       last_name,
       phone,
@@ -501,14 +502,15 @@ export class UserService extends ModelService<User> {
       },
     });
 
-    await this.createQRCode({ payload: { user_id: id } });
-
-    const { error, data } = await this._tinyUrlService.shortenUrl({
-      payload: { url: `${process.env.WEBSITE_URL}/connect/${uid}` },
-    });
-    if (!error && data?.alias) {
-      response.data.setDataValue('tiny_url_alias', data?.alias);
-      await response.data.save();
+    if (role === Role.Dispenser) {
+      const { error, data } = await this._tinyUrlService.shortenUrl({
+        payload: { url: `${process.env.WEBSITE_URL}/connect/${uid}` },
+      });
+      if (!error && data?.alias) {
+        response.data.setDataValue('tiny_url_alias', data?.alias);
+        await response.data.save();
+      }
+      await this.createQRCode({ payload: { user_id: id } });
     }
 
     if (job.action == 'createDispenser') {

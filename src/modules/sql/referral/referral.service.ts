@@ -1,5 +1,6 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { ModelService, SqlService } from '@core/sql';
+import { TinyUrlService } from '@core/tinyurl';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createCanvas } from 'canvas';
@@ -29,6 +30,7 @@ export class ReferralService extends ModelService<Referral> {
     private referredCouponService: ReferredCouponService,
     private msClient: MsClientService,
     private config: ConfigService,
+    private _tinyUrlService: TinyUrlService,
   ) {
     super(db);
   }
@@ -90,6 +92,14 @@ export class ReferralService extends ModelService<Referral> {
 
     if (error) {
       return { error };
+    }
+
+    const tinyUrlResponse = await this._tinyUrlService.shortenUrl({
+      payload: { url: `${process.env.WEBSITE_URL}/referral/${data.uid}` },
+    });
+    if (!tinyUrlResponse.error && tinyUrlResponse.data?.alias) {
+      data.setDataValue('tiny_url_alias', tinyUrlResponse.data?.alias);
+      await data.save();
     }
 
     const dataUrl = await this.generateQRCode(data.referral_link);

@@ -1,4 +1,5 @@
 import { SqlModule } from '@core/sql';
+import { TinyUrlModule } from '@core/tinyurl';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MsClientModule } from 'src/core/modules/ms-client/ms-client.module';
@@ -15,6 +16,7 @@ import { ReferralService } from './referral.service';
     ReferredProductsModule,
     MsClientModule,
     ConfigModule,
+    TinyUrlModule,
   ],
   controllers: [ReferralController],
   providers: [ReferralService],
