@@ -625,7 +625,7 @@ export class OrderService extends ModelService<Order> {
           where: {
             is_repeating_order: 'Y',
             is_base_order: 'Y',
-            created_at: literal(
+            next_order_date: literal(
               `DATE_FORMAT(Order.next_order_date,'%Y-%M-%d') = DATE_FORMAT(CURDATE( ),'%Y-%M-%d')`,
             ),
           },
