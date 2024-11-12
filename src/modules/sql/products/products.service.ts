@@ -197,7 +197,7 @@ export class ProductsService extends ModelService<Products> {
             x?.productCategory?.category_name,
             x?.product_description,
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
-            x.status == 'Y' ? 'Active' : 'Inactive',
+            x.deleted_at ? 'Deleted' : x.status == 'Y' ? 'Active' : 'Inactive',
             x.is_featured == 'Y' ? 'Yes' : 'No',
           ]);
         }),
