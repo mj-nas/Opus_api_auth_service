@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import * as moment from 'moment-timezone';
-import { Op, col, fn } from 'sequelize';
+import { Op, col, fn, literal } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
 import { BulkDeleteMode } from '../contact-us/bulk-delete-mode.enum';
@@ -294,7 +294,7 @@ export class CommissionService extends ModelService<Commission> {
   //     return { error };
   //   }
   // }
-  async calculateCommission(order_id: Number): Promise<JobResponse> {
+  async calculateCommission(order_id: number): Promise<JobResponse> {
     const { data, error } = await this._orderService.$db.findOneRecord({
       options: {
         where: {
@@ -465,6 +465,18 @@ export class CommissionService extends ModelService<Commission> {
         where: {
           status: CommissionStatus.Pending,
         },
+        include: [
+          {
+            association: 'order',
+            where: {
+              created_at: literal(
+                `DATE_FORMAT(Order.created_at,'%Y-%m-%d') < DATE_FORMAT(CURDATE( ),'%Y-%m-01')`,
+              ),
+              status: OrderStatus.Delivered,
+            },
+            required: true,
+          },
+        ],
       },
     });
     if (!data) return false;
