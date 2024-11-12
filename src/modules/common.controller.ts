@@ -1,4 +1,3 @@
-import { XpsService } from '@core/xps';
 import { Body, Controller, Post, Req, Res } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
@@ -14,10 +13,7 @@ import { CreatePresignedUrl } from './create-presigned-url.dto';
 @ApiErrorResponses()
 @Controller('common')
 export class CommonController {
-  constructor(
-    private commonService: CommonService,
-    private _xpsService: XpsService,
-  ) {}
+  constructor(private commonService: CommonService) {}
 
   @Post('presigned-url')
   @Public()

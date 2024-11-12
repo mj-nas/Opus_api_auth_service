@@ -1,6 +1,6 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Jimp from 'jimp';
 import jsPDF from 'jspdf';
@@ -25,6 +25,7 @@ export class ExamModuleService extends ModelService<ExamModule> {
 
   constructor(
     db: SqlService<ExamModule>,
+    @Inject(forwardRef(() => UserExamsService))
     private userExamsService: UserExamsService,
     private userService: UserService,
     private config: ConfigService,
