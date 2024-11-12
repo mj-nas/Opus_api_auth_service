@@ -31,7 +31,9 @@
       "@core/stripe": ["libs/stripe/src"],
       "@core/stripe/*": ["libs/stripe/src/*"],
       "@core/xps": ["libs/xps/src"],
-      "@core/xps/*": ["libs/xps/src/*"]
+      "@core/xps/*": ["libs/xps/src/*"],
+      "@core/tinyurl": ["libs/tinyurl/src"],
+      "@core/tinyurl/*": ["libs/tinyurl/src/*"]
     }
   }
 }

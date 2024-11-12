@@ -387,15 +387,24 @@ export class User extends SqlModel {
   @Column(DataTypes.VIRTUAL)
   @ApiProperty({
     description: 'Referral Link',
-    example:
-      'https://staging.opuscompounds.com/connect/cd7c8da0-cfe0-11ee-94e2-c1e32bf24f34',
+    example: 'https://tinyurl.com/ycy8pa73',
     readOnly: true,
   })
   get referral_link(): string {
-    return this.getDataValue('uid')
-      ? `${process.env.WEBSITE_URL}/connect/${this.getDataValue('uid')}`
-      : null;
+    return this.getDataValue('tiny_url_alias')
+      ? `${process.env.TINY_URL}/${this.getDataValue('tiny_url_alias')}`
+      : `${process.env.WEBSITE_URL}/connect/${this.getDataValue('uid')}`;
   }
+
+  @Column
+  @ApiProperty({
+    description: 'Tiny URL Alias',
+    example: 'ycy8pa73',
+    readOnly: true,
+  })
+  @IsOptional()
+  @IsString()
+  tiny_url_alias?: string;
 
   @Column
   @ApiProperty({

@@ -1,4 +1,3 @@
-import { XpsModule } from '@core/xps';
 import { DynamicModule, Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { QueryGuard } from 'src/core/guards/query.guard';
@@ -19,15 +18,27 @@ import { JwtAuthGuard } from './sql/auth/strategies/jwt/jwt-auth.guard';
 import { LocalAuthModule } from './sql/auth/strategies/local/local-auth.module';
 import { CartItemModule } from './sql/cart-item/cart-item.module';
 import { CartModule } from './sql/cart/cart.module';
+import { CmsHomeModule } from './sql/cms-home/cms-home.module';
 import { CommissionModule } from './sql/commission/commission.module';
 import { ContactUsModule } from './sql/contact-us/contact-us.module';
 import { CountryModule } from './sql/country/country.module';
 import { CouponUsedModule } from './sql/coupon-used/coupon-used.module';
 import { CouponModule } from './sql/coupon/coupon.module';
+import { DashboardModule } from './sql/dashboard/dashboard.module';
+import { ExamModuleModule } from './sql/exam-module/exam-module.module';
+import { ExamQuestionOptionsModule } from './sql/exam-question-options/exam-question-options.module';
+import { ExamQuestionSetModule } from './sql/exam-question-set/exam-question-set.module';
+import { ExamQuestionsModule } from './sql/exam-questions/exam-questions.module';
+import { ExamVideoModule } from './sql/exam-video/exam-video.module';
 import { GalleryCategoryModule } from './sql/gallery-category/gallery-category.module';
 import { GalleryModule } from './sql/gallery/gallery.module';
 import { LearnArticleModule } from './sql/learn-article/learn-article.module';
 import { LearnYoutubeModule } from './sql/learn-youtube/learn-youtube.module';
+import { LearningModuleModule } from './sql/learning-module/learning-module.module';
+import { LearningQuestionOptionsModule } from './sql/learning-question-options/learning-question-options.module';
+import { LearningQuestionSetModule } from './sql/learning-question-set/learning-question-set.module';
+import { LearningQuestionsModule } from './sql/learning-questions/learning-questions.module';
+import { LearningVideoModule } from './sql/learning-video/learning-video.module';
 import { NotificationModule } from './sql/notification/notification.module';
 import { OrderAddressModule } from './sql/order-address/order-address.module';
 import { OrderItemModule } from './sql/order-item/order-item.module';
@@ -49,9 +60,9 @@ import { StateModule } from './sql/state/state.module';
 import { TemplateModule } from './sql/template/template.module';
 import { TestimonialsModule } from './sql/testimonials/testimonials.module';
 import { UserDispenserModule } from './sql/user-dispenser/user-dispenser.module';
+import { UserExamsModule } from './sql/user-exams/user-exams.module';
 import { UserModule } from './sql/user/user.module';
 import { WishlistModule } from './sql/wishlist/wishlist.module';
-
 @Module({})
 export class CommonModule {
   static register(): DynamicModule {
@@ -101,7 +112,19 @@ export class CommonModule {
       CommissionModule,
       CouponUsedModule,
       UserDispenserModule,
-      XpsModule,
+      LearningModuleModule,
+      LearningQuestionSetModule,
+      LearningQuestionsModule,
+      LearningQuestionOptionsModule,
+      LearningVideoModule,
+      UserExamsModule,
+      ExamModuleModule,
+      ExamVideoModule,
+      ExamQuestionSetModule,
+      ExamQuestionsModule,
+      ExamQuestionOptionsModule,
+      DashboardModule,
+      CmsHomeModule,
     ];
 
     // common providers

@@ -1,4 +1,5 @@
 import { SqlModule } from '@core/sql';
+import { TinyUrlModule } from '@core/tinyurl';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
@@ -63,6 +64,7 @@ import { UserService } from './user.service';
     AddressModule,
     ConfigModule,
     OtpSessionModule,
+    TinyUrlModule,
   ],
   controllers: [UserController],
   providers: [UserService],

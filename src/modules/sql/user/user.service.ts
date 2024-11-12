@@ -7,6 +7,7 @@ import {
   SqlService,
   SqlUpdateResponse,
 } from '@core/sql';
+import { TinyUrlService } from '@core/tinyurl';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createCanvas } from 'canvas';
@@ -67,6 +68,7 @@ export class UserService extends ModelService<User> {
     private addressService: AddressService,
     private config: ConfigService,
     private otpSessionService: OtpSessionService,
+    private _tinyUrlService: TinyUrlService,
   ) {
     super(db);
   }
@@ -470,6 +472,7 @@ export class UserService extends ModelService<User> {
     await super.doAfterCreate(job, response);
     const {
       id,
+      uid,
       first_name,
       last_name,
       phone,
@@ -499,6 +502,14 @@ export class UserService extends ModelService<User> {
     });
 
     await this.createQRCode({ payload: { user_id: id } });
+
+    const { error, data } = await this._tinyUrlService.shortenUrl({
+      payload: { url: `${process.env.WEBSITE_URL}/connect/${uid}` },
+    });
+    if (!error && data?.alias) {
+      response.data.setDataValue('tiny_url_alias', data?.alias);
+      await response.data.save();
+    }
 
     if (job.action == 'createDispenser') {
       const password = generateRandomPassword(10);
