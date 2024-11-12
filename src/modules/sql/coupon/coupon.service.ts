@@ -293,7 +293,7 @@ export class CouponService extends ModelService<Coupon> {
             x?.coupon_type,
             x?.discount_usage,
             x?.description,
-            x.active ? 'Active' : 'Inactive',
+            x.deleted_at ? 'Deleted' : x.active ? 'Active' : 'Inactive',
           ]);
         }),
       );
