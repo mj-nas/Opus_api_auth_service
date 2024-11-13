@@ -2117,10 +2117,10 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
                                   "
                                 >
                                   ${item.product.product_name} <br />
-                                  <b>$${item.price_per_item}</b> <br />
+                                  <b>$${item.price_per_item.toFixed(2)}</b> <br />
                                   Quantity: <b>${item.quantity}</b>
                                 </td>
-                                <td style="text-align: end"><b>$${item.price_per_item * item.quantity}</b></td>
+                                <td style="text-align: end"><b>$${(item.price_per_item * item.quantity).toFixed(2)}</b></td>
                               </tr>`;
     });
     const variables = {
