@@ -508,9 +508,11 @@ export class UserService extends ModelService<User> {
       });
       if (!error && data?.alias) {
         response.data.setDataValue('tiny_url_alias', data?.alias);
+        const dataUrl = await this.generateQRCode(response.data.referral_link);
+        const qrCodeKey = await this.uploadToS3(dataUrl, uid);
+        response.data.setDataValue('qr_code', qrCodeKey);
         await response.data.save();
       }
-      await this.createQRCode({ payload: { user_id: id } });
     }
 
     if (job.action == 'createDispenser') {
