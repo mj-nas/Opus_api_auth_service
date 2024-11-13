@@ -572,14 +572,14 @@ export default <Seed<Template>>{
       email_subject: 'Reorder Cycle Update by Admin',
       email_body: `<p>Hi ##TO_NAME##,</p>
       <br />
-      <p>Please note that the reorder cycle for an order originally set for ##ORIGINAL_DAYS##, has been updated.</p>
+      <p>Please note that the reorder cycle for an order originally set for ##ORIGINAL_DAYS##, has been updated by the Admin.</p>
       <br />
 
       <p>Order Details:</p>
       <br />
       <p>Order ID: ##ORDER_ID##</p>
       <br />
-      <p>The new reorder cycle is now scheduled for ##NEW_DAYS## days.</p>
+      <p>The new reorder cycle is now scheduled for ##NEW_DAYS## days. Your next order will be placed on ##NEXT_ORDER_DATE##.</p>
       <br />
       <p>Best regards,</p>
       <p>Team OPUS</p>`,

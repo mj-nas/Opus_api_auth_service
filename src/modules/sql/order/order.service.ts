@@ -1022,6 +1022,8 @@ export class OrderService extends ModelService<Order> {
                   ORIGINAL_DAYS: currentRepeatingDays,
                   NEW_DAYS: repeating_days,
                   CUSTOMER_NAME: data.user.name,
+                  NEXT_ORDER_DATE:
+                    moment(nextRepeatingDay).format('MM/DD/YYYY'),
                 },
               },
             }),
