@@ -2290,15 +2290,7 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
           'next_order_date',
           moment(previousRepeatingDate).add(repeatingDays, 'days'),
         );
-      } else {
-        data.setDataValue('is_repeating_order', 'N');
-      }
-
-      await data.save();
-
-      //TODO send email to user for reorder cancellation by admin
-      if (data.user_id !== job.owner.id) {
-        if (next_order_only) {
+        if (data.user_id !== job.owner.id) {
           await this._msClient.executeJob(
             'controller.notification',
             new Job({
@@ -2308,12 +2300,68 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
                 user_id: data.user_id,
                 template: 'single_reorder_cancelled_by_admin',
                 variables: {
-                  DATE: '',
+                  DATE: previousRepeatingDate,
                   ORDERID: data.uid,
                 },
               },
             }),
           );
+        }
+        await data.save();
+      } else {
+        data.setDataValue('is_repeating_order', 'N');
+        await data.save();
+        if (data.user_id !== job.owner.id) {
+          await this._msClient.executeJob(
+            'controller.notification',
+            new Job({
+              action: 'send',
+              payload: {
+                skipUserConfig: true,
+                user_id: data.user_id,
+                template: 'reorder_cancelled_by_admin',
+                variables: {
+                  ORDERID: data.uid,
+                },
+              },
+            }),
+          );
+        } else {
+          // send email to admin for reorder cancellation by user
+          const { data: setttingData } = await this._settingService.findOne({
+            action: 'findOne',
+            payload: { where: { name: 'order_service_email' } },
+          });
+
+          if (setttingData && setttingData?.getDataValue('value')) {
+            await this._msClient.executeJob(
+              'controller.notification',
+              new Job({
+                action: 'send',
+                payload: {
+                  skipUserConfig: true,
+                  users: [
+                    {
+                      name: 'Admin',
+                      email: setttingData.getDataValue('value'),
+                      send_email: true,
+                    },
+                  ],
+                  template: 'reorder_cancelled',
+                  variables: {
+                    ORDER_ID: data.uid,
+                    CUSTOMER_NAME: data.user.name,
+                  },
+                },
+              }),
+            );
+          }
+        }
+      }
+
+      //TODO send email to user for reorder cancellation by admin
+      if (data.user_id !== job.owner.id) {
+        if (next_order_only) {
         } else {
           await this._msClient.executeJob(
             'controller.notification',
@@ -2338,51 +2386,27 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
         });
 
         if (setttingData && setttingData?.getDataValue('value')) {
-          if (next_order_only) {
-            await this._msClient.executeJob(
-              'controller.notification',
-              new Job({
-                action: 'send',
-                payload: {
-                  skipUserConfig: true,
-                  users: [
-                    {
-                      name: 'Admin',
-                      email: setttingData.getDataValue('value'),
-                      send_email: true,
-                    },
-                  ],
-                  template: 'reorder_cancelled',
-                  variables: {
-                    ORDER_ID: data.uid,
-                    CUSTOMER_NAME: data.user.name,
+          await this._msClient.executeJob(
+            'controller.notification',
+            new Job({
+              action: 'send',
+              payload: {
+                skipUserConfig: true,
+                users: [
+                  {
+                    name: 'Admin',
+                    email: setttingData.getDataValue('value'),
+                    send_email: true,
                   },
+                ],
+                template: 'reorder_cancelled',
+                variables: {
+                  ORDER_ID: data.uid,
+                  CUSTOMER_NAME: data.user.name,
                 },
-              }),
-            );
-          } else {
-            await this._msClient.executeJob(
-              'controller.notification',
-              new Job({
-                action: 'send',
-                payload: {
-                  skipUserConfig: true,
-                  users: [
-                    {
-                      name: 'Admin',
-                      email: setttingData.getDataValue('value'),
-                      send_email: true,
-                    },
-                  ],
-                  template: 'reorder_cancelled',
-                  variables: {
-                    ORDER_ID: data.uid,
-                    CUSTOMER_NAME: data.user.name,
-                  },
-                },
-              }),
-            );
-          }
+              },
+            }),
+          );
         }
       }
 
