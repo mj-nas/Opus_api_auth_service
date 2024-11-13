@@ -470,7 +470,7 @@ export class CommissionService extends ModelService<Commission> {
             association: 'order',
             where: {
               created_at: literal(
-                `DATE_FORMAT(Order.created_at,'%Y-%m-%d') < DATE_FORMAT(CURDATE( ),'%Y-%m-01')`,
+                `DATE_FORMAT(order.created_at,'%Y-%m-%d') < DATE_FORMAT(CURDATE( ),'%Y-%m-01')`,
               ),
               status: OrderStatus.Delivered,
             },
