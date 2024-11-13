@@ -2145,7 +2145,7 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
         : `Discount`,
       DISCOUNT: data.coupon_discount_amount
         ? data.coupon_discount_amount.toFixed(2)
-        : 0.0,
+        : '0.00',
       SHIPPING_SERVICE: 'USPS Ground Advantage',
       SUB_TOTAL: data.sub_total.toFixed(2),
       TOTAL: data.total.toFixed(2),
