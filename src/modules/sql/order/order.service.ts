@@ -2137,15 +2137,18 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
         .replace(/(\d{1})(\d{3})(\d{3})(\d{4})/, '$1-$2-$3-$4'),
       EMAIL: data.user.email,
       RECURRING_DAYS: data.repeating_days,
-      TAX: Math.round(data.tax * 100) / 100,
-      SHIPPING_CHARGE: data.shipping_price,
+      // TAX: Math.round(data.tax * 100) / 100,
+      TAX: data.tax.toFixed(2),
+      SHIPPING_CHARGE: data.shipping_price.toFixed(2),
       DISCOUNT_KEY: data.coupon_discount_amount
         ? `Discount (${data.coupon_code})`
         : `Discount`,
-      DISCOUNT: data.coupon_discount_amount ? data.coupon_discount_amount : 0,
+      DISCOUNT: data.coupon_discount_amount
+        ? data.coupon_discount_amount.toFixed(2)
+        : 0.0,
       SHIPPING_SERVICE: 'USPS Ground Advantage',
-      SUB_TOTAL: data.sub_total,
-      TOTAL: data.total,
+      SUB_TOTAL: data.sub_total.toFixed(2),
+      TOTAL: data.total.toFixed(2),
       SHIPPING_ADDRESS,
       BILLING_ADDRESS,
       CARDHOLDER_NAME: card_details?.cardholder_name || '',
