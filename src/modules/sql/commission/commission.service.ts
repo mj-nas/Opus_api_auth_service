@@ -400,8 +400,8 @@ export class CommissionService extends ModelService<Commission> {
             x?.user?.name,
             x?.order?.user?.name,
             moment(x.created_at).tz(timezone).format('MMM DD YYYY'),
-            `$${x.order_amount}`,
-            `$${x?.commission}`,
+            `$${x.order_amount.toFixed(2)}`,
+            `$${x?.commission.toFixed(2)}`,
             x?.status,
           ]);
         }),

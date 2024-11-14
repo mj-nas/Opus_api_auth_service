@@ -192,8 +192,8 @@ export class ProductsService extends ModelService<Products> {
           worksheet.addRow([
             index + 1,
             x?.product_name,
-            `$${x.product_price}`,
-            `$${x.wholesale_price}`,
+            `$${x.product_price.toFixed(2)}`,
+            `$${x.wholesale_price.toFixed(2)}`,
             x?.productCategory?.category_name,
             x?.product_description,
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
