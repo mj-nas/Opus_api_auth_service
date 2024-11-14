@@ -388,6 +388,7 @@ export class CommissionService extends ModelService<Commission> {
         'Order Date',
         'Order Amount',
         'Commission',
+        'Order Status',
         'Commission Status',
       ]);
 
@@ -404,6 +405,7 @@ export class CommissionService extends ModelService<Commission> {
             moment(x?.order?.created_at).tz(timezone).format('MMM DD YYYY'),
             `$${x.order_amount.toFixed(2)}`,
             `$${x?.commission.toFixed(2)}`,
+            x?.order?.status,
             x?.status,
           ]);
         }),
@@ -418,6 +420,7 @@ export class CommissionService extends ModelService<Commission> {
         { header: 'Order Date', key: 'date', width: 25 },
         { header: 'Order Amount', key: 'order_amount', width: 25 },
         { header: 'Commission', key: 'commission', width: 25 },
+        { header: 'Order Status', key: 'order_status', width: 25 },
         { header: 'Commission Status', key: 'commission_status', width: 25 },
       ];
 
