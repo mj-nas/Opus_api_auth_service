@@ -137,7 +137,7 @@ export class CouponService extends ModelService<Coupon> {
             skipUserConfig: true,
             variables: {
               COUPON_CODE: response.data.code,
-              DISCOUNT: `${response.data.coupon_type == 'price' ? `$${response.data.discount}` : `${response.data.discount}%`}`,
+              DISCOUNT: `${response.data.coupon_type == 'price' ? `$${parseFloat(response.data.discount).toFixed(2)}` : `${parseFloat(response.data.discount).toFixed(2)}%`}`,
               VALIDITY: `${moment(response.data.valid_from).format('MM/DD/YYYY')} - ${moment(response.data.valid_to).format('MM/DD/YYYY')}`,
               USE: response.data.discount_usage,
             },
@@ -196,7 +196,7 @@ export class CouponService extends ModelService<Coupon> {
             moment(x.valid_from).format('MM/DD/YYYY'),
             moment(x.valid_to).format('MM/DD/YYYY'),
             x?.coupon_type === 'percentage'
-              ? `${x.discount}%`
+              ? `${parseFloat(x.discount).toFixed(2)}%`
               : `$${parseFloat(x.discount).toFixed(2)}`,
             x?.coupon_type == 'percentage' ? 'Percentage' : 'Price',
             x?.discount_usage,
