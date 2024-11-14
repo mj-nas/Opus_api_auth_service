@@ -18,6 +18,7 @@ import { Response } from 'express';
 import {
   ApiErrorResponses,
   ApiQueryDelete,
+  ApiQueryGetOne,
   ResponseCreated,
   ResponseDeleted,
   ResponseUpdated,
@@ -51,16 +52,19 @@ export class CartItemController {
    */
   @Post()
   @ApiOperation({ summary: `Create new ${entity}` })
+  @ApiQueryGetOne()
   @ResponseCreated(CartItem)
   async create(
     @Res() res: Response,
     @Owner() owner: OwnerDto,
+    @Query() query: any,
     @Body() createCartItemDto: CreateCartItemDto,
   ) {
     const { error, data } = await this.cartItemService.create({
       owner,
       action: 'create',
       body: createCartItemDto,
+      payload: { ...query },
     });
 
     if (error) {
@@ -77,11 +81,13 @@ export class CartItemController {
    */
   @Put(':id')
   @ApiOperation({ summary: `Update ${entity} using id` })
+  @ApiQueryGetOne()
   @ResponseUpdated(CartItem)
   async update(
     @Res() res: Response,
     @Owner() owner: OwnerDto,
     @Param('id') id: number,
+    @Query() query: any,
     @Body() updateCartItemDto: UpdateCartItemDto,
   ) {
     const { error, data } = await this.cartItemService.update({
@@ -89,6 +95,7 @@ export class CartItemController {
       action: 'update',
       id: +id,
       body: updateCartItemDto,
+      payload: { ...query },
     });
 
     if (error) {
