@@ -55,8 +55,8 @@ export class XpsService {
 
       return { data: response.data };
     } catch (error) {
-      console.error(error.data);
-      return { error: error.data };
+      console.error(error.response.data);
+      return { error: error.response.data };
     }
   }
 
