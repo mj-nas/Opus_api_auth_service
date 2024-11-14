@@ -698,7 +698,7 @@ export class UserService extends ModelService<User> {
               : x?.status == Status.Approve
                 ? 'Approved'
                 : x?.status == Status.Pending
-                  ? 'Recieved'
+                  ? 'Pending'
                   : x?.status,
           ]);
         }),
