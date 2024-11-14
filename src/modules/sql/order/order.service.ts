@@ -1140,7 +1140,7 @@ export class OrderService extends ModelService<Order> {
             `${x?.address?.shipping_name}, ${x?.address?.shipping_address} ${x?.address?.shipping_address2 ? `,${x?.address?.shipping_address2}` : ''}, ${x?.address?.shipping_city}, ${x?.address?.shipping_state}, ${x?.address?.shipping_zip_code}`,
             `${x?.address?.billing_name}, ${x?.address?.billing_address} ${x?.address?.billing_address2 ? `,${x?.address?.billing_address2}` : ''}, ${x?.address?.billing_city}, ${x?.address?.billing_state}, ${x?.address?.billing_zip_code}`,
             x?.repeating_days,
-            moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
+            moment(x.created_at).tz(timezone).format('MM/DD/YYYY'),
             x?.status,
           ]);
         }),
@@ -1236,20 +1236,18 @@ export class OrderService extends ModelService<Order> {
             `${x?.total.toFixed(2)}`,
             x?.repeating_days,
             x?.created_at
-              ? moment(x?.created_at)
-                  ?.tz(timezone)
-                  ?.format('MM/DD/YYYY hh:mm A')
+              ? moment(x?.created_at)?.tz(timezone)?.format('MM/DD/YYYY')
               : '',
             x?.created_at
               ? moment(x?.created_at)
                   ?.add(x?.repeating_days, 'days')
                   ?.tz(timezone)
-                  ?.format('MM/DD/YYYY hh:mm A')
+                  ?.format('MM/DD/YYYY')
               : '',
             x?.previous_order && x?.previous_order?.created_at
               ? moment(x?.previous_order?.created_at)
                   ?.tz(timezone)
-                  ?.format('MM/DD/YYYY hh:mm A')
+                  ?.format('MM/DD/YYYY')
               : '',
             // x?.status,
           ]);
