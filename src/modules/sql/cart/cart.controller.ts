@@ -18,6 +18,7 @@ import {
   ApiErrorResponses,
   ApiQueryDelete,
   ApiQueryGetById,
+  ApiQueryGetOne,
   ResponseCreated,
   ResponseDeleted,
   ResponseGetOne,
@@ -49,11 +50,17 @@ export class CartController {
    */
   @Post()
   @ApiOperation({ summary: `Create new ${entity}` })
+  @ApiQueryGetOne()
   @ResponseCreated(Cart)
-  async create(@Res() res: Response, @Owner() owner: OwnerDto) {
+  async create(
+    @Res() res: Response,
+    @Owner() owner: OwnerDto,
+    @Query() query: any,
+  ) {
     const { error, data } = await this.cartService.create({
       owner,
       action: 'create',
+      payload: { ...query },
     });
 
     if (error) {
