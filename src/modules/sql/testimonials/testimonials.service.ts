@@ -72,7 +72,7 @@ export class TestimonialsService extends ModelService<Testimonials> {
             x?.name,
             x?.speciality,
             x?.quote,
-            moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
+            moment(x.created_at).tz(timezone).format('MM/DD/YYYY'),
             x?.active ? 'Active' : 'Inactive',
           ]);
         }),

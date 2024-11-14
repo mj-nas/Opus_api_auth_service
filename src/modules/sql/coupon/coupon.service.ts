@@ -198,7 +198,7 @@ export class CouponService extends ModelService<Coupon> {
             x?.coupon_type === 'percentage'
               ? `${x.discount}%`
               : `$${parseFloat(x.discount).toFixed(2)}`,
-            x?.coupon_type,
+            x?.coupon_type == 'percentage' ? 'Percentage' : 'Price',
             x?.discount_usage,
             x?.coupon_used.length > 0 ? 'Redeemed' : 'Not Redeemed',
             x.deleted_at ? 'Deleted' : x.active ? 'Active' : 'Inactive',
@@ -230,7 +230,7 @@ export class CouponService extends ModelService<Coupon> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `Coupons.xlsx`;
+      const filename = `DispenserCoupons.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {
@@ -290,7 +290,7 @@ export class CouponService extends ModelService<Coupon> {
             x?.coupon_type === 'percentage'
               ? `${x.discount}%`
               : `$${parseFloat(x.discount).toFixed(2)}`,
-            x?.coupon_type,
+            x?.coupon_type == 'percentage' ? 'Percentage' : 'Price',
             x?.discount_usage,
             x?.description,
             x.deleted_at ? 'Deleted' : x.active ? 'Active' : 'Inactive',
