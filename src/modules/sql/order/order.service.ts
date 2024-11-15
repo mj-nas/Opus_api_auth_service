@@ -2304,13 +2304,9 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
                 user_id: data.user_id,
                 template: 'single_reorder_cancelled_by_admin',
                 variables: {
-                  DATE: moment(previousRepeatingDate)
-                    .tz('America/New_York')
-                    .format('MM/DD/YYYY'),
+                  DATE: moment(previousRepeatingDate).format('MM/DD/YYYY'),
                   ORDERID: data.uid,
-                  NEXT_ORDER_DATE: moment(next_order_date)
-                    .tz('America/New_York')
-                    .format('MM/DD/YYYY'),
+                  NEXT_ORDER_DATE: moment(next_order_date).format('MM/DD/YYYY'),
                 },
               },
             }),
