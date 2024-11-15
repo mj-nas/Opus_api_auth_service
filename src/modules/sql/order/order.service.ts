@@ -2286,10 +2286,14 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
       if (!!next_order_only) {
         const previousRepeatingDate = data.getDataValue('next_order_date');
         const repeatingDays = data.getDataValue('repeating_days');
-        data.setDataValue(
-          'next_order_date',
-          moment(previousRepeatingDate).add(repeatingDays, 'days'),
+        const next_order_date = moment(previousRepeatingDate).add(
+          repeatingDays,
+          'days',
         );
+        console.log(previousRepeatingDate, 'previousRepeatingDate');
+        console.log(next_order_date, 'next_order_date');
+
+        data.setDataValue('next_order_date', next_order_date);
         if (data.user_id !== job.owner.id) {
           await this._msClient.executeJob(
             'controller.notification',
@@ -2304,8 +2308,7 @@ Hello ${data.user.name}, thank you for your order!, Your order placed on ${momen
                     .tz('America/New_York')
                     .format('MM/DD/YYYY'),
                   ORDERID: data.uid,
-                  NEXT_ORDER_DATE: moment(previousRepeatingDate)
-                    .add(repeatingDays, 'days')
+                  NEXT_ORDER_DATE: moment(next_order_date)
                     .tz('America/New_York')
                     .format('MM/DD/YYYY'),
                 },
