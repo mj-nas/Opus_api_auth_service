@@ -659,7 +659,7 @@ export default <Seed<Template>>{
       transporter: Transporter.CustomerServices,
       email_subject: 'Your Upcoming Reorder has been Cancelled by Admin',
       email_body: `<p>Hi ##TO_NAME##</p>
-      <br/><p>We regret to inform you that your upcoming recurring order ##ORDERID##, scheduled for ##DATE## has been canceled.</p>
+      <br/><p>We regret to inform you that your upcoming recurring order ##ORDERID##, scheduled for ##DATE## has been canceled. Your next order will be placed on ##NEXT_ORDER_DATE##.</p>
       <br/><p>If you have any questions or need further assistance, please contact us.</p>
       <br/><p>Best Regards,</p>
       <p>Team OPUS,</p>`,
