@@ -288,7 +288,7 @@ export class CouponService extends ModelService<Coupon> {
             moment(x.valid_from).format('MM/DD/YYYY'),
             moment(x.valid_to).format('MM/DD/YYYY'),
             x?.coupon_type === 'percentage'
-              ? `${x.discount}%`
+              ? `${parseFloat(x.discount).toFixed(2)}%`
               : `$${parseFloat(x.discount).toFixed(2)}`,
             x?.coupon_type == 'percentage' ? 'Percentage' : 'Price',
             x?.discount_usage,
