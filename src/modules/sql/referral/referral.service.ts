@@ -77,13 +77,13 @@ export class ReferralService extends ModelService<Referral> {
   async createReferrals(job: Job): Promise<JobResponse> {
     const { referred_coupons, referred_products, email } = job.payload;
     // const colours = ['#AA674F', '#E8AE9A', '#CFAFA4', '#FFFEDB', '#C4946B'];
-    const colours = [
-      { bgColor: '#AA674F', textColor: '#FFFFFF' },
-      { bgColor: '#E8AE9A', textColor: '#FFFFFF' },
-      { bgColor: '#CFAFA4', textColor: '#FFFFFF' },
-      { bgColor: '#FFFEDB', textColor: '#000000' },
-      { bgColor: '#C4946B', textColor: '#FFFFFF' },
-    ];
+    // const colours = [
+    //   { bgColor: '#AA674F', textColor: '#FFFFFF' },
+    //   { bgColor: '#E8AE9A', textColor: '#FFFFFF' },
+    //   { bgColor: '#CFAFA4', textColor: '#FFFFFF' },
+    //   { bgColor: '#FFFEDB', textColor: '#000000' },
+    //   { bgColor: '#C4946B', textColor: '#FFFFFF' },
+    // ];
     const { error, data } = await this.create({
       owner: job.owner,
       action: 'create',
@@ -165,42 +165,51 @@ export class ReferralService extends ModelService<Referral> {
       this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
     }
     const _email_template = this.emailTemplate({
-      banner: this.config.get('cdnLocalURL') + 'assets/banner.png',
-      footer: this.config.get('cdnLocalURL') + 'assets/ft_img.png',
-      logo: this.config.get('cdnLocalURL') + 'assets/logo.png',
       referral_link: data.referral_link,
       qr_link: data.qr_code,
-      dispenser_name: job.owner.name,
-      business_name: job.owner.business_name
-        ? `from <b>${job.owner.business_name}</b>`
-        : '',
       coupons: referred_coupons ? referred_coupons : [],
-      products: referred_products
-        ? referred_products.map((e: any, index: number) => {
-            const colorIndex = index % colours.length;
-            return {
-              ...e,
-              // url: `${process.env.WEBSITE_URL}/products/${e.slug}?r=${data.uid}`,
-              url: data.referral_link,
-              productbgcolor: colours[colorIndex].bgColor,
-              producttxtcolor: colours[colorIndex].textColor,
-            };
-          })
-        : [],
     });
-    const email_subject = `You've been referred by ${job.owner.name} ${job.owner.business_name ? `of ${job.owner.business_name}` : ''}`;
+
+    let products = ``;
+    referred_products.forEach((item) => {
+      products += `<tr style="border-bottom: 1px solid rgb(66, 68, 66);">
+                                        <td>
+                                            <img style="width: 100px; height: 100px" width="100" height="100"
+                                                src="${item.product_image}"
+                                                alt="Product Image" />
+                                        </td>
+                                        <td style="font-size: 14px;">
+                                            ${item.name}
+                                        </td>
+                                        <td style="text-align: center;"><a href="${}"><p style="background-color: #28D0B0; width: 80%; font-size: 14px; font-weight: 600;"><b>Shop now</b></p></a></td>
+                                    </tr>
+                                    `;
+    });
+    const DISPENSER_OF_BUSINESS_NAME = `${job.owner.name} ${job.owner.business_name ? `of ${job.owner.business_name}` : ''}`;
+    const DISPENSER_FROM_BUSINESS_NAME = `<b>${job.owner.name}</b> ${job.owner.business_name ? `from <b>${job.owner.business_name}</b>` : ''}`;
 
     await this.msClient.executeJob(
-      'controller.email',
+      'controller.notification',
       new Job({
-        action: 'sendMail',
+        action: 'send',
         payload: {
-          to: email,
-          subject: email_subject,
-          html: _email_template,
-          from:
-            this.config.get('email').transports['CustomerServices'].from || '',
-          transporterName: 'CustomerServices',
+          skipUserConfig: true,
+          users: [
+            {
+              name: 'user.name',
+              email: email,
+              send_email: true,
+            },
+          ],
+          template: 'referral_template',
+          variables: {
+            REFERRAL_LINK: data.referral_link,
+            QR_LINK: data.qr_code,
+            DISPENSER_OF_BUSINESS_NAME,
+            DISPENSER_FROM_BUSINESS_NAME,
+            COUPON_CODE: referred_coupons[0].code,
+            PRODUCTS: products,
+          },
         },
       }),
     );

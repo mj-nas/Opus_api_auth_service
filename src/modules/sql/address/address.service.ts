@@ -1,7 +1,8 @@
 import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Op } from 'sequelize';
 import { Address } from './entities/address.entity';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AddressService extends ModelService<Address> {
@@ -11,7 +12,10 @@ export class AddressService extends ModelService<Address> {
    */
   searchFields: string[] = ['name'];
 
-  constructor(db: SqlService<Address>) {
+  constructor(db: SqlService<Address>,
+    @Inject(forwardRef(() => UserService))
+    private userService: UserService
+  ) {
     super(db);
   }
 
@@ -80,6 +84,21 @@ export class AddressService extends ModelService<Address> {
         },
         body: { is_primary: 'N' },
       });
+    }
+
+    if (job.action == "update"){
+      if(response.data.is_primary == "Y"){
+        await this.userService.$db.updateRecord({
+          options:{
+            where:{
+              id: response.data.user_id
+            }
+          },
+          body:{
+            ...response.data
+          }
+        })
+      }
     }
   }
 }

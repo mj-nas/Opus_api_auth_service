@@ -666,5 +666,45 @@ export default <Seed<Template>>{
       send_sms: false,
       sms_body: '',
     },
+    {
+      name: 'referral_template',
+      title: 'Referral Template',
+      send_email: true,
+      transporter: Transporter.CustomerServices,
+      email_subject: 'You have been referred by ##DISPENSER_OF_BUSINESS_NAME##',
+      email_body: `<p>Your Referral Has arrived</p>
+                            <p>##DISPENSER_FROM_BUSINESS_NAME## has referred you</p>
+                            <p>&nbsp;</p>
+                            <p style="text-align: center; font-size: 20px; font-weight: 650;">How to use your Referral benefits:</p>
+                            <p style="text-align: center; font-size: 18px; font-weight: 600;">Scan QR code</p>
+                            <p style="text-align: center;">Use the QR code to shop our products instantly</p>
+                            <img height="200px" width="200px"
+                                src="##QR_LINK##">
+                            </br>
+                            <p style="text-align: center;">Or</p>
+                            <p style="text-align: center; font-size: 18px; font-weight: 600;">Click the link below</p>
+                            <p style="text-align: center;">click the unique referral link to explore and share it with friends</p>
+                            <a href="##REFERRAL_LINK##">
+                                <p style="text-align: center;">##REFERRAL_LINK##</p>
+                            </a>
+                            </br>
+                            <p style="text-align: center; font-size: 20px; font-weight: 600;">Recommended exclusively
+                                for you</p>
+                            <p style="text-align: center; font-size: 14px;">these products are Recommended by your personal opus dispenser</p>
+                            <table style="border: 1px solid rgb(49, 49, 49);">
+                                <td>
+                                    ##PRODUCTS##
+                                </td>
+                            </table>
+                        </br>
+                        <p style="text-align: center; font-size: 20px; font-weight: 600;">Exclusive coupon code for you</p>
+                        <p style="text-align: center; font-size: 14px;">use this coupon to get a discount on your next purchase, share them with your friends</p>
+                        <p style="text-align: center; font-size: 26px; font-weight: 700; background-color: black; color: white; width: 70%; margin: auto;">##COUPON_CODE##</p>
+                            <p><br>&nbsp;</p>
+                            <p>Best Regards,</p>
+                            <p>Team OPUS</p>`,
+      send_sms: false,
+      sms_body: '',
+    }
   ],
 };

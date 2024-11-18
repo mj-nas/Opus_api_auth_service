@@ -8,7 +8,7 @@ import {
   SqlUpdateResponse,
 } from '@core/sql';
 import { TinyUrlService } from '@core/tinyurl';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createCanvas } from 'canvas';
 import { CsvError, parse } from 'csv-parse';
@@ -65,6 +65,7 @@ export class UserService extends ModelService<User> {
   constructor(
     db: SqlService<User>,
     private msClient: MsClientService,
+    @Inject(forwardRef(() => AddressService))
     private addressService: AddressService,
     private config: ConfigService,
     private otpSessionService: OtpSessionService,
