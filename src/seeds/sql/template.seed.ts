@@ -277,7 +277,7 @@ export default <Seed<Template>>{
 <br />
 <p>Congratulations and welcome to the team! Your application to become a Dispenser has been approved. Here are your details to access the Dispenser portal:</p>
 <br />
-<p>Click here to login - ##LOGIN_LINK##</p>
+<p>Click here to login - <a href="##LOGIN_LINK##">##LOGIN_LINK##</a></p>
 <br />
 <p>Username: ##USERNAME##</p>
 <p>Password: ##PASSWORD##</p>
@@ -329,7 +329,7 @@ export default <Seed<Template>>{
 <br />
 <p>Below are your login details:</p>
 <br />
-<p>Click here to login - ##LOGIN_LINK##</p>
+<p>Click here to login - <a href= "##LOGIN_LINK##">##LOGIN_LINK##</a></p>
 <br />
 <p>Username: ##USERNAME##</p>
 <p>Password: ##PASSWORD##</p>
@@ -597,7 +597,7 @@ export default <Seed<Template>>{
 <p>We noticed that your order ##ORDER_ID##, placed on ##DATE##, is still in 'Payment Pending' status. Please complete your payment within the next 24 hours to avoid order cancellation.</p>
 <br />
 <p>You can complete your payment by clicking the link below:</p>
-<p>##PAYMENT_LINK##</p>
+<p><a href="##PAYMENT_LINK##">##PAYMENT_LINK##</a></p>
 <br />
 <p>Alternatively, you can visit the My Orders page in your account to review and process the payment.</p>
 <br />

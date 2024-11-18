@@ -515,7 +515,6 @@ export class OrderService extends ModelService<Order> {
             userData.data.setDataValue('connection_via', ConnectionVia.Coupon);
             order.data.setDataValue('dispenser_id', couponData.data?.user_id);
             await userData.data.save();
-            await order.data.save();
 
             // add log for user-dispenser update
             await this._msClient.executeJob('user.dispenser.change', {
