@@ -220,6 +220,39 @@ export class UserService extends ModelService<User> {
     response: SqlUpdateResponse<User>,
   ): Promise<void> {
     await super.doAfterUpdate(job, response);
+    if(job.action == "update"){
+      await this.addressService.$db.findAndUpdateRecord({
+        options:{
+          where:{
+            user_id: response.data.id,
+            is_primary: "Y"
+          }
+        },
+        body:{
+          first_name: response.data.first_name,
+          last_name: response.data.last_name,
+          address: response.data.address,
+          address2: response.data.address2,
+          city: response.data.city,
+          state: response.data.state,
+          zip_code: response.data.zip_code
+        }
+      })
+    }
+    if(job.action == "updateMe"){
+      await this.addressService.$db.findAndUpdateRecord({
+        options:{
+          where:{
+            user_id: response.data.id,
+            is_primary: "Y"
+          }
+        },
+        body:{
+          first_name: response.data.first_name,
+          last_name: response.data.last_name
+        }
+      })
+    }
     if (job.action === 'updateDispenser') {
       const { dispenser_id, connection_via, id } = response.data;
       const previous_dispenser_id = response.previousData.dispenser_id;

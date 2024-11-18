@@ -88,14 +88,15 @@ export class AddressService extends ModelService<Address> {
 
     if (job.action == "update"){
       if(response.data.is_primary == "Y"){
+        const {created_at, } = response.data
         await this.userService.$db.updateRecord({
-          options:{
-            where:{
-              id: response.data.user_id
-            }
-          },
+          id: response.data.user_id,
           body:{
-            ...response.data
+            address: response.data.address,
+            address2: response.data.address2,
+            city: response.data.city,
+            state: response.data.state,
+            zip_code: response.data.zip_code,
           }
         })
       }
