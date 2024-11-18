@@ -73,18 +73,146 @@ export class ReferralService extends ModelService<Referral> {
 
     return Key;
   }
+// with designed email template
+  // async createReferrals(job: Job): Promise<JobResponse> {
+  //   const { referred_coupons, referred_products, email } = job.payload;
+  //   // const colours = ['#AA674F', '#E8AE9A', '#CFAFA4', '#FFFEDB', '#C4946B'];
+  //   const colours = [
+  //     { bgColor: '#AA674F', textColor: '#FFFFFF' },
+  //     { bgColor: '#E8AE9A', textColor: '#FFFFFF' },
+  //     { bgColor: '#CFAFA4', textColor: '#FFFFFF' },
+  //     { bgColor: '#FFFEDB', textColor: '#000000' },
+  //     { bgColor: '#C4946B', textColor: '#FFFFFF' },
+  //   ];
+  //   const { error, data } = await this.create({
+  //     owner: job.owner,
+  //     action: 'create',
+  //     body: { email, dispenser_id: job.owner.id },
+  //   });
+
+  //   if (error) {
+  //     return { error };
+  //   }
+
+  //   const tinyUrlResponse = await this._tinyUrlService.shortenUrl({
+  //     payload: { url: `${process.env.WEBSITE_URL}/referral/${data.uid}` },
+  //   });
+  //   if (!tinyUrlResponse.error && tinyUrlResponse.data?.alias) {
+  //     data.setDataValue('tiny_url_alias', tinyUrlResponse.data?.alias);
+  //     await data.save();
+  //   }
+
+  //   const dataUrl = await this.generateQRCode(data.referral_link);
+  //   const qrCodeKey = await this.uploadToS3(dataUrl, data.uid);
+  //   data.setDataValue('qr_code', qrCodeKey);
+  //   await data.save();
+
+  //   if (referred_coupons && referred_coupons.length > 0) {
+  //     const coupon_data = referred_coupons.map((e) => {
+  //       return {
+  //         referral_id: data.id,
+  //         coupon_id: e.id,
+  //       };
+  //     });
+  //     const referredCoupons =
+  //       await this.referredCouponService.$db.createBulkRecords({
+  //         owner: job.owner,
+  //         options: {},
+  //         records: coupon_data,
+  //       });
+
+  //     if (referredCoupons.error) {
+  //       return {
+  //         error: referredCoupons.error,
+  //       };
+  //     }
+  //   }
+  //   if (referred_products && referred_products.length > 0) {
+  //     const product_data = referred_products.map((e) => {
+  //       return {
+  //         referral_id: data.id,
+  //         product_id: e.id,
+  //       };
+  //     });
+  //     const referredProducts =
+  //       await this.referredProductService.$db.createBulkRecords({
+  //         owner: job.owner,
+  //         options: {},
+  //         records: product_data,
+  //       });
+
+  //     if (referredProducts.error) {
+  //       return {
+  //         error: referredProducts.error,
+  //       };
+  //     }
+  //   }
+
+  //   try {
+  //     const template = readFileSync(
+  //       join(__dirname, '../src', 'views/referral.hbs'),
+  //       'utf8',
+  //     );
+  //     handlebars.registerHelper('checkLength', function (array) {
+  //       if (array.length > 1) {
+  //         return 'These products were recommended by your personal Opus Dispenser';
+  //       } else {
+  //         return 'This product was recommended by your personal Opus Dispenser';
+  //       }
+  //     });
+  //     this.emailTemplate = handlebars.compile(template);
+  //   } catch (error) {
+  //     this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
+  //   }
+  //   const _email_template = this.emailTemplate({
+  //     banner: this.config.get('cdnLocalURL') + 'assets/banner.png',
+  //     footer: this.config.get('cdnLocalURL') + 'assets/ft_img.png',
+  //     logo: this.config.get('cdnLocalURL') + 'assets/logo.png',
+  //     referral_link: data.referral_link,
+  //     qr_link: data.qr_code,
+  //     dispenser_name: job.owner.name,
+  //     business_name: job.owner.business_name
+  //       ? `from <b>${job.owner.business_name}</b>`
+  //       : '',
+  //     coupons: referred_coupons ? referred_coupons : [],
+  //     products: referred_products
+  //       ? referred_products.map((e: any, index: number) => {
+  //           const colorIndex = index % colours.length;
+  //           return {
+  //             ...e,
+  //             // url: `${process.env.WEBSITE_URL}/products/${e.slug}?r=${data.uid}`,
+  //             url: data.referral_link,
+  //             productbgcolor: colours[colorIndex].bgColor,
+  //             producttxtcolor: colours[colorIndex].textColor,
+  //           };
+  //         })
+  //       : [],
+  //   });
+  //   const email_subject = `You've been referred by ${job.owner.name} ${job.owner.business_name ? `of ${job.owner.business_name}` : ''}`;
+
+  //   await this.msClient.executeJob(
+  //     'controller.email',
+  //     new Job({
+  //       action: 'sendMail',
+  //       payload: {
+  //         to: email,
+  //         subject: email_subject,
+  //         html: _email_template,
+  //         from:
+  //           this.config.get('email').transports['CustomerServices'].from || '',
+  //         transporterName: 'CustomerServices',
+  //       },
+  //     }),
+  //   );
+
+  //   return {
+  //     data: {},
+  //   };
+  // }
 
   // with new simple email template
   async createReferrals(job: Job): Promise<JobResponse> {
     const { referred_coupons, referred_products, email } = job.payload;
-    // const colours = ['#AA674F', '#E8AE9A', '#CFAFA4', '#FFFEDB', '#C4946B'];
-    // const colours = [
-    //   { bgColor: '#AA674F', textColor: '#FFFFFF' },
-    //   { bgColor: '#E8AE9A', textColor: '#FFFFFF' },
-    //   { bgColor: '#CFAFA4', textColor: '#FFFFFF' },
-    //   { bgColor: '#FFFEDB', textColor: '#000000' },
-    //   { bgColor: '#C4946B', textColor: '#FFFFFF' },
-    // ];
     const { error, data } = await this.create({
       owner: job.owner,
       action: 'create',
@@ -148,28 +276,6 @@ export class ReferralService extends ModelService<Referral> {
         };
       }
     }
-
-    try {
-      const template = readFileSync(
-        join(__dirname, '../src', 'views/referral.hbs'),
-        'utf8',
-      );
-      handlebars.registerHelper('checkLength', function (array) {
-        if (array.length > 1) {
-          return 'These products were recommended by your personal Opus Dispenser';
-        } else {
-          return 'This product was recommended by your personal Opus Dispenser';
-        }
-      });
-      this.emailTemplate = handlebars.compile(template);
-    } catch (error) {
-      this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
-    }
-    const _email_template = this.emailTemplate({
-      referral_link: data.referral_link,
-      qr_link: data.qr_code,
-      coupons: referred_coupons ? referred_coupons : [],
-    });
 
     let products = ``;
     referred_products.forEach((item) => {
