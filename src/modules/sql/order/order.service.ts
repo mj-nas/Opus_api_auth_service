@@ -513,8 +513,11 @@ export class OrderService extends ModelService<Order> {
               couponData.data?.user_id,
             );
             userData.data.setDataValue('connection_via', ConnectionVia.Coupon);
+            order.data.setDataValue('dispenser_id', couponData.data?.user_id);
             await userData.data.save();
+            await order.data.save();
 
+            // add log for user-dispenser update
             await this._msClient.executeJob('user.dispenser.change', {
               owner: { id: job.owner.id },
               payload: {
@@ -525,6 +528,12 @@ export class OrderService extends ModelService<Order> {
             });
           }
         }
+        // create commission
+        await this._msClient.executeJob('order.commission.create', {
+          payload: {
+            order_id: order.data.id,
+          },
+        });
       }
 
       // create stripe product, price and payment link only for non-repeating orders
@@ -586,21 +595,9 @@ export class OrderService extends ModelService<Order> {
         }
 
         await transaction.commit();
-        await this._msClient.executeJob('order.commission.create', {
-          payload: {
-            order_id: order.data.id,
-          },
-        });
-
         return { data: { order: order.data, payment_link: paymentLink.url } };
       } else {
         await transaction.commit();
-
-        await this._msClient.executeJob('order.commission.create', {
-          payload: {
-            order_id: order.data.id,
-          },
-        });
         await this._msClient.executeJob('order.mail.sent', {
           payload: {
             order_id: order.data.id,
