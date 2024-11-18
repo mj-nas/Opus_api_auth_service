@@ -74,6 +74,7 @@ export class ReferralService extends ModelService<Referral> {
     return Key;
   }
 
+  // with new simple email template
   async createReferrals(job: Job): Promise<JobResponse> {
     const { referred_coupons, referred_products, email } = job.payload;
     // const colours = ['#AA674F', '#E8AE9A', '#CFAFA4', '#FFFEDB', '#C4946B'];
@@ -173,16 +174,16 @@ export class ReferralService extends ModelService<Referral> {
     let products = ``;
     referred_products.forEach((item) => {
       products += `<tr style="border-bottom: 1px solid rgb(66, 68, 66);">
-                                        <td>
-                                            <img style="width: 100px; height: 100px" width="100" height="100"
-                                                src="${item.product_image}"
-                                                alt="Product Image" />
-                                        </td>
-                                        <td style="font-size: 14px;">
-                                            ${item.name}
-                                        </td>
-                                        <td style="text-align: center;"><a href="${}"><p style="background-color: #28D0B0; width: 80%; font-size: 14px; font-weight: 600;"><b>Shop now</b></p></a></td>
-                                    </tr>
+                      <td>
+                        <img style="width: 100px; height: 100px" width="100" height="100"
+                          src="${item.product_image}"
+                          alt="Product Image" />
+                      </td>
+                      <td style="font-size: 14px;">
+                        ${item.name}
+                      </td>
+                      <td style="text-align: center;"><a href="${`${process.env.WEBSITE_URL}/products/${item.slug}?r=${data.uid}`}"><p style="background-color: #28D0B0; width: 80%; font-size: 14px; font-weight: 600;"><b>Shop now</b></p></a></td>
+                   </tr>
                                     `;
     });
     const DISPENSER_OF_BUSINESS_NAME = `${job.owner.name} ${job.owner.business_name ? `of ${job.owner.business_name}` : ''}`;
