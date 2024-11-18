@@ -513,8 +513,9 @@ export class OrderService extends ModelService<Order> {
               couponData.data?.user_id,
             );
             userData.data.setDataValue('connection_via', ConnectionVia.Coupon);
-            order.data.setDataValue('dispenser_id', couponData.data?.user_id);
             await userData.data.save();
+            
+            order.data.setDataValue('dispenser_id', couponData.data?.user_id);
 
             // add log for user-dispenser update
             await this._msClient.executeJob('user.dispenser.change', {
@@ -606,6 +607,8 @@ export class OrderService extends ModelService<Order> {
         });
         return { data: { order: order.data, payment_link: '' } };
       }
+
+      await order.data.save()
     } catch (error) {
       await transaction.rollback();
       return { error };
