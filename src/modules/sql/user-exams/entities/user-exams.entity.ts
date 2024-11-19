@@ -121,26 +121,6 @@ export class UserExams extends SqlModel {
   static setUuid(instance: UserExams) {
     instance.uid = uuid();
   }
-  
-  @BeforeCreate
-  static async setCert_id(instance: UserExams) {
-    const o = await UserExams.findOne({
-      attributes: ['cert_id'],
-      where: sequelize.where(
-        sequelize.fn('DATE', sequelize.col('created_at')),
-        '=',
-        sequelize.fn('DATE', sequelize.fn('NOW')),
-      ),
-      paranoid: false,
-      order: [['id', 'DESC']],
-    });
-
-    if (!o?.uid) {
-      instance.uid = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad('1', 6)}`;
-    } else {
-      instance.uid = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad((Number(o.uid.substring(o.uid.length - 6)) + 1).toString(), 6)}`;
-    }
-  }
 
   @HasMany(() => ExamModule)
   exam_modules: ExamModule[];
