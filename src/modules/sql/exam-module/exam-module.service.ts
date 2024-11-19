@@ -41,32 +41,6 @@ export class ExamModuleService extends ModelService<ExamModule> {
     super(db);
   }
 
-  // protected async doAfterFindAll(
-  //   job: SqlJob<ExamModule>,
-  //   response: SqlGetAllResponse<ExamModule>,
-  // ): Promise<void> {
-  //   let unique_id = '';
-  //   const o = await this.userExamsService.$db.findOneRecord({
-  //     options: {
-  //       where: {
-  //         created_at: literal(
-  //           `DATE_FORMAT(UserExams.created_at,'%Y-%M-%d') = DATE_FORMAT(CURDATE( ),'%Y-%M-%d')`,
-  //         ),
-  //         cert_id: { [Op.ne]: null },
-  //       },
-  //       order: [['cert_id', 'DESC']],
-  //       paranoid: false,
-  //     },
-  //   });
-
-  //   if (!o?.data?.cert_id) {
-  //     unique_id = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad('1', 6)}`;
-  //   } else {
-  //     unique_id = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad((Number(o.data.cert_id.substring(11)) + 1).toString(), 6)}`;
-  //   }
-  //   console.log(unique_id);
-  // }
-
   /**
    * doAfterUpdate
    * @function function will execute after update function
@@ -129,8 +103,6 @@ export class ExamModuleService extends ModelService<ExamModule> {
         } else {
           unique_id = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad((Number(o.data.cert_id.substring(11)) + 1).toString(), 6)}`;
         }
-        console.log(o);
-        
         console.log(unique_id, 'Unique id >>>>>>>>>>>>>>>>>>');
         const content = `This is to certify that ${job.owner.name} has successfully completed the e-Learning Course`;
         const cert_img = await this.createCertificateImage(
