@@ -1,8 +1,8 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { IsUnique } from '@core/sql/sql.unique-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import sequelize, { DataTypes, Op, col } from 'sequelize';
 import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
-import { DataTypes } from 'sequelize';
 import {
   BeforeCreate,
   Column,
@@ -11,7 +11,7 @@ import {
   Index,
   Table,
 } from 'sequelize-typescript';
-import { uuid } from 'src/core/core.utils';
+import { getUTCDateNow, uuid, zeroPad } from 'src/core/core.utils';
 import { ExamModule } from '../../exam-module/entities/exam-module.entity';
 import { User } from '../../user/entities/user.entity';
 
@@ -120,6 +120,26 @@ export class UserExams extends SqlModel {
   @BeforeCreate
   static setUuid(instance: UserExams) {
     instance.uid = uuid();
+  }
+  
+  @BeforeCreate
+  static async setCert_id(instance: UserExams) {
+    const o = await UserExams.findOne({
+      attributes: ['cert_id'],
+      where: sequelize.where(
+        sequelize.fn('DATE', sequelize.col('created_at')),
+        '=',
+        sequelize.fn('DATE', sequelize.fn('NOW')),
+      ),
+      paranoid: false,
+      order: [['id', 'DESC']],
+    });
+
+    if (!o?.uid) {
+      instance.uid = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad('1', 6)}`;
+    } else {
+      instance.uid = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad((Number(o.uid.substring(o.uid.length - 6)) + 1).toString(), 6)}`;
+    }
   }
 
   @HasMany(() => ExamModule)

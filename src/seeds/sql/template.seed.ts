@@ -672,7 +672,7 @@ export default <Seed<Template>>{
       send_email: true,
       transporter: Transporter.CustomerServices,
       email_subject: 'You have been referred by ##DISPENSER_OF_BUSINESS_NAME##',
-      email_body: `<p>Your Referral Has arrived</p>
+      email_body: `<p><b>Your Referral Has arrived</b></p>
                             <p>##DISPENSER_FROM_BUSINESS_NAME## has referred you</p>
                             <p>&nbsp;</p>
                             <p style="text-align: center; font-size: 20px; font-weight: 650;">How to use your Referral benefits:</p>
