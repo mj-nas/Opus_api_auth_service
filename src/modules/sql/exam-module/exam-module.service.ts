@@ -120,7 +120,7 @@ export class ExamModuleService extends ModelService<ExamModule> {
               cert_id: { [Op.ne]: null },
             },
             order: [['cert_id', 'DESC']],
-            paranoid: true,
+            paranoid: false,
           },
         });
 
