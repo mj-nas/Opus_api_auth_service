@@ -129,6 +129,8 @@ export class ExamModuleService extends ModelService<ExamModule> {
         } else {
           unique_id = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad((Number(o.data.cert_id.substring(11)) + 1).toString(), 6)}`;
         }
+        console.log(o);
+        
         console.log(unique_id, 'Unique id >>>>>>>>>>>>>>>>>>');
         const content = `This is to certify that ${job.owner.name} has successfully completed the e-Learning Course`;
         const cert_img = await this.createCertificateImage(
