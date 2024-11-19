@@ -1,12 +1,14 @@
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsDecimal,
   IsEmail,
   IsEnum,
   IsNumberString,
   IsOptional,
   IsString,
   MaxLength,
+  ValidateIf,
 } from 'class-validator';
 import {
   BeforeSave,
@@ -18,6 +20,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { User } from '../../user/entities/user.entity';
+import { Role } from '../../user/role.enum';
 
 @Table
 export class Address extends SqlModel {
@@ -121,6 +124,34 @@ export class Address extends SqlModel {
   @IsString()
   @MaxLength(30)
   state?: string;
+
+  @Column(DataType.DECIMAL(10, 8))
+  @ApiProperty({
+    format: 'float',
+    description: 'Latitude',
+    example: 90.013947,
+  })
+  @IsDecimal(
+    {},
+    {
+      message: 'Please select an address from the Google auto-suggestion list',
+    },
+  )
+  latitude: number;
+
+  @Column(DataType.DECIMAL(11, 8))
+  @ApiProperty({
+    format: 'float',
+    description: 'Longitude',
+    example: 180.363272,
+  })
+  @IsDecimal(
+    {},
+    {
+      message: 'Please select an address from the Google auto-suggestion list',
+    },
+  )
+  longitude: number;
 
   @Column
   @ApiProperty({

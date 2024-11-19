@@ -230,12 +230,16 @@ export class UserService extends ModelService<User> {
         },
         body:{
           first_name: response.data.first_name,
+          email: response.data.email,
+          phone: response.data.phone,
           last_name: response.data.last_name,
           address: response.data.address,
           address2: response.data.address2,
           city: response.data.city,
           state: response.data.state,
-          zip_code: response.data.zip_code
+          zip_code: response.data.zip_code,
+          latitude: response.data.latitude,
+          longitude: response.data.longitude
         }
       })
     }
@@ -249,7 +253,9 @@ export class UserService extends ModelService<User> {
         },
         body:{
           first_name: response.data.first_name,
-          last_name: response.data.last_name
+          last_name: response.data.last_name,
+          email: response.data.email,
+          phone: response.data.phone
         }
       })
     }

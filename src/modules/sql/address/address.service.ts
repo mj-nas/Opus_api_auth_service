@@ -97,6 +97,8 @@ export class AddressService extends ModelService<Address> {
             city: response.data.city,
             state: response.data.state,
             zip_code: response.data.zip_code,
+            latitude: response.data.latitude,
+            longitude: response.data.longitude
           }
         })
       }
