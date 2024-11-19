@@ -1,17 +1,18 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { ModelService, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
+import { ModelService, SqlGetAllResponse, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Jimp from 'jimp';
 import jsPDF from 'jspdf';
 import * as moment from 'moment-timezone';
-import sequelize from 'sequelize';
+import sequelize, { literal } from 'sequelize';
 import { Job } from 'src/core/core.job';
 import { getUTCDateNow, zeroPad } from 'src/core/core.utils';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
 import { UserExamsService } from '../user-exams/user-exams.service';
 import { UserService } from '../user/user.service';
 import { ExamModule } from './entities/exam-module.entity';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class ExamModuleService extends ModelService<ExamModule> {
@@ -66,18 +67,30 @@ export class ExamModuleService extends ModelService<ExamModule> {
 
         let unique_id = '';
 
-        const o = await this.userExamsService.findOne({
-          payload: {
-            attributes: ['cert_id'],
-            where: sequelize.where(
-              sequelize.fn('DATE', sequelize.col('created_at')),
-              '=',
-              sequelize.fn('DATE', sequelize.fn('NOW')),
-            ),
-            paranoid: false,
-            order: [['id', 'DESC']],
-          },
-        });
+        // const o = await this.userExamsService.findOne({
+        //   payload: {
+        //     attributes: ['cert_id'],
+        //     where: sequelize.where(
+        //       sequelize.fn('DATE', sequelize.col('created_at')),
+        //       '=',
+        //       sequelize.fn('DATE', sequelize.fn('NOW')),
+        //     ),
+        //     paranoid: false,
+        //     order: [['id', 'DESC']],
+        //   },
+        // });
+        const o = await this.userExamsService.$db.findOneRecord({
+          options:{
+            where:{
+              created_at: literal(
+                `DATE_FORMAT(UserExams.created_at,'%Y-%M-%d') = DATE_FORMAT(CURDATE( ),'%Y-%M-%d')`,
+              ),
+              cert_id:{[Op.ne]: null},
+            },
+            order:[['cert_id', 'DESC']],
+            paranoid: true
+          }
+        })
 
         if (!o?.data?.cert_id) {
           unique_id = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad('1', 6)}`;
