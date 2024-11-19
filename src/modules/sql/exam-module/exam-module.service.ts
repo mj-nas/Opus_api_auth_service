@@ -1,5 +1,11 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { ModelService, SqlGetAllResponse, SqlJob, SqlService, SqlUpdateResponse } from '@core/sql';
+import {
+  ModelService,
+  SqlGetAllResponse,
+  SqlJob,
+  SqlService,
+  SqlUpdateResponse,
+} from '@core/sql';
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Jimp from 'jimp';
@@ -34,6 +40,32 @@ export class ExamModuleService extends ModelService<ExamModule> {
   ) {
     super(db);
   }
+
+  // protected async doAfterFindAll(
+  //   job: SqlJob<ExamModule>,
+  //   response: SqlGetAllResponse<ExamModule>,
+  // ): Promise<void> {
+  //   let unique_id = '';
+  //   const o = await this.userExamsService.$db.findOneRecord({
+  //     options: {
+  //       where: {
+  //         created_at: literal(
+  //           `DATE_FORMAT(UserExams.created_at,'%Y-%M-%d') = DATE_FORMAT(CURDATE( ),'%Y-%M-%d')`,
+  //         ),
+  //         cert_id: { [Op.ne]: null },
+  //       },
+  //       order: [['cert_id', 'DESC']],
+  //       paranoid: false,
+  //     },
+  //   });
+
+  //   if (!o?.data?.cert_id) {
+  //     unique_id = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad('1', 6)}`;
+  //   } else {
+  //     unique_id = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad((Number(o.data.cert_id.substring(11)) + 1).toString(), 6)}`;
+  //   }
+  //   console.log(unique_id);
+  // }
 
   /**
    * doAfterUpdate
@@ -80,39 +112,24 @@ export class ExamModuleService extends ModelService<ExamModule> {
         //   },
         // });
         const o = await this.userExamsService.$db.findOneRecord({
-          options:{
-            where:{
-              created_at: literal(
-                `DATE_FORMAT(UserExams.created_at,'%Y-%M-%d') = DATE_FORMAT(CURDATE( ),'%Y-%M-%d')`,
+          options: {
+            where: {
+              completed_date: literal(
+                `DATE_FORMAT(UserExams.completed_date,'%Y-%M-%d') = DATE_FORMAT(CURDATE( ),'%Y-%M-%d')`,
               ),
-              cert_id:{[Op.ne]: null},
+              cert_id: { [Op.ne]: null },
             },
-            order:[['cert_id', 'DESC']],
-            paranoid: true
-          }
-        })
+            order: [['cert_id', 'DESC']],
+            paranoid: true,
+          },
+        });
 
         if (!o?.data?.cert_id) {
           unique_id = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad('1', 6)}`;
         } else {
           unique_id = `OPUS-${getUTCDateNow('MMDDYY')}${zeroPad((Number(o.data.cert_id.substring(11)) + 1).toString(), 6)}`;
         }
-
-        // const no_of_certs = await this.userExamsService.$db.getAllRecords({
-        //   options: {
-        //     where: { cert_id: { [Op.ne]: null } },
-        //     order: [['cert_id', 'desc']],
-        //   },
-        // });
-        // if (no_of_certs.data.length > 0) {
-        //   const cert_id = no_of_certs.data[0].cert_id.split('-')[1];
-        //   this.logger.log(cert_id);
-        //   unique_id = `OPUS-${zeroPad((parseInt(cert_id) + 1).toString(), 5)}`;
-        //   this.logger.log(unique_id);
-        // } else {
-        //   unique_id = `OPUS-${zeroPad('1', 5)}`;
-        // }
-
+        console.log(unique_id, 'Unique id >>>>>>>>>>>>>>>>>>');
         const content = `This is to certify that ${job.owner.name} has successfully completed the e-Learning Course`;
         const cert_img = await this.createCertificateImage(
           job.owner,
