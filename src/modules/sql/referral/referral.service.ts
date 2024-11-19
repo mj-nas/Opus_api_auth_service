@@ -210,6 +210,7 @@ export class ReferralService extends ModelService<Referral> {
   //   };
   // }
 
+  
   // with new simple email template
   async createReferrals(job: Job): Promise<JobResponse> {
     const { referred_coupons, referred_products, email } = job.payload;
