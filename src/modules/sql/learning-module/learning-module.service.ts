@@ -30,6 +30,34 @@ export class LearningModuleService extends ModelService<LearningModule> {
     super(db);
   }
 
+  protected async doBeforeDelete(job: SqlJob<LearningModule>): Promise<void> {
+    const { error, data } = await this.$db.getAllRecords({
+      options: {
+        where: {
+          active: true,
+        },
+      },
+    });
+    if (data && data.length == 1) {
+      throw new Error('Atleast one Module needs to be available');
+    }
+  }
+
+  protected async doBeforeUpdate(job: SqlJob<LearningModule>): Promise<void> {
+    if (job.body && job.body.active == false) {
+      const { error, data } = await this.$db.getAllRecords({
+        options: {
+          where: {
+            active: true,
+          },
+        },
+      });
+      if (data && data.length == 1) {
+        throw new Error('Atleast one Module needs to be active');
+      }
+    }
+  }
+
   /**
    * update bulk
    * @function update array of record using primary key
