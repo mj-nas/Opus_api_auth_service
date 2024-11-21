@@ -36,11 +36,11 @@ export class OrderAddress extends SqlModel {
   @Column
   @Index
   @ApiProperty({
-    description: 'Billing Address Id',
+    description: 'Shipping Address Id',
     example: 1,
   })
   @IsNumber()
-  billing_address_id: number;
+  shipping_address_id: number;
 
   @Column
   @ApiProperty({
