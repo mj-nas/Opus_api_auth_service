@@ -210,8 +210,6 @@ export class ReferralService extends ModelService<Referral> {
   // with new simple email template
   async createReferrals(job: Job): Promise<JobResponse> {
     const { referred_coupons, referred_products, email } = job.payload;
-    const coupon_code =
-      referred_coupons.length > 0 ? referred_coupons[0].code : '';
     const { error, data } = await this.create({
       owner: job.owner,
       action: 'create',
@@ -275,11 +273,17 @@ export class ReferralService extends ModelService<Referral> {
         };
       }
     }
+    let coupon_code =
+      referred_coupons.length > 0
+        ? ` <p style="text-align: center; font-size: 20px; font-weight: 600;">Exclusive coupon code for you</p>
+                        <p style="text-align: center; font-size: 14px;">use this coupon to get a discount on your next purchase, share them with your friends</p>
+                        <p style="text-align: center; font-size: 26px; font-weight: 700; background-color: black; color: white; width: 70%; margin: auto;">${referred_coupons[0].code}</p>`
+        : '';
 
     let products = ``;
     referred_products.forEach((item) => {
       products += `<tr style="border-bottom: 1px solid rgb(66, 68, 66);">
-                      <td style="width: 25%;">
+        <td style="width: 25%;">
                         <img style="width: 100px; height: 100px" width="100" height="100"
                           src="${item.product_image}"
                           alt="Product Image" />
