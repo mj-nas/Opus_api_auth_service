@@ -1149,7 +1149,7 @@ export class OrderService extends ModelService<Order> {
             `${x?.coupon_discount_amount ? x?.coupon_discount_amount.toFixed(2) : ' '}`,
             `${x?.shipping_price.toFixed(2)}`,
             `${x?.total.toFixed(2)}`,
-            `${x?.is_repeating_order ? 'Yes' : 'No'}`,
+            `${x?.is_repeating_order == 'Y' ? 'Yes' : 'No'}`,
             x?.repeating_days,
             x?.shipping_service ? x?.shipping_service : 'Not Shipped',
             `${x?.address?.shipping_address}`,
