@@ -284,10 +284,10 @@ export class ReferralService extends ModelService<Referral> {
                           src="${item.product_image}"
                           alt="Product Image" />
                       </td>
-                      <td style="font-size: 14px; width: 50%">
+                      <td style="font-size: 14px; width: 50%; text-align: center;">
                         ${item.name}
                       </td>
-                      <td style="text-align: center; width: 25%"><a href="${`${process.env.WEBSITE_URL}/products/${item.slug}?r=${data.uid}`}"><p style="background-color: #28D0B0;color: black; width: 80%; font-size: 14px; font-weight: 600;text-decoration: none;"><b>Shop now</b></p></a></td>
+                      <td style="text-align: center; width: 25%"><a href="${`${process.env.WEBSITE_URL}/products/${item.slug}?r=${data.uid}`}"><p style="background-color: #28D0B0;color: black; width: 80%; font-size: 14px; font-weight: 500;text-decoration: none; margin: 0">Shop now</p></a></td>
                    </tr>
                                     `;
     });
