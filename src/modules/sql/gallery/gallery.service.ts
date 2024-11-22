@@ -114,7 +114,7 @@ export class GalleryService extends ModelService<Gallery> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `Gallery.xlsx`;
+      const filename = `${payload.where?.type === 'image' ? 'OPUS-ImageGalleryManagement.xlsx' : 'OPUS-VideoGalleryManagement.xlsx'}`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {

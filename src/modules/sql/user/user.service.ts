@@ -629,7 +629,7 @@ export class UserService extends ModelService<User> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `Customer.xlsx`;
+      const filename = `OPUS-CustomerManagement.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {
@@ -730,7 +730,7 @@ export class UserService extends ModelService<User> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `Applicant.xlsx`;
+      const filename = `OPUS-ApplicantManagement.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {
@@ -834,7 +834,7 @@ export class UserService extends ModelService<User> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `Dispenser.xlsx`;
+      const filename = `OPUS-DispenserManagement.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {

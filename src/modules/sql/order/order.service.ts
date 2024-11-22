@@ -1104,10 +1104,8 @@ export class OrderService extends ModelService<Order> {
       worksheet.addRow([
         'Sl. No',
         'Order ID',
-        'Customer First Name',
-        'Customer Last Name',
-        'Dispenser First Name',
-        'Dispenser Last Name',
+        'Customer Name',
+        'Dispenser Name',
         'Coupon Code',
         'Price ($)',
         'Tax ($)',
@@ -1137,10 +1135,8 @@ export class OrderService extends ModelService<Order> {
           worksheet.addRow([
             index + 1,
             x?.uid,
-            x?.user?.first_name,
-            x?.user?.last_name,
-            x?.dispenser?.first_name,
-            x?.dispenser?.last_name,
+            x?.user?.name,
+            x?.dispenser?.name,
             x?.coupon_code,
             `${x?.sub_total.toFixed(2)}`,
             `${x?.tax.toFixed(2)}`,
@@ -1168,10 +1164,8 @@ export class OrderService extends ModelService<Order> {
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Order ID', key: 'uid', width: 25 },
-        { header: 'Customer First Name', key: 'name', width: 25 },
-        { header: 'Customer Last Name', key: 'name', width: 25 },
-        { header: 'Dispenser First Name', key: 'dispenser', width: 25 },
-        { header: 'Dispenser Last Name', key: 'dispenser', width: 25 },
+        { header: 'Customer Name', key: 'name', width: 25 },
+        { header: 'Dispenser Name', key: 'dispenser', width: 25 },
         { header: 'Coupon Code', key: 'coupon', width: 25 },
         { header: 'Price ($)', key: 'sub_total', width: 10 },
         { header: 'Tax ($)', key: 'tax', width: 10 },
@@ -1205,7 +1199,7 @@ export class OrderService extends ModelService<Order> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `OPUS-Order.xlsx`;
+      const filename = `OPUS-OrderManagement.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {
@@ -1243,10 +1237,8 @@ export class OrderService extends ModelService<Order> {
       worksheet.addRow([
         'Sl. No',
         'Order ID',
-        'User First Name',
-        'User Last Name',
-        'Dispenser First Name',
-        'Dispenser Last Name',
+        'User Name',
+        'Dispenser Name',
         'Total Price ($)',
         'Repeat Interval (in days)',
         'Shipping Address 1',
@@ -1274,10 +1266,8 @@ export class OrderService extends ModelService<Order> {
           worksheet.addRow([
             index + 1,
             x?.uid,
-            x?.user?.first_name,
-            x?.user?.last_name,
-            x?.dispenser?.first_name,
-            x?.dispenser?.last_name,
+            x?.user?.name,
+            x?.dispenser?.name,
             `${x?.total.toFixed(2)}`,
             x?.repeating_days,
             `${x?.address?.shipping_address}`,
@@ -1312,10 +1302,8 @@ export class OrderService extends ModelService<Order> {
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Order ID', key: 'uid', width: 25 },
-        { header: 'User First Name', key: 'name', width: 25 },
-        { header: 'User Last Name', key: 'name', width: 25 },
-        { header: 'Dispenser First Name', key: 'name', width: 25 },
-        { header: 'Dispenser Last Name', key: 'name', width: 25 },
+        { header: 'User Name', key: 'name', width: 25 },
+        { header: 'Dispenser Name', key: 'name', width: 25 },
         { header: 'Total Price ($)', key: 'total', width: 10 },
         {
           header: 'Repeat Interval (in days)',
@@ -1344,7 +1332,7 @@ export class OrderService extends ModelService<Order> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `OPUS-Reorder.xlsx`;
+      const filename = `OPUS-ReorderManagement.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {

@@ -230,7 +230,7 @@ export class CouponService extends ModelService<Coupon> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `DispenserCoupons.xlsx`;
+      const filename = `OPUS-DispenserCouponManagement.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {
@@ -321,7 +321,7 @@ export class CouponService extends ModelService<Coupon> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `GeneralCoupons.xlsx`;
+      const filename = `OPUS-GeneralCouponManagement.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {

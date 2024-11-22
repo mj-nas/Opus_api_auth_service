@@ -147,7 +147,7 @@ export class LearningModuleService extends ModelService<LearningModule> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `ElearningModule.xlsx`;
+      const filename = `OPUS-ExamManagement.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {

@@ -431,7 +431,7 @@ export class CommissionService extends ModelService<Commission> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `Commission.xlsx`;
+      const filename = `OPUS-CommissionReport.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {

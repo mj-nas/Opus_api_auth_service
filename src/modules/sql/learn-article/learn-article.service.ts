@@ -116,7 +116,7 @@ export class LearnArticleService extends ModelService<LearnArticle> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `LearnArticle.xlsx`;
+      const filename = `OPUS-ArticleManagement.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {
