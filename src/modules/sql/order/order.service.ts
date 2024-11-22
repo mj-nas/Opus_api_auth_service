@@ -48,13 +48,18 @@ export class OrderService extends ModelService<Order> {
     'repeating_days',
     '$dispenser.name$',
     'coupon_code',
+    '$address.shipping_address$',
+    '$address.shipping_address2$',
+    '$address.shipping_city$',
+    '$address.shipping_state$',
+    '$address.shipping_zip_code$',
   ];
 
   /**
    * searchPopulate
    * @property array of associations to include for search
    */
-  searchPopulate: string[] = ['user', 'dispenser', 'coupon'];
+  searchPopulate: string[] = ['user', 'dispenser', 'coupon', 'address'];
 
   constructor(
     db: SqlService<Order>,
@@ -1112,6 +1117,8 @@ export class OrderService extends ModelService<Order> {
         'Discount Applied ($)',
         'Shipping Price ($)',
         'Total Price ($)',
+        'Reordered',
+        'Repeated Days',
         'Shipping Service',
         'Shipping Address 1',
         'Shipping Address 2',
@@ -1123,7 +1130,6 @@ export class OrderService extends ModelService<Order> {
         'Billing City',
         'Billing State',
         'Billing Zip Code',
-        'Repeated Days',
         'Order Date',
         'Delivery Status',
       ]);
@@ -1143,6 +1149,8 @@ export class OrderService extends ModelService<Order> {
             `${x?.coupon_discount_amount ? x?.coupon_discount_amount.toFixed(2) : ' '}`,
             `${x?.shipping_price.toFixed(2)}`,
             `${x?.total.toFixed(2)}`,
+            `${x?.is_repeating_order ? 'Yes' : 'No'}`,
+            x?.repeating_days,
             x?.shipping_service ? x?.shipping_service : 'Not Shipped',
             `${x?.address?.shipping_address}`,
             `${x?.address?.shipping_address2}`,
@@ -1154,7 +1162,6 @@ export class OrderService extends ModelService<Order> {
             `${x?.address?.billing_city}`,
             `${x?.address?.billing_state}`,
             `${x?.address?.billing_zip_code}`,
-            x?.repeating_days,
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY'),
             x?.status,
           ]);
@@ -1176,6 +1183,8 @@ export class OrderService extends ModelService<Order> {
         },
         { header: 'Shipping Price ($)', key: 'shipping_price', width: 10 },
         { header: 'Total Price ($)', key: 'total', width: 10 },
+        { header: 'Reordered', key: 'reordered', width: 10 },
+        { header: 'Repeated Days', key: 'repeating_days', width: 10 },
         { header: 'Shipping Service', key: 'shipping_service', width: 25 },
         { header: 'Shipping Address 1', key: 'shipping_address', width: 50 },
         { header: 'Shipping Address 2', key: 'shipping_address', width: 50 },
@@ -1187,7 +1196,6 @@ export class OrderService extends ModelService<Order> {
         { header: 'Billing City', key: 'billing_address', width: 50 },
         { header: 'Billing State', key: 'billing_address', width: 50 },
         { header: 'Billing Zip Code', key: 'billing_address', width: 50 },
-        { header: 'Repeated Days', key: 'repeating_days', width: 10 },
         { header: 'Order Date', key: 'created_at', width: 50 },
         { header: 'Delivery Status', key: 'active', width: 25 },
       ];
