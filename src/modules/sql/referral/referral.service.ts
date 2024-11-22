@@ -210,6 +210,8 @@ export class ReferralService extends ModelService<Referral> {
   // with new simple email template
   async createReferrals(job: Job): Promise<JobResponse> {
     const { referred_coupons, referred_products, email } = job.payload;
+    const coupon_code =
+      referred_coupons.length > 0 ? referred_coupons[0].code : '';
     const { error, data } = await this.create({
       owner: job.owner,
       action: 'create',
@@ -311,7 +313,7 @@ export class ReferralService extends ModelService<Referral> {
             QR_LINK: data.qr_code,
             DISPENSER_OF_BUSINESS_NAME,
             DISPENSER_FROM_BUSINESS_NAME,
-            COUPON_CODE: referred_coupons[0].code,
+            COUPON_CODE: coupon_code,
             PRODUCTS: products,
           },
         },
