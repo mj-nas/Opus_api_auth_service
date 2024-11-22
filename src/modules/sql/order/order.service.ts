@@ -514,7 +514,7 @@ export class OrderService extends ModelService<Order> {
             );
             userData.data.setDataValue('connection_via', ConnectionVia.Coupon);
             await userData.data.save();
-            
+
             order.data.setDataValue('dispenser_id', couponData.data?.user_id);
 
             // add log for user-dispenser update
@@ -608,7 +608,7 @@ export class OrderService extends ModelService<Order> {
         return { data: { order: order.data, payment_link: '' } };
       }
 
-      await order.data.save()
+      await order.data.save();
     } catch (error) {
       await transaction.rollback();
       return { error };
@@ -1104,8 +1104,10 @@ export class OrderService extends ModelService<Order> {
       worksheet.addRow([
         'Sl. No',
         'Order ID',
-        'Customer Name',
-        'Dispenser Name',
+        'Customer First Name',
+        'Customer Last Name',
+        'Dispenser First Name',
+        'Dispenser Last Name',
         'Coupon Code',
         'Price ($)',
         'Tax ($)',
@@ -1113,8 +1115,16 @@ export class OrderService extends ModelService<Order> {
         'Shipping Price ($)',
         'Total Price ($)',
         'Shipping Service',
-        'Shipping Address',
-        'Billing Address',
+        'Shipping Address 1',
+        'Shipping Address 2',
+        'Shipping City',
+        'Shipping State',
+        'Shipping Zip Code',
+        'Billing Address 1',
+        'Billing Address 2',
+        'Billing City',
+        'Billing State',
+        'Billing Zip Code',
         'Repeated Days',
         'Order Date',
         'Delivery Status',
@@ -1127,17 +1137,27 @@ export class OrderService extends ModelService<Order> {
           worksheet.addRow([
             index + 1,
             x?.uid,
-            x?.user?.name,
-            x?.dispenser?.name,
+            x?.user?.first_name,
+            x?.user?.last_name,
+            x?.dispenser?.first_name,
+            x?.dispenser?.last_name,
             x?.coupon_code,
             `${x?.sub_total.toFixed(2)}`,
             `${x?.tax.toFixed(2)}`,
             `${x?.coupon_discount_amount ? x?.coupon_discount_amount.toFixed(2) : ' '}`,
             `${x?.shipping_price.toFixed(2)}`,
             `${x?.total.toFixed(2)}`,
-            x?.shipping_service,
-            `${x?.address?.shipping_name}, ${x?.address?.shipping_address} ${x?.address?.shipping_address2 ? `,${x?.address?.shipping_address2}` : ''}, ${x?.address?.shipping_city}, ${x?.address?.shipping_state}, ${x?.address?.shipping_zip_code}`,
-            `${x?.address?.billing_name}, ${x?.address?.billing_address} ${x?.address?.billing_address2 ? `,${x?.address?.billing_address2}` : ''}, ${x?.address?.billing_city}, ${x?.address?.billing_state}, ${x?.address?.billing_zip_code}`,
+            x?.shipping_service ? x?.shipping_service : 'Not Shipped',
+            `${x?.address?.shipping_address}`,
+            `${x?.address?.shipping_address2}`,
+            `${x?.address?.shipping_city}`,
+            `${x?.address?.shipping_state}`,
+            `${x?.address?.shipping_zip_code}`,
+            `${x?.address?.billing_address}`,
+            `${x?.address?.billing_address2}`,
+            `${x?.address?.billing_city}`,
+            `${x?.address?.billing_state}`,
+            `${x?.address?.billing_zip_code}`,
             x?.repeating_days,
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY'),
             x?.status,
@@ -1148,8 +1168,10 @@ export class OrderService extends ModelService<Order> {
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Order ID', key: 'uid', width: 25 },
-        { header: 'Customer Name', key: 'name', width: 25 },
-        { header: 'Dispenser Name', key: 'dispenser', width: 25 },
+        { header: 'Customer First Name', key: 'name', width: 25 },
+        { header: 'Customer Last Name', key: 'name', width: 25 },
+        { header: 'Dispenser First Name', key: 'dispenser', width: 25 },
+        { header: 'Dispenser Last Name', key: 'dispenser', width: 25 },
         { header: 'Coupon Code', key: 'coupon', width: 25 },
         { header: 'Price ($)', key: 'sub_total', width: 10 },
         { header: 'Tax ($)', key: 'tax', width: 10 },
@@ -1161,8 +1183,16 @@ export class OrderService extends ModelService<Order> {
         { header: 'Shipping Price ($)', key: 'shipping_price', width: 10 },
         { header: 'Total Price ($)', key: 'total', width: 10 },
         { header: 'Shipping Service', key: 'shipping_service', width: 25 },
-        { header: 'Shipping Address', key: 'shipping_address', width: 50 },
-        { header: 'Billing Address', key: 'billing_address', width: 50 },
+        { header: 'Shipping Address 1', key: 'shipping_address', width: 50 },
+        { header: 'Shipping Address 2', key: 'shipping_address', width: 50 },
+        { header: 'Shipping City', key: 'shipping_address', width: 50 },
+        { header: 'Shipping State', key: 'shipping_address', width: 50 },
+        { header: 'Shipping Zip Code', key: 'shipping_address', width: 50 },
+        { header: 'Billing Address 1', key: 'billing_address', width: 50 },
+        { header: 'Billing Address 2', key: 'billing_address', width: 50 },
+        { header: 'Billing City', key: 'billing_address', width: 50 },
+        { header: 'Billing State', key: 'billing_address', width: 50 },
+        { header: 'Billing Zip Code', key: 'billing_address', width: 50 },
         { header: 'Repeated Days', key: 'repeating_days', width: 10 },
         { header: 'Order Date', key: 'created_at', width: 50 },
         { header: 'Delivery Status', key: 'active', width: 25 },
@@ -1175,7 +1205,7 @@ export class OrderService extends ModelService<Order> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `Order.xlsx`;
+      const filename = `OPUS-Order.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {
@@ -1213,9 +1243,22 @@ export class OrderService extends ModelService<Order> {
       worksheet.addRow([
         'Sl. No',
         'Order ID',
-        'User Name',
+        'User First Name',
+        'User Last Name',
+        'Dispenser First Name',
+        'Dispenser Last Name',
         'Total Price ($)',
         'Repeat Interval (in days)',
+        'Shipping Address 1',
+        'Shipping Address 2',
+        'Shipping City',
+        'Shipping State',
+        'Shipping Zip Code',
+        'Billing Address 1',
+        'Billing Address 2',
+        'Billing City',
+        'Billing State',
+        'Billing Zip Code',
         'Created On',
         'Next Order Date',
         'Previous Order Date',
@@ -1231,9 +1274,22 @@ export class OrderService extends ModelService<Order> {
           worksheet.addRow([
             index + 1,
             x?.uid,
-            x?.user?.name,
+            x?.user?.first_name,
+            x?.user?.last_name,
+            x?.dispenser?.first_name,
+            x?.dispenser?.last_name,
             `${x?.total.toFixed(2)}`,
             x?.repeating_days,
+            `${x?.address?.shipping_address}`,
+            `${x?.address?.shipping_address2}`,
+            `${x?.address?.shipping_city}`,
+            `${x?.address?.shipping_state}`,
+            `${x?.address?.shipping_zip_code}`,
+            `${x?.address?.billing_address}`,
+            `${x?.address?.billing_address2}`,
+            `${x?.address?.billing_city}`,
+            `${x?.address?.billing_state}`,
+            `${x?.address?.billing_zip_code}`,
             x?.created_at
               ? moment(x?.created_at)?.tz(timezone)?.format('MM/DD/YYYY')
               : '',
@@ -1256,13 +1312,26 @@ export class OrderService extends ModelService<Order> {
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Order ID', key: 'uid', width: 25 },
-        { header: 'User Name', key: 'name', width: 25 },
+        { header: 'User First Name', key: 'name', width: 25 },
+        { header: 'User Last Name', key: 'name', width: 25 },
+        { header: 'Dispenser First Name', key: 'name', width: 25 },
+        { header: 'Dispenser Last Name', key: 'name', width: 25 },
         { header: 'Total Price ($)', key: 'total', width: 10 },
         {
           header: 'Repeat Interval (in days)',
           key: 'repeating_days',
           width: 10,
         },
+        { header: 'Shipping Address 1', key: 'shipping_address', width: 50 },
+        { header: 'Shipping Address 2', key: 'shipping_address', width: 50 },
+        { header: 'Shipping City', key: 'shipping_address', width: 50 },
+        { header: 'Shipping State', key: 'shipping_address', width: 50 },
+        { header: 'Shipping Zip Code', key: 'shipping_address', width: 50 },
+        { header: 'Billing Address 1', key: 'billing_address', width: 50 },
+        { header: 'Billing Address 2', key: 'billing_address', width: 50 },
+        { header: 'Billing City', key: 'billing_address', width: 50 },
+        { header: 'Billing State', key: 'billing_address', width: 50 },
+        { header: 'Billing Zip Code', key: 'billing_address', width: 50 },
         { header: 'Created On', key: 'created_at', width: 50 },
         { header: 'Next Order Date', key: 'created_at', width: 50 },
         { header: 'Previous Order Date', key: 'previous_order', width: 50 },
@@ -1275,7 +1344,7 @@ export class OrderService extends ModelService<Order> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `Reorder.xlsx`;
+      const filename = `OPUS-Reorder.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {

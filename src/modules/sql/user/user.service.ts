@@ -665,7 +665,8 @@ export class UserService extends ModelService<User> {
 
       worksheet.addRow([
         'Sl. No',
-        'Name',
+        'First Name',
+        'Last Name',
         'Business Name',
         'Email',
         'Phone',
@@ -684,7 +685,8 @@ export class UserService extends ModelService<User> {
         users.map(async (x, index) => {
           worksheet.addRow([
             index + 1,
-            x?.name,
+            x?.first_name,
+            x?.last_name,
             x?.business_name,
             x.email,
             `${x.phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3')}`,
@@ -707,7 +709,8 @@ export class UserService extends ModelService<User> {
 
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
-        { header: 'Name', key: 'name', width: 25 },
+        { header: 'First Name', key: 'name', width: 25 },
+        { header: 'Last Name', key: 'name', width: 25 },
         { header: 'Business Name', key: 'buisiness_name', width: 25 },
         { header: 'Email', key: 'email', width: 25 },
         { header: 'Phone', key: 'phone', width: 50 },

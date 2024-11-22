@@ -4,9 +4,6 @@ import { TinyUrlService } from '@core/tinyurl';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createCanvas } from 'canvas';
-import { readFileSync } from 'fs';
-import { handlebars } from 'hbs';
-import { join } from 'path';
 import * as QRCode from 'qrcode';
 import { Job, JobResponse } from 'src/core/core.job';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
@@ -73,7 +70,7 @@ export class ReferralService extends ModelService<Referral> {
 
     return Key;
   }
-// with designed email template
+  // with designed email template
   // async createReferrals(job: Job): Promise<JobResponse> {
   //   const { referred_coupons, referred_products, email } = job.payload;
   //   // const colours = ['#AA674F', '#E8AE9A', '#CFAFA4', '#FFFEDB', '#C4946B'];
@@ -210,7 +207,6 @@ export class ReferralService extends ModelService<Referral> {
   //   };
   // }
 
-  
   // with new simple email template
   async createReferrals(job: Job): Promise<JobResponse> {
     const { referred_coupons, referred_products, email } = job.payload;
@@ -281,15 +277,15 @@ export class ReferralService extends ModelService<Referral> {
     let products = ``;
     referred_products.forEach((item) => {
       products += `<tr style="border-bottom: 1px solid rgb(66, 68, 66);">
-                      <td>
+                      <td style="width: 25%;">
                         <img style="width: 100px; height: 100px" width="100" height="100"
                           src="${item.product_image}"
                           alt="Product Image" />
                       </td>
-                      <td style="font-size: 14px;">
+                      <td style="font-size: 14px; width: 50%">
                         ${item.name}
                       </td>
-                      <td style="text-align: center;"><a href="${`${process.env.WEBSITE_URL}/products/${item.slug}?r=${data.uid}`}"><p style="background-color: #28D0B0; width: 80%; font-size: 14px; font-weight: 600;"><b>Shop now</b></p></a></td>
+                      <td style="text-align: center; width: 25%"><a href="${`${process.env.WEBSITE_URL}/products/${item.slug}?r=${data.uid}`}"><p style="background-color: #28D0B0;color: black; width: 80%; font-size: 14px; font-weight: 600;text-decoration: none;"><b>Shop now</b></p></a></td>
                    </tr>
                                     `;
     });
