@@ -8,7 +8,7 @@ import {
   SqlUpdateResponse,
 } from '@core/sql';
 import { TinyUrlService } from '@core/tinyurl';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createCanvas } from 'canvas';
 import { CsvError, parse } from 'csv-parse';
@@ -769,6 +769,8 @@ export class UserService extends ModelService<User> {
         'Business Name',
         'Email',
         'Phone',
+        'Address 1',
+        'Address 2',
         'Geotag',
         'Unique URL',
         'QR Code',
@@ -789,6 +791,8 @@ export class UserService extends ModelService<User> {
             x.business_name ? x.business_name : 'Not Applicable',
             x.email,
             `${x.phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3')}`,
+            x?.address,
+            x?.address2,
             x.geotag ? 'Yes' : 'No',
             x.referral_link,
             x.qr_code,
@@ -809,6 +813,8 @@ export class UserService extends ModelService<User> {
         { header: 'Business Name', key: 'business_name', width: 25 },
         { header: 'Email', key: 'email', width: 25 },
         { header: 'Phone', key: 'phone', width: 25 },
+        { header: 'Address 1', key: 'address', width: 50 },
+        { header: 'Address 2', key: 'address2', width: 50 },
         { header: 'Geotag', key: 'geotag', width: 25 },
         { header: 'Unique URL', key: 'unique_url', width: 25 },
         { header: 'QR Code', key: 'qr_code', width: 25 },

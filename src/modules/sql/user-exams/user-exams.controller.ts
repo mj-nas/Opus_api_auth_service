@@ -60,16 +60,19 @@ export class UserExamsController {
    */
   @Post()
   @ApiOperation({ summary: `Create new ${entity}` })
+  @ApiQueryGetOne()
   @ResponseCreated(UserExams)
   async create(
     @Res() res: Response,
     @Owner() owner: OwnerDto,
     @Body() createUserExamsDto: CreateUserExamsDto,
+    @Query() query: any,
   ) {
     const { error, data } = await this.userExamsService.create({
       owner,
       action: 'create',
       body: createUserExamsDto,
+      payload: { ...query },
     });
 
     if (error) {
