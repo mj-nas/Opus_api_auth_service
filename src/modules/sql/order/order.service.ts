@@ -533,13 +533,13 @@ export class OrderService extends ModelService<Order> {
             });
           }
         }
-        // create commission
-        await this._msClient.executeJob('order.commission.create', {
-          payload: {
-            order_id: order.data.id,
-          },
-        });
       }
+      // create commission
+      await this._msClient.executeJob('order.commission.create', {
+        payload: {
+          order_id: order.data.id,
+        },
+      });
 
       // create stripe product, price and payment link only for non-repeating orders
       if (body.is_repeating_order === 'N') {
