@@ -534,12 +534,6 @@ export class OrderService extends ModelService<Order> {
           }
         }
       }
-      // create commission
-      await this._msClient.executeJob('order.commission.create', {
-        payload: {
-          order_id: order.data.id,
-        },
-      });
 
       // create stripe product, price and payment link only for non-repeating orders
       if (body.is_repeating_order === 'N') {
@@ -600,6 +594,13 @@ export class OrderService extends ModelService<Order> {
         }
 
         await transaction.commit();
+        await order.data.save();
+        // create commission
+        await this._msClient.executeJob('order.commission.create', {
+          payload: {
+            order_id: order.data.id,
+          },
+        });
         return { data: { order: order.data, payment_link: paymentLink.url } };
       } else {
         await transaction.commit();
@@ -610,10 +611,15 @@ export class OrderService extends ModelService<Order> {
             card_details: body.card_details,
           },
         });
+        await order.data.save();
+        // create commission
+        await this._msClient.executeJob('order.commission.create', {
+          payload: {
+            order_id: order.data.id,
+          },
+        });
         return { data: { order: order.data, payment_link: '' } };
       }
-
-      await order.data.save();
     } catch (error) {
       await transaction.rollback();
       return { error };

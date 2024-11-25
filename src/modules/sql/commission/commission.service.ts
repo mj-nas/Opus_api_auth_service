@@ -354,11 +354,8 @@ export class CommissionService extends ModelService<Commission> {
         };
       }
       console.log(body);
-      try {
-        await this.create({ body });
-      } catch (error) {
-        return { error };
-      }
+
+      await this.create({ body });
     }
 
     return { data: data };
