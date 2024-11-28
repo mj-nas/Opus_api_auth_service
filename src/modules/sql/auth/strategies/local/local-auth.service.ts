@@ -19,6 +19,7 @@ export class LocalAuthService {
     const { error, data } = await this._user.$db.findOneRecord({
       options: {
         attributes: { include: ['password'] },
+        include: [{ association: 'dispenser' }],
         where: { email: username },
         allowEmpty: true,
       },
