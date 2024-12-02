@@ -8,7 +8,6 @@ import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import { handlebars } from 'hbs';
 import * as moment from 'moment-timezone';
-import { join } from 'path';
 import { literal, Op } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import config from 'src/config';
@@ -1115,8 +1114,10 @@ export class OrderService extends ModelService<Order> {
       worksheet.addRow([
         'Sl. No',
         'Order ID',
-        'Customer Name',
-        'Dispenser Name',
+        'Customer First Name',
+        'Customer Last Name',
+        'Dispenser First Name',
+        'Dispenser Last Name',
         'Coupon Code',
         'Price ($)',
         'Tax ($)',
@@ -1147,8 +1148,10 @@ export class OrderService extends ModelService<Order> {
           worksheet.addRow([
             index + 1,
             x?.uid,
-            x?.user?.name,
-            x?.dispenser?.name,
+            x?.user?.first_name,
+            x?.user?.last_name,
+            x?.dispenser?.first_name,
+            x?.dispenser?.last_name,
             x?.coupon_code,
             `${x?.sub_total.toFixed(2)}`,
             `${x?.tax.toFixed(2)}`,
@@ -1177,8 +1180,10 @@ export class OrderService extends ModelService<Order> {
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Order ID', key: 'uid', width: 25 },
-        { header: 'Customer Name', key: 'name', width: 25 },
-        { header: 'Dispenser Name', key: 'dispenser', width: 25 },
+        { header: 'Customer First Name', key: 'name', width: 25 },
+        { header: 'Customer Last Name', key: 'name', width: 25 },
+        { header: 'Dispenser First Name', key: 'dispenser', width: 25 },
+        { header: 'Dispenser Last Name', key: 'dispenser', width: 25 },
         { header: 'Coupon Code', key: 'coupon', width: 25 },
         { header: 'Price ($)', key: 'sub_total', width: 10 },
         { header: 'Tax ($)', key: 'tax', width: 10 },
@@ -1251,8 +1256,10 @@ export class OrderService extends ModelService<Order> {
       worksheet.addRow([
         'Sl. No',
         'Order ID',
-        'User Name',
-        'Dispenser Name',
+        'Customer First Name',
+        'Customer Last Name',
+        'Dispenser First Name',
+        'Dispenser Last Name',
         'Total Price ($)',
         'Repeat Interval (in days)',
         'Shipping Address 1',
@@ -1280,8 +1287,10 @@ export class OrderService extends ModelService<Order> {
           worksheet.addRow([
             index + 1,
             x?.uid,
-            x?.user?.name,
-            x?.dispenser?.name,
+            x?.user?.first_name,
+            x?.user?.last_name,
+            x?.dispenser?.first_name,
+            x?.dispenser?.last_name,
             `${x?.total.toFixed(2)}`,
             x?.repeating_days,
             `${x?.address?.shipping_address}`,
@@ -1316,8 +1325,10 @@ export class OrderService extends ModelService<Order> {
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Order ID', key: 'uid', width: 25 },
-        { header: 'User Name', key: 'name', width: 25 },
-        { header: 'Dispenser Name', key: 'name', width: 25 },
+        { header: 'Customer First Name', key: 'name', width: 25 },
+        { header: 'Customer Last Name', key: 'name', width: 25 },
+        { header: 'Dispenser First Name', key: 'dispenser', width: 25 },
+        { header: 'Dispenser Last Name', key: 'dispenser', width: 25 },
         { header: 'Total Price ($)', key: 'total', width: 10 },
         {
           header: 'Repeat Interval (in days)',
@@ -1870,92 +1881,6 @@ export class OrderService extends ModelService<Order> {
     } catch (error) {
       return { error };
     }
-  }
-  async sendOrderConfirmEmail(id: number) {
-    const { error, data } = await this.$db.findRecordById({
-      id: id,
-      options: {
-        include: [
-          { association: 'address' },
-          { association: 'user' },
-          { association: 'items', include: [{ association: 'product' }] },
-        ],
-      },
-    });
-    if (!!error) {
-      return { error };
-    }
-
-    try {
-      const template = fs.readFileSync(
-        join(__dirname, '../src', 'views/order_template.hbs'),
-        'utf8',
-      );
-      // handlebars.registerHelper('checkLength', function (array) {
-      //   if (array.length > 1) {
-      //     return 'These products were recommended by your personal Opus Dispenser';
-      //   } else {
-      //     return 'This product was recommended by your personal Opus Dispenser';
-      //   }
-      // });
-      this.emailTemplate = handlebars.compile(template);
-    } catch (error) {
-      this.emailTemplate = handlebars.compile('<div>{{{content}}}</div>');
-    }
-
-    const shipping_address = `${data.address.shipping_first_name + ' ' + data.address.shipping_last_name}, ${data.address.shipping_address}, ${data.address.shipping_city}, ${data.address.shipping_state}, ${data.address.shipping_zip_code}`;
-    const billing_address = `${data.address.billing_first_name + ' ' + data.address.billing_last_name}, ${data.address.billing_address}, ${data.address.billing_city}, ${data.address.billing_state}, ${data.address.billing_zip_code}`;
-    const products = await Promise.all(
-      data.items.map(async (item) => ({
-        name: await this.getProductName(item.product_id),
-        price: item.price_per_item,
-        quantity: item.quantity,
-        order_id: data.uid,
-        image: await this.getProductImageUrl(item.product_id),
-      })),
-    );
-    const _email_template = this.emailTemplate({
-      logo: this._config.get('cdnLocalURL') + 'assets/logo.png',
-      header_bg_image: this._config.get('cdnLocalURL') + 'assets/header-bg.png',
-      footer_bg_image: this._config.get('cdnLocalURL') + 'assets/footer-bg.png',
-      reorder: false,
-      title_content: `
-Hello ${data.user.name}, thank you for your order!, Your order placed on ${moment(
-        data.created_at,
-      )
-        .tz('America/New_York')
-        .format('MM/DD/YYYY')} is confirmed. You can find the details below.`,
-      ORDER_ID: data.uid,
-      CUSTOMER_NAME: data.user.name,
-      PHONE_NUMBER: data.user.phone,
-      EMAIL: data.user.email,
-      ORDER_DATE: moment(data.created_at)
-        .tz('America/New_York')
-        .format('MM/DD/YYYY'),
-      TAX: Math.round(data.tax * 100) / 100,
-      SHIPPING_CHARGE: data.shipping_price,
-      DISCOUNT: data.coupon_discount_amount ? data.coupon_discount_amount : 0,
-      TOTAL: data.total,
-      SHIPPING_ADDRESS: shipping_address,
-      BILLING_ADDRESS: billing_address,
-      products: products,
-    });
-
-    const email_subject = `Your Order ${data.uid} is Confirmed!`;
-
-    await this._msClient.executeJob(
-      'controller.email',
-      new Job({
-        action: 'sendMail',
-        payload: {
-          to: data.user.email,
-          subject: email_subject,
-          html: _email_template,
-          from: this._config.get('email').transports['Orders'].from || '',
-          transporterName: 'Orders',
-        },
-      }),
-    );
   }
 
   async orderMail({

@@ -405,8 +405,9 @@ export class CommissionService extends ModelService<Commission> {
       worksheet.addRow([
         'Sl. No',
         'Order ID',
-        'Dispenser Name',
-        'Orderd By',
+        'Dispenser First Name',
+        'Dispenser Last Name',
+        'Ordered By',
         'Commission Date',
         'Order Date',
         'Order Amount',
@@ -422,7 +423,8 @@ export class CommissionService extends ModelService<Commission> {
           worksheet.addRow([
             index + 1,
             x?.order?.uid,
-            x?.user?.name,
+            x?.user?.first_name,
+            x?.user?.last_name,
             x?.order?.user?.name,
             moment(x.created_at).tz(timezone).format('MMM DD YYYY'),
             moment(x?.order?.created_at).tz(timezone).format('MMM DD YYYY'),
@@ -437,8 +439,9 @@ export class CommissionService extends ModelService<Commission> {
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Order ID', key: 'order_id', width: 25 },
-        { header: 'Dispenser Name', key: 'dispenser_name', width: 25 },
-        { header: 'Orderd By', key: 'orderd_by', width: 25 },
+        { header: 'Dispenser First Name', key: 'dispenser_name', width: 25 },
+        { header: 'Dispenser Last Name', key: 'dispenser_name', width: 25 },
+        { header: 'Ordered By', key: 'ordered_by', width: 25 },
         { header: 'Commission Date', key: 'date', width: 25 },
         { header: 'Order Date', key: 'date', width: 25 },
         { header: 'Order Amount', key: 'order_amount', width: 25 },
