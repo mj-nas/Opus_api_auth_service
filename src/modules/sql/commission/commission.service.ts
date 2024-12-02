@@ -205,14 +205,27 @@ export class CommissionService extends ModelService<Commission> {
         new Date().getMonth(),
         1,
       );
+
+      const { error: orderError, data: orderData } =
+        await this.$db.getAllRecords({
+          options: {
+            ...options,
+            where: {
+              ...options.where,
+              status: CommissionStatus.Pending,
+              '$order.status$': OrderStatus.Delivered,
+              '$order.created_at$': { [Op.lt]: startOfCurrentMonth },
+            },
+          },
+        });
+      if (orderError) {
+        return { error: orderError };
+      }
+
       const { error, data } = await this.$db.updateBulkRecords({
         options: {
-          ...options,
           where: {
-            ...options.where,
-            status: CommissionStatus.Pending,
-            '$order.status$': OrderStatus.Delivered,
-            '$order.created_at$': { [Op.lt]: startOfCurrentMonth },
+            id: { [Op.in]: orderData.map((e) => e.id) },
           },
         },
         body: { status: body.status },
