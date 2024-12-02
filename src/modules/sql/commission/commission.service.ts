@@ -212,7 +212,7 @@ export class CommissionService extends ModelService<Commission> {
             ...options.where,
             status: CommissionStatus.Pending,
             '$order.status$': OrderStatus.Delivered,
-            '$order.created_at': { [Op.lt]: startOfCurrentMonth },
+            '$order.created_at$': { [Op.lt]: startOfCurrentMonth },
           },
         },
         body: { status: body.status },
