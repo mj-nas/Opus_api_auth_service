@@ -282,9 +282,9 @@ export class ReferralService extends ModelService<Referral> {
 
     let products = ``;
     referred_products.forEach((item) => {
-      products += `<tr style="border-bottom: 1px solid rgb(66, 68, 66);">
+      products += `<tr style="border-bottom: 1px solid rgb(66, 68, 66); border-top: 1px solid rgb(66, 68, 66);">
         <td style="width: 25%;">
-                        <img style="width: 100px; height: 100px" width="100" height="100"
+                        <img style="width: 90px; height: 90px" width="90" height="90"
                           src="${item.product_image}"
                           alt="Product Image" />
                       </td>
