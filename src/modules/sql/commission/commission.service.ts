@@ -200,10 +200,20 @@ export class CommissionService extends ModelService<Commission> {
   async allUpdate(job: SqlJob<Commission>): Promise<JobResponse> {
     try {
       const { options, body } = job;
+      const startOfCurrentMonth = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        1,
+      );
       const { error, data } = await this.$db.updateBulkRecords({
         options: {
           ...options,
-          where: { ...options.where, status: CommissionStatus.Pending },
+          where: {
+            ...options.where,
+            status: CommissionStatus.Pending,
+            '$order.status$': OrderStatus.Delivered,
+            '$order.created_at': { [Op.lt]: startOfCurrentMonth },
+          },
         },
         body: { status: body.status },
       });

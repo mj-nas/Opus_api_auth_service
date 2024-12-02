@@ -537,9 +537,7 @@ export class AuthService {
                     ? data.business_name
                     : 'Not available',
                   EMAIL: data.email,
-                  PHONE: `${data.phone_code}${data.phone}`
-                    .replace(/\D/g, '')
-                    .replace(/(\d{1})(\d{3})(\d{3})(\d{4})/, '$1-$2-$3-$4'),
+                  PHONE: `${data.phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')}`,
                 },
               },
             }),
