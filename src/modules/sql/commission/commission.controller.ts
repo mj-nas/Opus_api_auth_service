@@ -206,6 +206,9 @@ export class CommissionController {
         payload: { ...query },
       });
 
+    console.log(data[0].user, 'commission data');
+    console.log(query);
+
     if (error) {
       return ErrorResponse(res, {
         error,
