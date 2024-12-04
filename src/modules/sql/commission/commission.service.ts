@@ -169,7 +169,7 @@ export class CommissionService extends ModelService<Commission> {
     try {
       const { body, payload } = job;
       if (body?.mode === BulkDeleteMode.All) {
-        delete payload.limit;
+        payload.limit = -1;
         delete payload.offset;
         const { error, data } = await this.allUpdate({
           payload,
