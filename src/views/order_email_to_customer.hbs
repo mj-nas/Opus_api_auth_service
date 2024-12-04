@@ -1,252 +1,235 @@
-<html
-  lang="en"
-  xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:v="urn:schemas-microsoft-com:vml"
-  xmlns:o="urn:schemas-microsoft-com:office:office"
->
-  <head>
-    <meta charset="utf-8" />
-    <!-- utf-8 works for most cases -->
-    <meta name="viewport" content="width=device-width" />
-    <!-- Forcing initial-scale shouldn't be necessary -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <!-- Use the latest (edge) version of IE rendering engine -->
-    <meta name="x-apple-disable-message-reformatting" />
-    <!-- Disable auto-scale in iOS 10 Mail entirely -->
-    <style>
-      body {
-        font-family: "Roboto", sans-serif;
-      }
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
+  xmlns:o="urn:schemas-microsoft-com:office:office">
 
-      .wrapper {
-        width: 100%;
-        table-layout: fixed;
-        background-color: #cccccc;
-      }
+<head>
+  <meta charset="utf-8" />
+  <!-- utf-8 works for most cases -->
+  <meta name="viewport" content="width=device-width" />
+  <!-- Forcing initial-scale shouldn't be necessary -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- Use the latest (edge) version of IE rendering engine -->
+  <meta name="x-apple-disable-message-reformatting" />
+  <!-- Disable auto-scale in iOS 10 Mail entirely -->
+  <style>
+    body {
+      font-family: "Roboto", sans-serif;
+    }
 
-      .main {
-        background-color: #fff;
-        margin: 0 auto;
-        width: 100%;
-        max-width: 850px;
-        border-spacing: 0;
-        color: #171a1b;
-        margin: 0 auto;
-      }
+    .wrapper {
+      width: 100%;
+      table-layout: fixed;
+      background-color: #cccccc;
+    }
 
-      table {
-        border-spacing: 0;
-      }
+    .main {
+      background-color: #fff;
+      margin: 0 auto;
+      width: 100%;
+      max-width: 850px;
+      border-spacing: 0;
+      color: #171a1b;
+      margin: 0 auto;
+    }
 
-      .gmail-table {
-        border: solid 1px #cecdce;
-        border-collapse: collapse;
-        border-spacing: 0;
-        font: normal 14px Roboto, sans-serif;
-        width: 100%;
-      }
+    table {
+      border-spacing: 0;
+    }
 
-      .gmail-table thead th {
-        border: solid 1px #cecdce;
-        color: #231f20;
-        font-size: 16px;
-        padding: 10px;
-        text-align: center;
-      }
+    .gmail-table {
+      border: solid 1px #cecdce;
+      border-collapse: collapse;
+      border-spacing: 0;
+      font: normal 14px Roboto, sans-serif;
+      width: 100%;
+    }
 
-      .gmail-table tbody tr {
-        border-bottom: solid 1px #cecdce;
-      }
+    .gmail-table thead th {
+      border: solid 1px #cecdce;
+      color: #231f20;
+      font-size: 16px;
+      padding: 10px;
+      text-align: center;
+    }
 
-      .gmail-table tbody td {
-        color: #333;
-        padding: 10px;
-      }
+    .gmail-table tbody tr {
+      border-bottom: solid 1px #cecdce;
+    }
 
-      .gmail-table tbody tr:last-child {
-        border: none;
-      }
-    </style>
-  </head>
+    .gmail-table tbody td {
+      color: #333;
+      padding: 10px;
+    }
 
-  <body style="margin: 0px; background-color: #f2f2f2">
-    <center class="wrapper">
-      <table class="main" width="100%">
-        <tbody>
-          <tr
-            style="
+    .gmail-table tbody tr:last-child {
+      border: none;
+    }
+  </style>
+</head>
+
+<body style="margin: 0px; background-color: #f2f2f2">
+  <center class="wrapper">
+    <table class="main" width="100%">
+      <tbody>
+        <tr style="
               background-color: #27cfaf;
               background-image: url('https://opus-dev-s3.s3.amazonaws.com/header-bg.png');
               background-position: bottom;
               background-repeat: no-repeat;
-            "
-          >
-            <td>
-              <table width="100%">
-                <tbody>
-                  <tr>
-                    <td style="padding: 40px 0px 30px; text-align: center">
-                      <a href="#"
-                        ><img
-                          src="https://opus-dev-s3.s3.amazonaws.com/logo.png"
-                          alt="Logo"
-                      /></a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="font-size: 36px; text-align: center">
-                      <strong>Order Details</strong>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      style="
-                        font-size: 20px;
-                        padding-bottom: 80px;
+            ">
+          <td>
+            <table width="100%">
+              <tbody>
+                <tr>
+                  <td style="padding: 20px 0px 15px; text-align: center">
+                    <a href="#"><img height="100" width="100" src="https://opus-dev-s3.s3.amazonaws.com/logo.png"
+                        alt="Logo" /></a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="font-size: 22px; text-align: center">
+                    <strong>Order Details</strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="
+                        font-size: 16px;
+                        padding-bottom: 20px;
                         text-align: center;
-                      "
-                    >
-                      ORDER ID
-                      <strong>##ORDER_ID##</strong>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </td>
-          </tr>
-          <tr style="background-color: #fff">
-            <td>
-              <table style="width: 100%; padding: 20px 40px">
-                <tbody>
-                  <tr>
-                    <td>
-                      <p
-                        style="
+                      ">
+                    ORDER ID
+                    <strong>##ORDER_ID##</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr style="background-color: #fff">
+          <td>
+            <table style="width: 100%; padding: 20px 40px">
+              <tbody>
+                <tr>
+                  <td>
+                    <p style="
                           color: #231f20;
                           font-size: 17px;
                           margin-bottom: 30px;
-                        "
-                      >
-                        Hello ##CUSTOMER_NAME##, thank you for your order, 
-												Your order placed on ##ORDER_DATE## is confirmed. You can
-                        find the details below.
-                      </p>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <table class="gmail-table" style="margin-bottom: 30px">
-                        <thead>
-                          <tr>
-                            <th colspan="3">Products</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          ##PRODUCTS##
+                        ">
+                      Hello ##CUSTOMER_NAME##, thank you for your order,
+                      Your order placed on ##ORDER_DATE## is confirmed. You can
+                      find the details below.
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <table class="gmail-table" style="margin-bottom: 30px">
+                      <thead>
+                        <tr>
+                          <th colspan="3">Products</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ##PRODUCTS##
 
-                          <tr>
-                            <td colspan="2">Sub Total</td>
-                            <td style="text-align: end">$##SUB_TOTAL##</td>
-                          </tr>
-                          <tr>
-                            <td colspan="2">Tax</td>
-                            <td style="text-align: end">$##TAX##</td>
-                          </tr>
-                          <tr>
-                            <td colspan="2">Shipping Service</td>
-                            <td style="text-align: end">
-                              ##SHIPPING_SERVICE##
-                            </td>
-                          </tr>
-                          <tr>
-                            <td colspan="2">Shipping Charge</td>
-                            <td style="text-align: end">
-                              $##SHIPPING_CHARGE##
-                            </td>
-                          </tr>
-                          <tr>
-                            <td colspan="2">##DISCOUNT_KEY##</td>
-                            <td style="text-align: end">$##DISCOUNT##</td>
-                          </tr>
+                        <tr>
+                          <td colspan="2">Sub Total</td>
+                          <td style="text-align: end">$##SUB_TOTAL##</td>
+                        </tr>
+                        <tr>
+                          <td colspan="2">Tax</td>
+                          <td style="text-align: end">$##TAX##</td>
+                        </tr>
+                        <tr>
+                          <td colspan="2">Shipping Service</td>
+                          <td style="text-align: end">
+                            ##SHIPPING_SERVICE##
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colspan="2">Shipping Charge</td>
+                          <td style="text-align: end">
+                            $##SHIPPING_CHARGE##
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colspan="2">##DISCOUNT_KEY##</td>
+                          <td style="text-align: end">$##DISCOUNT##</td>
+                        </tr>
 
-                          <tr>
-                            <td colspan="2"><b>Grand Total</b></td>
-                            <td style="text-align: end">
-                              <b>$##TOTAL##</b>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </td>
-                  </tr>
+                        <tr>
+                          <td colspan="2"><b>Grand Total</b></td>
+                          <td style="text-align: end">
+                            <b>$##TOTAL##</b>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
 
-                  <tr>
-                    <td>
-                      <table style="padding-top: 40px">
-                        <tbody>
-                          <tr>
-                            <td>
-                              <p style="color: #231f20; font-size: 20px">
-                                <strong>Shipping Address: </strong
-                                >##SHIPPING_ADDRESS##
-                              </p>
-                            </td>
-                          </tr>
+                <tr>
+                  <td>
+                    <table style="padding-top: 40px">
+                      <tbody>
+                        <tr>
+                          <td>
+                            <p style="color: #231f20; font-size: 20px">
+                              <strong>Shipping Address: </strong>##SHIPPING_ADDRESS##
+                            </p>
+                          </td>
+                        </tr>
 
-                          <tr>
-                            <td>
-                              <p style="color: #231f20; font-size: 20px">
-                                <strong>Billing Address:</strong>
-                                ##BILLING_ADDRESS##
-                              </p>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <p style="color: #231f20; font-size: 20px">
-                                <strong>Phone No :</strong> ##PHONE_NUMBER##
-                              </p>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <table style="width: 100%; padding: 40px">
-                <tbody>
-                  <tr>
-                    <td>
-                      <p
-                        style="
+                        <tr>
+                          <td>
+                            <p style="color: #231f20; font-size: 20px">
+                              <strong>Billing Address:</strong>
+                              ##BILLING_ADDRESS##
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <p style="color: #231f20; font-size: 20px">
+                              <strong>Phone No :</strong> ##PHONE_NUMBER##
+                            </p>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <table style="width: 100%; padding: 40px">
+              <tbody>
+                <tr>
+                  <td>
+                    <p style="
                           color: #231f20;
                           font-size: 17px;
                           line-height: 30px;
-                        "
-                      >
-                        Regards,&nbsp;<br />Team Opus
-                      </p>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </td>
-          </tr>
-          <tr style="background-color: #fff">
-            <td>
-              <img
-                src="https://opus-dev-s3.s3.amazonaws.com/footer-bg.png"
-                alt="Footer Image"
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </center>
-  </body>
+                        ">
+                      Regards,&nbsp;<br />Team Opus
+                    </p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr style="background-color: #fff">
+          <td>
+            <img src="https://opus-dev-s3.s3.amazonaws.com/footer-bg.png" alt="Footer Image" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </center>
+</body>
+
 </html>
