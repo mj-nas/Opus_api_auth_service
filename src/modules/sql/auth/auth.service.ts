@@ -76,6 +76,18 @@ export class AuthService {
       if (tokenError) {
         return { error: tokenError };
       }
+      if (owner.dispenser_id) {
+        const dis = await this.userService.$db.findOneRecord({
+          options: {
+            where: {
+              id: owner.dispenser_id,
+            },
+          },
+        });
+        if (dis.data) {
+          owner.dispenser = dis.data;
+        }
+      }
       return {
         error: false,
         data: {
