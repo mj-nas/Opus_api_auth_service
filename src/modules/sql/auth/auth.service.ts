@@ -599,6 +599,7 @@ export class AuthService {
         return { error };
       }
 
+      // for email verifications other than signup
       if (data.payload.user && data.payload.email)
         await this.msClient.executeJob(
           'controller.notification',
