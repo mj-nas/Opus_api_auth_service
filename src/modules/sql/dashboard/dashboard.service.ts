@@ -69,7 +69,7 @@ export class DashboardService {
       options: {},
     });
     const reorders = await this.orderService.$db.countAllRecords({
-      options: { where: { is_a_reorder: true } },
+      options: { where: { is_repeating_order: 'Y', is_base_order: 'Y' } },
     });
     const commission_report = await this.commissionService.$db.countAllRecords({
       options: {},

@@ -1,13 +1,7 @@
 import { Include } from '@core/sql/sql.decorator';
 import { SqlModel } from '@core/sql/sql.model';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import {
   BelongsTo,
   Column,
@@ -83,7 +77,6 @@ export class ProductReview extends SqlModel {
   })
   @IsOptional()
   @IsString()
-  @MaxLength(2000)
   review?: string;
 
   @BelongsTo(() => Order)

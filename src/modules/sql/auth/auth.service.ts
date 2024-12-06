@@ -76,6 +76,18 @@ export class AuthService {
       if (tokenError) {
         return { error: tokenError };
       }
+      if (owner.dispenser_id) {
+        const dis = await this.userService.$db.findOneRecord({
+          options: {
+            where: {
+              id: owner.dispenser_id,
+            },
+          },
+        });
+        if (dis.data) {
+          owner.dispenser = dis.data;
+        }
+      }
       return {
         error: false,
         data: {
@@ -587,6 +599,7 @@ export class AuthService {
         return { error };
       }
 
+      // for email verifications other than signup
       if (data.payload.user && data.payload.email)
         await this.msClient.executeJob(
           'controller.notification',
