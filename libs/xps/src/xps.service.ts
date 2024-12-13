@@ -40,7 +40,7 @@ export class XpsService {
       });
       const returnAddressObj = returnAddressData.data.reduce((acc, curr) => {
         if (curr.display_name == "Phone") {
-          acc[curr.display_name.toLowerCase()] = curr.value..replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+          acc[curr.display_name.toLowerCase()] = curr.value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
         }else{
           acc[curr.display_name.toLowerCase()] = curr.value;
         }
