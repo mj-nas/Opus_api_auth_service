@@ -1475,7 +1475,7 @@ export class OrderService extends ModelService<Order> {
           state: address.shipping_state,
           zip: address.shipping_zip_code,
           country: 'US',
-          phone: user.phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3'),
+          phone: user.phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3'),
           email: user.email,
         },
         items: items.map((item) => ({

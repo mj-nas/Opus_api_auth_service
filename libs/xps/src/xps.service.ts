@@ -23,7 +23,11 @@ export class XpsService {
         },
       });
       const senderObj = senderData.data.reduce((acc, curr) => {
-        acc[curr.display_name.toLowerCase()] = curr.value;
+        if (curr.display_name == "Phone") {
+          acc[curr.display_name.toLowerCase()] = curr.value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+        }else{
+          acc[curr.display_name.toLowerCase()] = curr.value;
+        }
         return acc;
       }, {});
       const returnAddressData = await this._settingService.$db.getAllRecords({
@@ -35,7 +39,11 @@ export class XpsService {
         },
       });
       const returnAddressObj = returnAddressData.data.reduce((acc, curr) => {
-        acc[curr.display_name.toLowerCase()] = curr.value;
+        if (curr.display_name == "Phone") {
+          acc[curr.display_name.toLowerCase()] = curr.value..replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+        }else{
+          acc[curr.display_name.toLowerCase()] = curr.value;
+        }
         return acc;
       }, {});
       payload.sender = senderObj;
