@@ -68,6 +68,25 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
     }
   }
 
+  protected async doBeforeUpdate(job: SqlJob<ProductCategory>): Promise<void> {
+    if (job.body.status == 'N') {
+      try {
+        /**check if category is assigned to any product */
+        const products = (
+          await this.productsService.findAll({
+            options: { where: { product_category: job.id } },
+          })
+        )?.data;
+        if (products?.length)
+          throw new Error(
+            'Cannot inactivate category because it is assigned to one or more products.',
+          );
+      } catch (error) {
+        throw error;
+      }
+    }
+  }
+
   /**
    * update bulk
    * @function update array of record using primary key
@@ -178,7 +197,7 @@ export class ProductCategoryService extends ModelService<ProductCategory> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `ProductCategories.xlsx`;
+      const filename = `OPUS-CategoryManagement.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {

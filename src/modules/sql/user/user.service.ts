@@ -8,7 +8,7 @@ import {
   SqlUpdateResponse,
 } from '@core/sql';
 import { TinyUrlService } from '@core/tinyurl';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createCanvas } from 'canvas';
 import { CsvError, parse } from 'csv-parse';
@@ -573,7 +573,8 @@ export class UserService extends ModelService<User> {
         'First Name',
         'Last Name',
         'Email',
-        'Dispenser',
+        'Dispenser First Name',
+        'Dispenser Last Name',
         'Phone',
         'Address 1',
         'Address 2',
@@ -593,8 +594,9 @@ export class UserService extends ModelService<User> {
             x?.first_name,
             x?.last_name,
             x.email,
-            x?.dispenser?.name,
-            `${x.phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3')}`,
+            x?.dispenser?.first_name,
+            x?.dispenser?.last_name,
+            `${x.phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')}`,
             x?.address,
             x?.address2,
             x?.city,
@@ -611,7 +613,8 @@ export class UserService extends ModelService<User> {
         { header: 'First Name', key: 'first_name', width: 25 },
         { header: 'Last Name', key: 'last_name', width: 25 },
         { header: 'Email', key: 'email', width: 25 },
-        { header: 'Dispenser', key: 'referred_by', width: 50 },
+        { header: 'Dispenser First Name', key: 'referred_by', width: 50 },
+        { header: 'Dispenser Last Name', key: 'referred_by', width: 50 },
         { header: 'Phone', key: 'phone', width: 50 },
         { header: 'Address 1', key: 'address', width: 50 },
         { header: 'Address 2', key: 'address2', width: 50 },
@@ -629,7 +632,7 @@ export class UserService extends ModelService<User> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `Customer.xlsx`;
+      const filename = `OPUS-CustomerManagement.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {
@@ -665,7 +668,8 @@ export class UserService extends ModelService<User> {
 
       worksheet.addRow([
         'Sl. No',
-        'Name',
+        'First Name',
+        'Last Name',
         'Business Name',
         'Email',
         'Phone',
@@ -684,10 +688,11 @@ export class UserService extends ModelService<User> {
         users.map(async (x, index) => {
           worksheet.addRow([
             index + 1,
-            x?.name,
+            x?.first_name,
+            x?.last_name,
             x?.business_name,
             x.email,
-            `${x.phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3')}`,
+            `${x.phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')}`,
             x?.address,
             x?.address2,
             x?.city,
@@ -707,7 +712,8 @@ export class UserService extends ModelService<User> {
 
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
-        { header: 'Name', key: 'name', width: 25 },
+        { header: 'First Name', key: 'name', width: 25 },
+        { header: 'Last Name', key: 'name', width: 25 },
         { header: 'Business Name', key: 'buisiness_name', width: 25 },
         { header: 'Email', key: 'email', width: 25 },
         { header: 'Phone', key: 'phone', width: 50 },
@@ -727,7 +733,7 @@ export class UserService extends ModelService<User> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `Applicant.xlsx`;
+      const filename = `OPUS-ApplicantManagement.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {
@@ -769,6 +775,11 @@ export class UserService extends ModelService<User> {
         'Business Name',
         'Email',
         'Phone',
+        'Address 1',
+        'Address 2',
+        'City',
+        'State',
+        'Zip Code',
         'Geotag',
         'Unique URL',
         'QR Code',
@@ -788,7 +799,12 @@ export class UserService extends ModelService<User> {
             x?.last_name,
             x.business_name ? x.business_name : 'Not Applicable',
             x.email,
-            `${x.phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3')}`,
+            `${x.phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')}`,
+            x?.address,
+            x?.address2,
+            x?.city,
+            x?.state,
+            x?.zip_code,
             x.geotag ? 'Yes' : 'No',
             x.referral_link,
             x.qr_code,
@@ -809,6 +825,11 @@ export class UserService extends ModelService<User> {
         { header: 'Business Name', key: 'business_name', width: 25 },
         { header: 'Email', key: 'email', width: 25 },
         { header: 'Phone', key: 'phone', width: 25 },
+        { header: 'Address 1', key: 'address', width: 50 },
+        { header: 'Address 2', key: 'address2', width: 50 },
+        { header: 'City', key: 'city', width: 50 },
+        { header: 'State', key: 'state', width: 50 },
+        { header: 'Zip Code', key: 'zip_code', width: 15 },
         { header: 'Geotag', key: 'geotag', width: 25 },
         { header: 'Unique URL', key: 'unique_url', width: 25 },
         { header: 'QR Code', key: 'qr_code', width: 25 },
@@ -825,7 +846,7 @@ export class UserService extends ModelService<User> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `Dispenser.xlsx`;
+      const filename = `OPUS-DispenserManagement.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {

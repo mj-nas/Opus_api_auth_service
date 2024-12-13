@@ -2,7 +2,7 @@ import { PickType } from '@nestjs/swagger';
 import { OrderAddress } from '../entities/order-address.entity';
 
 export class CreateOrderAddressDto extends PickType(OrderAddress, [
-  'billing_address_id',
+  'shipping_address_id',
   'billing_first_name',
   'billing_last_name',
   'billing_email',

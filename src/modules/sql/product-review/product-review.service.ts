@@ -103,7 +103,8 @@ export class ProductReviewService extends ModelService<ProductReview> {
       worksheet.addRow([
         'Sl. No',
         'Product',
-        'Name',
+        'First Name',
+        'Last Name',
         'Rating',
         'Review',
         'Posted On',
@@ -117,7 +118,8 @@ export class ProductReviewService extends ModelService<ProductReview> {
           worksheet.addRow([
             index + 1,
             x?.product?.product_name,
-            x?.user?.name,
+            x?.user?.first_name,
+            x?.user?.last_name,
             x.rating,
             x.review,
             moment(x.created_at).tz(timezone).format('MM/DD/YYYY hh:mm A'),
@@ -129,7 +131,8 @@ export class ProductReviewService extends ModelService<ProductReview> {
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Product', key: 'product', width: 25 },
-        { header: 'Name', key: 'name', width: 25 },
+        { header: 'First Name', key: 'first_name', width: 25 },
+        { header: 'Last Name', key: 'last_name', width: 25 },
         { header: 'Rating', key: 'rating', width: 25 },
         { header: 'Review', key: 'review', width: 25 },
         { header: 'Posted On', key: 'created_at', width: 25 },
@@ -143,7 +146,7 @@ export class ProductReviewService extends ModelService<ProductReview> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `ratings.xlsx`;
+      const filename = `OPUS-RatingsandReviews.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {

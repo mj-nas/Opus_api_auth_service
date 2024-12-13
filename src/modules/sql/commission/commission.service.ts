@@ -84,7 +84,7 @@ export class CommissionService extends ModelService<Commission> {
                 attributes: ['uid'],
                 include: [{ association: 'user' }],
               },
-              { association: 'user', attributes: ['name'] },
+              { association: 'user' },
             ],
           },
         }),
@@ -108,7 +108,7 @@ export class CommissionService extends ModelService<Commission> {
                 attributes: ['uid'],
                 include: [{ association: 'user' }],
               },
-              { association: 'user', attributes: ['name'] },
+              { association: 'user' },
             ],
           },
         }),
@@ -132,7 +132,7 @@ export class CommissionService extends ModelService<Commission> {
                 attributes: ['uid'],
                 include: [{ association: 'user' }],
               },
-              { association: 'user', attributes: ['name'] },
+              { association: 'user' },
             ],
           },
         }),
@@ -200,10 +200,33 @@ export class CommissionService extends ModelService<Commission> {
   async allUpdate(job: SqlJob<Commission>): Promise<JobResponse> {
     try {
       const { options, body } = job;
+      const startOfCurrentMonth = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        1,
+      );
+
+      const { error: orderError, data: orderData } =
+        await this.$db.getAllRecords({
+          options: {
+            ...options,
+            where: {
+              ...options.where,
+              status: CommissionStatus.Pending,
+              '$order.status$': OrderStatus.Delivered,
+              '$order.created_at$': { [Op.lt]: startOfCurrentMonth },
+            },
+          },
+        });
+      if (orderError) {
+        return { error: orderError };
+      }
+
       const { error, data } = await this.$db.updateBulkRecords({
         options: {
-          ...options,
-          where: { ...options.where, status: CommissionStatus.Pending },
+          where: {
+            id: { [Op.in]: orderData.map((e) => e.id) },
+          },
         },
         body: { status: body.status },
       });
@@ -382,8 +405,10 @@ export class CommissionService extends ModelService<Commission> {
       worksheet.addRow([
         'Sl. No',
         'Order ID',
-        'Dispenser Name',
-        'Orderd By',
+        'Dispenser First Name',
+        'Dispenser Last Name',
+        'Customer First Name',
+        'Customer Last Name',
         'Commission Date',
         'Order Date',
         'Order Amount',
@@ -399,8 +424,10 @@ export class CommissionService extends ModelService<Commission> {
           worksheet.addRow([
             index + 1,
             x?.order?.uid,
-            x?.user?.name,
-            x?.order?.user?.name,
+            x?.user?.first_name,
+            x?.user?.last_name,
+            x?.order?.user?.first_name,
+            x?.order?.user?.last_name,
             moment(x.created_at).tz(timezone).format('MMM DD YYYY'),
             moment(x?.order?.created_at).tz(timezone).format('MMM DD YYYY'),
             `$${x.order_amount.toFixed(2)}`,
@@ -414,8 +441,22 @@ export class CommissionService extends ModelService<Commission> {
       worksheet.columns = [
         { header: 'Sl. No', key: 'sl_no', width: 25 },
         { header: 'Order ID', key: 'order_id', width: 25 },
-        { header: 'Dispenser Name', key: 'dispenser_name', width: 25 },
-        { header: 'Orderd By', key: 'orderd_by', width: 25 },
+        {
+          header: 'Dispenser First Name',
+          key: 'dispenser_first_name',
+          width: 25,
+        },
+        {
+          header: 'Dispenser Last Name',
+          key: 'dispenser_last_name',
+          width: 25,
+        },
+        {
+          header: 'Customer First Name',
+          key: 'customer_first_name',
+          width: 25,
+        },
+        { header: 'Customer Last Name', key: 'customer_last_name', width: 25 },
         { header: 'Commission Date', key: 'date', width: 25 },
         { header: 'Order Date', key: 'date', width: 25 },
         { header: 'Order Amount', key: 'order_amount', width: 25 },
@@ -431,7 +472,7 @@ export class CommissionService extends ModelService<Commission> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `Commission.xlsx`;
+      const filename = `OPUS-CommissionReport.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {

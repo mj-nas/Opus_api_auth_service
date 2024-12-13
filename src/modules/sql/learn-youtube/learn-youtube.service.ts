@@ -113,7 +113,7 @@ export class LearnYoutubeService extends ModelService<LearnYoutube> {
       if (!fs.existsSync(file_dir)) {
         fs.mkdirSync(file_dir);
       }
-      const filename = `LearnYoutubeLinks.xlsx`;
+      const filename = `OPUS-YouTubeManagement.xlsx`;
       const full_path = `${file_dir}/${filename}`;
       await workbook.xlsx.writeFile(full_path);
       return {

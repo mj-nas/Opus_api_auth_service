@@ -691,7 +691,7 @@ export default <Seed<Template>>{
                             <p style="text-align: center; font-size: 20px; font-weight: 600;">Recommended exclusively
                                 for you</p>
                             <p style="text-align: center; font-size: 14px;">these products are Recommended by your personal opus dispenser</p>
-                            <table style="border: 1px solid rgb(49, 49, 49);">
+                            <table style="border: 1px solid rgb(49, 49, 49); padding: 10px">
                                 <td>
                                     ##PRODUCTS##
                                 </td>
@@ -705,6 +705,6 @@ export default <Seed<Template>>{
                             <p>Team OPUS</p>`,
       send_sms: false,
       sms_body: '',
-    }
+    },
   ],
 };

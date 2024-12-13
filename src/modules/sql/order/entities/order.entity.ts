@@ -270,7 +270,7 @@ export class Order extends SqlModel {
     attributes: [
       'id',
       'order_id',
-      'billing_address_id',
+      'shipping_address_id',
       'billing_first_name',
       'billing_last_name',
       'billing_name',
