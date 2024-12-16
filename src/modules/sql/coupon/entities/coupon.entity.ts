@@ -152,8 +152,8 @@ export class Coupon extends SqlModel {
   coupon_used_me: CouponUsed[];
 
   @Include({
-    attributes: ['user_id', 'coupon_id'],
-    separate: true,
+    attributes: ['user_id', 'coupon_id', 'id'],
+    separate: false,
   })
   @HasMany(() => CouponUsed)
   coupon_used: CouponUsed[];

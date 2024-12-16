@@ -1,9 +1,18 @@
-import { ModelService, SqlCreateResponse, SqlJob, SqlService } from '@core/sql';
+import {
+  ModelService,
+  SqlCreateResponse,
+  SqlGetAllResponse,
+  SqlJob,
+  SqlService,
+  WrapSqlJob,
+} from '@core/sql';
+import { ReadPayload } from '@core/sql/sql.decorator';
 import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import * as moment from 'moment-timezone';
 import { IncludeOptions, Op } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
 import { MsClientService } from 'src/core/modules/ms-client/ms-client.service';
@@ -369,5 +378,28 @@ export class CouponService extends ModelService<Coupon> {
     } else {
       return { error: 'invalid code', message: 'Coupon is not available yet' };
     }
+  }
+
+  @WrapSqlJob
+  @ReadPayload
+  async findAllFiltered(
+    job: SqlJob<Coupon>,
+  ): Promise<SqlGetAllResponse<Coupon>> {
+    const { payload, options } = job;
+    console.log(options);
+    const query = payload.where.redeemed == 'Y' ? '> 0' : ' = 0';
+    delete payload.where.redeemed;
+    const coupons = await this.$db.getAllRecords({
+      options: {
+        ...options,
+        where: {
+          ...options.where,
+          coupon_used: Sequelize.literal(
+            `(SELECT COUNT(*) FROM coupon_useds WHERE coupon_useds.coupon_id = Coupon.id AND coupon_useds.deleted_at IS NULL) ${query}`,
+          ),
+        },
+      },
+    });
+    return coupons;
   }
 }

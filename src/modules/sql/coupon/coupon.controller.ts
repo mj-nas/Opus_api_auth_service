@@ -128,23 +128,43 @@ export class CouponController {
     @Owner() owner: OwnerDto,
     @Query() query: any,
   ) {
-    const { error, data, offset, limit, count } =
-      await this.couponService.findAll({
-        owner,
-        action: 'findAll',
-        payload: { ...query },
-      });
+    if (query?.where?.redeemed) {
+      const { data, error, offset, limit, count } =
+        await this.couponService.findAllFiltered({
+          owner,
+          action: 'findAll',
+          payload: { ...query },
+        });
 
-    if (error) {
-      return ErrorResponse(res, {
-        error,
-        message: `${error.message || error}`,
+      if (error) {
+        return ErrorResponse(res, {
+          error,
+          message: `${error.message || error}`,
+        });
+      }
+      return Result(res, {
+        data: { [pluralizeString(entity)]: data, offset, limit, count },
+        message: 'Ok',
+      });
+    } else {
+      const { error, data, offset, limit, count } =
+        await this.couponService.findAll({
+          owner,
+          action: 'findAll',
+          payload: { ...query },
+        });
+
+      if (error) {
+        return ErrorResponse(res, {
+          error,
+          message: `${error.message || error}`,
+        });
+      }
+      return Result(res, {
+        data: { [pluralizeString(entity)]: data, offset, limit, count },
+        message: 'Ok',
       });
     }
-    return Result(res, {
-      data: { [pluralizeString(entity)]: data, offset, limit, count },
-      message: 'Ok',
-    });
   }
 
   /**
