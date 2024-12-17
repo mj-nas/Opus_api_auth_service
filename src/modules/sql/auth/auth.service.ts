@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { randomBytes } from 'crypto';
 import * as moment from 'moment-timezone';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import { NotFoundError } from 'src/core/core.errors';
 import { Job, JobResponse } from 'src/core/core.job';
 import { generateHash, otp } from 'src/core/core.utils';
@@ -758,6 +758,41 @@ export class AuthService {
       return { data };
     } catch (error) {
       console.error(error);
+      return { error };
+    }
+  }
+
+  async connectNearbyDispenser(dim: any): Promise<JobResponse> {
+    try {
+      const { error, data } = await this.userService.$db.findOneRecord({
+        options: {
+          attributes: {
+            include: [
+              [
+                Sequelize.literal(
+                  `6371 * ACOS(
+            COS(RADIANS(:lat)) 
+            * COS(RADIANS(latitude)) 
+            * COS(RADIANS(longitude) - RADIANS(:lng)) 
+            + SIN(RADIANS(:lat)) 
+            * SIN(RADIANS(latitude))
+          )`,
+                ),
+                'distance',
+              ],
+            ],
+          },
+          order: Sequelize.literal('distance ASC'),
+          replacements: { lat: 40.7128, lng: -74.006 },
+        },
+      });
+      if (!!error) {
+        throw error;
+      }
+      console.log('complete....>>>>>');
+
+      console.log(data);
+    } catch (error) {
       return { error };
     }
   }

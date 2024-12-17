@@ -13,7 +13,6 @@ import {
   IsString,
   MaxLength,
   MinLength,
-  ValidateIf,
 } from 'class-validator';
 import { DataTypes } from 'sequelize';
 import {
@@ -216,7 +215,7 @@ export class User extends SqlModel {
     description: 'Latitude',
     example: 90.013947,
   })
-  @ValidateIf((o) => o.role === Role.Dispenser)
+  // @ValidateIf((o) => o.role === Role.Dispenser)
   @IsDecimal(
     {},
     {
@@ -231,7 +230,7 @@ export class User extends SqlModel {
     description: 'Longitude',
     example: 180.363272,
   })
-  @ValidateIf((o) => o.role === Role.Dispenser)
+  // @ValidateIf((o) => o.role === Role.Dispenser)
   @IsDecimal(
     {},
     {
