@@ -414,23 +414,23 @@ export class AuthController {
       });
     }
 
-    if (body.info && body.info?.type) {
-      const connectingToDispenser =
-        await this.authService.connectingToDispenser({
-          ...body.info,
-          user_id: signup?.data?.id,
-        });
-      if (!!connectingToDispenser.error) {
-        return ErrorResponse(res, {
-          error: connectingToDispenser.error,
-          message: `${connectingToDispenser.error.message || connectingToDispenser.error}`,
-        });
-      }
+    // if (body.info && body.info?.type) {
+    //   const connectingToDispenser =
+    //     await this.authService.connectingToDispenser({
+    //       ...body.info,
+    //       user_id: signup?.data?.id,
+    //     });
+    //   if (!!connectingToDispenser.error) {
+    //     return ErrorResponse(res, {
+    //       error: connectingToDispenser.error,
+    //       message: `${connectingToDispenser.error.message || connectingToDispenser.error}`,
+    //     });
+    //   }
 
-      if (connectingToDispenser.data.dispenser_id) {
-        signup.data.dispenser_id = connectingToDispenser.data.dispenser_id;
-      }
-    }
+    //   if (connectingToDispenser.data.dispenser_id) {
+    //     signup.data.dispenser_id = connectingToDispenser.data.dispenser_id;
+    //   }
+    // }
 
     const emailVerifyOtp = await this.authService.emailVerifyOtp(
       OtpSessionType.EmailVerify,
@@ -552,19 +552,19 @@ export class AuthController {
 
     if (verifyOtp.data.type === 'Login') {
       // connecting to dispenser
-      if (verifyOtp.data.payload && verifyOtp.data.payload?.type) {
-        const connectingToDispenser =
-          await this.authService.connectingToDispenser({
-            ...verifyOtp.data.payload,
-            user_id: verifyOtp.data.user_id,
-          });
-        if (!!connectingToDispenser.error) {
-          return ErrorResponse(res, {
-            error: connectingToDispenser.error,
-            message: `${connectingToDispenser.error.message || connectingToDispenser.error}`,
-          });
-        }
-      }
+      // if (verifyOtp.data.payload && verifyOtp.data.payload?.type) {
+      //   const connectingToDispenser =
+      //     await this.authService.connectingToDispenser({
+      //       ...verifyOtp.data.payload,
+      //       user_id: verifyOtp.data.user_id,
+      //     });
+      //   if (!!connectingToDispenser.error) {
+      //     return ErrorResponse(res, {
+      //       error: connectingToDispenser.error,
+      //       message: `${connectingToDispenser.error.message || connectingToDispenser.error}`,
+      //     });
+      //   }
+      // }
 
       const { error, data } = await this.authService.createUserSession(
         verifyOtp.data.user_id,
@@ -585,47 +585,47 @@ export class AuthController {
     });
   }
 
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Auto Connect to Dispenser' })
-  @ApiOkResponse({
-    description: 'Ok',
-    schema: {
-      properties: {
-        data: {
-          type: 'object',
-          properties: {
-            session_id: {
-              type: 'string',
-            },
-          },
-        },
-        message: {
-          type: 'string',
-          example: 'Dispenser Connected',
-        },
-      },
-    },
-  })
-  @Post('auto-dispenser-connect')
-  async autoConnectDispenser(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Owner() owner: OwnerDto,
-    @Body() body: any,
-  ) {
-    const connectingToDispenser = await this.authService.connectingToDispenser({
-      ...body,
-      user_id: owner.id,
-    });
-    if (!!connectingToDispenser.error) {
-      return ErrorResponse(res, {
-        error: connectingToDispenser.error,
-        message: `${connectingToDispenser.error.message || connectingToDispenser.error}`,
-      });
-    }
-    return Result(res, {
-      data: { connectingToDispenser },
-      message: 'Dispenser connected',
-    });
-  }
+  // @ApiBearerAuth()
+  // @ApiOperation({ summary: 'Auto Connect to Dispenser' })
+  // @ApiOkResponse({
+  //   description: 'Ok',
+  //   schema: {
+  //     properties: {
+  //       data: {
+  //         type: 'object',
+  //         properties: {
+  //           session_id: {
+  //             type: 'string',
+  //           },
+  //         },
+  //       },
+  //       message: {
+  //         type: 'string',
+  //         example: 'Dispenser Connected',
+  //       },
+  //     },
+  //   },
+  // })
+  // @Post('auto-dispenser-connect')
+  // async autoConnectDispenser(
+  //   @Req() req: Request,
+  //   @Res() res: Response,
+  //   @Owner() owner: OwnerDto,
+  //   @Body() body: any,
+  // ) {
+  //   const connectingToDispenser = await this.authService.connectingToDispenser({
+  //     ...body,
+  //     user_id: owner.id,
+  //   });
+  //   if (!!connectingToDispenser.error) {
+  //     return ErrorResponse(res, {
+  //       error: connectingToDispenser.error,
+  //       message: `${connectingToDispenser.error.message || connectingToDispenser.error}`,
+  //     });
+  //   }
+  //   return Result(res, {
+  //     data: { connectingToDispenser },
+  //     message: 'Dispenser connected',
+  //   });
+  // }
 }

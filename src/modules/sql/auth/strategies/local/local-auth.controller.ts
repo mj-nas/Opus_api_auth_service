@@ -115,24 +115,24 @@ export class LocalAuthController {
       });
     }
 
-    // connecting to dispenser
-    if (owner.role === Role.Customer && auth.info && auth.info?.type) {
-      const connectingToDispenser =
-        await this.authService.connectingToDispenser({
-          ...auth.info,
-          user_id: owner.id,
-        });
-      if (!!connectingToDispenser.error) {
-        return ErrorResponse(res, {
-          error: connectingToDispenser.error,
-          message: `${connectingToDispenser.error.message || connectingToDispenser.error}`,
-        });
-      }
+    // // connecting to dispenser
+    // if (owner.role === Role.Customer && auth.info && auth.info?.type) {
+    //   const connectingToDispenser =
+    //     await this.authService.connectingToDispenser({
+    //       ...auth.info,
+    //       user_id: owner.id,
+    //     });
+    //   if (!!connectingToDispenser.error) {
+    //     return ErrorResponse(res, {
+    //       error: connectingToDispenser.error,
+    //       message: `${connectingToDispenser.error.message || connectingToDispenser.error}`,
+    //     });
+    //   }
 
-      if (connectingToDispenser.data.dispenser_id) {
-        owner.dispenser_id = connectingToDispenser.data.dispenser_id;
-      }
-    }
+    //   if (connectingToDispenser.data.dispenser_id) {
+    //     owner.dispenser_id = connectingToDispenser.data.dispenser_id;
+    //   }
+    // }
 
     const { error, data } = await this.authService.createSession(owner, {
       ...auth.info,

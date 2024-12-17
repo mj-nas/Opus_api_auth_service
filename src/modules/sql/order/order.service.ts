@@ -25,7 +25,6 @@ import { OrderStatusLogService } from '../order-status-log/order-status-log.serv
 import { ProductsService } from '../products/products.service';
 import { SettingService } from '../setting/setting.service';
 import { TemplateService } from '../template/template.service';
-import { ConnectionVia } from '../user/connection-via.enum';
 import { Role } from '../user/role.enum';
 import { UserService } from '../user/user.service';
 import { Order } from './entities/order.entity';
@@ -503,34 +502,33 @@ export class OrderService extends ModelService<Order> {
           couponData.data?.owner === CouponOwner.Dispenser &&
           couponData.data?.user_id
         ) {
-          const userData = await this._userService.findById({
-            action: 'connectingToDispenser',
-            id: +job.owner.id,
-          });
-          if (
-            !userData.error &&
-            userData.data !== null &&
-            !userData.data?.dispenser_id
-          ) {
-            userData.data.setDataValue(
-              'dispenser_id',
-              couponData.data?.user_id,
-            );
-            userData.data.setDataValue('connection_via', ConnectionVia.Coupon);
-            await userData.data.save();
+          order.data.setDataValue('dispenser_id', couponData.data?.user_id);
+          // const userData = await this._userService.findById({
+          //   action: 'connectingToDispenser',
+          //   id: +job.owner.id,
+          // });
+          // if (
+          //   !userData.error &&
+          //   userData.data !== null &&
+          //   !userData.data?.dispenser_id
+          // ) {
+          // userData.data.setDataValue(
+          //   'dispenser_id',
+          //   couponData.data?.user_id,
+          // );
+          // userData.data.setDataValue('connection_via', ConnectionVia.Coupon);
+          // await userData.data.save();
 
-            order.data.setDataValue('dispenser_id', couponData.data?.user_id);
-
-            // add log for user-dispenser update
-            await this._msClient.executeJob('user.dispenser.change', {
-              owner: { id: job.owner.id },
-              payload: {
-                user_id: job.owner.id,
-                dispenser_id: couponData.data?.user_id,
-                connection_via: ConnectionVia.Coupon,
-              },
-            });
-          }
+          // add log for user-dispenser update
+          // await this._msClient.executeJob('user.dispenser.change', {
+          //   owner: { id: job.owner.id },
+          //   payload: {
+          //     user_id: job.owner.id,
+          //     dispenser_id: couponData.data?.user_id,
+          //     connection_via: ConnectionVia.Coupon,
+          //   },
+          // });
+          // }
         }
       }
 
