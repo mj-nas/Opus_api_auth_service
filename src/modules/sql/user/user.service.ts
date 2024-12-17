@@ -16,7 +16,7 @@ import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import * as moment from 'moment-timezone';
 import * as QRCode from 'qrcode';
-import { Op, literal } from 'sequelize';
+import { Op, Sequelize, literal } from 'sequelize';
 import config from 'src/config';
 import { Job, JobResponse } from 'src/core/core.job';
 import { compareHash, generateHash, otp } from 'src/core/core.utils';
@@ -946,13 +946,13 @@ export class UserService extends ModelService<User> {
         LATITUDE: z
           .string()
           .regex(
-            new RegExp(/^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}/),
+            /^[-+]?([1-8]?\d(\.\d{1,6})?|90(\.0{1,6})?)$/,
             'Invalid Latitude!',
           ),
         LONGITUDE: z
           .string()
           .regex(
-            new RegExp(/^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}/),
+            /^[-+]?((1[0-7]\d|0?\d{1,2})(\.\d{1,6})?|180(\.0{1,6})?)$/,
             'Invalid Longitude!',
           ),
         ADDRESS: parseStringWithWhitespace(
@@ -1104,6 +1104,8 @@ export class UserService extends ModelService<User> {
         'PHONE',
         'ADDRESS',
         'ADDRESS2',
+        'LATITUDE',
+        'LONGITUDE',
         'CITY',
         'STATE',
         'COUNTRY',
@@ -1154,6 +1156,18 @@ export class UserService extends ModelService<User> {
         ADDRESS2: parseStringWithWhitespace(
           z.string().max(100, 'Your address exceeds the character limit.'),
         ),
+        LATITUDE: z
+          .string()
+          .regex(
+            /^[-+]?([1-8]?\d(\.\d{1,6})?|90(\.0{1,6})?)$/,
+            'Invalid Latitude!',
+          ),
+        LONGITUDE: z
+          .string()
+          .regex(
+            /^[-+]?((1[0-7]\d|0?\d{1,2})(\.\d{1,6})?|180(\.0{1,6})?)$/,
+            'Invalid Longitude!',
+          ),
         CITY: parseStringWithWhitespace(
           z
             .string()
@@ -1198,6 +1212,8 @@ export class UserService extends ModelService<User> {
             phone: user.PHONE,
             address: user.ADDRESS,
             address2: user?.ADDRESS2,
+            latitude: user.LATITUDE,
+            longitude: user.LONGITUDE,
             city: user.CITY,
             state: user.STATE,
             country: user.COUNTRY,
@@ -1219,6 +1235,11 @@ export class UserService extends ModelService<User> {
             });
             continue;
           }
+          // find nearby dispenser
+          const dis = await this.findNearbyDispenser({
+            lat: user.LATITUDE,
+            lng: user.LONGITUDE,
+          });
           const { error, data } = await this.create({
             action: 'import',
             body: {
@@ -1228,6 +1249,9 @@ export class UserService extends ModelService<User> {
               phone: user.PHONE,
               address: user.ADDRESS,
               address2: user?.ADDRESS2,
+              latitude: user.LATITUDE,
+              longitude: user.LONGITUDE,
+              dispenser_id: dis.data.id,
               city: user.CITY,
               state: user.STATE,
               country: user.COUNTRY,
@@ -1393,5 +1417,42 @@ export class UserService extends ModelService<User> {
       );
     }
     return { error, data };
+  }
+
+  async findNearbyDispenser(dim: any): Promise<JobResponse> {
+    const { error, data } = await this.$db.findOneRecord({
+      options: {
+        attributes: {
+          include: [
+            [
+              Sequelize.literal(
+                `6371 * ACOS(
+            COS(RADIANS(:lat)) 
+            * COS(RADIANS(latitude)) 
+            * COS(RADIANS(longitude) - RADIANS(:lng)) 
+            + SIN(RADIANS(:lat)) 
+            * SIN(RADIANS(latitude))
+          )`,
+              ),
+              'distance',
+            ],
+          ],
+        },
+        where: {
+          role: Role.Dispenser,
+          active: true,
+          learning_completed: 'Y',
+          latitude: { [Op.ne]: null },
+          geotag: true,
+          status: Status.Approve,
+        },
+        order: Sequelize.literal('distance ASC'),
+        replacements: { lat: dim.lat, lng: dim.lng },
+      },
+    });
+    if (!!error) {
+      throw error;
+    }
+    return { data };
   }
 }

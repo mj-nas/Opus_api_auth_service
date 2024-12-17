@@ -536,9 +536,6 @@ export class AuthController {
     @Res() res: Response,
     @Body() body: VerifyOtpDto,
   ) {
-    console.log('testingg>>>>>');
-
-    await this.authService.connectNearbyDispenser({});
     const verifyOtp = await this.authService.emailOtpVerify(body);
     if (!!verifyOtp.error) {
       if (verifyOtp.errorCode === 403) {

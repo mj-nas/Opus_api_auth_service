@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { randomBytes } from 'crypto';
 import * as moment from 'moment-timezone';
-import { Op, Sequelize } from 'sequelize';
+import { Op } from 'sequelize';
 import { NotFoundError } from 'src/core/core.errors';
 import { Job, JobResponse } from 'src/core/core.job';
 import { generateHash, otp } from 'src/core/core.utils';
@@ -506,12 +506,18 @@ export class AuthService {
             'This email address is already associated with an existing account. Please use a different email address or try logging in with your existing account.',
         };
       }
+      // find a nearby dispenser
+      const dis = await this.userService.findNearbyDispenser({
+        lat: body.latitude,
+        lng: body.longitude,
+      });
 
       // Create a new user
       const { error, data } = await this.userService.create({
         action: 'create',
         body: {
           ...body,
+          dispenser_id: dis.data.id,
         },
       });
       if (error) {
@@ -760,38 +766,5 @@ export class AuthService {
       console.error(error);
       return { error };
     }
-  }
-
-  async connectNearbyDispenser(dim: any): Promise<JobResponse> {
-    const { error, data } = await this.userService.$db.findOneRecord({
-      options: {
-        attributes: {
-          include: [
-            [
-              Sequelize.literal(
-                `6371 * ACOS(
-            COS(RADIANS(:lat)) 
-            * COS(RADIANS(latitude)) 
-            * COS(RADIANS(longitude) - RADIANS(:lng)) 
-            + SIN(RADIANS(:lat)) 
-            * SIN(RADIANS(latitude))
-          )`,
-              ),
-              'distance',
-            ],
-          ],
-        },
-        where: {
-          role: Role.Dispenser,
-          latitude: { [Op.ne]: null },
-        },
-        order: Sequelize.literal('distance ASC'),
-        replacements: { lat: 35.978006, lng: -120.865964 },
-      },
-    });
-    if (!!error) {
-      throw error;
-    }
-    return { data };
   }
 }
