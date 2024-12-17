@@ -763,37 +763,35 @@ export class AuthService {
   }
 
   async connectNearbyDispenser(dim: any): Promise<JobResponse> {
-    try {
-      const { error, data } = await this.userService.$db.findOneRecord({
-        options: {
-          attributes: {
-            include: [
-              [
-                Sequelize.literal(
-                  `6371 * ACOS(
+    const { error, data } = await this.userService.$db.findOneRecord({
+      options: {
+        attributes: {
+          include: [
+            [
+              Sequelize.literal(
+                `6371 * ACOS(
             COS(RADIANS(:lat)) 
             * COS(RADIANS(latitude)) 
             * COS(RADIANS(longitude) - RADIANS(:lng)) 
             + SIN(RADIANS(:lat)) 
             * SIN(RADIANS(latitude))
           )`,
-                ),
-                'distance',
-              ],
+              ),
+              'distance',
             ],
-          },
-          order: Sequelize.literal('distance ASC'),
-          replacements: { lat: 40.7128, lng: -74.006 },
+          ],
         },
-      });
-      if (!!error) {
-        throw error;
-      }
-      console.log('complete....>>>>>');
-
-      console.log(data);
-    } catch (error) {
-      return { error };
+        where: {
+          role: Role.Dispenser,
+          latitude: { [Op.ne]: null },
+        },
+        order: Sequelize.literal('distance ASC'),
+        replacements: { lat: 35.978006, lng: -120.865964 },
+      },
+    });
+    if (!!error) {
+      throw error;
     }
+    return { data };
   }
 }
