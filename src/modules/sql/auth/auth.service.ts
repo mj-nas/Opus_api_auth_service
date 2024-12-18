@@ -518,8 +518,19 @@ export class AuthService {
         body: {
           ...body,
           dispenser_id: dis.data.id,
+          connection_via: ConnectionVia.AutoAssign,
         },
       });
+
+      //create connection log
+      await this.msClient.executeJob('user.dispenser.change', {
+        payload: {
+          user_id: data.id,
+          dispenser_id: dis.data.id,
+          connection_via: ConnectionVia.AutoAssign,
+        },
+      });
+
       if (error) {
         console.log(error);
         return {

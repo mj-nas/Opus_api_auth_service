@@ -32,6 +32,7 @@ import {
   parseStringWithWhitespace,
   trimAndValidateCustom,
 } from './../../../core/core.utils';
+import { ConnectionVia } from './connection-via.enum';
 import { CreateDispenserDto } from './dto/create-dispenser.dto';
 import { User } from './entities/user.entity';
 import { Role } from './role.enum';
@@ -1252,6 +1253,7 @@ export class UserService extends ModelService<User> {
               latitude: user.LATITUDE,
               longitude: user.LONGITUDE,
               dispenser_id: dis.data.id,
+              connection_via: ConnectionVia.AutoAssign,
               city: user.CITY,
               state: user.STATE,
               country: user.COUNTRY,
@@ -1261,6 +1263,7 @@ export class UserService extends ModelService<User> {
               password,
             },
           });
+
           if (!!error) {
             import_status.failed.push({
               ...user,
@@ -1291,6 +1294,15 @@ export class UserService extends ModelService<User> {
               },
             }),
           );
+
+          await this.msClient.executeJob('user.dispenser.change', {
+            owner: job.owner,
+            payload: {
+              user_id: data.id,
+              dispenser_id: dis.data.id,
+              connection_via: ConnectionVia.AutoAssign,
+            },
+          });
 
           import_status.success.push({ ...user });
         } catch (error) {
