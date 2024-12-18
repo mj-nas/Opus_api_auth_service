@@ -1178,15 +1178,22 @@ export class UserService extends ModelService<User> {
         STATE: parseStringWithWhitespace(
           z
             .string()
-            .min(1, { message: 'Please enter your state.' })
-            .max(30, 'Your state exceeds the character limit.'),
+            .min(2, { message: 'State code must be exactly 2 characters.' })
+            .max(2, { message: 'State code must be exactly 2 characters.' })
+            .regex(/^[A-Z]{2}$/, {
+              message: 'State code must be two uppercase letters.',
+            }),
         ),
-        COUNTRY: z.string(),
+        COUNTRY: z
+          .string()
+          .length(2, { message: 'Country code must be exactly 2 characters.' })
+          .regex(/^[A-Z]{2}$/, {
+            message: 'Country code must be two uppercase letters.',
+          }),
         ZIP_CODE: parseStringWithWhitespace(
-          z
-            .string()
-            .min(1, { message: 'Please enter your zip code.' })
-            .max(10, 'Your zip code exceeds the character limit.'),
+          z.string().regex(/^\d{5}(-\d{4})?$/, {
+            message: 'Zip code should be valid (e.g., 12345 or 12345-6789)',
+          }),
         ),
       });
       const schema = z.preprocess(
