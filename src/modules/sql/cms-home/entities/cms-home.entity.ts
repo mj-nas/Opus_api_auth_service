@@ -50,7 +50,7 @@ export class CmsHome extends SqlModel {
   order: string;
 
   @Column({
-    type: DataType.STRING(2000),
+    type: DataType.STRING(500),
   })
   @Index
   @ApiProperty({
